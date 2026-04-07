@@ -51,17 +51,61 @@ O projeto foi desenvolvido a partir de demanda real identificada junto a uma pro
 * contexto da demanda
 * descrição do problema relatado
 -->
+<h2>1.3. Análise de Soluções Existentes</h2>
 
-<h3>Evidência de Interesse</h3>
----
-<!-- Podem ser incluídos:
-- cartas de intenção
-- feedback de usuários
-- comentários de comunidades
-- resultados de formulários-->
----
-<h2 style="color:#770404">1.3. Análise de Soluções Existentes</h2>
----
+<h3>Primeira Solução: Acuity Scheduling</h3>
+
+<a href="https://pt-br.acuityscheduling.com/">Link</a><br/>
+
+<p><strong>Público alvo: </strong>Coaches, Consultores, Terapeutas, Personal Trainers</p>
+
+<strong>Principais Funcionalidades:</strong>
+<ul>
+  <li>Agendamento Online</li>
+  <li>Formulários Customizáveis</li>
+  <li>Integração com Stripe, Paypal</li>
+  <li>Rastreamento de Serviços prestados</li>
+  <li>Notificação por email e SMS</li>
+  <li>Sincronização Bidirecional com Google Calendar</li>
+  <li>Personalização Visual</li>
+  <li>API para integração</li>
+</ul>
+
+<strong>Principais Limitações:</strong>
+<ul>
+  <li>Versão Starter limitada com custo alto (USD 20/mes)</li>
+  <li>Versão completa (Premium) USD 61/mes</li>
+  <li>Interface complexa, muitas opções</li>
+  <li>Voltada para booking online (cliente agendando sozinho)</li>
+  <li>Requer conhecimento técnico para setup avançado</li>
+</ul>
+<br/> <br />
+<h3>Segunda Solução: MinhaAgenda</h3>
+
+<a href="https://pt-br.acuityscheduling.com/">Link</a><br/>
+
+<p><strong>Público alvo: </strong>Coaches, Consultores, Terapeutas, Personal Trainers</p>
+
+<strong>Principais Funcionalidades:</strong>
+<ul>
+  <li>Agendamento Online</li>
+  <li>Formulários Customizáveis</li>
+  <li>Integração com Stripe, Paypal</li>
+  <li>Rastreamento de Serviços prestados</li>
+  <li>Notificação por email e SMS</li>
+  <li>Sincronização Bidirecional com Google Calendar</li>
+  <li>Personalização Visual</li>
+  <li>API para integração</li>
+</ul>
+
+<strong>Principais Limitações:</strong>
+<ul>
+  <li>Versão Starter limitada com custo alto (USD 20/mes)</li>
+  <li>Versão completa (Premium) USD 61/mes</li>
+  <li>Interface complexa, muitas opções</li>
+  <li>Voltada para booking online (cliente agendando sozinho)</li>
+  <li>Requer conhecimento técnico para setup avançado</li>
+</ul>
 <!--
 Investigue 3 a 5 soluções existentes que tentam resolver o mesmo problema.
 Para cada solução apresente:
