@@ -81,7 +81,7 @@ O projeto foi desenvolvido a partir de demanda real identificada junto a uma pro
   <li>Voltada para booking online (cliente agendando sozinho)</li>
   <li>Requer conhecimento técnico para setup avançado</li>
 </ul>
-<details>
+<details open>
   <summary><h4>Image<h4/></summary>
   <img src="/docs/img/acuity.png" />
 </details>
@@ -114,7 +114,7 @@ O projeto foi desenvolvido a partir de demanda real identificada junto a uma pro
   <li>Focado para mobile, não permite nem criação de conta via web</li>
   <li>Sem aplicativo desktop</li>
 </ul>
-<details>
+<details open>
   <summary><h4>Image<h4/></summary>
   <img src="/docs/img/minhaAgenda.png" />
 </details>
@@ -147,7 +147,7 @@ O projeto foi desenvolvido a partir de demanda real identificada junto a uma pro
   <li>Interface não permite personalização</li>
   <li>Pensado para calendário pessoal, não negócio</li>
 </ul>
-<details>
+<details open>
   <summary><h4>Image<h4/></summary>
   <img src="/docs/img/Captura de tela 2026-04-11 192041.png"/>
 </details>
