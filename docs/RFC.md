@@ -82,39 +82,25 @@ O projeto foi desenvolvido a partir de demanda real identificada junto a uma pro
 <br/> <br />
 <h3>Segunda Solução: MinhaAgenda</h3>
 
-<a href="https://pt-br.acuityscheduling.com/">Link</a><br/>
+<a href="https://minhaagendaapp.com.br/">Link</a><br/>
 
 <p><strong>Público alvo: </strong>Coaches, Consultores, Terapeutas, Personal Trainers</p>
 
 <strong>Principais Funcionalidades:</strong>
 <ul>
-  <li>Agendamento Online</li>
-  <li>Formulários Customizáveis</li>
-  <li>Integração com Stripe, Paypal</li>
-  <li>Rastreamento de Serviços prestados</li>
-  <li>Notificação por email e SMS</li>
-  <li>Sincronização Bidirecional com Google Calendar</li>
-  <li>Personalização Visual</li>
-  <li>API para integração</li>
+  <li>Calendario Visual com agendamento online</li>
+  <li>App mobile nativo</li>
+  <li>Integração com Stripe</li>
+  <li>Gestão Básica de clientes</li>
+  <li>Notificação por SMS</li>
+  <li>Relatório de receita (versão premium)</li>
 </ul>
 
 <strong>Principais Limitações:</strong>
 <ul>
-  <li>Versão Starter limitada com custo alto (USD 20/mes)</li>
-  <li>Versão completa (Premium) USD 61/mes</li>
-  <li>Interface complexa, muitas opções</li>
-  <li>Voltada para booking online (cliente agendando sozinho)</li>
-  <li>Requer conhecimento técnico para setup avançado</li>
 </ul>
 <!--
-Investigue 3 a 5 soluções existentes que tentam resolver o mesmo problema.
-Para cada solução apresente:
-* Nome do produto
-* Link
-* Público-Alvo
-* Funcionalidades Principais
-* Limitações
-**Inclua prints da interface ou diagramas simplificados**
+TODO: **Inclua prints da interface ou diagramas simplificados**
 -->
 <h3 style="color:#C90606">Comparação</h3>
 ---
