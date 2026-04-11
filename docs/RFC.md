@@ -82,10 +82,10 @@ O projeto foi desenvolvido a partir de demanda real identificada junto a uma pro
   <li>Requer conhecimento técnico para setup avançado</li>
 </ul>
 <details>
-  <summary>Image</summary>
+  <summary><h4>Image<h4/></summary>
   <img src="/docs/img/acuity.png" />
 </details>
-<br/> <br />
+<br/>
 <!--
   SEGUNDA SOLUÇÃO: MINHAAGENDA
 -->
@@ -115,7 +115,7 @@ O projeto foi desenvolvido a partir de demanda real identificada junto a uma pro
   <li>Sem aplicativo desktop</li>
 </ul>
 <details>
-  <summary>Image</summary>
+  <summary><h4>Image<h4/></summary>
   <img src="/docs/img/minhaAgenda.png" />
 </details>
 <br/> <br />
@@ -148,7 +148,7 @@ O projeto foi desenvolvido a partir de demanda real identificada junto a uma pro
   <li>Pensado para calendário pessoal, não negócio</li>
 </ul>
 <details>
-  <summary>Image</summary>
+  <summary><h4>Image<h4/></summary>
   <img src="/docs/img/Captura de tela 2026-04-11 192041.png"/>
 </details>
 <br/> <br />
