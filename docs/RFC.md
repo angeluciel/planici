@@ -81,6 +81,7 @@ O projeto foi desenvolvido a partir de demanda real identificada junto a uma pro
   <li>Voltada para booking online (cliente agendando sozinho)</li>
   <li>Requer conhecimento técnico para setup avançado</li>
 </ul>
+<img src="/docs/img/acuity.png" />
 <br/> <br />
 <!--
   SEGUNDA SOLUÇÃO: MINHAAGENDA
@@ -104,11 +105,14 @@ O projeto foi desenvolvido a partir de demanda real identificada junto a uma pro
 <strong>Principais Limitações:</strong>
 <ul>
   <li>Versão gratuita limitada (max 50 agendamentos/mes)</li>
-  <li>Não permite personalização de marca</li>
-  <li>Sem histórico de serviços por cliente</li>
+  <li>Sem customização personalizada de campos de cliente e agenda</li>
   <li>Interface web confusa</li>
   <li>Somente SMS, sem integração com WhatsApp</li>
+  <li>Focado para mobile, não permite nem criação de conta via web</li>
+  <li>Sem aplicativo desktop</li>
 </ul>
+<img src="/docs/img/minhaAgenda.png" />
+<br/> <br />
 <!--
   TERCEIRA SOLUÇÃO: GOOGLE CALENDAR
 -->
@@ -138,6 +142,7 @@ O projeto foi desenvolvido a partir de demanda real identificada junto a uma pro
   <li>Pensado para calendário pessoal, não negócio</li>
 </ul>
 <img src="/docs/img/Captura de tela 2026-04-11 192041.png"/>
+<br/> <br />
 <!--
 TODO: **Inclua prints da interface ou diagramas simplificados**
 -->
