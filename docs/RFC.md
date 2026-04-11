@@ -52,7 +52,9 @@ O projeto foi desenvolvido a partir de demanda real identificada junto a uma pro
 * descrição do problema relatado
 -->
 <h2>1.3. Análise de Soluções Existentes</h2>
-
+<!--
+  PRIMEIRA SOLUÇÃO: ACUITY SCHEDULING
+-->
 <h3>Primeira Solução: Acuity Scheduling</h3>
 
 <a href="https://pt-br.acuityscheduling.com/">Link</a><br/>
@@ -80,6 +82,9 @@ O projeto foi desenvolvido a partir de demanda real identificada junto a uma pro
   <li>Requer conhecimento técnico para setup avançado</li>
 </ul>
 <br/> <br />
+<!--
+  SEGUNDA SOLUÇÃO: MINHAAGENDA
+-->
 <h3>Segunda Solução: MinhaAgenda</h3>
 
 <a href="https://minhaagendaapp.com.br/">Link</a><br/>
@@ -98,7 +103,41 @@ O projeto foi desenvolvido a partir de demanda real identificada junto a uma pro
 
 <strong>Principais Limitações:</strong>
 <ul>
+  <li>Versão gratuita limitada (max 50 agendamentos/mes)</li>
+  <li>Não permite personalização de marca</li>
+  <li>Sem histórico de serviços por cliente</li>
+  <li>Interface web confusa</li>
+  <li>Somente SMS, sem integração com WhatsApp</li>
 </ul>
+<!--
+  TERCEIRA SOLUÇÃO: GOOGLE CALENDAR
+-->
+<h3>Segunda Solução: Google Calendar</h3>
+
+<a href="https://calendar.google.com/calendar/u/0/r?pli=1">Link</a><br/>
+
+<p><strong>Público alvo: </strong>Usuários gerais, profissionais, empresas, qualquer pessoa com conta Google</p>
+
+<strong>Principais Funcionalidades:</strong>
+<ul>
+  <li>Calendario Visual com agendamento online</li>
+  <li>Calendário com views de dia, semana e mês</li>
+  <li>Criação e edição de eventos</li>
+  <li>Notificações por email</li>
+  <li>Compartilhamento de agenda com outras pessoas</li>
+  <li>Sincronização entre dispositivos</li>
+  <li>Busca por disponibilidade</li>
+</ul>
+
+<strong>Principais Limitações:</strong>
+<ul>
+  <li>Sem sistema de gestão de clientes</li>
+  <li>Não há forma de armazenar dados</li>
+  <li>Sem histórico de serviços prestados</li>
+  <li>Interface não permite personalização</li>
+  <li>Pensado para calendário pessoal, não negócio</li>
+</ul>
+<img src="/docs/img/Captura de tela 2026-04-11 192041.png"/>
 <!--
 TODO: **Inclua prints da interface ou diagramas simplificados**
 -->
