@@ -214,7 +214,7 @@ Nenhuma solução existente combina TODOS os seguintes requisitos:
   <li><strong>Google Calendar</strong>: Sem personalização.</li>
 </ul>
 
-<strong>Simplificade.</strong>
+<strong>Simplicidade</strong>
 <ul>
   <li><strong>MinhaAgenda</strong>: Simples, mas features limitadas.</li>
   <li><strong>Acuity</strong>: Complexa, muitas interfaces.</li>
