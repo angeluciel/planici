@@ -265,6 +265,17 @@ Liste de 3 a 5 objetivos técnicos ou de produto.
 
 <h3 style="color:#770404">1.6. Métricas de Sucesso (KPIs)</h3>
 
+<ul>
+  <li>
+  A usuária principal consegue realizar as tarefas do dia-a-dia (agendamento, registro de cliente, lançamento financeiro) sem precisar de auxílio de outras ferramentas.
+  Tempo para
+  </li>
+  <li>Tempo para completar um agendamento completo inferior a 2 minutos.</li>
+  <li>Tempo de resposta das principais telas inferior a 300ms</li>
+  <li>Zero perda de dados registrados pela usuária durante o período de uso do MVP.</li>
+  <li>Pelo menos 80% das funcionalidades do plano gratuito utilizadas ativamente pela usuária após 30 dias.</li>
+</ul>
+
 Como saberemos que o projeto foi bem sucedido?
 Exemplos:
 - latência inferior a 200ms
