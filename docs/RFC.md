@@ -233,16 +233,25 @@ O nicho principal é no modelo de negócio individual, e não venda de produtos,
 
 <h2 style="color:#770404">1.4. Público Alvo</h2>
 
-Profissionais autonomos, como:
+O sistema é voltado para profissionais autônomos que prestam serviços personalizados de forma individual, sem equipe de suporte administrativo. O perfil principal inclui terapeutas, esteticistas, nutricionistas, personal trainers e consultores.
+
+<strong>Perfil do usuário:</strong>
 <ul>
-  <li>Terapeutas</li>
-  <li>Esteticistas</li>
-  <li>Nutricionistas</li>
-  <li>Personal Trainers</li>
-  <li>Consultores</li>
+  <li>Atua de forma independente, sem funcionários ou suporte administrativo.</li>
+  <li>Faixa etária ampla (25 a 60+ anos), reforçando a necessidade de interface simples e sem curva de aprendizado.</li>
+  <li>Já teve contato com outras ferramentas de gestão ou calendário, mas abandonou por complexidade ou custo.</li>
+  <li>Não possui conhecimento técnico em tecnologia, mas sabeu sar smartphone e navegador no dia-a-dia.</li>
 </ul>
 
-Os usuários não precisam de conhecimento
+<strong>Contexto de Uso:</strong>
+<ul>
+  <li>O sistema será acessado tanto pelo celular quanto pelo computador, com design mobile-first</li>
+  <li>O momento típico de uso é imediatamente após fechar um atendimento ou novo plano com o cliente. O fluxo esperado é: <i>fechou o acordo -> abriu o app -> registrou a consulta</i>, em menos de 5 minutos</li>
+  <li>Não há tolerância para interfaces lentas ou fluxos longos: O usuário precisa concluir ações essenciais com poucos cliques.</li>
+</ul>
+
+<strong>Nível técnico esperado:</strong>
+Nenhum conhecimento técnico necessário, o sistema deve funcionar sem manual, tutorial obrigatório ou configuração inicial complexa.
 
 <!-- #endregion -->
 
