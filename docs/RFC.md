@@ -49,7 +49,7 @@ A demanda foi identificada a partir de contato direto com uma profissional autô
 A partir dessa demanda pontual, identificou-se um padrão recorrente no perfil de micro-empreendedores de serviços personalizados: atuação individual, baixo suporte técnico e necessidade de ferramentas acessíveis e simples. Essa percepção motivou o escopo expandido do projeto para além da demanda original.
 <h3 style="color:#C90606">Projeto solicitado por:</h3>
 <ul>
-  <li><strong>Profissional autônoma:</strong> Terapeuta com CNPJ ativo, atuando de forma individual.</li>
+  <li><strong>Profissional autônoma:</strong> Terapeuta com CNPJ: 62.551.135\0001-00, atuando de forma individual.</li>
   <li><strong>Contexto:</strong> Necessidade de substituir controle manual em planilhas por ferramenta integrada e personalizada.</li>
   <li><strong>Problema relatado:</strong> Os aplicativos especializados disponíveis no mercado são caros e não permitem a customização necessária o modelo de negócio da profissional.</li>
 </ul>
@@ -233,14 +233,14 @@ O nicho principal é no modelo de negócio individual, e não venda de produtos,
 
 <h2 style="color:#770404">1.4. Público Alvo</h2>
 
-O sistema é voltado para profissionais autônomos que prestam serviços personalizados de forma individual, sem equipe de suporte administrativo. O perfil principal inclui terapeutas, esteticistas, nutricionistas, personal trainers e consultores.
+O sistema é voltado para profissionais autônomos, empresários individuais e profissionais de MEI que prestam serviços personalizados de forma individual, sem equipe de suporte administrativo. O perfil principal inclui terapeutas, esteticistas, nutricionistas, personal trainers, consultores, entre outros.
 
 <strong>Perfil do usuário:</strong>
 <ul>
   <li>Atua de forma independente, sem funcionários ou suporte administrativo.</li>
   <li>Faixa etária ampla (25 a 60+ anos), reforçando a necessidade de interface simples e sem curva de aprendizado.</li>
   <li>Já teve contato com outras ferramentas de gestão ou calendário, mas abandonou por complexidade ou custo.</li>
-  <li>Não possui conhecimento técnico em tecnologia, mas sabeu sar smartphone e navegador no dia-a-dia.</li>
+  <li>Não possui conhecimento técnico em tecnologia, mas sabe usar smartphone e navegador no dia-a-dia.</li>
 </ul>
 
 <strong>Contexto de Uso:</strong>
@@ -263,10 +263,6 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 
 Qual transformação o projeto pretende gerar
 <h4 style="color:#C90606">Objetivos Específicos</h4>
-Liste de 3 a 5 objetivos técnicos ou de produto.
-* Automatizar um processo manual.
-* Permitir análise de dados.
-* Criar um sistema de recomendação.
 
 <!-- #endregion -->
 
@@ -284,12 +280,4 @@ Liste de 3 a 5 objetivos técnicos ou de produto.
   <li>Zero perda de dados registrados pela usuária durante o período de uso do MVP.</li>
   <li>Pelo menos 80% das funcionalidades do plano gratuito utilizadas ativamente pela usuária após 30 dias.</li>
 </ul>
-
-Como saberemos que o projeto foi bem sucedido?
-Exemplos:
-- latência inferior a 200ms
-- acurácia da IA superior a 85%
-- suporte a 100 usuários simultâneos
-- redução do tempo de um processo em 30%
-
 <!-- #endregion -->
