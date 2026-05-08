@@ -281,3 +281,12 @@ Qual transformação o projeto pretende gerar
   <li>Pelo menos 80% das funcionalidades do plano gratuito utilizadas ativamente pela usuária após 30 dias.</li>
 </ul>
 <!-- #endregion -->
+
+<h1>2. Engenharia de Requisitos</h1>
+
+<h2>2.1 Personas</h2>
+<a src="/docs/img/persona-carlos.png">PDF Persona Carlos</a>
+<details>
+  <summary><h4>Persona Carlos - Imagem<h4/></summary>
+  <img alt=" img" src="/docs/img/persona-carlos.png" />
+</details>
