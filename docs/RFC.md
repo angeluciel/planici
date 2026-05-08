@@ -281,3 +281,29 @@ Qual transformação o projeto pretende gerar
   <li>Pelo menos 80% das funcionalidades do plano gratuito utilizadas ativamente pela usuária após 30 dias.</li>
 </ul>
 <!-- #endregion -->
+
+<h1>2. Engenharia de Requisitos</h1>
+
+<h2>2.1 Personas</h2>
+<a href="/docs/img/persona-carlos.pdf" download>PDF Persona Carlos</a>
+<details>
+  <summary><h4>Persona Carlos - Imagem<h4/></summary>
+  <img alt=" img" src="/docs/img/persona-carlos.png" />
+</details>
+
+<h2>2.2 Casos de Uso Principais</h2>
+...
+
+<h2>2.3 Requisitos Funcionais (RF)</h2>
+...
+
+<h2>2.4 Requisitos Não Funcionais (RNF)</h2>
+...
+<!-- Deve ter:: desempenho, segurança, disponibilidade, escalabilidade, usabilidade.
+RNF01 - O sistema deve suportar 100 usuários simultâneos. -->
+
+<h2>2.5 Regras de Negócio</h2>
+...
+
+<h2>2.6 Fora de Escopo</h2>
+1. O sistema não permitirá interação entre usuários do sistema, nem nenhun tipo de visualização de perfil (usuário A vê clientes do usuário B).
