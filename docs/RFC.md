@@ -295,7 +295,128 @@ Qual transformação o projeto pretende gerar
 ...
 
 <h2>2.3 Requisitos Funcionais (RF)</h2>
-...
+
+<table>
+  <tr>
+    <th colspan="3">Autenticação e conta</th>
+  </tr>
+  <tr>
+    <th>Requisito</th>
+    <th>Descrição</th>
+    <th>Prioridade</th>
+  </tr>
+  <tr>
+    <td>RF-01</td>
+    <td><strong>Cadastro por e-mail e senha</strong><br>O profissional pode criar uma conta informando nome, e-mail e senha.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-02</td>
+    <td><strong>Login via Google (OAuth)</strong><br>O profissional pode autenticar com a conta Google.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-03</td>
+    <td><strong>Recuperação de senha</strong><br>O sistema envia link de redefinição de senha por e-mail.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-04</td>
+    <td><strong>Gerenciamento de perfil</strong><br>O profissional pode editar nome, foto, dados de contato e informações do negócio.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-05</td>
+    <td><strong>Multiusuário por tenant</strong><br>Contas nos planos Basic ou superior podem convidar colaboradores com acesso ao mesmo espaço de trabalho.</td>
+    <td>WANTS</td>
+  </tr>
+  <tr>
+    <td>RF-06</td>
+    <td><strong>Controle de permissões</strong><br>O administrador do tenant define o nível de acesso de cada colaborador, como somente agenda ou acesso financeiro.</td>
+    <td>WANTS</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="3">Cadastro de clientes</th>
+  </tr>
+  <tr>
+    <th>Requisito</th>
+    <th>Descrição</th>
+    <th>Prioridade</th>
+  </tr>
+  <tr>
+    <td>RF-07</td>
+    <td><strong>Criar cliente</strong><br>O profissional pode cadastrar um cliente com nome, telefone, e-mail e observações.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-08</td>
+    <td><strong>Editar e excluir cliente</strong><br>O profissional pode atualizar ou remover um cadastro de cliente.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-09</td>
+    <td><strong>Busca e filtro de clientes</strong><br>O profissional pode buscar clientes por nome, telefone ou e-mail.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-10</td>
+    <td><strong>Histórico de atendimentos do cliente</strong><br>Na ficha do cliente, o profissional visualiza todos os atendimentos anteriores, procedimentos realizados e valores pagos.</td>
+    <td>MVP</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="3">Procedimentos e serviços</th>
+  </tr>
+  <tr>
+    <th>Requisito</th>
+    <th>Descrição</th>
+    <th>Prioridade</th>
+  </tr>
+  <tr>
+    <td>RF-11</td>
+    <td><strong>Criar procedimento</strong><br>O profissional cadastra procedimentos com nome, duração estimada e valor padrão.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-12</td>
+    <td><strong>Editar e excluir procedimento</strong><br>O profissional pode atualizar ou remover um procedimento do catálogo.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-13</td>
+    <td><strong>Listagem de procedimentos</strong><br>O profissional visualiza todos os procedimentos cadastrados em uma lista.</td>
+    <td>MVP</td>
+  </tr>
+</table>
+
+<!---
+```diff
++ RF01 (MVP): Cadastro por email                      
+       O sistema deve permitir que Carlos crie uma conta informando nome, email e senha.
++ RF02 (MVP): Login Via Google (OAuth)                
+       O profissional pode autenticar com a conta Google.
++ RF03 (MVP): Recuperação de senha                    
+       O sistema envia link de redefinição de senha por e-mail
++ RF04 (MVP): Gerenciamento de Perfil                 
+       O profissional pode editar nome, foto, dados de contato e informações de negócio
++ RF05 (WANTS): Multiusuário por Tenant               
+       Consultas nos planos Basic ou superior podem convidar colaboradores com acesso ao mesmo espaço de trabalho.
+
+```
+
+ [ ] **RF01 - Cadastro por email**
+> O sistema deve permitir que Carlos crie uma conta informando nome, email e senha.
+- [ ] **RF02 - Login Via Google (OAuth)**
+- [ ] **RF03 - Recuperação de senha**
+- [ ] **RF04 - Gerenciamento de Perfil**
+- [ ] **RF05 - Multiusuário por Tenant**
+- [ ] **RF06 - Controle de permissões**
+-->
 
 <h2>2.4 Requisitos Não Funcionais (RNF)</h2>
 ...
@@ -307,3 +428,4 @@ RNF01 - O sistema deve suportar 100 usuários simultâneos. -->
 
 <h2>2.6 Fora de Escopo</h2>
 1. O sistema não permitirá interação entre usuários do sistema, nem nenhun tipo de visualização de perfil (usuário A vê clientes do usuário B).
+<br>
