@@ -1274,36 +1274,4 @@ Exemplos de operações críticas:
 
 <!-- #region 2.6 Fora de Escopo -->
 <h2>2.6 Fora de Escopo</h2>
-
-Os itens abaixo não fazem parte do escopo do Planici e não serão implementados no contexto deste projeto.
-
-1. **Interação cruzada entre tenants:** O sistema não permite que um profissional visualize, edite ou acesse dados de outro tenant. Não há marketplace, listagem pública de profissionais nem nenhum tipo de visualização de perfil entre usuários distintos.
-
-2. **Aplicativo mobile nativo:** O Planici é uma aplicação web com design responsivo e mobile-first. Não será desenvolvido app nativo para iOS ou Android.
-
-3. **Processamento de pagamentos online:** O sistema registra pagamentos manualmente informados pelo profissional. Não há integração com gateways de pagamento (ex: Stripe, PagSeguro, Mercado Pago) nem cobrança automática de clientes.
-
-4. **Emissão de documentos fiscais:** O sistema não emite notas fiscais, NFS-e, NF-e nem qualquer documento fiscal regulamentado.
-
-5. **Gestão de estoque ou venda de produtos:** O sistema é voltado exclusivamente para gestão de serviços. Não há suporte a controle de estoque, catálogo de produtos físicos ou e-commerce.
-
-6. **Múltiplas unidades ou filiais:** O escopo é o profissional autônomo individual. Não há suporte a gestão de múltiplas unidades, franquias ou redes de atendimento.
-
-7. **Integração com prontuários eletrônicos ou sistemas de saúde regulamentados:** O sistema não se integra a prontuários eletrônicos, sistemas do CFM, TISS ou qualquer plataforma de saúde regulamentada. Formulários personalizados podem ser utilizados para registros internos, mas sem valor legal ou clínico.
-
-8. **Funcionalidades de marketing:** O sistema não oferece email marketing, campanhas promocionais, cupons de desconto, automações de vendas ou ferramentas de CRM voltadas a captação de novos clientes.
-
-<!-- #endregion -->
-
-<h1>3. Fluxos e Comportamento do Sistema</h1>
-
-> [!NOTE]
-> Esta seção apresenta os principais fluxos de uso do sistema Planici, demonstrando como o usuário interage com as funcionalidades principais, desde a autenticação até o gerenciamento de clientes, serviços, planos, agendamentos e informações financeiras.
-
-## 3.1 Fluxo principal de Usuário (OnBoarding)
-O fluxo principal descreve a primeira interação do profissional com o sistema: desde o acesso inicial até a entrada no espaço de trabalho configurado. O sistema permite criar um novo ambiente (Tenant) ou ingressar em um existente via convite.
-
-<details open>
-  <summary>Flowchart</summary>
-  <img src="./img/main-flow.svg"/>
-</details>
+1. O sistema não permitirá interação entre usuários do sistema, nem nenhun tipo de visualização de perfil (usuário A vê clientes do usuário B).
