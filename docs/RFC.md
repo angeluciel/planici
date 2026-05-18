@@ -1009,6 +1009,8 @@ Qual transformação o projeto pretende gerar
 
 <!-- #endregion -->
 
+<!-- #endregion -->
+
 <h2>2.5 Regras de Negócio</h2>
 
 As regras de negócio definem condições, restrições e comportamentos obrigatórios do sistema Planici para garantir consistência, segurança e coerência entre clientes, agenda, procedimentos, planos, pagamentos e configurações do espaço de trabalho.
