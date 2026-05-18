@@ -756,12 +756,256 @@ Qual transformação o projeto pretende gerar
 
 <h2>2.4 Requisitos Não Funcionais (RNF)</h2>
 
-```diff
-- to-do                                   
-```
-
-<!-- Deve ter:: desempenho, segurança, disponibilidade, escalabilidade, usabilidade.
-RNF01 - O sistema deve suportar 100 usuários simultâneos. -->
+### Desempenho
+ 
+<table>
+  <tr>
+    <th>Requisito</th>
+    <th>Quality Attribute</th>
+    <th>Description</th>
+    <th>Metric / Acceptance Criteria</th>
+    <th>Priority</th>
+  </tr>
+  <tr>
+    <td>RNF-01</td>
+    <td><strong>Page Load Performance</strong></td>
+    <td>As principais páginas do sistema (agenda, clientes, financeiro) devem carregar rapidamente em conexões móveis para garantir boa experiência ao profissional em campo. O impacto direto é na adoção e retenção do produto.</td>
+    <td>P95 &lt; 2s em conexão 4G @ 500 usuários simultâneos</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RNF-02</td>
+    <td><strong>API Response Time</strong></td>
+    <td>As chamadas de API devem responder dentro de limites aceitáveis para operações de leitura e escrita, assegurando fluidez nas interações do usuário com o sistema sob carga normal.</td>
+    <td>Leitura &lt; 500ms | Escrita &lt; 1s em carga normal</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RNF-03</td>
+    <td><strong>Public Booking Link Performance</strong></td>
+    <td>O link público de agendamento é acessado por clientes externos em dispositivos variados, muitas vezes sem sessão em cache. O carregamento lento representa perda direta de agendamentos para o profissional.</td>
+    <td>&lt; 3s em first load (sem cache)</td>
+    <td>MVP</td>
+  </tr>
+</table>
+---
+ 
+### Disponibilidade e Escalabilidade
+ 
+<table>
+  <tr>
+    <th>Requisito</th>
+    <th>Quality Attribute</th>
+    <th>Description</th>
+    <th>Metric / Acceptance Criteria</th>
+    <th>Priority</th>
+  </tr>
+  <tr>
+    <td>RNF-04</td>
+    <td><strong>Availability</strong></td>
+    <td>O sistema deve garantir disponibilidade mínima mensal compatível com infraestrutura de baixo custo. Indisponibilidade impacta diretamente agendamentos e receita do profissional.</td>
+    <td>SLA ≥ 99% (~7h downtime/mês)</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RNF-05</td>
+    <td><strong>Disaster Recovery – RTO</strong></td>
+    <td>Em caso de queda do servidor, o sistema deve retornar ao ar em tempo hábil de forma automatizada, minimizando intervenção manual e impacto nos profissionais durante o horário de atendimento.</td>
+    <td>RTO ≤ 30 min | Reinicialização automatizada (process manager + health checks)</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RNF-06</td>
+    <td><strong>Disaster Recovery – RPO / Backup</strong></td>
+    <td>O banco de dados deve ser copiado automaticamente uma vez ao dia para proteger os dados de clientes e agendamentos contra perda acidental ou falha de infraestrutura.</td>
+    <td>RPO ≤ 24h | Backup diário automático | Retenção ≥ 7 dias | Restaurável em produção</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RNF-07</td>
+    <td><strong>Data Isolation (Multi-tenancy)</strong></td>
+    <td>Todos os dados devem ser isolados por tenant para garantir que nenhum profissional acesse dados de outro, mesmo em caso de erro de aplicação. O modelo multi-tenant exige que o isolamento seja garantido na camada de banco de dados.</td>
+    <td>Row-Level Security (RLS) obrigatório em todas as tabelas com <code>tenant_id</code> | Zero vazamento entre tenants</td>
+    <td>MVP</td>
+  </tr>
+</table>
+---
+ 
+### Segurança
+ 
+<table>
+  <tr>
+    <th>Requisito</th>
+    <th>Quality Attribute</th>
+    <th>Description</th>
+    <th>Metric / Acceptance Criteria</th>
+    <th>Priority</th>
+  </tr>
+  <tr>
+    <td>RNF-08</td>
+    <td><strong>Authentication Security</strong></td>
+    <td>O sistema deve armazenar senhas com hash seguro e utilizar tokens de curta duração com rotação, reduzindo a superfície de ataque em caso de comprometimento de credenciais.</td>
+    <td>bcrypt cost ≥ 12 | JWT exp ≤ 24h | Refresh tokens rotativos e invalidados no logout</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RNF-09</td>
+    <td><strong>Transport Security</strong></td>
+    <td>Todo o tráfego entre cliente e servidor deve ser criptografado para proteger dados sensíveis de clientes e profissionais contra interceptação.</td>
+    <td>TLS ≥ 1.2 em todos os endpoints | Renovação automática de certificados (ex: Let's Encrypt)</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RNF-10</td>
+    <td><strong>API Security / Attack Protection</strong></td>
+    <td>A API deve implementar múltiplas camadas de proteção contra ataques comuns (injeção, força bruta, abuso de recursos), garantindo integridade dos dados e disponibilidade do serviço.</td>
+    <td>Rate limit: 100 req/min por IP | ORM parametrizado (anti SQL injection) | Headers: CORS restrito, CSP, X-Frame-Options</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RNF-11</td>
+    <td><strong>Audit Logging</strong></td>
+    <td>Ações críticas devem ser registradas para fins de auditoria, rastreabilidade e detecção de uso indevido. Os logs devem incluir contexto suficiente para investigação de incidentes.</td>
+    <td>Registro de: login, alteração de dados, exclusões e exportações — com timestamp, usuário e IP | Retenção ≥ 90 dias</td>
+    <td>Wants</td>
+  </tr>
+</table>
+---
+ 
+### LGPD e Privacidade
+ 
+<table>
+  <tr>
+    <th>Requisito</th>
+    <th>Quality Attribute</th>
+    <th>Description</th>
+    <th>Metric / Acceptance Criteria</th>
+    <th>Priority</th>
+  </tr>
+  <tr>
+    <td>RNF-12</td>
+    <td><strong>Consent & Legal Basis</strong></td>
+    <td>O sistema deve exigir aceite explícito dos termos de uso e política de privacidade no cadastro, com registro rastreável, atendendo à base legal de consentimento exigida pela LGPD.</td>
+    <td>Aceite registrado com timestamp e versão do documento | Exibição obrigatória no onboarding</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RNF-13</td>
+    <td><strong>Right of Access & Data Portability</strong></td>
+    <td>O profissional deve poder exportar todos os seus dados e os dados dos seus clientes em formato legível, exercendo o direito de portabilidade previsto na LGPD.</td>
+    <td>Exportação disponível em JSON ou CSV | Entrega em ≤ 72h após solicitação</td>
+    <td>Wants</td>
+  </tr>
+  <tr>
+    <td>RNF-14</td>
+    <td><strong>Right to Erasure</strong></td>
+    <td>O profissional deve poder solicitar a exclusão permanente da conta e de todos os dados associados (clientes, agendamentos, arquivos), exercendo o direito ao esquecimento previsto na LGPD.</td>
+    <td>Remoção completa de todos os dados associados em ≤ 30 dias após solicitação</td>
+    <td>Wants</td>
+  </tr>
+  <tr>
+    <td>RNF-15</td>
+    <td><strong>Data Minimization</strong></td>
+    <td>O sistema deve coletar apenas os dados estritamente necessários para o funcionamento das funcionalidades, sem compartilhamento com terceiros sem consentimento, seguindo o princípio de minimização da LGPD.</td>
+    <td>Nenhum campo obrigatório além do mínimo funcional | Campos opcionais claramente identificados | Zero compartilhamento com terceiros sem consentimento</td>
+    <td>MVP</td>
+  </tr>
+</table>
+---
+ 
+### Usabilidade e Acessibilidade
+ 
+<table>
+  <tr>
+    <th>Requisito</th>
+    <th>Quality Attribute</th>
+    <th>Description</th>
+    <th>Metric / Acceptance Criteria</th>
+    <th>Priority</th>
+  </tr>
+  <tr>
+    <td>RNF-16</td>
+    <td><strong>Responsive Design</strong></td>
+    <td>O sistema deve funcionar corretamente em smartphones e desktops, dado que profissionais frequentemente gerenciam sua agenda pelo celular. O link público de agendamento deve ser otimizado para mobile, pois é acessado majoritariamente por clientes em dispositivos móveis.</td>
+    <td>Layout funcional em breakpoints: 320px, 768px e 1280px</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RNF-17</td>
+    <td><strong>Browser Compatibility</strong></td>
+    <td>O sistema deve funcionar sem degradação nas principais versões dos navegadores utilizados pelo público-alvo, evitando fricção no acesso por parte de profissionais e clientes.</td>
+    <td>Suporte às 2 últimas versões de: Chrome, Firefox, Safari e Edge</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RNF-18</td>
+    <td><strong>Accessibility</strong></td>
+    <td>Os componentes principais do sistema devem atender às diretrizes de acessibilidade WCAG 2.1 nível AA, garantindo que usuários com deficiências visuais ou motoras consigam utilizar os fluxos essenciais.</td>
+    <td>WCAG 2.1 AA nos fluxos principais: contraste de cores, navegação por teclado e atributos ARIA</td>
+    <td>Wants</td>
+  </tr>
+</table>
+---
+ 
+### Manutenibilidade e Qualidade
+ 
+<table>
+  <tr>
+    <th>Requisito</th>
+    <th>Quality Attribute</th>
+    <th>Description</th>
+    <th>Metric / Acceptance Criteria</th>
+    <th>Priority</th>
+  </tr>
+  <tr>
+    <td>RNF-19</td>
+    <td><strong>Test Coverage</strong></td>
+    <td>Os módulos de maior criticidade de negócio (agendamento, pagamentos e autenticação) devem ter cobertura de testes automatizados suficiente para garantir regressão segura a cada deploy.</td>
+    <td>Cobertura ≥ 70% (unitários + integração) nos módulos críticos</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RNF-20</td>
+    <td><strong>CI/CD & Version Control</strong></td>
+    <td>O processo de deploy deve ser automatizado com etapa obrigatória de testes, reduzindo risco de regressões em produção e garantindo rastreabilidade de mudanças via controle de versão.</td>
+    <td>Git com branches protegidas | Pipeline CI/CD com gate de testes obrigatório antes do deploy em produção</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RNF-21</td>
+    <td><strong>Observability & Alerting</strong></td>
+    <td>O sistema deve ter monitoramento de uptime e alertas automáticos em caso de indisponibilidade ou erros críticos, permitindo resposta rápida a incidentes antes que impactem os profissionais.</td>
+    <td>Alerta disparado em ≤ 5 min após falha detectada (ex: Uptime Robot, Sentry ou equivalente)</td>
+    <td>MVP</td>
+  </tr>
+</table>
+---
+ 
+### Escalabilidade
+ 
+<table>
+  <tr>
+    <th>Requisito</th>
+    <th>Quality Attribute</th>
+    <th>Description</th>
+    <th>Metric / Acceptance Criteria</th>
+    <th>Priority</th>
+  </tr>
+  <tr>
+    <td>RNF-22</td>
+    <td><strong>Horizontal Scalability</strong></td>
+    <td>A camada de aplicação deve ser stateless para permitir escalonamento horizontal sem refatoração estrutural, suportando o crescimento da base de tenants sem degradação de performance.</td>
+    <td>API stateless (sem sessão server-side) | Suporte a escalonamento horizontal até 5.000 tenants sem refatoração</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RNF-23</td>
+    <td><strong>Pagination & Memory Efficiency</strong></td>
+    <td>Todas as listagens com potencial de crescimento ilimitado devem usar paginação ou scroll infinito para evitar sobrecarga de memória e lentidão na interface conforme o volume de dados aumenta.</td>
+    <td>Máximo 50 registros por página/request em todas as listagens (clientes, agendamentos, formulários)</td>
+    <td>MVP</td>
+  </tr>
+</table>
 
 <!-- #endregion -->
 
