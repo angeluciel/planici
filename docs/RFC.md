@@ -300,9 +300,124 @@ Qual transformação o projeto pretende gerar
 
 <h2>2.2 Casos de Uso Principais</h2>
 
-```diff
-- to-do                                   
-```
+<table>
+  <tr>
+    <th colspan="2">Atores Principais</th>
+  </tr>
+  <tr>
+    <th>Ator</th>
+    <th>Descrição</th>
+  </tr>
+  <tr>
+    <td>Profissional</td>
+    <td>Usuário principal do sistema. Gerencia clientes, agenda, procedimentos, planos, pagamentos e relatórios.</td>
+  </tr>
+  <tr>
+    <td>Cliente</td>
+    <td>Pessoa atentidade pelo profissional. Interage principalmente pelo link público de agendamento.</td>
+  </tr>
+  <tr>
+    <td>Administrador de tenant</td>
+    <td>Pessoa atendidade pelo profissional. Interage principalmente pelo link público de agendamento.</td>
+  </tr>
+  <tr>
+    <td>Sistema</td>
+    <td>Executa ações automáticas, como envio de lembretes, notificações e geração de relatórios.</td>
+  </tr>
+</table>
+
+## Casos de uso por módulo
+
+### 1. Autenticação e conta
+| Código | Caso de uso                                    | Ator principal          | Requisitos relacionados |
+| ------ | ---------------------------------------------- | ----------------------- | ----------------------- |
+| UC-01  | Criar conta com e-mail e senha                 | Profissional            | RF-01                   |
+| UC-02  | Entrar com conta Google                        | Profissional            | RF-02                   |
+| UC-03  | Recuperar senha                                | Profissional            | RF-03                   |
+| UC-04  | Gerenciar perfil e dados do negócio            | Profissional            | RF-04                   |
+| UC-05  | Convidar colaborador para o espaço de trabalho | Administrador do tenant | RF-05                   |
+| UC-06  | Definir permissões de colaborador              | Administrador do tenant | RF-06                   |
+
+### 2. Clientes
+| Código | Caso de uso                             | Ator principal | Requisitos relacionados |
+| ------ | --------------------------------------- | -------------- | ----------------------- |
+| UC-07  | Cadastrar cliente                       | Profissional   | RF-07                   |
+| UC-08  | Editar cliente                          | Profissional   | RF-08                   |
+| UC-09  | Inativar cliente             | Profissional   | RF-08                   |
+| UC-10  | Buscar e filtrar clientes               | Profissional   | RF-09                   |
+| UC-11  | Visualizar ficha e histórico do cliente | Profissional   | RF-10                   |
+
+### 3. Procedimentos e serviços
+| Código | Caso de uso                      | Ator principal | Requisitos relacionados |
+| ------ | -------------------------------- | -------------- | ----------------------- |
+| UC-12  | Cadastrar procedimento           | Profissional   | RF-11                   |
+| UC-13  | Editar procedimento              | Profissional   | RF-12                   |
+| UC-14  | Excluir ou inativar procedimento | Profissional   | RF-12                   |
+| UC-15  | Listar procedimentos cadastrados | Profissional   | RF-13                   |
+
+### 4. Pacotes e planos
+| Código | Caso de uso                  | Ator principal | Requisitos relacionados |
+| ------ | ---------------------------- | -------------- | ----------------------- |
+| UC-16  | Criar plano ou pacote        | Profissional   | RF-14                   |
+| UC-17  | Associar serviços a um plano | Profissional   | RF-15                   |
+| UC-18  | Editar plano                 | Profissional   | RF-16                   |
+| UC-19  | Excluir ou inativar plano    | Profissional   | RF-16                   |
+| UC-20  | Listar planos cadastrados    | Profissional   | RF-17                   |
+
+### 5. Agenda e agendamentos
+| Código | Caso de uso                                     | Ator principal       | Requisitos relacionados |
+| ------ | ----------------------------------------------- | -------------------- | ----------------------- |
+| UC-21  | Configurar disponibilidade fixa                 | Profissional         | RF-18                   |
+| UC-22  | Configurar disponibilidade livre                | Profissional         | RF-19                   |
+| UC-23  | Criar agendamento manual                        | Profissional         | RF-20                   |
+| UC-24  | Editar agendamento                              | Profissional         | RF-21                   |
+| UC-25  | Cancelar agendamento                            | Profissional         | RF-21                   |
+| UC-26  | Visualizar agenda diária ou semanal             | Profissional         | RF-22                   |
+| UC-27  | Gerar link público de agendamento               | Profissional/Sistema | RF-23                   |
+| UC-28  | Solicitar agendamento por link público          | Cliente              | RF-23                   |
+| UC-29  | Confirmar ou recusar solicitação de agendamento | Profissional         | RF-24                   |
+| UC-30  | Bloquear horário na agenda                      | Profissional         | RF-25                   |
+
+### 6. Pagamentos
+| Código | Caso de uso                                   | Ator principal | Requisitos relacionados |
+| ------ | --------------------------------------------- | -------------- | ----------------------- |
+| UC-31  | Registrar pagamento de atendimento            | Profissional   | RF-26                   |
+| UC-32  | Editar pagamento registrado                   | Profissional   | RF-27                   |
+| UC-33  | Visualizar status de pagamento do atendimento | Profissional   | RF-28                   |
+
+### 7. Visão financeira e relatórios.
+| Código | Caso de uso                               | Ator principal | Requisitos relacionados |
+| ------ | ----------------------------------------- | -------------- | ----------------------- |
+| UC-34  | Visualizar resumo de receitas por período | Profissional   | RF-29                   |
+| UC-35  | Comparar receitas entre períodos          | Profissional   | RF-30                   |
+| UC-36  | Visualizar ranking de procedimentos       | Profissional   | RF-31                   |
+| UC-37  | Exportar relatório financeiro             | Profissional   | RF-32                   |
+
+### 8. Notificações
+| Código | Caso de uso                                | Ator principal | Requisitos relacionados |
+| ------ | ------------------------------------------ | -------------- | ----------------------- |
+| UC-38  | Enviar confirmação de agendamento          | Sistema        | RF-33                   |
+| UC-39  | Enviar lembrete antes do atendimento       | Sistema        | RF-34                   |
+| UC-40  | Notificar cancelamento ou remarcação       | Sistema        | RF-35                   |
+| UC-41  | Configurar canais e eventos de notificação | Profissional   | RF-36                   |
+
+### 9. Formulários personalizados
+| Código | Caso de uso                                     | Ator principal | Requisitos relacionados |
+| ------ | ----------------------------------------------- | -------------- | ----------------------- |
+| UC-42  | Criar modelo de formulário                      | Profissional   | RF-37                   |
+| UC-43  | Adicionar e ordenar campos do formulário        | Profissional   | RF-38                   |
+| UC-44  | Editar modelo de formulário                     | Profissional   | RF-39                   |
+| UC-45  | Excluir modelo de formulário                    | Profissional   | RF-39                   |
+| UC-46  | Aplicar formulário a cliente, serviço ou plano  | Profissional   | RF-40                   |
+| UC-47  | Editar respostas de formulário aplicado         | Profissional   | RF-41                   |
+| UC-48  | Visualizar formulários aplicados a uma entidade | Profissional   | RF-42                   |
+
+### 10. Configuração do espaço de trabalho
+| Código | Caso de uso                      | Ator principal | Requisitos relacionados |
+| ------ | -------------------------------- | -------------- | ----------------------- |
+| UC-49  | Configurar ocupação profissional | Profissional   | RF-43                   |
+| UC-50  | Personalizar labels do sistema   | Profissional   | RF-43                   |
+
 
 <!-- #endregion -->
 
