@@ -789,8 +789,11 @@ Qual transformação o projeto pretende gerar
 </table>
 
 <!-- #endregion-->
+<<<<<<< HEAD
 
 <!-- #region 2.4 RNFs -->
+=======
+>>>>>>> 9aa1287 (TCC-33: Done)
 
 <h2>2.4 Requisitos Não Funcionais (RNF)</h2>
 
