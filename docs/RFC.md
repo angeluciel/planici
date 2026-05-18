@@ -280,9 +280,12 @@ Qual transformação o projeto pretende gerar
   <li>Zero perda de dados registrados pela usuária durante o período de uso do MVP.</li>
   <li>Pelo menos 80% das funcionalidades do plano gratuito utilizadas ativamente pela usuária após 30 dias.</li>
 </ul>
+
 <!-- #endregion -->
 
 <h1>2. Engenharia de Requisitos</h1>
+
+<!-- #region 2.1 PERSONAS -->
 
 <h2>2.1 Personas</h2>
 <a href="/docs/img/persona-carlos.pdf" download>PDF Persona Carlos</a>
@@ -291,19 +294,364 @@ Qual transformação o projeto pretende gerar
   <img alt=" img" src="/docs/img/persona-carlos.png" />
 </details>
 
+<!-- #endregion -->
+
+<!-- #region 2.2 USE CASES -->
+
 <h2>2.2 Casos de Uso Principais</h2>
-...
+
+```diff
+- to-do                                   
+```
+
+<!-- #endregion -->
+
+<!-- #region 2.3 RFs -->
 
 <h2>2.3 Requisitos Funcionais (RF)</h2>
-...
+
+<table>
+  <tr>
+    <th colspan="3">Autenticação e conta</th>
+  </tr>
+  <tr>
+    <th>Requisito</th>
+    <th>Descrição</th>
+    <th>Prioridade</th>
+  </tr>
+  <tr>
+    <td>RF-01</td>
+    <td><strong>Cadastro por e-mail e senha</strong><br>O profissional pode criar uma conta informando nome, e-mail e senha.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-02</td>
+    <td><strong>Login via Google (OAuth)</strong><br>O profissional pode autenticar com a conta Google.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-03</td>
+    <td><strong>Recuperação de senha</strong><br>O sistema envia link de redefinição de senha por e-mail.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-04</td>
+    <td><strong>Gerenciamento de perfil</strong><br>O profissional pode editar nome, foto, dados de contato e informações do negócio.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-05</td>
+    <td><strong>Multiusuário por tenant</strong><br>Contas nos planos Basic ou superior podem convidar colaboradores com acesso ao mesmo espaço de trabalho.</td>
+    <td>WANTS</td>
+  </tr>
+  <tr>
+    <td>RF-06</td>
+    <td><strong>Controle de permissões</strong><br>O administrador do tenant define o nível de acesso de cada colaborador, como somente agenda ou acesso financeiro.</td>
+    <td>WANTS</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="3">Cadastro de clientes</th>
+  </tr>
+  <tr>
+    <th>Requisito</th>
+    <th>Descrição</th>
+    <th>Prioridade</th>
+  </tr>
+  <tr>
+    <td>RF-07</td>
+    <td><strong>Criar cliente</strong><br>O profissional pode cadastrar um cliente com nome, telefone, e-mail e observações, ou utilizar um formulário personalizado.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-08</td>
+    <td><strong>Editar e excluir cliente</strong><br>O profissional pode atualizar ou remover um cadastro de cliente.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-09</td>
+    <td><strong>Busca e filtro de clientes</strong><br>O profissional pode buscar clientes por nome ou e-mail.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-10</td>
+    <td><strong>Histórico de atendimentos do cliente</strong><br>Na ficha do cliente, o profissional visualiza todos os atendimentos anteriores, procedimentos realizados, planos ativos e valores pagos.</td>
+    <td>MVP</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="3">Procedimentos e serviços</th>
+  </tr>
+  <tr>
+    <th>Requisito</th>
+    <th>Descrição</th>
+    <th>Prioridade</th>
+  </tr>
+  <tr>
+    <td>RF-11</td>
+    <td><strong>Criar procedimento</strong><br>O profissional cadastra procedimentos com nome, duração estimada, valor padrão, ou utiliza um formulário personalizado.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-12</td>
+    <td><strong>Editar e excluir procedimento</strong><br>O profissional pode atualizar ou remover um procedimento do catálogo.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-13</td>
+    <td><strong>Listagem de procedimentos</strong><br>O profissional visualiza todos os procedimentos cadastrados em uma lista.</td>
+    <td>MVP</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="3">Pacotes e planos</th>
+  </tr>
+  <tr>
+    <th>Requisito</th>
+    <th>Descrição</th>
+    <th>Prioridade</th>
+  </tr>
+  <tr>
+    <td>RF-14</td>
+    <td><strong>Criar plano</strong><br>O profissional cadastra um pacote de serviços com nome, descrição, preço, moeda, ciclo de cobrança (mensal, semanal, avulso etc.), ou utiliza um formulário personalizado.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-15</td>
+    <td><strong>Associar serviços a um plano</strong><br>O profissional define quais serviços fazem parte de um plano, com quantidade e possibilidade de substituir o preço individual do serviço dentro do pacote.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-16</td>
+    <td><strong>Editar e excluir plano</strong><br>O profissional pode atualizar ou remover um plano do catálogo.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-17</td>
+    <td><strong>Listagem de planos</strong><br>O profissional visualiza todos os planos cadastrados em uma lista.</td>
+    <td>MVP</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="3">Agendas e Agendamentos</th>
+  </tr>
+  <tr>
+    <th>Requisito</th>
+    <th>Descrição</th>
+    <th>Prioridade</th>
+  </tr>
+  <tr>
+    <td>RF-18</td>
+    <td><strong>Definir disponibilidade fixa</strong><br>O profissional configura blocos de horário fixos por dia da semana (ex: seg–sex 09h–18h com intervalos de 30 min).</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-19</td>
+    <td><strong>Definir disponibilidade livre</strong><br>O profissional pode criar manualmente janelas de horário disponíveis para datas específicas.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-20</td>
+    <td><strong>Criar agendamento pelo profissional</strong><br>O profissional agenda um atendimento escolhendo cliente, plano ou serviço, data e horário.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-21</td>
+    <td><strong>Editar e cancelar agendamento</strong><br>O profissional pode alterar data, horário, plano/serviço ou cancelar um agendamento existente.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-22</td>
+    <td><strong>Visualização de agenda (dia/semana)</strong><br>O profissional visualiza os agendamentos em formato de agenda diária ou semanal.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-23</td>
+    <td><strong>Link público de agendamento</strong><br>O sistema gera um link único por tenant que permite ao cliente visualizar horários disponíveis e solicitar um agendamento sem criar conta.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-24</td>
+    <td><strong>Confirmação de agendamento pelo profissional</strong><br>Agendamentos feitos pelo link público ficam como "pendentes" até o profissional confirmar ou recusar.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-25</td>
+    <td><strong>Bloqueio de horário</strong><br>O profissional pode bloquear horários específicos para impedi-los de aparecer como disponíveis no link público.</td>
+    <td>MVP</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="3">Pagamentos</th>
+  </tr>
+  <tr>
+    <th>Requisito</th>
+    <th>Descrição</th>
+    <th>Prioridade</th>
+  </tr>
+  <tr>
+    <td>RF-26</td>
+    <td><strong>Registrar pagamento no agendamento</strong><br>O profissional registra se o atendimento foi pago, informando valor, forma de pagamento (dinheiro, PIX, cartão, etc.) e data.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-27</td>
+    <td><strong>Editar registro de pagamento</strong><br>O profissional pode corrigir os dados de pagamento de um atendimento já registrado.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-28</td>
+    <td><strong>Status de pagamento por atendimento</strong><br>Cada agendamento exibe claramente se está pago, pendente ou cancelado.</td>
+    <td>MVP</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="3">Visão Financeira e Relatórios</th>
+  </tr>
+  <tr>
+    <th>Requisito</th>
+    <th>Descrição</th>
+    <th>Prioridade</th>
+  </tr>
+  <tr>
+    <td>RF-29</td>
+    <td><strong>Resumo de receitas por período</strong><br>O profissional visualiza o total recebido em um intervalo de datas selecionado.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-30</td>
+    <td><strong>Comparativo entre períodos</strong><br>O sistema apresenta a comparação de receita entre dois períodos (ex: mês atual vs. mês anterior).</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-31</td>
+    <td><strong>Ranking de procedimentos</strong><br>O sistema exibe os procedimentos mais realizados e os que mais geraram receita no período.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-32</td>
+    <td><strong>Exportação de relatório</strong><br>O profissional pode exportar o relatório financeiro em PDF ou Excel.</td>
+    <td>MVP</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="3">Notificações</th>
+  </tr>
+  <tr>
+    <th>Requisito</th>
+    <th>Descrição</th>
+    <th>Prioridade</th>
+  </tr>
+  <tr>
+    <td>RF-33</td>
+    <td><strong>Notificação de confirmação de agendamento</strong><br>Ao confirmar um agendamento, o cliente recebe uma notificação por e-mail e/ou WhatsApp com os detalhes.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-34</td>
+    <td><strong>Lembrete antes do horário</strong><br>O sistema envia um lembrete automático ao cliente com antecedência configurável (ex: 24h ou 1h antes).</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-35</td>
+    <td><strong>Notificação de cancelamento ou remarcação</strong><br>O cliente é notificado automaticamente quando o profissional cancela ou altera um agendamento.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-36</td>
+    <td><strong>Configuração de canais de notificação</strong><br>O profissional configura as credenciais e canais de envio (e-mail, WhatsApp via Evolution API) e escolhe quais eventos disparam cada canal. As preferências são armazenadas nas configurações do tenant.</td>
+    <td>MVP</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="3">Formulários personalizados</th>
+  </tr>
+  <tr>
+    <th>Requisito</th>
+    <th>Descrição</th>
+    <th>Prioridade</th>
+  </tr>
+  <tr>
+    <td>RF-37</td>
+    <td><strong>Criar modelo de formulário</strong><br>O profissional cria um modelo de formulário com nome, descrição e tipo de entidade-alvo sugerida (cliente, serviço ou plano).</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-38</td>
+    <td><strong>Adicionar e ordenar campos</strong><br>O profissional adiciona campos ao formulário (texto, número, data, seleção, imagem, arquivo, etc.), define rótulo, obrigatoriedade e ordem de exibição.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-39</td>
+    <td><strong>Editar e excluir modelo de formulário</strong><br>O profissional pode atualizar ou remover um modelo de formulário e seus campos.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-40</td>
+    <td><strong>Aplicar formulário a uma entidade</strong><br>O profissional aplica um modelo de formulário a um cliente, serviço ou plano específico e preenche as respostas.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-41</td>
+    <td><strong>Editar respostas de formulário aplicado</strong><br>O profissional pode atualizar as respostas de um formulário já aplicado a uma entidade.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
+    <td>RF-42</td>
+    <td><strong>Visualizar formulários de uma entidade</strong><br>Na ficha de um cliente, serviço ou plano, o profissional visualiza todos os formulários aplicados e suas respostas.</td>
+    <td>MVP</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th colspan="3">Configuração do espaço de trabalho</th>
+  </tr>
+  <tr>
+    <th>Requisito</th>
+    <th>Descrição</th>
+    <th>Prioridade</th>
+  </tr>
+  <tr>
+    <td>RF-43</td>
+    <td><strong>Configurar ocupação e labels</strong><br>O profissional seleciona sua ocupação (ex: psicólogo, personal trainer, advogado) e pode personalizar os nomes exibidos para clientes, serviços e planos no sistema (ex: "Pacientes", "Consultas", "Mensalidades").</td>
+    <td>MVP</td>
+  </tr>
+</table>
+
+<!-- #endregion-->
 
 <h2>2.4 Requisitos Não Funcionais (RNF)</h2>
-...
+
+```diff
+- to-do                                   
+```
+
 <!-- Deve ter:: desempenho, segurança, disponibilidade, escalabilidade, usabilidade.
 RNF01 - O sistema deve suportar 100 usuários simultâneos. -->
 
 <h2>2.5 Regras de Negócio</h2>
-...
+
+```diff
+- to-do                                   
+```
 
 <h2>2.6 Fora de Escopo</h2>
 1. O sistema não permitirá interação entre usuários do sistema, nem nenhun tipo de visualização de perfil (usuário A vê clientes do usuário B).
+<br>

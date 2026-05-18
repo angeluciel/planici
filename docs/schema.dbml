@@ -1,0 +1,482 @@
+// ================== ID AND AUTH
+Table tenants {
+  id              uuid        [primary key, default: `gen_random_uuid()`]
+  name            text        [not null]
+  slug            text        [not null, unique]
+  status          record_status [not null, default: 'active']
+
+  // billing
+  plan            tenant_plan [not null, default: 'free']
+  stripe_customer_id text     [unique]
+  trial_started_at timestamptz
+
+  // usage & limits
+  usage           jsonb       [not null, default: '{}']
+  limits          jsonb       [not null, default: '{}']
+
+  // flexible config — includes notification channel credentials and preferences
+  // e.g.: {
+  //   notification: {
+  //     whatsapp: { instance_url: '...', api_token: '...' },
+  //     email: { from_address: '...' },
+  //     events: {
+  //       appointment_confirmed: ['whatsapp', 'email'],
+  //       appointment_reminder:  { channels: ['whatsapp'], lead_minutes: 60 },
+  //       appointment_cancelled: ['whatsapp']
+  //     }
+  //   }
+  // }
+  settings        jsonb       [not null, default: '{}']
+
+  created_at      timestamptz [not null, default: `now()`]
+  updated_at      timestamptz [not null, default: `now()`]
+}
+
+Table users {
+  id              text        [primary key]
+  email           text        [unique, not null]
+  display_name    text
+  avatar_url      text
+  status          record_status [not null, default: 'active']
+
+  password_hash   text
+  last_login_at   timestamptz
+
+  preferences     jsonb       [not null, default: '{}']
+  // e.g.: { theme: 'dark-purple', locale: 'pt-BR' }
+
+  created_at      timestamptz [not null, default: `now()`]
+  updated_at      timestamptz [not null, default: `now()`]
+
+  Indexes {
+    email         [name: 'idx_users_email']
+  }
+}
+
+Table tenant_memberships {
+  id uuid [primary key, default: `gen_random_uuid()`]
+  user_id text [not null, ref: > users.id]
+  tenant_id uuid [not null, ref: > tenants.id]
+  role_id uuid [not null, ref: > roles.id]
+
+  status record_status [not null, default: 'active']
+
+  invited_by text [ref: > users.id]
+  invited_at timestamptz
+
+  joined_at timestamptz
+
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (user_id, tenant_id) [unique, name: 'idx_memberships_user_tenant']
+    tenant_id [name: 'idx_memberships_tenant_id']
+    user_id [name: 'idx_memberships_user_id']
+  }
+}
+
+// ================== RBAC
+Table roles {
+  id              uuid        [primary key, default: `gen_random_uuid()`]
+  tenant_id       uuid        [not null, ref: > tenants.id]
+  name            text        [not null]
+  slug            text        [not null]
+  // e.g.: 'owner', 'admin', 'member', 'viewer'
+  description     text
+
+  created_at      timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (tenant_id, slug) [unique, name: 'idx_roles_tenant_slug']
+  }
+}
+
+Table permissions {
+  id              uuid        [primary key, default: `gen_random_uuid()`]
+  resource        text        [not null]
+  // e.g.: 'clients', 'services', 'plans', 'forms', 'users'
+  action          text        [not null]
+  // e.g.: 'create', 'read', 'update', 'delete', 'manage'
+  description     text
+
+  Indexes {
+    (resource, action) [unique, name: 'idx_permissions_resource_action']
+  }
+}
+
+Table role_permissions {
+  role_id         uuid        [not null, ref: > roles.id]
+  permission_id   uuid        [not null, ref: > permissions.id]
+
+  Indexes {
+    (role_id, permission_id) [pk]
+  }
+}
+
+Table user_roles {
+  user_id         text        [not null, ref: > users.id]
+  role_id         uuid        [not null, ref: > roles.id]
+  tenant_id       uuid        [not null, ref: > tenants.id]
+  // tenant_id is denormalized here for fast permission lookups per tenant
+
+  Indexes {
+    (user_id, role_id, tenant_id) [pk]
+  }
+}
+
+// ================== Occupation / label config
+Table occupation_config {
+  id              uuid        [primary key, default: `gen_random_uuid()`]
+  tenant_id       uuid        [not null, ref: - tenants.id]
+  // one-to-one
+
+  occupation_slug text        [not null]
+  // e.g.: 'psychologist', 'personal_trainer', 'lawyer', 'freelancer'
+
+  clients_label   text        [not null, default: 'Clients']
+  services_label  text        [not null, default: 'Services']
+  plans_label     text        [not null, default: 'Plans']
+
+  clients_icon    text
+  services_icon   text
+  plans_icon      text
+
+  Indexes {
+    tenant_id     [unique, name: 'idx_occupation_config_tenant_id']
+  }
+}
+
+// ================== Core entities
+Table clients {
+  id              uuid        [primary key, default: `gen_random_uuid()`]
+  tenant_id       uuid        [not null, ref: > tenants.id]
+
+  name            text        [not null]
+  email           text
+  phone           text
+  avatar_url      text
+  status          record_status [not null, default: 'active']
+
+  notes           text
+  custom_fields   jsonb       [not null, default: '{}']
+  // fallback for ad-hoc fields not covered by attached forms
+  preferences     jsonb       [not null, default: '{}']
+  // e.g.: { notification_channel: 'whatsapp', whatsapp_phone: '+5511...' }
+
+  created_at      timestamptz [not null, default: `now()`]
+  updated_at      timestamptz [not null, default: `now()`]
+
+  Indexes {
+    tenant_id     [name: 'idx_clients_tenant_id']
+    (tenant_id, email) [name: 'idx_clients_tenant_email']
+  }
+}
+
+Table services {
+  id              uuid        [primary key, default: `gen_random_uuid()`]
+  tenant_id       uuid        [not null, ref: > tenants.id]
+
+  name            text        [not null]
+  description     text
+  price           numeric(10,2)
+  currency        text        [not null, default: 'BRL']
+  duration_minutes int
+  status          record_status [not null, default: 'active']
+
+  created_at      timestamptz [not null, default: `now()`]
+  updated_at      timestamptz [not null, default: `now()`]
+
+  Indexes {
+    tenant_id     [name: 'idx_services_tenant_id']
+  }
+}
+
+Table plans {
+  id              uuid        [primary key, default: `gen_random_uuid()`]
+  tenant_id       uuid        [not null, ref: > tenants.id]
+
+  name            text        [not null]
+  description     text
+  price           numeric(10,2)
+  currency        text        [not null, default: 'BRL']
+  billing_cycle   billing_cycle [not null, default: 'monthly']
+  status          record_status [not null, default: 'active']
+
+  created_at      timestamptz [not null, default: `now()`]
+  updated_at      timestamptz [not null, default: `now()`]
+
+  Indexes {
+    tenant_id     [name: 'idx_plans_tenant_id']
+  }
+}
+
+Table plan_services {
+  // A plan bundles one or more services
+  plan_id         uuid        [not null, ref: > plans.id]
+  service_id      uuid        [not null, ref: > services.id]
+
+  quantity        int         [not null, default: 1]
+  override_price  numeric(10,2)
+  // null = use service.price; set to override within this plan
+
+  Indexes {
+    (plan_id, service_id) [pk]
+  }
+}
+
+// ================== Forms System
+Table forms {
+  id              uuid        [primary key, default: `gen_random_uuid()`]
+  tenant_id       uuid        [not null, ref: > tenants.id]
+
+  name            text        [not null]
+  description     text
+
+  default_entity_type entity_type
+
+  created_at      timestamptz [not null, default: `now()`]
+  updated_at      timestamptz [not null, default: `now()`]
+
+  Indexes {
+    tenant_id     [name: 'idx_forms_tenant_id']
+  }
+}
+
+Table form_fields {
+  id              uuid        [primary key, default: `gen_random_uuid()`]
+  form_id         uuid        [not null, ref: > forms.id]
+
+  field_type      field_type  [not null]
+  label           text        [not null]
+  placeholder     text
+  help_text       text
+
+  options         jsonb       [not null, default: '{}']
+  // for select/multiselect/radio: list of option strings
+  // for image/file: accepted mime types, max size, etc.
+
+  required        boolean     [not null, default: false]
+  sort_order      int         [not null, default: 0]
+
+  created_at      timestamptz [not null, default: `now()`]
+
+  Indexes {
+    form_id       [name: 'idx_form_fields_form_id']
+    (form_id, sort_order) [name: 'idx_form_fields_order']
+  }
+}
+
+Table form_attachments {
+  id              uuid        [primary key, default: `gen_random_uuid()`]
+  form_id         uuid        [not null, ref: > forms.id]
+
+  entity_type     entity_type [not null]
+  entity_id       uuid        [not null]
+
+  responses       jsonb       [not null, default: '{}']
+  // key: form_field.id → value: user-filled response
+
+  created_by      text        [ref: > users.id]
+  created_at      timestamptz [not null, default: `now()`]
+  updated_at      timestamptz [not null, default: `now()`]
+
+  Indexes {
+    form_id                           [name: 'idx_form_attachments_form_id']
+    (entity_type, entity_id)          [name: 'idx_form_attachments_entity']
+    (form_id, entity_type, entity_id) [unique, name: 'idx_form_attachments_unique']
+  }
+}
+
+// ================== Scheduling
+Table availability_rules {
+  id                    uuid  [primary key, default: `gen_random_uuid()`]
+  tenant_id             uuid  [not null, ref: > tenants.id]
+
+  day_of_week           int   [not null]
+  // 0 = Sunday … 6 = Saturday
+  start_time            time  [not null]
+  end_time              time  [not null]
+  slot_duration_minutes int   [not null, default: 30]
+  active                boolean [not null, default: true]
+
+  created_at  timestamptz [not null, default: `now()`]
+  updated_at  timestamptz [not null, default: `now()`]
+
+  Indexes {
+    tenant_id [name: 'idx_availability_rules_tenant_id']
+  }
+}
+
+Table availability_overrides {
+  // date-level exceptions: adds extra hours or closes the whole day
+  id          uuid  [primary key, default: `gen_random_uuid()`]
+  tenant_id   uuid  [not null, ref: > tenants.id]
+
+  date        date  [not null]
+  type        availability_override_type [not null]
+  // 'available'   → opens extra hours on a day not in weekly rules
+  // 'unavailable' → closes the whole day (holiday, vacation)
+
+  start_time  time  // null when type = 'unavailable'
+  end_time    time
+  reason      text
+
+  created_at  timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (tenant_id, date) [name: 'idx_availability_overrides_tenant_date']
+  }
+}
+
+Table time_blocks {
+  // manual blocks within an otherwise available window (RF-25)
+  id          uuid  [primary key, default: `gen_random_uuid()`]
+  tenant_id   uuid  [not null, ref: > tenants.id]
+
+  starts_at   timestamptz [not null]
+  ends_at     timestamptz [not null]
+  reason      text
+
+  created_at  timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (tenant_id, starts_at) [name: 'idx_time_blocks_tenant_starts']
+  }
+}
+
+Table appointments {
+  id          uuid  [primary key, default: `gen_random_uuid()`]
+  tenant_id   uuid  [not null, ref: > tenants.id]
+
+  client_id   uuid  [ref: > clients.id]
+  // null when booked via public link and client is not yet registered
+
+  plan_id     uuid  [ref: > plans.id]
+  service_id  uuid  [ref: > services.id]
+  // exactly one of plan_id / service_id must be set (enforced at app level)
+
+  starts_at   timestamptz [not null]
+  ends_at     timestamptz [not null]
+
+  status      appointment_status [not null, default: 'pending']
+  source      appointment_source [not null, default: 'professional']
+
+  // guest info for public-link bookings from unregistered clients
+  guest_name  text
+  guest_email text
+  guest_phone text
+
+  notes               text
+  cancelled_at        timestamptz
+  cancelled_by        text  [ref: > users.id]
+  cancellation_reason text
+
+  created_at  timestamptz [not null, default: `now()`]
+  updated_at  timestamptz [not null, default: `now()`]
+
+  Indexes {
+    tenant_id              [name: 'idx_appointments_tenant_id']
+    (tenant_id, starts_at) [name: 'idx_appointments_tenant_starts']
+    (tenant_id, status)    [name: 'idx_appointments_tenant_status']
+    client_id              [name: 'idx_appointments_client_id']
+  }
+}
+
+// ================== Payments
+Table payments {
+  id              uuid  [primary key, default: `gen_random_uuid()`]
+  tenant_id       uuid  [not null, ref: > tenants.id]
+  appointment_id  uuid  [not null, unique, ref: > appointments.id]
+  // one payment record per appointment
+
+  amount    numeric(10,2) [not null]
+  currency  text          [not null, default: 'BRL']
+  method    payment_method [not null]
+  status    payment_status [not null, default: 'pending']
+  paid_at   timestamptz
+  notes     text
+
+  created_at  timestamptz [not null, default: `now()`]
+  updated_at  timestamptz [not null, default: `now()`]
+
+  Indexes {
+    tenant_id            [name: 'idx_payments_tenant_id']
+    (tenant_id, paid_at) [name: 'idx_payments_tenant_paid_at']
+  }
+}
+
+// ================== Enums
+Enum tenant_plan {
+  free
+  pro
+  enterprise
+}
+
+Enum record_status {
+  active
+  suspended
+  deleted
+}
+
+Enum billing_cycle {
+  one_time
+  weekly
+  monthly
+  quarterly
+  yearly
+}
+
+Enum field_type {
+  text
+  textarea
+  number
+  date
+  select
+  multiselect
+  checkbox
+  radio
+  image
+  file
+  url
+  phone
+  email
+}
+
+Enum entity_type {
+  client
+  service
+  plan
+}
+
+Enum availability_override_type {
+  available
+  unavailable
+}
+
+Enum appointment_status {
+  pending
+  confirmed
+  cancelled
+  completed
+}
+
+Enum appointment_source {
+  professional
+  public_link
+}
+
+Enum payment_method {
+  cash
+  pix
+  credit_card
+  debit_card
+  transfer
+  other
+}
+
+Enum payment_status {
+  pending
+  paid
+  cancelled
+}
