@@ -752,6 +752,8 @@ Qual transformação o projeto pretende gerar
 
 <!-- #endregion-->
 
+<!-- #region 2.4 RNFs -->
+
 <h2>2.4 Requisitos Não Funcionais (RNF)</h2>
 
 ```diff
@@ -761,11 +763,266 @@ Qual transformação o projeto pretende gerar
 <!-- Deve ter:: desempenho, segurança, disponibilidade, escalabilidade, usabilidade.
 RNF01 - O sistema deve suportar 100 usuários simultâneos. -->
 
+<!-- #endregion -->
+
 <h2>2.5 Regras de Negócio</h2>
 
-```diff
-- to-do                                   
-```
+As regras de negócio definem condições, restrições e comportamentos obrigatórios do sistema Planici para garantir consistência, segurança e coerência entre clientes, agenda, procedimentos, planos, pagamentos e configurações do espaço de trabalho.
+
+### RN-01: Acesso autenticado
+
+Apenas usuários autenticados podem acessar os recursos internos do sistema, como cadastro de clientes, agenda, procedimentos, planos, pagamentos, relatórios, formulários e configurações do espaço de trabalho.
+
+Recursos públicos, como o link de agendamento disponibilizado ao cliente, podem ser acessados sem autenticação, desde que estejam vinculados a um tenant válido.
+
+---
+
+### RN-02: Isolamento por tenant
+
+Todos os dados operacionais do sistema devem pertencer a um tenant, incluindo clientes, procedimentos, planos, agendamentos, pagamentos, formulários, configurações e colaboradores.
+
+Um usuário não pode visualizar, editar ou excluir dados pertencentes a outro tenant, salvo se possuir vínculo autorizado com esse espaço de trabalho.
+
+---
+
+### RN-03: Permissões de colaboradores
+
+Quando o recurso de múltiplos usuários estiver disponível, somente administradores do tenant poderão convidar colaboradores e alterar suas permissões.
+
+Colaboradores só poderão executar ações compatíveis com seu nível de acesso. Por exemplo, um colaborador com acesso apenas à agenda não poderá visualizar relatórios financeiros ou alterar configurações do tenant.
+
+---
+
+### RN-04: Cadastro de clientes
+
+Todo cliente deve estar vinculado a um tenant.
+
+O nome do cliente é obrigatório. Telefone, e-mail e observações podem ser opcionais, mas, quando informados, devem respeitar formatos válidos.
+
+Não deve ser permitido cadastrar dois clientes com o mesmo e-mail dentro do mesmo tenant, caso o e-mail tenha sido informado.
+
+---
+
+### RN-05: Exclusão de clientes
+
+Clientes que possuam histórico de atendimentos, pagamentos, planos ou formulários aplicados não devem ser removidos definitivamente do sistema.
+
+Nesses casos, o cliente deve ser apenas inativado, preservando o histórico necessário para consultas futuras, relatórios e controle financeiro.
+
+---
+
+### RN-06: Cadastro de procedimentos
+
+Todo procedimento deve estar vinculado a um tenant.
+
+Um procedimento deve possuir, no mínimo, nome, duração estimada e valor padrão.
+
+O valor padrão de um procedimento não pode ser negativo.
+
+Procedimentos vinculados a agendamentos, planos ou histórico financeiro não devem ser excluídos definitivamente; devem ser inativados.
+
+---
+
+### RN-07: Cadastro de planos
+
+Todo plano deve estar vinculado a um tenant.
+
+Um plano deve possuir nome, preço, moeda e ciclo de cobrança.
+
+O preço de um plano não pode ser negativo.
+
+Um plano pode conter um ou mais procedimentos associados.
+
+Quando um procedimento for associado a um plano, o sistema deve permitir definir a quantidade incluída e, se necessário, um preço específico para aquele procedimento dentro do pacote.
+
+---
+
+### RN-08: Exclusão de planos
+
+Planos já utilizados em agendamentos, histórico de clientes ou registros financeiros não devem ser removidos definitivamente.
+
+Nesses casos, o plano deve ser inativado para impedir novos usos, mantendo o histórico anterior preservado.
+
+---
+
+### RN-09: Disponibilidade da agenda
+
+O profissional pode configurar disponibilidades fixas por dia da semana ou janelas de disponibilidade específicas para datas determinadas.
+
+Horários fora da disponibilidade configurada não devem aparecer como disponíveis no link público de agendamento.
+
+Horários bloqueados manualmente pelo profissional também não devem aparecer como disponíveis.
+
+---
+
+### RN-10: Criação de agendamentos
+
+Todo agendamento deve estar vinculado a um tenant.
+
+Um agendamento criado pelo profissional deve possuir cliente, serviço ou plano, data e horário.
+
+Não deve ser permitido criar dois agendamentos no mesmo horário para o mesmo profissional quando houver conflito de disponibilidade.
+
+Não deve ser permitido criar agendamento em horário bloqueado.
+
+---
+
+### RN-11: Agendamentos pelo link público
+
+Agendamentos solicitados por meio do link público devem ser criados inicialmente com status pendente.
+
+O cliente não precisa possuir conta no sistema para solicitar um agendamento pelo link público.
+
+O agendamento só passa a ser confirmado após aprovação do profissional.
+
+O profissional pode confirmar ou recusar solicitações recebidas pelo link público.
+
+---
+
+### RN-12: Alteração e cancelamento de agendamentos
+
+O profissional pode alterar data, horário, cliente, serviço ou plano de um agendamento existente, desde que o novo horário esteja disponível.
+
+Agendamentos cancelados devem manter o registro histórico no sistema.
+
+Um agendamento cancelado não deve ser considerado como receita recebida, exceto se houver pagamento registrado e mantido pelo profissional.
+
+---
+
+### RN-13: Status de pagamento
+
+Cada agendamento deve possuir um status de pagamento claramente identificado, como pago, pendente ou cancelado.
+
+Um pagamento registrado deve conter valor, forma de pagamento e data de pagamento.
+
+O valor pago não pode ser negativo.
+
+A data de pagamento não pode ser posterior à data atual, salvo se o sistema permitir registro de pagamentos futuros como previsão.
+
+---
+
+### RN-14: Edição de pagamentos
+
+O profissional pode corrigir dados de pagamento já registrados.
+
+Alterações em pagamentos devem atualizar os valores utilizados nos relatórios financeiros.
+
+Pagamentos associados a agendamentos cancelados devem ser tratados conforme a regra definida pelo profissional, podendo ser mantidos, estornados ou desconsiderados dos relatórios.
+
+---
+
+### RN-15: Relatórios financeiros
+
+Os relatórios financeiros devem considerar apenas dados pertencentes ao tenant do usuário autenticado.
+
+O resumo de receitas deve considerar somente pagamentos registrados como pagos.
+
+Pagamentos pendentes não devem ser somados como receita recebida.
+
+Agendamentos cancelados não devem gerar receita, salvo quando houver pagamento confirmado vinculado ao agendamento.
+
+---
+
+### RN-16: Ranking de procedimentos
+
+O ranking de procedimentos deve considerar os procedimentos realizados dentro do período selecionado pelo profissional.
+
+O sistema pode ordenar o ranking por quantidade de realizações ou por receita gerada.
+
+Procedimentos inativados devem continuar aparecendo em relatórios históricos quando tiverem sido utilizados no período consultado.
+
+---
+
+### RN-17: Notificações de agendamento
+
+Ao confirmar um agendamento, o sistema deve enviar uma notificação ao cliente quando houver canal de envio configurado.
+
+Quando um agendamento for cancelado ou remarcado, o cliente deve ser notificado automaticamente, se o canal estiver habilitado.
+
+Se nenhum canal de notificação estiver configurado, o sistema deve permitir a operação normalmente, mas não deve tentar enviar mensagens.
+
+---
+
+### RN-18: Lembretes automáticos
+
+O sistema deve enviar lembretes automáticos antes do horário do atendimento conforme a antecedência configurada pelo profissional.
+
+Lembretes só devem ser enviados para agendamentos confirmados.
+
+Agendamentos pendentes, recusados ou cancelados não devem receber lembretes automáticos.
+
+---
+
+### RN-19: Configuração de notificações
+
+As configurações de canais de notificação pertencem ao tenant.
+
+O profissional pode escolher quais eventos disparam notificações, como confirmação, cancelamento, remarcação e lembrete.
+
+Credenciais de integração, quando utilizadas, devem ser armazenadas de forma segura e não devem ser exibidas integralmente após o cadastro.
+
+---
+
+### RN-20: Formulários personalizados
+
+Todo modelo de formulário deve pertencer a um tenant.
+
+Um modelo de formulário deve possuir nome e uma entidade-alvo sugerida, como cliente, serviço ou plano.
+
+Campos obrigatórios definidos em um formulário devem ser preenchidos antes que o formulário aplicado seja salvo.
+
+A ordem dos campos definida pelo profissional deve ser preservada na exibição do formulário.
+
+---
+
+### RN-21: Aplicação de formulários
+
+Um formulário personalizado pode ser aplicado a uma entidade compatível, como cliente, serviço ou plano.
+
+As respostas preenchidas devem permanecer vinculadas à entidade em que o formulário foi aplicado.
+
+Alterações futuras no modelo do formulário não devem apagar automaticamente respostas já registradas.
+
+---
+
+### RN-22: Personalização de labels
+
+O profissional pode personalizar os nomes exibidos para entidades do sistema, como clientes, serviços e planos.
+
+A personalização de labels altera apenas a exibição na interface, sem modificar a estrutura interna dos dados.
+
+Por exemplo, o sistema pode exibir "Pacientes" no lugar de "Clientes", mas a entidade continua representando o cadastro de clientes no domínio do sistema.
+
+---
+
+### RN-23: Configuração de ocupação profissional
+
+O profissional deve poder selecionar sua ocupação para adaptar a linguagem e a experiência do sistema ao seu contexto de uso.
+
+A ocupação selecionada pode influenciar sugestões de labels, modelos de formulário e termos exibidos na interface.
+
+---
+
+### RN-24: Integridade do histórico
+
+Dados utilizados em histórico de atendimentos, relatórios financeiros ou registros de pagamento não devem ser excluídos fisicamente sem validação adicional.
+
+Quando necessário, o sistema deve preferir inativação, cancelamento ou arquivamento em vez de exclusão definitiva.
+
+---
+
+### RN-25: Validação de operações críticas
+
+Operações que afetam agenda, pagamentos, permissões, exclusão de dados ou configurações do tenant devem passar por validação adicional antes de serem concluídas.
+
+Exemplos de operações críticas:
+
+- excluir ou inativar cliente;
+- cancelar agendamento;
+- editar pagamento;
+- alterar permissões de colaborador;
+- alterar configurações de notificação;
+- remover procedimentos ou planos já utilizados.
 
 <h2>2.6 Fora de Escopo</h2>
 1. O sistema não permitirá interação entre usuários do sistema, nem nenhun tipo de visualização de perfil (usuário A vê clientes do usuário B).
