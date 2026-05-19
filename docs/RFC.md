@@ -90,7 +90,7 @@ A partir dessa demanda pontual, identificou-se um padrão recorrente no perfil d
 </ul>
 <details open>
   <summary><h4>Image<h4/></summary>
-  <img alt=" img" src="/docs/img/acuity.png" />
+  <img alt=" img" src="./img/solutions/acuity.png" />
 </details>
 <br/>
 
@@ -125,7 +125,7 @@ A partir dessa demanda pontual, identificou-se um padrão recorrente no perfil d
 </ul>
 <details open>
   <summary><h4>Image<h4/></summary>
-  <img alt="img" src="/docs/img/minhaAgenda.png" />
+  <img alt="img" src="./img/solutions/minhaAgenda.png" />
 </details>
 <br/> <br />
 
@@ -161,7 +161,7 @@ A partir dessa demanda pontual, identificou-se um padrão recorrente no perfil d
 
 <details open>
   <summary><h4>Image<h4/></summary>
-  <img alt="img" src="/docs/img/Captura de tela 2026-04-11 192041.png"/>
+  <img alt="img" src="./img/solutions/google-agenda.png"/>
 </details>
 
 <br/><br />
@@ -418,6 +418,10 @@ Qual transformação o projeto pretende gerar
 | UC-49  | Configurar ocupação profissional | Profissional   | RF-43                   |
 | UC-50  | Personalizar labels do sistema   | Profissional   | RF-43                   |
 
+
+<!-- #endregion -->
+
+<!-- #region 2.3 RFs -->
 
 <!-- #endregion -->
 
@@ -751,8 +755,11 @@ Qual transformação o projeto pretende gerar
 </table>
 
 <!-- #endregion-->
+<<<<<<< HEAD
 
 <!-- #region 2.4 RNFs -->
+=======
+>>>>>>> 9aa1287 (TCC-33: Done)
 
 <h2>2.4 Requisitos Não Funcionais (RNF)</h2>
 
@@ -1272,6 +1279,7 @@ Exemplos de operações críticas:
 
 <!-- #endregion -->
 
+
 <!-- #region 2.6 Fora de Escopo -->
 <h2>2.6 Fora de Escopo</h2>
 
@@ -1305,5 +1313,32 @@ O fluxo principal descreve a primeira interação do profissional com o sistema:
 
 <details open>
   <summary>Flowchart</summary>
-  <img src="./img/main-flow.svg"/>
+  <img src="./img/diagrams/main-flow.svg"/>
+</details>
+
+## 3.2 Fluxos alternativos
+Além do fluxo principal, o sistema precisa ldiar de forma resiliente com cenários de erro, cancelamentos e comportamentos atípicos. Abaixo estão detalhados os principais fluxos alternativos de operação diária.
+
+### Fluxo 1: Cliente Agenda horário pelo Link Público (conflito)
+Este cenário descreve o comportamento quando um cliente tenta agendar um horário que acabou de ser ocupado, demonstrando a proteção contra _overbooking_.
+
+<details open>
+  <summary>Flowchart</summary>
+  <img src="./img/diagrams/secondary-flow.svg"/>
+</details>
+
+### Fluxo 2: Cancelamento de Agendamento pelo Profissional
+Neste fluxo, o profissional precisa cancelar um atendimento. O sistema deve garantir que o histórico seja mantido, a receita não seja contabilizada indevidamente e o cliente seja notificado (caso os canais estejam ativos).
+
+<details open>
+  <summary>Flowchart</summary>
+  <img src="./img/diagrams/thirtiary-flow.svg"/>
+</details>
+
+### Fluxo 3: Exclusão de Entidade com Dependências (Tentativa de deletar Serviço)
+Este diagrama ilustra a regra de negócio que impede a exclusão (Hard Delete) de dados que possuem histórico atrelado, aplicando a inativação (Soft Delete).
+
+<details open>
+  <summary>Flowchart</summary>
+  <img src="./img/diagrams/fourth-flow.svg"/>
 </details>
