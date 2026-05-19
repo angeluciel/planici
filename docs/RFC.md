@@ -1417,7 +1417,7 @@ O perfil do usuário é independente do tenant, o mesmo usuário pode gerenciar 
 
 <!-- #region 4.2 Wireframes -->
 
-<h2>4.2 Wireframes ou Mockups das Telas</h2>
+## 4.2 Wireframes ou Mockups das Telas
 
 Os mockups do Planici foram desenvolvidos no Figma seguindo uma abordagem mobile-first. As telas abaixo representam os principais pontos de interação do usuário, desde o primeiro acesso até a entrada na área principal da aplicação.
 
