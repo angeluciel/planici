@@ -125,6 +125,7 @@ A partir dessa demanda pontual, identificou-se um padrão recorrente no perfil d
 <details open>
   <summary><h4>Image<h4/></summary>
   <img alt=" img" src="./img/solutions/acuity.png" />
+  <img alt=" img" src="./img/solutions/acuity.png" />
 </details>
 <br/>
 
@@ -159,6 +160,7 @@ A partir dessa demanda pontual, identificou-se um padrão recorrente no perfil d
 </ul>
 <details open>
   <summary><h4>Image<h4/></summary>
+  <img alt="img" src="./img/solutions/minhaAgenda.png" />
   <img alt="img" src="./img/solutions/minhaAgenda.png" />
 </details>
 <br/> <br />
