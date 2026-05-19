@@ -791,11 +791,8 @@ Qual transformação o projeto pretende gerar
 </table>
 
 <!-- #endregion-->
-<<<<<<< HEAD
 
 <!-- #region 2.4 RNFs -->
-=======
->>>>>>> 9aa1287 (TCC-33: Done)
 
 <h2>2.4 Requisitos Não Funcionais (RNF)</h2>
 
@@ -1353,6 +1350,7 @@ O fluxo principal descreve a primeira interação do profissional com o sistema:
   <summary>Flowchart</summary>
   <img src="./img/diagrams/main-flow.svg"/>
 </details>
+
 
 <!-- #endregion-->
 
