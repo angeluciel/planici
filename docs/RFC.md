@@ -755,11 +755,8 @@ Qual transformação o projeto pretende gerar
 </table>
 
 <!-- #endregion-->
-<<<<<<< HEAD
 
 <!-- #region 2.4 RNFs -->
-=======
->>>>>>> 9aa1287 (TCC-33: Done)
 
 <h2>2.4 Requisitos Não Funcionais (RNF)</h2>
 
@@ -892,7 +889,7 @@ Qual transformação o projeto pretende gerar
   <tr>
     <td>RNF-12</td>
     <td><strong>Consent & Legal Basis</strong></td>
-    <td>O sistema deve exigir aceite explícito dos termos de uso e política de privacidade no cadastro, com registro rastreável, atendendo à base legal de consentimento exigida pela LGPD.</td>
+    <td>O sistema deve exigir aceite explícito dos termos de uso e política de privacidade no cadastro, com registro rastreável, atendendo à legal de consentimento exigida pela LGPD.</td>
     <td>Aceite registrado com timestamp e versão do documento | Exibição obrigatória no onboarding</td>
     <td>MVP</td>
   </tr>
@@ -1001,7 +998,7 @@ Qual transformação o projeto pretende gerar
   <tr>
     <td>RNF-22</td>
     <td><strong>Horizontal Scalability</strong></td>
-    <td>A camada de aplicação deve ser stateless para permitir escalonamento horizontal sem refatoração estrutural, suportando o crescimento da base de tenants sem degradação de performance.</td>
+    <td>A camada de aplicação deve ser stateless para permitir escalonamento horizontal sem refatoração estrutural, suportando o crescimento da de tenants sem degradação de performance.</td>
     <td>API stateless (sem sessão server-side) | Suporte a escalonamento horizontal até 5.000 tenants sem refatoração</td>
     <td>MVP</td>
   </tr>
@@ -1308,15 +1305,19 @@ Os itens abaixo não fazem parte do escopo do Planici e não serão implementado
 > [!NOTE]
 > Esta seção apresenta os principais fluxos de uso do sistema Planici, demonstrando como o usuário interage com as funcionalidades principais, desde a autenticação até o gerenciamento de clientes, serviços, planos, agendamentos e informações financeiras.
 
-## 3.1 Fluxo principal de Usuário (OnBoarding)
+<!-- #region 3.1 OnBoard -->
+
+<h2>3.1 Fluxo principal de Usuário (OnBoarding)</h2>
 O fluxo principal descreve a primeira interação do profissional com o sistema: desde o acesso inicial até a entrada no espaço de trabalho configurado. O sistema permite criar um novo ambiente (Tenant) ou ingressar em um existente via convite.
 
 <details open>
   <summary>Flowchart</summary>
   <img src="./img/diagrams/main-flow.svg"/>
 </details>
+<!-- #endregion-->
 
-## 3.2 Fluxos alternativos
+<!-- #region 3.2 Fluxo Alternativos -->
+<h2>3.2 Fluxos alternativos</h2>
 Além do fluxo principal, o sistema precisa ldiar de forma resiliente com cenários de erro, cancelamentos e comportamentos atípicos. Abaixo estão detalhados os principais fluxos alternativos de operação diária.
 
 ### Fluxo 1: Cliente Agenda horário pelo Link Público (conflito)
@@ -1341,4 +1342,115 @@ Este diagrama ilustra a regra de negócio que impede a exclusão (Hard Delete) d
 <details open>
   <summary>Flowchart</summary>
   <img src="./img/diagrams/fourth-flow.svg"/>
+</details>
+
+<!-- #endregion -->
+
+<h1>4. Mockups e Experiência do Usuário (UX)</h1>
+
+> [!NOTE]
+> Esta seção apresenta a visualização inicial do Planici antes da implementação, com nos mockups desenvolvidos no Figma (mobile-first).
+
+<!-- #region 4.1 Fluxo de Navegação -->
+
+<h2>4.1 Fluxo de Navegação</h2>
+
+O fluxo é dividido em três zonas funcionais:
+
+**Onboarding:** `loading`->`login`->`register` (fluxo multi-step)
+
+**Setup do negócio:** Após o primeiro login, o usuário é direcionado para criar seu tenant (o negócio que ele gerencia): `tenants`->`tenants/new` (tipo -> nome/detalhes -> confirmação)
+
+**Área principal:** Após o setup, o usuário acessa o dashboard com acesso às seções: `agenda`, `clientes`, `serviços`, `forms` e `planos`.
+
+O perfil do usuário é independente do tenant, o mesmo usuário pode gerenciar múltiplos negócios, semelhante ao modelo de organizações do Sup.
+<details>
+  <summary>Fluxograma</summary>
+  <img src="./img/diagrams/fluxograma.svg" alt="fluxograma"/>
+</details>
+
+<!-- #endregion -->
+
+<h2>4.2 Wireframes ou Mockups das Telas</h2>
+<details>
+  <summary>Fluxo Principal</summary>
+
+  ### Tela Inicial — Login / Registro
+  Ponto de entrada do app. O usuário escolhe entre fazer login em uma conta existente ou iniciar o cadastro.
+
+  <img src="./img/fluxo/login.png" alt="Tela inicial com opções de Login e Registrar" width="300"/>
+
+  ---
+
+  ### Registro — Passo 1: Dados Básicos
+  Início do fluxo multi-step de cadastro. O usuário informa nome, sobrenome e e-mail, ou continua via OAuth (Google / Apple).
+
+  <img src="./img/fluxo/register/index.png" alt="Registro - informações básicas" width="300"/>
+
+  ---
+
+  ### Registro — Passo 2: Verificação de E-mail
+  Após informar o e-mail, o sistema envia um link de confirmação. O usuário aguarda e pode solicitar reenvio caso necessário.
+
+  <img src="./img/fluxo/register/confirmEmail.png" alt="Verificação de e-mail" width="300"/>
+
+  ---
+
+  ### Registro — Passo 3: Definição de Senha
+  O usuário cria uma senha segura (mínimo 8 caracteres, um símbolo e um número) e confirma antes de prosseguir.
+
+  <img src="./img/fluxo/register/password.png" alt="Definição de senha" width="300"/>
+
+  ---
+
+  ### Registro — Passo 4: Informações Pessoais
+  O usuário define um apelido — como prefere ser chamado dentro da plataforma, independente do nome completo cadastrado.
+
+  <img src="./img/fluxo/register/slug.png" alt="Informações pessoais - apelido" width="300"/>
+
+  ---
+
+  ### Registro — Passo 5: Termos de Serviço
+  Antes de finalizar o cadastro, o usuário deve concordar com os Termos de Serviço do Planici.
+
+  <img src="./img/fluxo/register/termos.png" alt="Aceite dos termos de serviço" width="300"/>
+
+</details>
+
+<details>
+  <summary>Setup do Negócio (Tenant)</summary>
+
+  ### Empresas — Lista de Tenants
+  Após o login, o usuário vê a lista de negócios que gerencia. Pode criar um novo ou ingressar via convite.
+
+  <img src="./img/fluxo/tenants/index.png" alt="Lista de empresas" width="300"/>
+
+  ---
+
+  ### Empresas — Estado Vazio
+  Quando nenhum negócio foi criado ainda, o sistema exibe um estado vazio com atalhos para criar ou ingressar em um tenant.
+
+  <img src="./img/fluxo/tenants/(empty).png" alt="Sem empresas adicionadas" width="300"/>
+
+  ---
+
+  ### Novo Tenant — Passo 1: Área de Atuação
+  O usuário seleciona sua área profissional entre as opções pré-definidas. Essa escolha personaliza a linguagem do sistema.
+
+  <img src="./img/fluxo/tenants/new.png" alt="Seleção de área de atuação" width="300"/>
+
+  ---
+
+  ### Novo Tenant — Passo 1b: Área Personalizada
+  Ao selecionar "Outra", um campo adicional é exibido para que o usuário informe como prefere se chamar profissionalmente.
+
+  <img src="./img/fluxo/tenants/new (outra).png" alt="Área personalizada com campo de apelido" width="300"/>
+
+  ---
+
+  ### Novo Tenant — Passo 2: Personalização dos Nomes
+  O sistema sugere renomear as seções principais com base na área escolhida (ex: Clientes → Pacientes). O usuário pode aceitar, ajustar ou manter os nomes padrão.
+
+  <img src="./img/fluxo/tenants/new-renaming.png" alt="Personalização dos nomes das seções" width="300"/>
+
 </details>
