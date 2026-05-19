@@ -1272,6 +1272,7 @@ Exemplos de operações críticas:
 
 <!-- #endregion -->
 
+<!-- #region 2.6 Fora de Escopo -->
 <h2>2.6 Fora de Escopo</h2>
 
 Os itens abaixo não fazem parte do escopo do Planici e não serão implementados no contexto deste projeto.
@@ -1292,3 +1293,17 @@ Os itens abaixo não fazem parte do escopo do Planici e não serão implementado
 
 8. **Funcionalidades de marketing:** O sistema não oferece email marketing, campanhas promocionais, cupons de desconto, automações de vendas ou ferramentas de CRM voltadas a captação de novos clientes.
 
+<!-- #endregion -->
+
+<h1>3. Fluxos e Comportamento do Sistema</h1>
+
+> [!NOTE]
+> Esta seção apresenta os principais fluxos de uso do sistema Planici, demonstrando como o usuário interage com as funcionalidades principais, desde a autenticação até o gerenciamento de clientes, serviços, planos, agendamentos e informações financeiras.
+
+## 3.1 Fluxo principal de Usuário (OnBoarding)
+O fluxo principal descreve a primeira interação do profissional com o sistema: desde o acesso inicial até a entrada no espaço de trabalho configurado. O sistema permite criar um novo ambiente (Tenant) ou ingressar em um existente via convite.
+
+<details open>
+  <summary>Flowchart</summary>
+  <img src="./img/main-flow.svg"/>
+</details>
