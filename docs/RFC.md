@@ -1314,6 +1314,7 @@ O fluxo principal descreve a primeira interação do profissional com o sistema:
   <summary>Flowchart</summary>
   <img src="./img/diagrams/main-flow.svg"/>
 </details>
+
 <!-- #endregion-->
 
 <!-- #region 3.2 Fluxo Alternativos -->
@@ -1351,6 +1352,10 @@ Este diagrama ilustra a regra de negócio que impede a exclusão (Hard Delete) d
 > [!NOTE]
 > Esta seção apresenta a visualização inicial do Planici antes da implementação, com nos mockups desenvolvidos no Figma (mobile-first).
 
+**Ferramenta Utilizada:** Figma
+
+[Link do protótipo](https://www.figma.com/design/rWWne0gLS6YsVEuz4c7Amg/Planici?node-id=0-1&t=J5LLtwXO2fQxcF8H-1) _também disponível no [README.md](../README.md)_
+
 <!-- #region 4.1 Fluxo de Navegação -->
 
 <h2>4.1 Fluxo de Navegação</h2>
@@ -1363,6 +1368,8 @@ O fluxo é dividido em três zonas funcionais:
 
 **Área principal:** Após o setup, o usuário acessa o dashboard com acesso às seções: `agenda`, `clientes`, `serviços`, `forms` e `planos`.
 
+**Fluxo Linear:** `login -> register -> tenants/new -> dashboard -> agenda/clientes/serviços`
+
 O perfil do usuário é independente do tenant, o mesmo usuário pode gerenciar múltiplos negócios, semelhante ao modelo de organizações do Sup.
 <details>
   <summary>Fluxograma</summary>
@@ -1371,46 +1378,52 @@ O perfil do usuário é independente do tenant, o mesmo usuário pode gerenciar 
 
 <!-- #endregion -->
 
+<!-- #region 4.2 Wireframes -->
+
 <h2>4.2 Wireframes ou Mockups das Telas</h2>
+
 <details>
   <summary>Fluxo Principal</summary>
-
-  ### Tela Inicial — Login / Registro
+  <h3> Tela Inicial — Login / Registro</h3>
   Ponto de entrada do app. O usuário escolhe entre fazer login em uma conta existente ou iniciar o cadastro.
 
   <img src="./img/fluxo/login.png" alt="Tela inicial com opções de Login e Registrar" width="300"/>
+  
+  **Ações principais:**
+  - Clicar em login;
+  - Clicar em Registrar.
 
   ---
 
-  ### Registro — Passo 1: Dados Básicos
+  <h3> Registro — Passo 1: Dados Básicos </h3>
   Início do fluxo multi-step de cadastro. O usuário informa nome, sobrenome e e-mail, ou continua via OAuth (Google / Apple).
 
   <img src="./img/fluxo/register/index.png" alt="Registro - informações básicas" width="300"/>
 
   ---
 
-  ### Registro — Passo 2: Verificação de E-mail
+  <h3> Registro — Passo 2: Verificação de  </h3>E-mail
   Após informar o e-mail, o sistema envia um link de confirmação. O usuário aguarda e pode solicitar reenvio caso necessário.
 
   <img src="./img/fluxo/register/confirmEmail.png" alt="Verificação de e-mail" width="300"/>
 
   ---
 
-  ### Registro — Passo 3: Definição de Senha
+  <h3> Registro — Passo 3: Definição de Senha </h3>
   O usuário cria uma senha segura (mínimo 8 caracteres, um símbolo e um número) e confirma antes de prosseguir.
 
   <img src="./img/fluxo/register/password.png" alt="Definição de senha" width="300"/>
 
   ---
 
-  ### Registro — Passo 4: Informações Pessoais
-  O usuário define um apelido — como prefere ser chamado dentro da plataforma, independente do nome completo cadastrado.
+  <h3> Registro — Passo 4: Informações Pessoais </h3>
+  O usuário define um apelido como prefere ser chamado dentro da plataforma, independente do nome completo cadastrado.
 
   <img src="./img/fluxo/register/slug.png" alt="Informações pessoais - apelido" width="300"/>
 
   ---
 
-  ### Registro — Passo 5: Termos de Serviço
+  <h3> Registro — Passo 5: Termos de Serviço </h3>
   Antes de finalizar o cadastro, o usuário deve concordar com os Termos de Serviço do Planici.
 
   <img src="./img/fluxo/register/termos.png" alt="Aceite dos termos de serviço" width="300"/>
@@ -1420,37 +1433,58 @@ O perfil do usuário é independente do tenant, o mesmo usuário pode gerenciar 
 <details>
   <summary>Setup do Negócio (Tenant)</summary>
 
-  ### Empresas — Lista de Tenants
+  <h3> Empresas — Lista de Tenants </h3>
   Após o login, o usuário vê a lista de negócios que gerencia. Pode criar um novo ou ingressar via convite.
 
   <img src="./img/fluxo/tenants/index.png" alt="Lista de empresas" width="300"/>
 
   ---
 
-  ### Empresas — Estado Vazio
+  <h3> Empresas — Estado Vazio </h3>
   Quando nenhum negócio foi criado ainda, o sistema exibe um estado vazio com atalhos para criar ou ingressar em um tenant.
 
   <img src="./img/fluxo/tenants/(empty).png" alt="Sem empresas adicionadas" width="300"/>
 
   ---
 
-  ### Novo Tenant — Passo 1: Área de Atuação
+  <h3> Novo Tenant — Passo 1: Área de Atuação </h3>
   O usuário seleciona sua área profissional entre as opções pré-definidas. Essa escolha personaliza a linguagem do sistema.
 
   <img src="./img/fluxo/tenants/new.png" alt="Seleção de área de atuação" width="300"/>
 
   ---
 
-  ### Novo Tenant — Passo 1b: Área Personalizada
+  <h3> Novo Tenant — Passo 1b: Área  </h3>Personalizada
   Ao selecionar "Outra", um campo adicional é exibido para que o usuário informe como prefere se chamar profissionalmente.
 
   <img src="./img/fluxo/tenants/new (outra).png" alt="Área personalizada com campo de apelido" width="300"/>
 
   ---
 
-  ### Novo Tenant — Passo 2: Personalização dos Nomes
-  O sistema sugere renomear as seções principais com base na área escolhida (ex: Clientes → Pacientes). O usuário pode aceitar, ajustar ou manter os nomes padrão.
+  <h3> Novo Tenant — Passo 2: Personalização  </h3>dos Nomes
+  O sistema sugere renomear as seções principais com base na área escolhida (ex: Clientes -> Pacientes). O usuário pode aceitar, ajustar ou manter os nomes padrão.
 
   <img src="./img/fluxo/tenants/new-renaming.png" alt="Personalização dos nomes das seções" width="300"/>
 
 </details>
+
+<!-- #region Area Principal-->
+
+<details>
+  <summary>Área Principal</summary>
+
+  <h3>Visão Geral das Telas Principais</h3>
+  Após o setup do negócio, o usuário acessa o dashboard com quatro seções principais.
+
+  <img src="./img/fluxo/telas-principais.png" alt="visão geral das telas principais" width="900"/>
+
+  - **Agenda**: visualização e edição de um agendamento: horários, procedimentos e localização. Ações: editar detalhes, deletar agenda.
+  - **Formulários**: lista de prontuários vinculados ao negócio. Ações: visualizar formulário, criar novo (botão `+`).
+  - **Clientes**: lista de clientes agrupada alfabeticamente com tags e última visita. Ações: buscar cliente, criar novo.
+  - **Procedimentos/Consultas**: serviços organizados por categoria com duração e preço. Ações: adicionar serviço, excluir, expandir categoria.
+
+</details>
+
+<!-- #endregion -->
+
+<!-- #endregion -->
