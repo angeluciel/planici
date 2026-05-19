@@ -90,7 +90,7 @@ A partir dessa demanda pontual, identificou-se um padrão recorrente no perfil d
 </ul>
 <details open>
   <summary><h4>Image<h4/></summary>
-  <img alt=" img" src="/docs/img/acuity.png" />
+  <img alt=" img" src="./img/solutions/acuity.png" />
 </details>
 <br/>
 
@@ -125,7 +125,7 @@ A partir dessa demanda pontual, identificou-se um padrão recorrente no perfil d
 </ul>
 <details open>
   <summary><h4>Image<h4/></summary>
-  <img alt="img" src="/docs/img/minhaAgenda.png" />
+  <img alt="img" src="./img/solutions/minhaAgenda.png" />
 </details>
 <br/> <br />
 
@@ -161,7 +161,7 @@ A partir dessa demanda pontual, identificou-se um padrão recorrente no perfil d
 
 <details open>
   <summary><h4>Image<h4/></summary>
-  <img alt="img" src="/docs/img/Captura de tela 2026-04-11 192041.png"/>
+  <img alt="img" src="./img/solutions/google-agenda.png"/>
 </details>
 
 <br/><br />
@@ -1301,3 +1301,44 @@ Os itens abaixo não fazem parte do escopo do Planici e não serão implementado
 
 8. **Funcionalidades de marketing:** O sistema não oferece email marketing, campanhas promocionais, cupons de desconto, automações de vendas ou ferramentas de CRM voltadas a captação de novos clientes.
 
+<!-- #endregion -->
+
+<h1>3. Fluxos e Comportamento do Sistema</h1>
+
+> [!NOTE]
+> Esta seção apresenta os principais fluxos de uso do sistema Planici, demonstrando como o usuário interage com as funcionalidades principais, desde a autenticação até o gerenciamento de clientes, serviços, planos, agendamentos e informações financeiras.
+
+## 3.1 Fluxo principal de Usuário (OnBoarding)
+O fluxo principal descreve a primeira interação do profissional com o sistema: desde o acesso inicial até a entrada no espaço de trabalho configurado. O sistema permite criar um novo ambiente (Tenant) ou ingressar em um existente via convite.
+
+<details open>
+  <summary>Flowchart</summary>
+  <img src="./img/diagrams/main-flow.svg"/>
+</details>
+
+## 3.2 Fluxos alternativos
+Além do fluxo principal, o sistema precisa ldiar de forma resiliente com cenários de erro, cancelamentos e comportamentos atípicos. Abaixo estão detalhados os principais fluxos alternativos de operação diária.
+
+### Fluxo 1: Cliente Agenda horário pelo Link Público (conflito)
+Este cenário descreve o comportamento quando um cliente tenta agendar um horário que acabou de ser ocupado, demonstrando a proteção contra _overbooking_.
+
+<details open>
+  <summary>Flowchart</summary>
+  <img src="./img/diagrams/secondary-flow.svg"/>
+</details>
+
+### Fluxo 2: Cancelamento de Agendamento pelo Profissional
+Neste fluxo, o profissional precisa cancelar um atendimento. O sistema deve garantir que o histórico seja mantido, a receita não seja contabilizada indevidamente e o cliente seja notificado (caso os canais estejam ativos).
+
+<details open>
+  <summary>Flowchart</summary>
+  <img src="./img/diagrams/thirtiary-flow.svg"/>
+</details>
+
+### Fluxo 3: Exclusão de Entidade com Dependências (Tentativa de deletar Serviço)
+Este diagrama ilustra a regra de negócio que impede a exclusão (Hard Delete) de dados que possuem histórico atrelado, aplicando a inativação (Soft Delete).
+
+<details open>
+  <summary>Flowchart</summary>
+  <img src="./img/diagrams/fourth-flow.svg"/>
+</details>
