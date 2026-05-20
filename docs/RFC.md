@@ -61,7 +61,10 @@
 | 4.3 | [Fluxo de Interação do Usuário](#43-fluxo-de-interação-do-usuário) | Passo a passo da criação de conta até o dashboard |
 
 </details>
+<<<<<<< HEAD
 <br/>
+=======
+>>>>>>> 504692b (indice adicionado)
 
 <!-- #endregion -->
 
