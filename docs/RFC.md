@@ -6,7 +6,7 @@
 <h1>Identificação</h1>
 
 <div align="center">
-  <table>
+  <table width=100%>
     <thead>
       <tr>
         <th>Título do Projeto</th>
@@ -30,9 +30,42 @@
 
 <!-- #endregion -->
 
+<!-- #region RESUMO -->
+
+<details open>
+  <summary>Índice do RFC</summary>
+
+  | # | Seção | Descrição |
+|---|-------|-----------|
+| — | [Identificação](#identificação) | Título, autor, data e versão do projeto |
+| 1 | [Visão do Produto](#1-visão-do-produto) | Visão geral do que o Planici resolve |
+| 1.1 | [Contexto e Problema](#11-contexto-e-problema) | Contexto de uso e problema identificado |
+| 1.2 | [Origem da Demanda e Evidências](#12-origem-da-demanda-e-evidências-) | Como a demanda foi identificada |
+| 1.3 | [Análise de Soluções Existentes](#13-análise-de-soluções-existentes) | Comparativo com Acuity, MinhaAgenda e Google Calendar |
+| 1.4 | [Público Alvo](#14-público-alvo) | Perfil do usuário e contexto de uso |
+| 1.5 | [Objetivos do Projeto](#15-objetivos-do-projeto) | Objetivo geral e específicos |
+| 1.6 | [Métricas de Sucesso (KPIs)](#16-métricas-de-sucesso-kpis) | Critérios mensuráveis de sucesso |
+| 2 | [Engenharia de Requisitos](#2-engenharia-de-requisitos) | Requisitos funcionais, não funcionais e regras de negócio |
+| 2.1 | [Personas](#21-personas) | Persona Carlos |
+| 2.2 | [Casos de Uso Principais](#22-casos-de-uso-principais) | UCs por módulo (autenticação, clientes, agenda, pagamentos...) |
+| 2.3 | [Requisitos Funcionais (RF)](#23-requisitos-funcionais-rf) | RF-01 a RF-43, organizados por módulo |
+| 2.4 | [Requisitos Não Funcionais (RNF)](#24-requisitos-não-funcionais-rnf) | Desempenho, segurança, LGPD, usabilidade, escalabilidade |
+| 2.5 | [Regras de Negócio](#25-regras-de-negócio) | RN-01 a RN-25 |
+| 2.6 | [Fora de Escopo](#26-fora-de-escopo) | O que o sistema não irá implementar |
+| 3 | [Fluxos e Comportamento do Sistema](#3-fluxos-e-comportamento-do-sistema) | Fluxogramas dos principais fluxos |
+| 3.1 | [Fluxo Principal de Usuário (OnBoarding)](#31-fluxo-principal-de-usuário-onboarding) | Primeiro acesso e criação do tenant |
+| 3.2 | [Fluxos Alternativos](#32-fluxos-alternativos) | Conflito de horário, cancelamento, exclusão com dependências |
+| 4 | [Mockups e Experiência do Usuário (UX)](#4-mockups-e-experiência-do-usuário-ux) | Protótipos no Figma (mobile-first) |
+| 4.1 | [Fluxo de Navegação](#41-fluxo-de-navegação) | Zonas funcionais e fluxo linear de telas |
+| 4.2 | [Wireframes ou Mockups das Telas](#42-wireframes-ou-mockups-das-telas) | Telas de onboarding, tenant setup e área principal |
+| 4.3 | [Fluxo de Interação do Usuário](#43-fluxo-de-interação-do-usuário) | Passo a passo da criação de conta até o dashboard |
+
+</details>
+
+<!-- #endregion -->
+
 <h1 style="color:#D89F0F">1. Visão do Produto</h1>
 O Planici resolve o problema encontrado em softwares complicados, incompletos ou caros de agenda e gestão de negócio, utilizando uma interface intuitiva para gerenciar os compromissos, gastos e lucros, e clientes de um micro e pequeno negócio.
-
 
 <h2 style="color:#770404">1.1. Contexto e Problema</h2>
 Profissionais de atendimento personalizado (terapeutas, nutricionistas, personal trainers) costumam trabalhar sozinhos ou com equipes pequenas e acabam concentrando agenda, cadastro de clientes, procedimentos, preços e finanças.
