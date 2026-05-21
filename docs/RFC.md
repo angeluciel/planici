@@ -59,6 +59,16 @@
 | 4.1 | [Fluxo de Navegação](#41-fluxo-de-navegação) | Zonas funcionais e fluxo linear de telas |
 | 4.2 | [Wireframes ou Mockups das Telas](#42-wireframes-ou-mockups-das-telas) | Telas de onboarding, tenant setup e área principal |
 | 4.3 | [Fluxo de Interação do Usuário](#43-fluxo-de-interação-do-usuário) | Passo a passo da criação de conta até o dashboard |
+| 5 | [Arquitetura do Sistema](#5-arquitetura-do-sistema) | Visão técnica da arquitetura do Planici |
+| 5.1 | [Diagrama C4](#51-diagrama-c4) | Diagramas de contexto e containers (C4 Model) |
+| 5.2 | [Modelo de Dados](#52-modelo-de-dados) | Diagrama entidade-relacionamento (ERM) |
+| 5.3 | [Principais Componentes](#53-principais-componentes) | Componentes principais do sistema |
+| 5.4 | [Stack Tecnológica](#54-stack-tecnológica) | Next.js, NestJS, PostgreSQL e RabbitMQ |
+| 6 | [Segurança e Privacidade](#6-segurança-e-privacidade) | Estratégia de segurança e conformidade LGPD |
+| 6.1 | [Segurança da Aplicação](#61-segurança-da-aplicação) | Autenticação, autorização, OWASP e auditoria |
+| 6.2 | [Privacidade e LGPD](#62-privacidade-e-lgpd) | Dados coletados, consentimento e direitos do usuário |
+| 7 | [Planejamento do Projeto](#7-planejamento-do-projeto) | Marcos de entrega (M1–M9) por semana |
+| 8 | [Referências](#8-referências) | Legislação, arquitetura, frameworks e ferramentas |
 
 </details>
 <br/>
@@ -204,17 +214,8 @@ A partir dessa demanda pontual, identificou-se um padrão recorrente no perfil d
 
 <!-- #endregion -->
 
-<!-- #region TODO:COMPARAÇÃO TABELA -->
-<!--
-<h3 style="color:#C90606">Comparação</h3>
-| Solução | Pontos Fortes | Limitações |
-| ------- | ------------- | ---------- |
-| a       | a             | a          |
 
--->
-<!-- #endregion -->
-
-<!-- #region TODO:DIFERENCIAL DO PROJETO-->
+<!-- #region DIFERENCIAL DO PROJETO-->
 <h3 style="color:#C90606">Diferencial do Projeto</h3>
 
 <h4>Por que criar algo novo?</h4>
@@ -364,7 +365,7 @@ Qual transformação o projeto pretende gerar
 
 ## Casos de uso por módulo
 
-### 1. Autenticação e conta
+### 2.2.1. Autenticação e conta
 | Código | Caso de uso                                    | Ator principal          | Requisitos relacionados |
 | ------ | ---------------------------------------------- | ----------------------- | ----------------------- |
 | UC-01  | Criar conta com e-mail e senha                 | Profissional            | RF-01                   |
@@ -374,7 +375,7 @@ Qual transformação o projeto pretende gerar
 | UC-05  | Convidar colaborador para o espaço de trabalho | Administrador do tenant | RF-05                   |
 | UC-06  | Definir permissões de colaborador              | Administrador do tenant | RF-06                   |
 
-### 2. Clientes
+### 2.2.2. Clientes
 | Código | Caso de uso                             | Ator principal | Requisitos relacionados |
 | ------ | --------------------------------------- | -------------- | ----------------------- |
 | UC-07  | Cadastrar cliente                       | Profissional   | RF-07                   |
@@ -383,7 +384,7 @@ Qual transformação o projeto pretende gerar
 | UC-10  | Buscar e filtrar clientes               | Profissional   | RF-09                   |
 | UC-11  | Visualizar ficha e histórico do cliente | Profissional   | RF-10                   |
 
-### 3. Procedimentos e serviços
+### 2.2.3. Procedimentos e serviços
 | Código | Caso de uso                      | Ator principal | Requisitos relacionados |
 | ------ | -------------------------------- | -------------- | ----------------------- |
 | UC-12  | Cadastrar procedimento           | Profissional   | RF-11                   |
@@ -391,7 +392,7 @@ Qual transformação o projeto pretende gerar
 | UC-14  | Excluir ou inativar procedimento | Profissional   | RF-12                   |
 | UC-15  | Listar procedimentos cadastrados | Profissional   | RF-13                   |
 
-### 4. Pacotes e planos
+### 2.2.4. Pacotes e planos
 | Código | Caso de uso                  | Ator principal | Requisitos relacionados |
 | ------ | ---------------------------- | -------------- | ----------------------- |
 | UC-16  | Criar plano ou pacote        | Profissional   | RF-14                   |
@@ -400,7 +401,7 @@ Qual transformação o projeto pretende gerar
 | UC-19  | Excluir ou inativar plano    | Profissional   | RF-16                   |
 | UC-20  | Listar planos cadastrados    | Profissional   | RF-17                   |
 
-### 5. Agenda e agendamentos
+### 2.2.5. Agenda e agendamentos
 | Código | Caso de uso                                     | Ator principal       | Requisitos relacionados |
 | ------ | ----------------------------------------------- | -------------------- | ----------------------- |
 | UC-21  | Configurar disponibilidade fixa                 | Profissional         | RF-18                   |
@@ -414,14 +415,14 @@ Qual transformação o projeto pretende gerar
 | UC-29  | Confirmar ou recusar solicitação de agendamento | Profissional         | RF-24                   |
 | UC-30  | Bloquear horário na agenda                      | Profissional         | RF-25                   |
 
-### 6. Pagamentos
+### 2.2.6. Pagamentos
 | Código | Caso de uso                                   | Ator principal | Requisitos relacionados |
 | ------ | --------------------------------------------- | -------------- | ----------------------- |
 | UC-31  | Registrar pagamento de atendimento            | Profissional   | RF-26                   |
 | UC-32  | Editar pagamento registrado                   | Profissional   | RF-27                   |
 | UC-33  | Visualizar status de pagamento do atendimento | Profissional   | RF-28                   |
 
-### 7. Visão financeira e relatórios.
+### 2.2.7. Visão financeira e relatórios.
 | Código | Caso de uso                               | Ator principal | Requisitos relacionados |
 | ------ | ----------------------------------------- | -------------- | ----------------------- |
 | UC-34  | Visualizar resumo de receitas por período | Profissional   | RF-29                   |
@@ -429,7 +430,7 @@ Qual transformação o projeto pretende gerar
 | UC-36  | Visualizar ranking de procedimentos       | Profissional   | RF-31                   |
 | UC-37  | Exportar relatório financeiro             | Profissional   | RF-32                   |
 
-### 8. Notificações
+### 2.2.8. Notificações
 | Código | Caso de uso                                | Ator principal | Requisitos relacionados |
 | ------ | ------------------------------------------ | -------------- | ----------------------- |
 | UC-38  | Enviar confirmação de agendamento          | Sistema        | RF-33                   |
@@ -437,7 +438,7 @@ Qual transformação o projeto pretende gerar
 | UC-40  | Notificar cancelamento ou remarcação       | Sistema        | RF-35                   |
 | UC-41  | Configurar canais e eventos de notificação | Profissional   | RF-36                   |
 
-### 9. Formulários personalizados
+### 2.2.9. Formulários personalizados
 | Código | Caso de uso                                     | Ator principal | Requisitos relacionados |
 | ------ | ----------------------------------------------- | -------------- | ----------------------- |
 | UC-42  | Criar modelo de formulário                      | Profissional   | RF-37                   |
@@ -448,7 +449,7 @@ Qual transformação o projeto pretende gerar
 | UC-47  | Editar respostas de formulário aplicado         | Profissional   | RF-41                   |
 | UC-48  | Visualizar formulários aplicados a uma entidade | Profissional   | RF-42                   |
 
-### 10. Configuração do espaço de trabalho
+### 2.2.10. Configuração do espaço de trabalho
 | Código | Caso de uso                      | Ator principal | Requisitos relacionados |
 | ------ | -------------------------------- | -------------- | ----------------------- |
 | UC-49  | Configurar ocupação profissional | Profissional   | RF-43                   |
@@ -1314,21 +1315,29 @@ Exemplos de operações críticas:
 
 Os itens abaixo não fazem parte do escopo do Planici e não serão implementados no contexto deste projeto.
 
-1. **Interação cruzada entre tenants:** O sistema não permite que um profissional visualize, edite ou acesse dados de outro tenant. Não há marketplace, listagem pública de profissionais nem nenhum tipo de visualização de perfil entre usuários distintos.
+### 2.6.1. Interação cruzada entre tenants:
+O sistema não permite que um profissional visualize, edite ou acesse dados de outro tenant. Não há marketplace, listagem pública de profissionais nem nenhum tipo de visualização de perfil entre usuários distintos.
 
-2. **Aplicativo mobile nativo:** O Planici é uma aplicação web com design responsivo e mobile-first. Não será desenvolvido app nativo para iOS ou Android.
+### 2.6.2. Aplicativo mobile nativo:
+ O Planici é uma aplicação web com design responsivo e mobile-first. Não será desenvolvido app nativo para iOS ou Android.
 
-3. **Processamento de pagamentos online:** O sistema registra pagamentos manualmente informados pelo profissional. Não há integração com gateways de pagamento (ex: Stripe, PagSeguro, Mercado Pago) nem cobrança automática de clientes.
+### 2.6.3. Processamento de pagamentos online:
+O sistema registra pagamentos manualmente informados pelo profissional. Não há integração com gateways de pagamento (ex: Stripe, PagSeguro, Mercado Pago) nem cobrança automática de clientes.
 
-4. **Emissão de documentos fiscais:** O sistema não emite notas fiscais, NFS-e, NF-e nem qualquer documento fiscal regulamentado.
+### 2.6.4. Emissão de documentos fiscais:
+O sistema não emite notas fiscais, NFS-e, NF-e nem qualquer documento fiscal regulamentado.
 
-5. **Gestão de estoque ou venda de produtos:** O sistema é voltado exclusivamente para gestão de serviços. Não há suporte a controle de estoque, catálogo de produtos físicos ou e-commerce.
+### 2.6.5. Gestão de estoque ou venda de produtos:
+O sistema é voltado exclusivamente para gestão de serviços. Não há suporte a controle de estoque, catálogo de produtos físicos ou e-commerce.
 
-6. **Múltiplas unidades ou filiais:** O escopo é o profissional autônomo individual. Não há suporte a gestão de múltiplas unidades, franquias ou redes de atendimento.
+### 2.6.6. Múltiplas unidades ou filiais:
+O escopo é o profissional autônomo individual. Não há suporte a gestão de múltiplas unidades, franquias ou redes de atendimento.
 
-7. **Integração com prontuários eletrônicos ou sistemas de saúde regulamentados:** O sistema não se integra a prontuários eletrônicos, sistemas do CFM, TISS ou qualquer plataforma de saúde regulamentada. Formulários personalizados podem ser utilizados para registros internos, mas sem valor legal ou clínico.
+### 2.6.7. Integração com prontuários eletrônicos ou sistemas de saúde regulamentados:
+O sistema não se integra a prontuários eletrônicos, sistemas do CFM, TISS ou qualquer plataforma de saúde regulamentada. Formulários personalizados podem ser utilizados para registros internos, mas sem valor legal ou clínico.
 
-8. **Funcionalidades de marketing:** O sistema não oferece email marketing, campanhas promocionais, cupons de desconto, automações de vendas ou ferramentas de CRM voltadas a captação de novos clientes.
+### 2.6.8. Funcionalidades de marketing:
+O sistema não oferece email marketing, campanhas promocionais, cupons de desconto, automações de vendas ou ferramentas de CRM voltadas a captação de novos clientes.
 
 <!-- #endregion -->
 
@@ -1663,7 +1672,7 @@ O fluxo de interação escolhido para representar a experiência principal do Pl
 
 <!-- #endregion -->
 
-<h1>5. Arquitetura do Sistema</h1>
+# 5. Arquitetura do Sistema
 
 > [!NOTE]
 > Esta seção apresenta a visualização da arquitetura geral do Planici, e como ele será construído.
