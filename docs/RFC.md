@@ -1686,7 +1686,7 @@ O fluxo de interação escolhido para representar a experiência principal do Pl
 > [!TIP]
 > A visão macro do sistema. O foco não é a tecnologia, mas sim como o software se encaixa no ecossistema e no mundo real.
 
-<details>
+<details open>
   <summary>Diagrama</summary>
   <img src="./img/diagrams/C4/context.svg" width="100%"/>
 </details>
@@ -1700,7 +1700,7 @@ O fluxo de interação escolhido para representar a experiência principal do Pl
 > [!TIP]
 > O primeiro "zoom". Este diagrama é a decomposição do sistema em unidades de execução independentes.
 
-<details>
+<details open>
   <summary>Diagrama</summary>
   <img src="./img/diagrams/C4/container.svg" width="100%"/>
 </details>
