@@ -1695,7 +1695,7 @@ O fluxo de interação escolhido para representar a experiência principal do Pl
 
 <!-- #region CONTAINERS -->
 
-<h3>Nível 1: Diagrrama de Contexto</h3>
+<h3>Nível 2: Diagrrama de Contexto</h3>
 
 > [!TIP]
 > O primeiro "zoom". Este diagrama é a decomposição do sistema em unidades de execução independentes.
