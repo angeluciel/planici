@@ -6,7 +6,7 @@
 <h1>Identificação</h1>
 
 <div align="center">
-  <table>
+  <table width=100%>
     <thead>
       <tr>
         <th>Título do Projeto</th>
@@ -30,9 +30,43 @@
 
 <!-- #endregion -->
 
+<!-- #region ÍNDICE -->
+
+<details open>
+  <summary><strong>Índice</strong></summary>
+
+  | # | Seção | Descrição |
+|---|-------|-----------|
+| — | [Identificação](#identificação) | Título, autor, data e versão do projeto |
+| 1 | [Visão do Produto](#1-visão-do-produto) | Visão geral do que o Planici resolve |
+| 1.1 | [Contexto e Problema](#11-contexto-e-problema) | Contexto de uso e problema identificado |
+| 1.2 | [Origem da Demanda e Evidências](#12-origem-da-demanda-e-evidências-) | Como a demanda foi identificada |
+| 1.3 | [Análise de Soluções Existentes](#13-análise-de-soluções-existentes) | Comparativo com Acuity, MinhaAgenda e Google Calendar |
+| 1.4 | [Público Alvo](#14-público-alvo) | Perfil do usuário e contexto de uso |
+| 1.5 | [Objetivos do Projeto](#15-objetivos-do-projeto) | Objetivo geral e específicos |
+| 1.6 | [Métricas de Sucesso (KPIs)](#16-métricas-de-sucesso-kpis) | Critérios mensuráveis de sucesso |
+| 2 | [Engenharia de Requisitos](#2-engenharia-de-requisitos) | Requisitos funcionais, não funcionais e regras de negócio |
+| 2.1 | [Personas](#21-personas) | Persona Carlos |
+| 2.2 | [Casos de Uso Principais](#22-casos-de-uso-principais) | UCs por módulo (autenticação, clientes, agenda, pagamentos...) |
+| 2.3 | [Requisitos Funcionais (RF)](#23-requisitos-funcionais-rf) | RF-01 a RF-43, organizados por módulo |
+| 2.4 | [Requisitos Não Funcionais (RNF)](#24-requisitos-não-funcionais-rnf) | Desempenho, segurança, LGPD, usabilidade, escalabilidade |
+| 2.5 | [Regras de Negócio](#25-regras-de-negócio) | RN-01 a RN-25 |
+| 2.6 | [Fora de Escopo](#26-fora-de-escopo) | O que o sistema não irá implementar |
+| 3 | [Fluxos e Comportamento do Sistema](#3-fluxos-e-comportamento-do-sistema) | Fluxogramas dos principais fluxos |
+| 3.1 | [Fluxo Principal de Usuário (OnBoarding)](#31-fluxo-principal-de-usuário-onboarding) | Primeiro acesso e criação do tenant |
+| 3.2 | [Fluxos Alternativos](#32-fluxos-alternativos) | Conflito de horário, cancelamento, exclusão com dependências |
+| 4 | [Mockups e Experiência do Usuário (UX)](#4-mockups-e-experiência-do-usuário-ux) | Protótipos no Figma (mobile-first) |
+| 4.1 | [Fluxo de Navegação](#41-fluxo-de-navegação) | Zonas funcionais e fluxo linear de telas |
+| 4.2 | [Wireframes ou Mockups das Telas](#42-wireframes-ou-mockups-das-telas) | Telas de onboarding, tenant setup e área principal |
+| 4.3 | [Fluxo de Interação do Usuário](#43-fluxo-de-interação-do-usuário) | Passo a passo da criação de conta até o dashboard |
+
+</details>
+<br/>
+
+<!-- #endregion -->
+
 <h1 style="color:#D89F0F">1. Visão do Produto</h1>
 O Planici resolve o problema encontrado em softwares complicados, incompletos ou caros de agenda e gestão de negócio, utilizando uma interface intuitiva para gerenciar os compromissos, gastos e lucros, e clientes de um micro e pequeno negócio.
-
 
 <h2 style="color:#770404">1.1. Contexto e Problema</h2>
 Profissionais de atendimento personalizado (terapeutas, nutricionistas, personal trainers) costumam trabalhar sozinhos ou com equipes pequenas e acabam concentrando agenda, cadastro de clientes, procedimentos, preços e finanças.
@@ -445,7 +479,7 @@ Qual transformação o projeto pretende gerar
   </tr>
   <tr>
     <td>RF-02</td>
-    <td><strong>Login via Google (OAuth)</strong><br>O profissional pode autenticar com a conta Google.</td>
+    <td><strong>Login via Google e Apple (OAuth)</strong><br>O profissional pode autenticar com a conta Google ou Apple.</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -1314,6 +1348,7 @@ O fluxo principal descreve a primeira interação do profissional com o sistema:
   <summary>Flowchart</summary>
   <img src="./img/diagrams/main-flow.svg"/>
 </details>
+
 <!-- #endregion-->
 
 <!-- #region 3.2 Fluxo Alternativos -->
@@ -1351,6 +1386,10 @@ Este diagrama ilustra a regra de negócio que impede a exclusão (Hard Delete) d
 > [!NOTE]
 > Esta seção apresenta a visualização inicial do Planici antes da implementação, com nos mockups desenvolvidos no Figma (mobile-first).
 
+**Ferramenta Utilizada:** Figma
+
+[Link do protótipo](https://www.figma.com/design/rWWne0gLS6YsVEuz4c7Amg/Planici?node-id=0-1&t=J5LLtwXO2fQxcF8H-1) _também disponível no [README.md](../README.md)_
+
 <!-- #region 4.1 Fluxo de Navegação -->
 
 <h2>4.1 Fluxo de Navegação</h2>
@@ -1363,6 +1402,8 @@ O fluxo é dividido em três zonas funcionais:
 
 **Área principal:** Após o setup, o usuário acessa o dashboard com acesso às seções: `agenda`, `clientes`, `serviços`, `forms` e `planos`.
 
+**Fluxo Linear:** `login -> register -> tenants/new -> dashboard -> agenda/clientes/serviços`
+
 O perfil do usuário é independente do tenant, o mesmo usuário pode gerenciar múltiplos negócios, semelhante ao modelo de organizações do Sup.
 <details>
   <summary>Fluxograma</summary>
@@ -1371,86 +1412,293 @@ O perfil do usuário é independente do tenant, o mesmo usuário pode gerenciar 
 
 <!-- #endregion -->
 
+<!-- #region 4.2 Wireframes -->
+
 <h2>4.2 Wireframes ou Mockups das Telas</h2>
+
+Os mockups do Planici foram desenvolvidos no Figma seguindo uma abordagem mobile-first. As telas abaixo representam os principais pontos de interação do usuário, desde o primeiro acesso até a entrada na área principal da aplicação.
+
+### Fluxo Principal de Onboarding e Autenticação
+
+#### Tela Inicial — Login / Registro
+
+<img src="./img/fluxo/login.png" alt="Tela inicial com opções de Login e Registrar" width="320" />
+
+**Descrição:**  
+Ponto de entrada do aplicativo. O usuário escolhe entre acessar uma conta existente ou iniciar um novo cadastro.
+
+**Ações principais:**
+
+- Clicar em **Login**;
+- Clicar em **Registrar**.
+
+**Requisitos relacionados:** RF-01, RF-02.
+
+---
+
+#### Registro — Passo 1: Dados Básicos
+
+<img src="./img/fluxo/register/index.png" alt="Registro - informações básicas" width="320" />
+
+**Descrição:**  
+Primeira etapa do cadastro. O usuário informa nome, sobrenome e e-mail, ou escolhe continuar utilizando autenticação externa, como Google ou Apple.
+
+**Ações principais:**
+
+- Informar nome;
+- Informar sobrenome;
+- Informar e-mail;
+- Continuar com Google;
+- Continuar com Apple;
+- Avançar para a próxima etapa.
+
+**Requisitos relacionados:** RF-01, RF-02.
+
+---
+
+#### Registro — Passo 2: Verificação de E-mail
+
+<img src="./img/fluxo/register/confirmEmail.png" alt="Verificação de e-mail" width="320" />
+
+**Descrição:**  
+Após informar o e-mail, o sistema orienta o usuário a verificar sua caixa de entrada. Essa etapa garante que a conta esteja associada a um endereço válido.
+
+**Ações principais:**
+
+- Verificar o e-mail informado;
+- Solicitar reenvio do link de confirmação, se necessário;
+- Continuar o cadastro após a confirmação.
+
+**Requisitos relacionados:** RF-01.
+
+---
+
+#### Registro — Passo 3: Definição de Senha
+
+<img src="./img/fluxo/register/password.png" alt="Definição de senha" width="320" />
+
+**Descrição:**  
+O usuário cria uma senha segura para acessar o sistema. A interface informa os critérios mínimos exigidos, como quantidade mínima de caracteres, presença de número e símbolo.
+
+**Ações principais:**
+
+- Informar senha;
+- Confirmar senha;
+- Visualizar os critérios de segurança;
+- Avançar para a próxima etapa.
+
+**Requisitos relacionados:** RF-01, RNF-15.
+
+---
+
+#### Registro — Passo 4: Informações Pessoais
+
+<img src="./img/fluxo/register/slug.png" alt="Informações pessoais - apelido" width="320" />
+
+**Descrição:**  
+O usuário define um apelido ou nome de exibição. Essa informação permite personalizar a forma como o sistema se comunica com o usuário, sem depender apenas do nome completo cadastrado.
+
+**Ações principais:**
+
+- Informar apelido;
+- Revisar a informação preenchida;
+- Criar a conta.
+
+**Requisitos relacionados:** RF-04.
+
+---
+
+#### Registro — Passo 5: Termos de Serviço
+
+<img src="./img/fluxo/register/termos.png" alt="Aceite dos termos de serviço" width="320" />
+
+**Descrição:**  
+Antes de finalizar o cadastro, o usuário deve aceitar os Termos de Serviço da aplicação. Essa etapa formaliza o consentimento necessário para uso do sistema.
+
+**Ações principais:**
+
+- Acessar os Termos de Serviço;
+- Aceitar os termos;
+- Continuar para a aplicação.
+
+**Requisitos relacionados:** RNF-12, RNF-15.
+
+---
+
+### Setup do Negócio — Tenant
+
+#### Empresas — Lista de Tenants
+
+<img src="./img/fluxo/tenants/index.png" alt="Lista de empresas" width="320" />
+
+**Descrição:**  
+Após o login, o usuário visualiza os negócios aos quais possui acesso. Cada empresa representa um tenant, ou seja, um espaço de trabalho independente dentro do sistema.
+
+**Ações principais:**
+
+- Visualizar empresas cadastradas;
+- Selecionar uma empresa existente;
+- Criar uma nova empresa;
+- Acessar notificações ou opções do perfil.
+
+**Requisitos relacionados:** RF-04, RF-05, RF-06.
+
+---
+
+#### Empresas — Estado Vazio
+
+<img src="./img/fluxo/tenants/(empty).png" alt="Sem empresas adicionadas" width="320" />
+
+**Descrição:**  
+Quando o usuário ainda não possui nenhuma empresa cadastrada ou vinculada à sua conta, o sistema apresenta uma tela de estado vazio com chamadas claras para ação.
+
+**Ações principais:**
+
+- Criar nova empresa;
+- Ingressar em uma empresa existente por convite.
+
+**Requisitos relacionados:** RF-04, RF-05.
+
+---
+
+#### Novo Tenant — Passo 1: Área de Atuação
+
+<img src="./img/fluxo/tenants/new.png" alt="Seleção de área de atuação" width="320" />
+
+**Descrição:**  
+O usuário seleciona sua área profissional. Essa informação será utilizada para adaptar a linguagem da aplicação ao contexto do usuário.
+
+**Ações principais:**
+
+- Selecionar uma área profissional;
+- Escolher a opção **Outra**, caso a área não esteja listada;
+- Continuar para a personalização do sistema.
+
+**Requisitos relacionados:** RF-43, RN-23.
+
+---
+
+#### Novo Tenant — Passo 1b: Área Personalizada
+
+**Descrição:**  
+Caso o usuário selecione a opção **Outra**, o sistema permite informar manualmente uma área de atuação. Essa resposta pode ser usada para sugerir nomes personalizados para as seções da aplicação.
+
+**Ações principais:**
+
+- Informar área de atuação personalizada;
+- Confirmar a informação;
+- Prosseguir para a etapa de personalização.
+
+**Requisitos relacionados:** RF-43, RN-23.
+
+---
+
+#### Novo Tenant — Passo 2: Personalização dos Nomes
+
+<img src="./img/fluxo/tenants/new-renaming.png" alt="Personalização dos nomes das seções" width="320" />
+
+**Descrição:**  
+O sistema sugere a renomeação das principais seções da aplicação com base na área escolhida. Por exemplo, para uma terapeuta, “Clientes” pode se tornar “Pacientes”, “Serviços” pode se tornar “Procedimentos” e “Agendamentos” pode se tornar “Consultas”.
+
+**Ações principais:**
+
+- Visualizar sugestões de nomes personalizados;
+- Ajustar os nomes das seções;
+- Manter os nomes padrão;
+- Concluir ou adiar a personalização.
+
+**Requisitos relacionados:** RF-43, RN-22, RN-23.
+
+---
+
+### Área Principal da Aplicação
+
+#### Visão Geral das Telas Principais
+
+<img src="./img/fluxo/telas-principais.png" alt="Visão geral das telas principais" width="900" />
+
+**Descrição:**  
+Após concluir o setup do negócio, o usuário acessa a área principal do sistema. Essa visão apresenta os principais módulos do Planici: agenda, formulários, clientes e procedimentos/serviços.
+
+**Ações principais por módulo:**
+
+- **Agenda:** visualizar e editar agendamentos, consultar horários, procedimentos e localização;
+- **Formulários:** visualizar formulários cadastrados e criar novos modelos;
+- **Clientes:** buscar clientes, visualizar registros e criar novos cadastros;
+- **Procedimentos/Consultas:** visualizar serviços cadastrados, adicionar novos procedimentos, excluir ou expandir categorias.
+
+**Requisitos relacionados:** RF-07 a RF-43.
+
+---
+
+<!-- #endregion -->
+
+<!-- #region 4.3 Fluxo de interação do usuário -->
+
+## 4.3 Fluxo de Interação do Usuário
+
+O fluxo de interação escolhido para representar a experiência principal do Planici é o onboarding completo do profissional, desde o primeiro acesso até a entrada na área principal do sistema. Esse fluxo foi selecionado por ser essencial para validar a proposta de valor do produto: permitir que um profissional autônomo configure rapidamente seu espaço de trabalho e comece a organizar sua rotina.
+
+### Fluxo: criação de conta, configuração do tenant e acesso ao dashboard
+
+1. O usuário acessa a tela inicial do Planici.
+2. O usuário escolhe entre entrar em uma conta existente ou criar uma nova conta.
+3. Caso escolha criar conta, o usuário informa seus dados básicos: nome, sobrenome e e-mail.
+4. O sistema solicita a verificação do e-mail informado.
+5. Após a verificação, o usuário define uma senha segura.
+6. O usuário informa um apelido ou nome de exibição.
+7. O usuário aceita os Termos de Serviço e conclui o cadastro.
+8. Após o primeiro login, o sistema verifica se o usuário já participa de algum tenant.
+9. Caso o usuário ainda não possua tenant, o sistema exibe o estado vazio da tela de empresas.
+10. O usuário escolhe entre criar um novo tenant ou ingressar em um tenant existente por convite.
+11. Ao criar um novo tenant, o usuário seleciona sua área de atuação.
+12. Caso a área não esteja disponível, o usuário seleciona “Outra” e informa uma área personalizada.
+13. O sistema sugere nomes personalizados para as seções principais da aplicação.
+14. O usuário aceita, ajusta ou mantém os nomes padrão.
+15. O sistema cria o tenant e direciona o usuário para a área principal.
+16. O usuário acessa o dashboard e passa a navegar entre agenda, clientes, serviços, formulários e planos.
+
+### Representação visual do fluxo
+
+![fluxo-interacao-usuario](./img/diagrams/fluxo-interacao.svg)
+
+<!-- #endregion -->
+
+<h1>5. Arquitetura do Sistema</h1>
+
+> [!NOTE]
+> Esta seção apresenta a visualização da arquitetura geral do Planici, e como ele será construído.
+
+<!-- #region 5.1 Diagrama C4 -->
+
+<h2>5.1 Diagrama C4</h2>
+
+<!-- #region CONTEXTO -->
+
+<h3>Nível 1: Diagrrama de Contexto</h3>
+
+> [!TIP]
+> A visão macro do sistema. O foco não é a tecnologia, mas sim como o software se encaixa no ecossistema e no mundo real.
+
 <details>
-  <summary>Fluxo Principal</summary>
-
-  ### Tela Inicial — Login / Registro
-  Ponto de entrada do app. O usuário escolhe entre fazer login em uma conta existente ou iniciar o cadastro.
-
-  <img src="./img/fluxo/login.png" alt="Tela inicial com opções de Login e Registrar" width="300"/>
-
-  ---
-
-  ### Registro — Passo 1: Dados Básicos
-  Início do fluxo multi-step de cadastro. O usuário informa nome, sobrenome e e-mail, ou continua via OAuth (Google / Apple).
-
-  <img src="./img/fluxo/register/index.png" alt="Registro - informações básicas" width="300"/>
-
-  ---
-
-  ### Registro — Passo 2: Verificação de E-mail
-  Após informar o e-mail, o sistema envia um link de confirmação. O usuário aguarda e pode solicitar reenvio caso necessário.
-
-  <img src="./img/fluxo/register/confirmEmail.png" alt="Verificação de e-mail" width="300"/>
-
-  ---
-
-  ### Registro — Passo 3: Definição de Senha
-  O usuário cria uma senha segura (mínimo 8 caracteres, um símbolo e um número) e confirma antes de prosseguir.
-
-  <img src="./img/fluxo/register/password.png" alt="Definição de senha" width="300"/>
-
-  ---
-
-  ### Registro — Passo 4: Informações Pessoais
-  O usuário define um apelido — como prefere ser chamado dentro da plataforma, independente do nome completo cadastrado.
-
-  <img src="./img/fluxo/register/slug.png" alt="Informações pessoais - apelido" width="300"/>
-
-  ---
-
-  ### Registro — Passo 5: Termos de Serviço
-  Antes de finalizar o cadastro, o usuário deve concordar com os Termos de Serviço do Planici.
-
-  <img src="./img/fluxo/register/termos.png" alt="Aceite dos termos de serviço" width="300"/>
-
+  <summary>Diagrama</summary>
+  <img src="./img/diagrams/C4/context.svg" width="100%"/>
 </details>
 
+<!-- #endregion 5.1.1 -->
+
+<!-- #region CONTAINERS -->
+
+<h3>Nível 1: Diagrrama de Contexto</h3>
+
+> [!TIP]
+> O primeiro "zoom". Este diagrama é a decomposição do sistema em unidades de execução independentes.
+
 <details>
-  <summary>Setup do Negócio (Tenant)</summary>
-
-  ### Empresas — Lista de Tenants
-  Após o login, o usuário vê a lista de negócios que gerencia. Pode criar um novo ou ingressar via convite.
-
-  <img src="./img/fluxo/tenants/index.png" alt="Lista de empresas" width="300"/>
-
-  ---
-
-  ### Empresas — Estado Vazio
-  Quando nenhum negócio foi criado ainda, o sistema exibe um estado vazio com atalhos para criar ou ingressar em um tenant.
-
-  <img src="./img/fluxo/tenants/(empty).png" alt="Sem empresas adicionadas" width="300"/>
-
-  ---
-
-  ### Novo Tenant — Passo 1: Área de Atuação
-  O usuário seleciona sua área profissional entre as opções pré-definidas. Essa escolha personaliza a linguagem do sistema.
-
-  <img src="./img/fluxo/tenants/new.png" alt="Seleção de área de atuação" width="300"/>
-
-  ---
-
-  ### Novo Tenant — Passo 1b: Área Personalizada
-  Ao selecionar "Outra", um campo adicional é exibido para que o usuário informe como prefere se chamar profissionalmente.
-
-  <img src="./img/fluxo/tenants/new (outra).png" alt="Área personalizada com campo de apelido" width="300"/>
-
-  ---
-
-  ### Novo Tenant — Passo 2: Personalização dos Nomes
-  O sistema sugere renomear as seções principais com base na área escolhida (ex: Clientes → Pacientes). O usuário pode aceitar, ajustar ou manter os nomes padrão.
-
-  <img src="./img/fluxo/tenants/new-renaming.png" alt="Personalização dos nomes das seções" width="300"/>
-
+  <summary>Diagrama</summary>
+  <img src="./img/diagrams/C4/container.svg" width="100%"/>
 </details>
+
+<!-- #endregion 5.1.2 -->
+
+<!-- #endregion 5.1 -->
