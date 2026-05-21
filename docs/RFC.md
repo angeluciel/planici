@@ -61,14 +61,7 @@
 | 4.3 | [Fluxo de Interação do Usuário](#43-fluxo-de-interação-do-usuário) | Passo a passo da criação de conta até o dashboard |
 
 </details>
-<<<<<<< HEAD
-<<<<<<< HEAD
 <br/>
-=======
->>>>>>> 504692b (indice adicionado)
-=======
-<br/>
->>>>>>> 61462b3 (TCC-45 + TCC-46: done)
 
 <!-- #endregion -->
 
@@ -1708,3 +1701,406 @@ O fluxo de interação escolhido para representar a experiência principal do Pl
 <!-- #endregion 5.1.2 -->
 
 <!-- #endregion 5.1 -->
+
+<!-- #region 5.2 Diagrama ER -->
+
+<h2>5.2 Modelo de Dados</h2>
+
+> [!TIP]
+> O arquivo .dbml em 'docs/schema.dbml' apresenta o modelo de dados usado no website _dbdiagram.io_.
+
+<img src='./img/diagrams/erm-diagram.svg' alt="modelo er" />
+
+<!-- #endregion -->
+
+<!-- #region 5.3 Principais Componentes -->
+
+<h2>5.3 Principais Componentes</h2>
+
+```diff
+- TO-DO 
+```
+
+<!-- #endregion -->
+
+<!-- #region 5.4 Stack Tecnológica -->
+
+<h2>5.4 Stack Tecnológica</h2>
+
+### Next.js - Frontend
+**Motivo da escolha:** Next.js foi escolhido pela sua renderização server-side (SSR), performance otimizada e SEO nativo. Sua arquitetura baseada em file-system routing simplifica a organização do frontend, e o ecossistema React por baixo garante produtividade e acesso a uma quantidade enorme de bibliotecas.
+
+O suporte nativo a TypeScript reforça a consistência de tipos entre backend e frontend, reduzindo erros de integração.
+
+
+### NestJS - Backend
+**Motivo da escolha:** NestJS foi escolhido como framework de backend por se alinhar diretamente com três pilares arquiteturais que guiam este projeto:
+
+#### **1. Compatibilidade com Domain-Driver Design e Arquitetura Hexagonal**
+O projeto adota como modelo de referência o repositório [domain-drive-hexagon](https://github.com/Sairyss/domain-driven-hexagon/tree/master), que aconselha a separação entre camadas de domínio, aplicação e infraestrutura, além de uso de ports & adapters para isolar a lógica de negócio de frameworks externos. O NestJS viabiliza essa estrutura de forma nativa: seu sistema de módulos (`  @Modules  `), injeção de dependência (DI Container), e decorators permite organizar o código exatamente nas camadas descritas pelo modelo.
+
+#### **2. Suporte às boas práticas de backend em TypeScript**
+Seguindo as diretrizes do [backend-best-practices](https://github.com/Sairyss/backend-best-practices), o projeto prioriza: validação robusta de entrada (via à `class-validator`, `class-transformer` e `zod`, integrados nativamente ao NestJS), tratamento centralizado de erros, uso de DTOs para contratos de API bem definidos, e separação clara entre camadas de comando e queries (padrão CQRS).
+
+O NestJS oferece o móudlo `@nestjs/cqrs` que implementa CQRS de forma idiomática, além de pipes, guards e interceptors que encapsulam preocupações transversais como autenticação, logging e validação sem poluir a lógica de negócio.
+
+#### **3. Preparado para padrões de sistemas distribuídos**
+Com referência ao [system-design-patterns](https://github.com/Sairyss/system-design-patterns), o projeto considera desde o início padrões como idempotência, mensageria e resiliência. O NestJS possui suporte oficial a microservices e camadas de transporte (Redis, RabbitMQ, Kafka, gRPC), o que significa que caso o sistema cresça e exija decomposição em serviços independentes, a migração é estruturalmente suportada sem reescrever a base do código.
+
+
+### PostgreSQL (replica master-slave) - Banco de Dados
+**Motivo da escolha:** O PostgreSQL foi escolhido como banco de dados principal por ser o SGBD relacional open-source com o conjunto de funcionalidades mais maduro disponível, combinando confirmidade ACID, suporte nativo a JSON/JSONB (crucial para o domínio da aplicação), tipos avançados e extensibilidade via extensões.
+
+#### Modelo master-slave (replicação por streaming):
+O projeto adota a topologia master-slave com replicação assíncrona por streaming nativa do PostgreSQL. As motivações são:
+* O nó master recebe todas as operações de escrita (como criação de usuários, persistência de eventos de domínio, etc).
+* O nó de réplica recebe os dados do master em tempo real e fica disponível exclusivamente para leitura.
+
+Essa separação implementa na infraestrutura o mesom princípio que o padrão CQRS implementa no código: comandos (escrita) e queries (leitura).
+
+
+### RabbitMQ - Message Broker (mensageria assíncrona)
+
+**Motivo da escolha:** O RabbitMQ foi escolhido como broker de mensagens para desacoplar os fluxos que não precisam de resposta imediata do clico de vida da requisição HTTP principal. Os três casos de uso centrais são: **logs de auditoria, notificações via whatsapp** e **notificações via e-mail**.
+
+
+<!-- #endregion -->
+
+# 6. Segurança e Privacidade
+
+> [!NOTE]
+> A segurança do Planici é um requisito essencial, pois o sistema armazena informações de profissionais autônomos, clientes, agenda, serviços, planos, pagamentos, formulários personalizados e configurações do espaço de trabalho. Como o sistema opera em modelo multi-tenant, a principal preocupação de segurança é garantir que cada profissional ou empresa acesse somente os dados do seu próprio tenant.
+
+As medidas de segurança do sistema serão organizadas em cinco frentes principais:
+
+1. autenticação segura;
+2. autorização e controle de permissões;
+3. isolamento de dados por tenant;
+4. proteção contra vulnerabilidades comuns em aplicações web;
+5. privacidade e conformidade com a LGPD.
+
+<!-- 6.1 Segurança da Aplicação -->
+
+## 6.1 Segurança da Aplicação
+
+### Autenticação
+
+O Planici permitirá autenticação por e-mail e senha, além de autenticação externa por Google e Apple OAuth. Para contas criadas com senha, a senha não será armazenada em texto puro. O sistema deverá armazenar apenas o hash da senha, utilizando bcrypt com fator de custo adequado.
+
+Medidas previstas:
+
+- armazenamento de senhas com hash seguro;
+- validação de senha forte no cadastro;
+- verificação de e-mail durante o fluxo de criação de conta;
+- recuperação de senha por link temporário enviado por e-mail;
+- uso de tokens de autenticação com tempo de expiração;
+- invalidação de sessões ou tokens em caso de logout ou troca de senha.
+
+### Autorização e Permissões
+
+O sistema terá controle de acesso baseado em papéis e permissões, especialmente para tenants com múltiplos usuários. Cada usuário poderá estar vinculado a um ou mais tenants, e suas permissões dependerão do papel atribuído dentro daquele espaço de trabalho.
+
+Exemplos de papéis previstos:
+
+- **Owner:** responsável principal pelo tenant, com acesso total;
+- **Admin:** gerencia configurações, usuários e dados operacionais;
+- **Member:** acessa funcionalidades operacionais permitidas;
+- **Viewer:** possui acesso limitado para consulta.
+
+As permissões poderão ser definidas por recurso e ação, por exemplo:
+
+- `clients:create`;
+- `clients:read`;
+- `appointments:update`;
+- `payments:read`;
+- `settings:manage`.
+
+Com isso, será possível criar perfis como “acesso somente à agenda” ou “acesso a clientes e serviços, mas sem acesso financeiro”.
+
+### Isolamento por Tenant
+
+O Planici utiliza arquitetura multi-tenant. Portanto, clientes, serviços, planos, agendamentos, pagamentos, formulários, configurações e colaboradores devem estar vinculados a um tenant.
+
+A regra principal é:
+
+> um usuário só pode acessar dados de um tenant se possuir vínculo autorizado com esse tenant.
+
+Para reforçar esse isolamento, todas as consultas e operações sensíveis deverão considerar o `tenant_id`. Além da validação na aplicação, o banco de dados deverá aplicar Row-Level Security (RLS) nas tabelas que possuem `tenant_id`, reduzindo o risco de vazamento entre tenants mesmo em caso de erro de implementação na API.
+
+### Proteção contra OWASP Top 10
+
+O desenvolvimento do Planici deverá considerar as principais categorias de risco do OWASP Top 10, especialmente:
+
+- **Broken Access Control:** mitigado por validação de permissões, vínculo com tenant e RLS no banco;
+- **Cryptographic Failures:** mitigado por TLS, hash de senha e armazenamento seguro de credenciais;
+- **Injection:** mitigado pelo uso de ORM/query builder com queries parametrizadas;
+- **Security Misconfiguration:** mitigado por variáveis de ambiente, CORS restrito, headers de segurança e separação entre ambientes;
+- **Authentication Failures:** mitigado por senhas fortes, tokens com expiração e recuperação de senha segura;
+- **Security Logging and Monitoring Failures:** mitigado por logs de ações críticas e alertas de falhas.
+
+### Segurança de Transporte
+
+Todo tráfego entre cliente e servidor deverá ocorrer via HTTPS, utilizando TLS 1.2 ou superior. Isso protege dados sensíveis contra interceptação durante login, cadastro de clientes, envio de formulários, registro de pagamentos e uso do link público de agendamento.
+
+Também devem ser configurados headers de segurança, como:
+
+- CORS restrito aos domínios permitidos;
+- Content Security Policy (CSP);
+- X-Frame-Options ou equivalente;
+- proteção contra MIME sniffing;
+- cookies seguros, caso cookies sejam utilizados.
+
+### Proteção da API
+
+A API deverá implementar mecanismos de proteção contra abuso e ataques automatizados.
+
+Medidas previstas:
+
+- rate limit por IP e/ou por usuário;
+- validação de entrada em todos os endpoints;
+- paginação obrigatória em listagens com muitos registros;
+- bloqueio ou limitação de tentativas repetidas de login;
+- tratamento seguro de erros, sem exposição de stack trace ao usuário final;
+- logs internos para falhas críticas e tentativas suspeitas.
+
+### Dados Sensíveis e Credenciais de Integração
+
+Algumas informações exigem cuidado especial, como:
+
+- hash de senha;
+- tokens de sessão;
+- tokens de recuperação de senha;
+- credenciais de integração com WhatsApp ou e-mail;
+- dados pessoais de clientes;
+- observações e respostas de formulários personalizados.
+
+Credenciais de integração não devem ser exibidas integralmente após o cadastro. Quando possível, devem ser criptografadas em repouso ou armazenadas em serviço seguro de secrets. Tokens temporários, como recuperação de senha ou verificação de e-mail, devem possuir expiração e não devem ser reutilizáveis após o uso.
+
+### Auditoria e Monitoramento
+
+Ações críticas devem ser registradas para fins de auditoria, rastreabilidade e investigação de incidentes. Os logs devem registrar informações suficientes para análise, mas sem armazenar dados sensíveis desnecessários.
+
+Eventos auditáveis:
+
+- login e logout;
+- falhas repetidas de autenticação;
+- criação, alteração e exclusão/inativação de clientes;
+- criação, alteração e cancelamento de agendamentos;
+- alteração de permissões;
+- exportação de relatórios;
+- solicitação de exclusão de conta ou dados;
+- alterações nas configurações do tenant;
+- alteração de credenciais de notificação.
+
+Os logs devem conter, quando aplicável:
+
+- identificador do usuário;
+- identificador do tenant;
+- ação executada;
+- data e hora;
+- endereço IP;
+- recurso afetado.
+
+<!-- #endregion -->
+
+<!-- #region 6.2 Privacidade e LGPD -->
+
+## 6.2 Privacidade e LGPD
+
+O Planici deverá seguir os princípios da Lei Geral de Proteção de Dados (LGPD), especialmente finalidade, necessidade, transparência, segurança e prevenção. Como o sistema lida com dados de profissionais e clientes, a coleta deve ser limitada ao necessário para executar as funcionalidades do produto.
+
+### Dados Coletados
+
+O sistema poderá coletar e armazenar os seguintes dados:
+
+#### Dados do profissional
+
+- nome;
+- sobrenome;
+- e-mail;
+- apelido ou nome de exibição;
+- foto de perfil, quando informada;
+- senha em formato de hash, quando o cadastro for feito por e-mail e senha;
+- preferências de interface;
+- vínculo com tenants.
+
+#### Dados do tenant / empresa
+
+- nome do espaço de trabalho;
+- slug ou identificador público;
+- área de atuação;
+- configurações de personalização;
+- labels customizadas, como “Clientes”, “Pacientes”, “Serviços” ou “Consultas”;
+- plano contratado;
+- configurações de notificações;
+- credenciais de integração, quando fornecidas pelo usuário.
+
+#### Dados de clientes cadastrados pelo profissional
+
+- nome;
+- e-mail;
+- telefone;
+- observações;
+- preferências de notificação;
+- histórico de atendimentos;
+- respostas de formulários personalizados;
+- arquivos ou imagens anexadas, se essa funcionalidade for utilizada.
+
+#### Dados de agenda e atendimento
+
+- data e horário de início e fim;
+- status do agendamento;
+- cliente relacionado;
+- serviço ou plano relacionado;
+- origem do agendamento, como profissional ou link público;
+- dados de convidado no link público, como nome, e-mail e telefone;
+- motivo de cancelamento, quando aplicável.
+
+#### Dados financeiros
+
+- valor do pagamento;
+- moeda;
+- forma de pagamento;
+- status do pagamento;
+- data de pagamento;
+- observações financeiras.
+
+### Finalidade do Tratamento
+
+Os dados serão tratados para permitir que o profissional utilize as funcionalidades principais do Planici, incluindo:
+
+- criação e acesso à conta;
+- gerenciamento de tenants;
+- cadastro e consulta de clientes;
+- controle de serviços, procedimentos e planos;
+- criação e acompanhamento de agendamentos;
+- envio de notificações de confirmação, lembrete, cancelamento ou remarcação;
+- controle de pagamentos;
+- geração de relatórios financeiros;
+- personalização da experiência da aplicação.
+
+O Planici não deverá utilizar os dados para finalidades incompatíveis com o funcionamento do sistema sem consentimento ou base legal adequada.
+
+### Minimização de Dados
+
+O sistema deverá coletar apenas os dados necessários para cada funcionalidade. Campos opcionais devem ser claramente identificados na interface.
+
+Exemplos:
+
+- para criar uma conta, o sistema precisa de dados básicos do usuário;
+- para cadastrar um cliente, o nome é obrigatório, enquanto telefone, e-mail e observações podem ser opcionais;
+- para solicitar um agendamento pelo link público, o cliente deve informar apenas os dados necessários para identificação e contato;
+- formulários personalizados devem ser configurados pelo próprio profissional, evitando coleta excessiva por padrão.
+
+### Dados Potencialmente Sensíveis
+
+Como o Planici pode ser utilizado por terapeutas, nutricionistas, personal trainers e outros profissionais de atendimento personalizado, existe a possibilidade de o usuário inserir informações potencialmente sensíveis em campos livres, observações ou formulários personalizados.
+
+Por isso, o sistema deverá:
+
+- evitar solicitar dados sensíveis por padrão;
+- indicar que campos livres devem ser usados apenas quando necessário;
+- permitir que o profissional defina quais informações serão coletadas nos formulários;
+- proteger respostas de formulários com as mesmas regras de autenticação, autorização e isolamento por tenant;
+- deixar claro que o Planici não substitui prontuários eletrônicos, sistemas médicos regulamentados ou documentos clínicos oficiais.
+
+### Consentimento e Transparência
+
+Durante o cadastro, o usuário deverá aceitar os Termos de Serviço e a Política de Privacidade. O aceite deve ser registrado com:
+
+- identificador do usuário;
+- data e hora do aceite;
+- versão do documento aceito;
+- endereço IP, quando aplicável.
+
+A Política de Privacidade deve explicar de forma clara:
+
+- quais dados são coletados;
+- por que os dados são coletados;
+- onde os dados são armazenados;
+- por quanto tempo os dados são mantidos;
+- com quem os dados podem ser compartilhados;
+- como o usuário pode solicitar acesso, correção, exportação ou exclusão dos dados.
+
+### Compartilhamento com Terceiros
+
+O Planici poderá se comunicar com serviços externos apenas quando necessário para funcionamento de funcionalidades específicas, como:
+
+- envio de e-mails;
+- envio de notificações por WhatsApp;
+- autenticação via Google ou Apple;
+- processamento de pagamentos, caso essa funcionalidade seja implementada no futuro;
+- infraestrutura de hospedagem, banco de dados, backup e monitoramento.
+
+O compartilhamento deve ser limitado ao mínimo necessário para execução da funcionalidade. O sistema não deve vender dados pessoais nem compartilhar dados com terceiros para fins de marketing sem consentimento explícito.
+
+### Armazenamento e Retenção
+
+Os dados serão armazenados em banco de dados relacional, com separação lógica por tenant. O sistema deverá manter backups automáticos para reduzir risco de perda de dados.
+
+Diretrizes de retenção:
+
+- dados operacionais ficam armazenados enquanto a conta ou tenant estiver ativo;
+- dados inativados podem ser mantidos quando necessários para histórico, relatórios e integridade financeira;
+- logs de auditoria devem possuir retenção mínima definida;
+- backups devem seguir política de retenção própria;
+- dados excluídos da aplicação poderão permanecer em backups por tempo limitado, até expiração do ciclo de retenção.
+
+### Solicitação de Acesso, Exportação e Remoção de Dados
+
+O usuário deverá poder solicitar acesso, correção, exportação ou exclusão de seus dados, conforme previsto pela LGPD.
+
+No MVP, caso ainda não exista uma tela automatizada para isso, essas solicitações poderão ser feitas por canal de suporte definido pelo projeto. Em versões futuras, o sistema poderá oferecer uma área de configurações para o próprio usuário solicitar:
+
+- exportação dos dados em formato JSON ou CSV;
+- alteração de dados cadastrais;
+- exclusão da conta;
+- exclusão ou inativação do tenant;
+- exclusão de clientes cadastrados, quando não houver dependências históricas.
+
+A exclusão de dados deve respeitar as regras de negócio do sistema. Por exemplo, clientes, serviços, planos ou pagamentos com histórico associado podem ser inativados em vez de removidos imediatamente, preservando consistência financeira, auditoria e integridade dos relatórios.
+
+Quando a exclusão definitiva for aplicável, ela deverá remover ou anonimizar os dados pessoais associados, respeitando o prazo definido na política de privacidade e as limitações técnicas de backups.
+
+### Responsabilidades do Usuário
+
+O profissional que utiliza o Planici também é responsável pelos dados que decide cadastrar sobre seus próprios clientes. Assim, o sistema deverá orientar o usuário a:
+
+- cadastrar apenas informações necessárias;
+- evitar inserir dados sensíveis sem necessidade;
+- manter dados atualizados;
+- respeitar pedidos de exclusão ou correção feitos por seus clientes;
+- configurar adequadamente permissões de colaboradores;
+- proteger suas credenciais de acesso.
+
+### Medidas de Privacidade por Design
+
+O Planici adotará medidas de privacidade desde a concepção do sistema:
+
+- coleta mínima de dados;
+- campos opcionais claramente identificados;
+- isolamento por tenant;
+- permissões por papel;
+- logs de auditoria para ações críticas;
+- criptografia no tráfego;
+- não exposição de senhas, tokens ou credenciais;
+- inativação segura de registros com histórico;
+- exportação e exclusão de dados conforme solicitação do usuário.
+
+<!-- #endregion-->
+
+# 7. Planejamento do Projeto
+
+| Marco | Descrição | Prazo |
+|---|---|---|
+| M1 | Setup técnico do projeto, incluindo criação dos repositórios, estrutura inicial do frontend e backend, configuração do banco de dados, variáveis de ambiente, autenticação base e prova de conceito da comunicação entre interface, API e banco. | Semanas 1 e 2 |
+| M2 | Implementação da base do sistema: cadastro, login, recuperação de senha, criação/seleção de tenant, perfil do usuário e estrutura inicial de permissões. Este marco garante que o usuário consiga acessar o sistema e operar dentro de um espaço de trabalho isolado. | Semanas 3 e 4 |
+| M3 | Implementação dos cadastros principais do domínio: clientes, procedimentos/serviços e planos/pacotes. Também inclui busca, edição, inativação e vínculo básico entre cliente, serviço e plano. | Semanas 5 e 6 |
+| M4 | Implementação da agenda e dos agendamentos, incluindo configuração de disponibilidade, criação manual de agendamento, edição, cancelamento, bloqueio de horários e visualização em formato diário ou semanal. | Semanas 7 e 8 |
+| M5 | Implementação do link público de agendamento e fluxo de confirmação pelo profissional. Neste marco, o cliente externo poderá solicitar um horário sem possuir conta, e o profissional poderá confirmar ou recusar a solicitação. | Semana 9 |
+| M6 | Implementação dos módulos de pagamento e visão financeira, incluindo registro de pagamento por atendimento, status de pagamento, resumo de receitas por período e ranking básico de procedimentos. | Semana 10 |
+| M7 | Implementação das funcionalidades complementares do MVP, como formulários personalizados, configurações do espaço de trabalho, personalização de labels e notificações básicas por e-mail ou WhatsApp, conforme viabilidade técnica. | Semana 11 |
+| M8 | Testes, validação e melhorias gerais, incluindo testes de fluxo principal, correção de bugs, revisão de segurança, validação de isolamento por tenant, ajustes de responsividade, acessibilidade e desempenho. | Semana 12 |
+| M9 | Preparação da entrega final, incluindo revisão da documentação, prints atualizados, ajustes nos diagramas, publicação/deploy da aplicação, roteiro de apresentação e validação final com o usuário-alvo. | Semana 13 |
+
+# 8. Referências
