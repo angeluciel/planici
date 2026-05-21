@@ -30,10 +30,10 @@
 
 <!-- #endregion -->
 
-<!-- #region RESUMO -->
+<!-- #region ÍNDICE -->
 
 <details open>
-  <summary>Índice do RFC</summary>
+  <summary><strong>Índice</strong></summary>
 
   | # | Seção | Descrição |
 |---|-------|-----------|
@@ -61,6 +61,7 @@
 | 4.3 | [Fluxo de Interação do Usuário](#43-fluxo-de-interação-do-usuário) | Passo a passo da criação de conta até o dashboard |
 
 </details>
+<br/>
 
 <!-- #endregion -->
 
@@ -456,10 +457,6 @@ Qual transformação o projeto pretende gerar
 
 <!-- #region 2.3 RFs -->
 
-<!-- #endregion -->
-
-<!-- #region 2.3 RFs -->
-
 <h2>2.3 Requisitos Funcionais (RF)</h2>
 
 <table>
@@ -478,7 +475,7 @@ Qual transformação o projeto pretende gerar
   </tr>
   <tr>
     <td>RF-02</td>
-    <td><strong>Login via Google (OAuth)</strong><br>O profissional pode autenticar com a conta Google.</td>
+    <td><strong>Login via Google e Apple (OAuth)</strong><br>O profissional pode autenticar com a conta Google ou Apple.</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -1413,7 +1410,7 @@ O perfil do usuário é independente do tenant, o mesmo usuário pode gerenciar 
 
 <!-- #region 4.2 Wireframes -->
 
-## 4.2 Wireframes ou Mockups das Telas
+<h2>4.2 Wireframes ou Mockups das Telas</h2>
 
 Os mockups do Planici foram desenvolvidos no Figma seguindo uma abordagem mobile-first. As telas abaixo representam os principais pontos de interação do usuário, desde o primeiro acesso até a entrada na área principal da aplicação.
 
@@ -1630,6 +1627,10 @@ Após concluir o setup do negócio, o usuário acessa a área principal do siste
 
 ---
 
+<!-- #endregion -->
+
+<!-- #region 4.3 Fluxo de interação do usuário -->
+
 ## 4.3 Fluxo de Interação do Usuário
 
 O fluxo de interação escolhido para representar a experiência principal do Planici é o onboarding completo do profissional, desde o primeiro acesso até a entrada na área principal do sistema. Esse fluxo foi selecionado por ser essencial para validar a proposta de valor do produto: permitir que um profissional autônomo configure rapidamente seu espaço de trabalho e comece a organizar sua rotina.
@@ -1658,3 +1659,42 @@ O fluxo de interação escolhido para representar a experiência principal do Pl
 ![fluxo-interacao-usuario](./img/diagrams/fluxo-interacao.svg)
 
 <!-- #endregion -->
+
+<h1>5. Arquitetura do Sistema</h1>
+
+> [!NOTE]
+> Esta seção apresenta a visualização da arquitetura geral do Planici, e como ele será construído.
+
+<!-- #region 5.1 Diagrama C4 -->
+
+<h2>5.1 Diagrama C4</h2>
+
+<!-- #region CONTEXTO -->
+
+<h3>Nível 1: Diagrrama de Contexto</h3>
+
+> [!TIP]
+> A visão macro do sistema. O foco não é a tecnologia, mas sim como o software se encaixa no ecossistema e no mundo real.
+
+<details>
+  <summary>Diagrama</summary>
+  <img src="./img/diagrams/C4/context.svg" width="100%"/>
+</details>
+
+<!-- #endregion 5.1.1 -->
+
+<!-- #region CONTAINERS -->
+
+<h3>Nível 1: Diagrrama de Contexto</h3>
+
+> [!TIP]
+> O primeiro "zoom". Este diagrama é a decomposição do sistema em unidades de execução independentes.
+
+<details>
+  <summary>Diagrama</summary>
+  <img src="./img/diagrams/C4/container.svg" width="100%"/>
+</details>
+
+<!-- #endregion 5.1.2 -->
+
+<!-- #endregion 5.1 -->
