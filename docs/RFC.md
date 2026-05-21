@@ -457,6 +457,10 @@ Qual transformação o projeto pretende gerar
 
 <!-- #region 2.3 RFs -->
 
+<!-- #endregion -->
+
+<!-- #region 2.3 RFs -->
+
 <h2>2.3 Requisitos Funcionais (RF)</h2>
 
 <table>
