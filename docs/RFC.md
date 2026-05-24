@@ -298,8 +298,20 @@ Nenhum conhecimento técnico necessário, o sistema deve funcionar sem manual, t
 <h3 style="color:#C90606">Objetivo Geral</h3>
 Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta integrada, intuitiva e acessível para gestão de agenda, clientes e finanças, eliminando a dependência de planilhas e reduzindo a sobrecarga administrativa do dia a dia.
 
-Qual transformação o projeto pretende gerar
 <h4 style="color:#C90606">Objetivos Específicos</h4>
+
+- Implementar um sistema de autenticação seguro com suporte a cadastro por e-mail/senha e login via OAuth (Google e Apple), garantindo isolamento completo de dados por tenant.
+- Desenvolver os módulos de cadastro e gestão de clientes, serviços, procedimentos e planos, permitindo que o profissional organize seu catálogo de ofertas e seu histórico de atendimentos em um único lugar.
+- Construir um módulo de agenda com suporte a disponibilidade fixa e livre, criação manual de agendamentos, bloqueio de horários e visualização diária e semanal.
+- Disponibilizar um link público de agendamento por tenant, permitindo que clientes externos solicitem horários sem criar conta, com fluxo de confirmação ou recusa pelo profissional.
+- Implementar o módulo financeiro com registro de pagamentos por atendimento, controle de status (pago, pendente, cancelado), resumo de receitas por período e ranking de procedimentos.
+- Criar um sistema de notificações automáticas via e-mail e WhatsApp para confirmações, lembretes e cancelamentos de agendamentos, configurável pelo profissional.
+- Desenvolver um mecanismo de formulários personalizados aplicáveis a clientes, serviços e planos, permitindo que cada profissional adapte os campos coletados ao seu modelo de negócio.
+- Oferecer personalização da interface por ocupação profissional, incluindo renomeação de entidades do sistema (como "Clientes" para "Pacientes") sem alterar a estrutura interna dos dados.
+- Garantir conformidade com a LGPD por meio de consentimento explícito no cadastro, minimização de dados coletados e isolamento de informações por tenant com Row-Level Security no banco de dados.
+- Entregar uma aplicação responsiva e de alta usabilidade, com tempo de carregamento das páginas principais inferior a 2 segundos em conexão 4G e fluxos essenciais concluídos em menos de 5 cliques.
+ 
+
 
 <!-- #endregion -->
 
@@ -336,6 +348,8 @@ Qual transformação o projeto pretende gerar
 <!-- #region 2.2 USE CASES -->
 
 <h2>2.2 Casos de Uso Principais</h2>
+
+<img src="./img/diagrams/use-case.png"/>
 
 <table>
   <tr>
@@ -1683,7 +1697,7 @@ O fluxo de interação escolhido para representar a experiência principal do Pl
 
 <!-- #region CONTEXTO -->
 
-<h3>Nível 1: Diagrrama de Contexto</h3>
+<h3>Nível 1: Diagrama de Contexto</h3>
 
 > [!TIP]
 > A visão macro do sistema. O foco não é a tecnologia, mas sim como o software se encaixa no ecossistema e no mundo real.
@@ -1697,14 +1711,28 @@ O fluxo de interação escolhido para representar a experiência principal do Pl
 
 <!-- #region CONTAINERS -->
 
-<h3>Nível 2: Diagrrama de Contexto</h3>
+<h3>Nível 2: Diagrama de Container</h3>
 
 > [!TIP]
 > O primeiro "zoom". Este diagrama é a decomposição do sistema em unidades de execução independentes.
 
 <details open>
   <summary>Diagrama</summary>
-  <img src="./img/diagrams/C4/container.svg" width="100%"/>
+  <img src="./img/diagrams/C4/container.png" width="100%"/>
+</details>
+
+<!-- #endregion 5.1.2 -->
+
+<!-- #region COMPONENTES -->
+
+<h3>Nível 3: Diagrama de Componentes</h3>
+
+> [!TIP]
+> Este diagrama decompõe o sistema em seus componentes internos, detalhando responsabilidades e interações.
+
+<details open>
+  <summary>Diagrama</summary>
+  <img src="./img/diagrams/C4/componentes.png" width="100%"/>
 </details>
 
 <!-- #endregion 5.1.2 -->
@@ -1724,11 +1752,45 @@ O fluxo de interação escolhido para representar a experiência principal do Pl
 
 <!-- #region 5.3 Principais Componentes -->
 
-<h2>5.3 Principais Componentes</h2>
+## 5.3 Principais Componentes
+ 
+O Planici é organizado em três camadas principais: frontend, backend e infraestrutura.
 
-```diff
-- TO-DO 
-```
+Cada uma é composta por módulos com responsabilidades bem delimitadas.
+ 
+### 5.3.1 Frontend — Next.js
+ 
+A interface web do Planici é construída em Next.js com abordagem mobile-first. É dividida em três zonas funcionais:
+ 
+**Área autenticada**: acessível apenas ao profissional logado. Concentra os módulos de agenda, clientes, serviços, planos, formulários personalizados e visão financeira. Todas as operações nessa zona exigem um token JWT válido e vínculo com um tenant ativo.
+ 
+**Fluxo de onboarding**: cobre o registro de conta, login (e-mail/senha e OAuth), recuperação de senha, criação ou seleção de tenant e personalização de labels. É o caminho obrigatório antes de qualquer acesso à área autenticada.
+ 
+**Link público de agendamento**: página acessível sem autenticação, gerada por tenant. Permite que clientes externos visualizem horários disponíveis e solicitem agendamentos. Totalmente separada da área autenticada para não expor nenhum dado interno do profissional.
+ 
+### 5.3.2 Backend — NestJS
+ 
+O backend segue DDD, arquitetura hexagonal event-driven com CQRS, organizando a lógica em módulos independentes por domínio:
+ 
+**Auth module**: gerencia autenticação por e-mail/senha com bcrypt, OAuth via Google e Apple, emissão e rotação de tokens JWT, refresh tokens e controle de acesso baseado em papéis (RBAC). É o ponto de entrada de toda requisição autenticada.
+ 
+**Tenant module**: isola dados por espaço de trabalho, aplica Row-Level Security em conjunto com o banco, gerencia convites de colaboradores, permissões granulares e configurações gerais do tenant, incluindo personalização de labels e ocupação profissional.
+ 
+**Scheduling module**: responsável pela lógica de disponibilidade (fixa e livre), criação e validação de agendamentos, detecção de conflitos de horário, bloqueios manuais e controle do fluxo de agendamentos pendentes oriundos do link público.
+ 
+**Domain module**: agrupa os cadastros centrais do negócio: clientes, serviços/procedimentos, planos/pacotes e formulários personalizados. Cada entidade segue regras de inativação ao invés de exclusão quando possui histórico vinculado.
+ 
+**Finance module**: registra e edita pagamentos por atendimento, calcula o resumo de receitas por período, compara períodos e gera o ranking de procedimentos mais realizados e mais rentáveis. Considera apenas pagamentos com status "pago" na agregação de receita.
+ 
+**Notification module**: consome eventos de agendamento (confirmação, cancelamento, remarcação) e produz mensagens para as filas do RabbitMQ, que as entrega via e-mail ou WhatsApp (Evolution API). Lembretes automáticos são disparados apenas para agendamentos com status confirmado.
+ 
+### 5.3.3 Infraestrutura
+ 
+**PostgreSQL (master-slave)**: banco de dados relacional com replicação por streaming. O nó master recebe todas as escritas; a réplica atende leituras. Row-Level Security é aplicado em todas as tabelas com `tenant_id`, garantindo isolamento mesmo em caso de erro na camada de aplicação. Backup diário automático com retenção mínima de sete dias (RPO menor ou igual a 24h).
+ 
+**RabbitMQ**: message broker que desacopla os fluxos assíncronos do ciclo HTTP. Mantém filas independentes para envio de e-mail, WhatsApp e registro de logs de auditoria, garantindo que falhas em integrações externas não impactem o tempo de resposta das operações principais.
+ 
+**Observabilidade e CI/CD**: monitoramento de uptime com alerta automático em até cinco minutos após falha detectada. Pipeline de CI/CD com gate de testes obrigatório antes do deploy em produção. Branches protegidas no repositório e logs de auditoria retidos por no mínimo 90 dias para rastreabilidade de incidentes.
 
 <!-- #endregion -->
 
