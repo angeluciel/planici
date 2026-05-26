@@ -1,0 +1,38 @@
+Scope: all 2 workspace projects
+../..                                    | Progress: resolved [96m1[39m, reused [96m0[39m, downloaded [96m0[39m, added [96m0[39m
+../..                                    | Progress: resolved [96m17[39m, reused [96m11[39m, downloaded [96m0[39m, added [96m0[39m
+../..                                    | Progress: resolved [96m21[39m, reused [96m20[39m, downloaded [96m0[39m, added [96m0[39m
+../..                                    | Progress: resolved [96m78[39m, reused [96m45[39m, downloaded [96m0[39m, added [96m0[39m
+../..                                    | Progress: resolved [96m190[39m, reused [96m91[39m, downloaded [96m0[39m, added [96m0[39m
+../..                                    | Progress: resolved [96m249[39m, reused [96m132[39m, downloaded [96m0[39m, added [96m0[39m
+../..                                    | Progress: resolved [96m315[39m, reused [96m215[39m, downloaded [96m0[39m, added [96m0[39m
+../..                                    | Progress: resolved [96m487[39m, reused [96m312[39m, downloaded [96m0[39m, added [96m0[39m
+../..                                    |   [31m-7[39m [31m-[39m
+../..                                    | Progress: resolved [96m566[39m, reused [96m486[39m, downloaded [96m0[39m, added [96m0[39m, done
+[36m../..[39m [96mprepare[39m$ husky
+[36m../..[39m [96mprepare[39m: Done
+[43m[33m[[39m[49m[43m[30mWARN[39m[49m[43m[33m][39m[49m Issues with peer dependencies found. Run "pnpm peers check" to list them.
+
+Done in 10.2s using pnpm v11.1.2
+[2m$ next build[22m
+[1m[38;2;173;127;168m▲ Next.js 16.2.6[39m[22m (Turbopack)
+
+[37m[1m [22m[39m Creating an optimized production build ...
+[32m[1m✓[22m[39m Compiled successfully in 9.7s
+[37m[1m [22m[39m Running TypeScript ...
+[37m[1m [22m[39m Finished TypeScript in 3.5s ...
+[37m[1m [22m[39m Collecting page data using 1 worker ...
+[37m[1m [22m[39m Generating static pages using 1 worker (0/4) ...
+[37m[1m [22m[39m Generating static pages using 1 worker (1/4) 
+[37m[1m [22m[39m Generating static pages using 1 worker (2/4) 
+[37m[1m [22m[39m Generating static pages using 1 worker (3/4) 
+[32m[1m✓[22m[39m Generating static pages using 1 worker (4/4) in 150ms
+[37m[1m [22m[39m Finalizing page optimization ...
+
+[4mRoute (app)[24m
+┌ ○ /
+└ ○ /_not-found
+
+
+○  (Static)  prerendered as static content
+

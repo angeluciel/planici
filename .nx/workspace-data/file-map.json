@@ -1,0 +1,293 @@
+{
+  "version": "6.0",
+  "nxVersion": "22.7.3",
+  "pathMappings": {},
+  "nxJsonPlugins": [],
+  "fileMap": {
+    "nonProjectFiles": [
+      {
+        "file": "docs/img/fluxo/login.png",
+        "hash": "5098270268975184425"
+      },
+      {
+        "file": "docs/img/fluxo/register/confirmEmail.png",
+        "hash": "2625231434781568079"
+      },
+      {
+        "file": "docs/img/diagrams/fluxograma.svg",
+        "hash": "11527595862031415158"
+      },
+      {
+        "file": "docs/img/diagrams/fourth-flow.svg",
+        "hash": "17917028878988348561"
+      },
+      {
+        "file": "docs/img/fluxo/register/slug.png",
+        "hash": "16380427542055269471"
+      },
+      {
+        "file": "packages/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "docs/img/fluxo/tenants/new-renaming.png",
+        "hash": "4330327426041538084"
+      },
+      {
+        "file": "apps/api/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "pnpm-lock.yaml",
+        "hash": "4017493227052759820"
+      },
+      {
+        "file": "docs/img/diagrams/C4/context.svg",
+        "hash": "17049333181070048007"
+      },
+      {
+        "file": ".prettierrc",
+        "hash": "12521161841340834125"
+      },
+      {
+        "file": ".prettierignore",
+        "hash": "8249341374095758712"
+      },
+      {
+        "file": "docs/img/diagrams/C4/container.svg",
+        "hash": "10258819052565088598"
+      },
+      {
+        "file": "docs/img/persona-carlos.pdf",
+        "hash": "17725526115163178076"
+      },
+      {
+        "file": "docs/schema.dbml",
+        "hash": "5864359134826570780"
+      },
+      {
+        "file": ".gitignore",
+        "hash": "6461277816081499471"
+      },
+      {
+        "file": ".github/workflows/backend.yml",
+        "hash": "9604841247284129622"
+      },
+      {
+        "file": "docs/img/diagrams/C4/container.png",
+        "hash": "13441547531115434592"
+      },
+      {
+        "file": "docs/img/fluxo/tenants/(empty).png",
+        "hash": "4597950019805673705"
+      },
+      {
+        "file": "packages/types/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "docs/img/diagrams/fluxo-interacao.svg",
+        "hash": "523927026267781784"
+      },
+      {
+        "file": "docs/RFC.md",
+        "hash": "9941337745476069194"
+      },
+      {
+        "file": ".env.example",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "docs/img/fluxo/tenants/new.png",
+        "hash": "13825417894959601181"
+      },
+      {
+        "file": "docs/img/diagrams/secondary-flow.svg",
+        "hash": "11446734715573998717"
+      },
+      {
+        "file": "docs/img/persona-carlos.png",
+        "hash": "3712894174710027016"
+      },
+      {
+        "file": "docs/img/solutions/acuity.png",
+        "hash": "2512263132987893573"
+      },
+      {
+        "file": "docs/img/fluxo/register/password.png",
+        "hash": "16557791507096929233"
+      },
+      {
+        "file": "docs/img/fluxo/register/index.png",
+        "hash": "6093256591914404160"
+      },
+      {
+        "file": "LICENSE",
+        "hash": "5228832722551916278"
+      },
+      {
+        "file": "docs/img/diagrams/erm-diagram.svg",
+        "hash": "1477651933098507418"
+      },
+      {
+        "file": "docs/img/diagrams/thirtiary-flow.svg",
+        "hash": "9621241748012330467"
+      },
+      {
+        "file": "README.md",
+        "hash": "5107228421776584972"
+      },
+      {
+        "file": ".husky/pre-commit",
+        "hash": "761483117120624462"
+      },
+      {
+        "file": "package.json",
+        "hash": "17879202181541544551"
+      },
+      {
+        "file": "docs/img/diagrams/C4/componentes.png",
+        "hash": "17004966115361913079"
+      },
+      {
+        "file": "docs/img/solutions/google-agenda.png",
+        "hash": "13301235131047121519"
+      },
+      {
+        "file": "docs/img/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "eslint.config.mjs",
+        "hash": "14888557851376490519"
+      },
+      {
+        "file": "docs/RFC.pdf",
+        "hash": "1806576975371320125"
+      },
+      {
+        "file": "docs/img/fluxo/telas-principais.png",
+        "hash": "12150641200119653623"
+      },
+      {
+        "file": ".editorconfig",
+        "hash": "933592726871805946"
+      },
+      {
+        "file": "docs/img/solutions/minhaAgenda.png",
+        "hash": "7434626603172681607"
+      },
+      {
+        "file": "docs/img/diagrams/use-case.png",
+        "hash": "7787967360998891091"
+      },
+      {
+        "file": "docs/img/fluxo/tenants/new (outra).png",
+        "hash": "4742598499222348909"
+      },
+      {
+        "file": "docs/img/fluxo/tenants/index.png",
+        "hash": "8919901203739869105"
+      },
+      {
+        "file": "nx.json",
+        "hash": "16919796422270233892"
+      },
+      {
+        "file": "docs/img/diagrams/main-flow.svg",
+        "hash": "16329133667660059176"
+      },
+      {
+        "file": "docs/img/fluxo/register/termos.png",
+        "hash": "16888132248612948307"
+      },
+      {
+        "file": "pnpm-workspace.yaml",
+        "hash": "9762461182646201829"
+      }
+    ],
+    "projectFileMap": {
+      "web": [
+        {
+          "file": "apps/web/.gitignore",
+          "hash": "1867017717006394117"
+        },
+        {
+          "file": "apps/web/README.md",
+          "hash": "10766794746169900117"
+        },
+        {
+          "file": "apps/web/eslint.config.mjs",
+          "hash": "17534773057704605512"
+        },
+        {
+          "file": "apps/web/next.config.ts",
+          "hash": "17157214668998829023"
+        },
+        {
+          "file": "apps/web/package.json",
+          "hash": "1832225110713493639",
+          "deps": [
+            "npm:@tailwindcss/postcss",
+            "npm:@types/node",
+            "npm:@types/react",
+            "npm:@types/react-dom",
+            "npm:eslint@9.39.4",
+            "npm:eslint-config-next",
+            "npm:tailwindcss",
+            "npm:typescript@5.9.3",
+            "npm:typescript-eslint",
+            "npm:next",
+            "npm:react",
+            "npm:react-dom"
+          ]
+        },
+        {
+          "file": "apps/web/postcss.config.mjs",
+          "hash": "12094959087305894889"
+        },
+        {
+          "file": "apps/web/public/file.svg",
+          "hash": "15617830351863523835"
+        },
+        {
+          "file": "apps/web/public/globe.svg",
+          "hash": "9134466864871335697"
+        },
+        {
+          "file": "apps/web/public/next.svg",
+          "hash": "8300767200008744458"
+        },
+        {
+          "file": "apps/web/public/vercel.svg",
+          "hash": "3007623926711696394"
+        },
+        {
+          "file": "apps/web/public/window.svg",
+          "hash": "16677869292061012332"
+        },
+        {
+          "file": "apps/web/src/app/favicon.ico",
+          "hash": "9157999678830540297"
+        },
+        {
+          "file": "apps/web/src/app/globals.css",
+          "hash": "13803416617225302536"
+        },
+        {
+          "file": "apps/web/src/app/layout.tsx",
+          "hash": "2300502926212612334"
+        },
+        {
+          "file": "apps/web/src/app/page.tsx",
+          "hash": "13592639602626924173"
+        },
+        {
+          "file": "apps/web/tsconfig.json",
+          "hash": "5855035559254869289"
+        }
+      ]
+    }
+  },
+  "externalNodesHash": "2602550380136867117"
+}

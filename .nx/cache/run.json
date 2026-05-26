@@ -1,0 +1,21 @@
+{
+  "run": {
+    "command": "nx run-many -t typecheck",
+    "startTime": "2026-05-26T18:27:04.854Z",
+    "endTime": "2026-05-26T18:27:08.318Z",
+    "inner": false
+  },
+  "tasks": [
+    {
+      "taskId": "web:typecheck",
+      "target": "typecheck",
+      "projectName": "web",
+      "hash": "1306596802178843512",
+      "startTime": "2026-05-26T18:27:04.865Z",
+      "endTime": "2026-05-26T18:27:08.309Z",
+      "params": "",
+      "cacheStatus": "cache-miss",
+      "status": 0
+    }
+  ]
+}
