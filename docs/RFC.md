@@ -298,8 +298,20 @@ Nenhum conhecimento técnico necessário, o sistema deve funcionar sem manual, t
 <h3 style="color:#C90606">Objetivo Geral</h3>
 Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta integrada, intuitiva e acessível para gestão de agenda, clientes e finanças, eliminando a dependência de planilhas e reduzindo a sobrecarga administrativa do dia a dia.
 
-Qual transformação o projeto pretende gerar
 <h4 style="color:#C90606">Objetivos Específicos</h4>
+
+- Implementar um sistema de autenticação seguro com suporte a cadastro por e-mail/senha e login social via Google OAuth, garantindo isolamento completo de dados por tenant.
+- Desenvolver os módulos de cadastro e gestão de clientes, serviços, procedimentos e planos, permitindo que o profissional organize seu catálogo de ofertas e seu histórico de atendimentos em um único lugar.
+- Construir um módulo de agenda com suporte a disponibilidade fixa e livre, criação manual de agendamentos, bloqueio de horários e visualização diária e semanal.
+- Disponibilizar um link público de agendamento por tenant, permitindo que clientes externos solicitem horários sem criar conta, com fluxo de confirmação ou recusa pelo profissional.
+- Implementar o módulo financeiro com registro de pagamentos por atendimento, controle de status (pago, pendente, cancelado), resumo de receitas por período e ranking de procedimentos.
+- Criar um sistema de notificações automáticas via e-mail e WhatsApp para confirmações, lembretes e cancelamentos de agendamentos, configurável pelo profissional.
+- Desenvolver um mecanismo de formulários personalizados aplicáveis a clientes, serviços e planos, permitindo que cada profissional adapte os campos coletados ao seu modelo de negócio.
+- Oferecer personalização da interface por ocupação profissional, incluindo renomeação de entidades do sistema (como "Clientes" para "Pacientes") sem alterar a estrutura interna dos dados.
+- Garantir conformidade com a LGPD por meio de consentimento explícito no cadastro, minimização de dados coletados e isolamento de informações por tenant com Row-Level Security no banco de dados.
+- Entregar uma aplicação responsiva e de alta usabilidade, com tempo de carregamento das páginas principais inferior a 2 segundos em conexão 4G e fluxos essenciais concluídos em menos de 5 cliques.
+ 
+
 
 <!-- #endregion -->
 
@@ -310,10 +322,9 @@ Qual transformação o projeto pretende gerar
 <ul>
   <li>
   A usuária principal consegue realizar as tarefas do dia-a-dia (agendamento, registro de cliente, lançamento financeiro) sem precisar de auxílio de outras ferramentas.
-  Tempo para
   </li>
-  <li>Tempo para completar um agendamento completo inferior a 2 minutos.</li>
-  <li>Tempo de resposta das principais telas inferior a 300ms</li>
+  <li>Tempo para completar um agendamento completo inferior a 4 minutos.</li>
+  <li>Tempo de resposta das principais telas inferior a 500ms</li>
   <li>Zero perda de dados registrados pela usuária durante o período de uso do MVP.</li>
   <li>Pelo menos 80% das funcionalidades do plano gratuito utilizadas ativamente pela usuária após 30 dias.</li>
 </ul>
@@ -337,31 +348,7 @@ Qual transformação o projeto pretende gerar
 
 <h2>2.2 Casos de Uso Principais</h2>
 
-<table>
-  <tr>
-    <th colspan="2">Atores Principais</th>
-  </tr>
-  <tr>
-    <th>Ator</th>
-    <th>Descrição</th>
-  </tr>
-  <tr>
-    <td>Profissional</td>
-    <td>Usuário principal do sistema. Gerencia clientes, agenda, procedimentos, planos, pagamentos e relatórios.</td>
-  </tr>
-  <tr>
-    <td>Cliente</td>
-    <td>Pessoa atentidade pelo profissional. Interage principalmente pelo link público de agendamento.</td>
-  </tr>
-  <tr>
-    <td>Administrador de tenant</td>
-    <td>Pessoa atendidade pelo profissional. Interage principalmente pelo link público de agendamento.</td>
-  </tr>
-  <tr>
-    <td>Sistema</td>
-    <td>Executa ações automáticas, como envio de lembretes, notificações e geração de relatórios.</td>
-  </tr>
-</table>
+<img src="./img/diagrams/use-case.png"/>
 
 ## Casos de uso por módulo
 
@@ -478,7 +465,7 @@ Qual transformação o projeto pretende gerar
   </tr>
   <tr>
     <td>RF-02</td>
-    <td><strong>Login via Google e Apple (OAuth)</strong><br>O profissional pode autenticar com a conta Google ou Apple.</td>
+    <td><strong>Login via Google OAuth</strong><br>O profissional pode autenticar com a conta Google.</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -825,6 +812,7 @@ Qual transformação o projeto pretende gerar
     <td>MVP</td>
   </tr>
 </table>
+
 ---
  
 ### Disponibilidade e Escalabilidade
@@ -841,21 +829,21 @@ Qual transformação o projeto pretende gerar
     <td>RNF-04</td>
     <td><strong>Availability</strong></td>
     <td>O sistema deve garantir disponibilidade mínima mensal compatível com infraestrutura de baixo custo. Indisponibilidade impacta diretamente agendamentos e receita do profissional.</td>
-    <td>SLA ≥ 99% (~7h downtime/mês)</td>
+    <td>SLA >= 98.9% (~8h downtime/mês)</td>
     <td>MVP</td>
   </tr>
   <tr>
     <td>RNF-05</td>
-    <td><strong>Disaster Recovery – RTO</strong></td>
+    <td><strong>Disaster Recover (RTO)</strong></td>
     <td>Em caso de queda do servidor, o sistema deve retornar ao ar em tempo hábil de forma automatizada, minimizando intervenção manual e impacto nos profissionais durante o horário de atendimento.</td>
-    <td>RTO ≤ 30 min | Reinicialização automatizada (process manager + health checks)</td>
+    <td>RTO <= 2h | Reinicialização automatizada (process manager + health checks)</td>
     <td>MVP</td>
   </tr>
   <tr>
     <td>RNF-06</td>
-    <td><strong>Disaster Recovery – RPO / Backup</strong></td>
+    <td><strong>Disaster Recovery (RPO)</strong></td>
     <td>O banco de dados deve ser copiado automaticamente uma vez ao dia para proteger os dados de clientes e agendamentos contra perda acidental ou falha de infraestrutura.</td>
-    <td>RPO ≤ 24h | Backup diário automático | Retenção ≥ 7 dias | Restaurável em produção</td>
+    <td>RPO <= 24h | Backup diário automático | Retenção >= 7 dias | Restaurável em produção</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -866,6 +854,7 @@ Qual transformação o projeto pretende gerar
     <td>MVP</td>
   </tr>
 </table>
+
 ---
  
 ### Segurança
@@ -889,7 +878,7 @@ Qual transformação o projeto pretende gerar
     <td>RNF-09</td>
     <td><strong>Transport Security</strong></td>
     <td>Todo o tráfego entre cliente e servidor deve ser criptografado para proteger dados sensíveis de clientes e profissionais contra interceptação.</td>
-    <td>TLS ≥ 1.2 em todos os endpoints | Renovação automática de certificados (ex: Let's Encrypt)</td>
+    <td>TLS ≥ 1.2 em todos os endpoints | Renovação automática de certificados (cloudflare)</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -907,6 +896,7 @@ Qual transformação o projeto pretende gerar
     <td>Wants</td>
   </tr>
 </table>
+
 ---
  
 ### LGPD e Privacidade
@@ -948,6 +938,7 @@ Qual transformação o projeto pretende gerar
     <td>MVP</td>
   </tr>
 </table>
+
 ---
  
 ### Usabilidade e Acessibilidade
@@ -964,7 +955,7 @@ Qual transformação o projeto pretende gerar
     <td>RNF-16</td>
     <td><strong>Responsive Design</strong></td>
     <td>O sistema deve funcionar corretamente em smartphones e desktops, dado que profissionais frequentemente gerenciam sua agenda pelo celular. O link público de agendamento deve ser otimizado para mobile, pois é acessado majoritariamente por clientes em dispositivos móveis.</td>
-    <td>Layout funcional em breakpoints: 320px, 768px e 1280px</td>
+    <td>Layout funcional em breakpoints: 'sm': '40rem', 'md': '48rem', 'lg': '64rem'</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -982,6 +973,7 @@ Qual transformação o projeto pretende gerar
     <td>Wants</td>
   </tr>
 </table>
+
 ---
  
 ### Manutenibilidade e Qualidade
@@ -1012,10 +1004,11 @@ Qual transformação o projeto pretende gerar
     <td>RNF-21</td>
     <td><strong>Observability & Alerting</strong></td>
     <td>O sistema deve ter monitoramento de uptime e alertas automáticos em caso de indisponibilidade ou erros críticos, permitindo resposta rápida a incidentes antes que impactem os profissionais.</td>
-    <td>Alerta disparado em ≤ 5 min após falha detectada (ex: Uptime Robot, Sentry ou equivalente)</td>
+    <td>Alerta disparado em <= 5 min após falha detectada (Sentry com Azure Standard Tests)</td>
     <td>MVP</td>
   </tr>
 </table>
+
 ---
  
 ### Escalabilidade
@@ -1044,13 +1037,16 @@ Qual transformação o projeto pretende gerar
   </tr>
 </table>
 
+---
+
 <!-- #endregion -->
 
 <!-- #region 2.5 Regras de Negócio -->
 
 <h2>2.5 Regras de Negócio</h2>
 
-As regras de negócio definem condições, restrições e comportamentos obrigatórios do sistema Planici para garantir consistência, segurança e coerência entre clientes, agenda, procedimentos, planos, pagamentos e configurações do espaço de trabalho.
+> [!TIP]
+> As regras de negócio definem condições, restrições e comportamentos obrigatórios do sistema Planici para garantir consistência, segurança e coerência entre clientes, agenda, procedimentos, planos, pagamentos e configurações do espaço de trabalho.
 
 ### RN-01: Acesso autenticado
 
@@ -1080,9 +1076,9 @@ Colaboradores só poderão executar ações compatíveis com seu nível de acess
 
 Todo cliente deve estar vinculado a um tenant.
 
-O nome do cliente é obrigatório. Telefone, e-mail e observações podem ser opcionais, mas, quando informados, devem respeitar formatos válidos.
+O nome e email do cliente são obrigatórios. Telefone e observações podem ser opcionais, mas, quando informados, devem respeitar formatos válidos.
 
-Não deve ser permitido cadastrar dois clientes com o mesmo e-mail dentro do mesmo tenant, caso o e-mail tenha sido informado.
+Não deve ser permitido cadastrar dois clientes com o mesmo e-mail dentro do mesmo tenant.
 
 ---
 
@@ -1311,15 +1307,16 @@ Exemplos de operações críticas:
 
 
 <!-- #region 2.6 Fora de Escopo -->
+
 <h2>2.6 Fora de Escopo</h2>
 
 Os itens abaixo não fazem parte do escopo do Planici e não serão implementados no contexto deste projeto.
 
 ### 2.6.1. Interação cruzada entre tenants:
-O sistema não permite que um profissional visualize, edite ou acesse dados de outro tenant. Não há marketplace, listagem pública de profissionais nem nenhum tipo de visualização de perfil entre usuários distintos.
+O sistema não permite que um profissional visualize, edite ou acesse dados de outro tenant, a partir de um já existente. Não há marketplace, listagem pública de profissionais nem nenhum tipo de visualização de perfil entre usuários distintos.
 
 ### 2.6.2. Aplicativo mobile nativo:
- O Planici é uma aplicação web com design responsivo e mobile-first. Não será desenvolvido app nativo para iOS ou Android.
+O Planici é uma aplicação web com design responsivo e mobile-first. Não será desenvolvido app nativo para iOS ou Android.
 
 ### 2.6.3. Processamento de pagamentos online:
 O sistema registra pagamentos manualmente informados pelo profissional. Não há integração com gateways de pagamento (ex: Stripe, PagSeguro, Mercado Pago) nem cobrança automática de clientes.
@@ -1331,7 +1328,7 @@ O sistema não emite notas fiscais, NFS-e, NF-e nem qualquer documento fiscal re
 O sistema é voltado exclusivamente para gestão de serviços. Não há suporte a controle de estoque, catálogo de produtos físicos ou e-commerce.
 
 ### 2.6.6. Múltiplas unidades ou filiais:
-O escopo é o profissional autônomo individual. Não há suporte a gestão de múltiplas unidades, franquias ou redes de atendimento.
+O escopo é o profissional autônomo individual. Não há suporte nativo a gestão de múltiplas unidades, franquias ou redes de atendimento.
 
 ### 2.6.7. Integração com prontuários eletrônicos ou sistemas de saúde regulamentados:
 O sistema não se integra a prontuários eletrônicos, sistemas do CFM, TISS ou qualquer plataforma de saúde regulamentada. Formulários personalizados podem ser utilizados para registros internos, mas sem valor legal ou clínico.
@@ -1351,15 +1348,21 @@ O sistema não oferece email marketing, campanhas promocionais, cupons de descon
 <h2>3.1 Fluxo principal de Usuário (OnBoarding)</h2>
 O fluxo principal descreve a primeira interação do profissional com o sistema: desde o acesso inicial até a entrada no espaço de trabalho configurado. O sistema permite criar um novo ambiente (Tenant) ou ingressar em um existente via convite.
 
+<br/>
+
+<a href="./img/diagrams/main-flow.svg" download>Baixar Diagrama</a>
 <details open>
   <summary>Flowchart</summary>
-  <img src="./img/diagrams/main-flow.svg"/>
+  
+  <br/>
+  <img src="./img/diagrams/main-flow.svg" height="900"/>
 </details>
 
 
 <!-- #endregion-->
 
 <!-- #region 3.2 Fluxo Alternativos -->
+
 <h2>3.2 Fluxos alternativos</h2>
 Além do fluxo principal, o sistema precisa ldiar de forma resiliente com cenários de erro, cancelamentos e comportamentos atípicos. Abaixo estão detalhados os principais fluxos alternativos de operação diária.
 
@@ -1404,9 +1407,9 @@ Este diagrama ilustra a regra de negócio que impede a exclusão (Hard Delete) d
 
 O fluxo é dividido em três zonas funcionais:
 
-**Onboarding:** `loading`->`login`->`register` (fluxo multi-step)
+**Onboarding:** `loading -> login -> register` (fluxo multi-step)
 
-**Setup do negócio:** Após o primeiro login, o usuário é direcionado para criar seu tenant (o negócio que ele gerencia): `tenants`->`tenants/new` (tipo -> nome/detalhes -> confirmação)
+**Setup do negócio:** Após o primeiro login, o usuário é direcionado para criar seu tenant (o negócio que ele gerencia): `tenants -> tenants/new` (tipo -> nome/detalhes -> confirmação)
 
 **Área principal:** Após o setup, o usuário acessa o dashboard com acesso às seções: `agenda`, `clientes`, `serviços`, `forms` e `planos`.
 
@@ -1683,29 +1686,35 @@ O fluxo de interação escolhido para representar a experiência principal do Pl
 
 <!-- #region CONTEXTO -->
 
-<h3>Nível 1: Diagrrama de Contexto</h3>
+<h3>Nível 1: Diagrama de Contexto</h3>
 
 > [!TIP]
 > A visão macro do sistema. O foco não é a tecnologia, mas sim como o software se encaixa no ecossistema e no mundo real.
 
-<details open>
-  <summary>Diagrama</summary>
-  <img src="./img/diagrams/C4/context.svg" width="100%"/>
-</details>
+<img src="./img/diagrams/C4/context.svg" width="100%"/>
+
 
 <!-- #endregion 5.1.1 -->
 
 <!-- #region CONTAINERS -->
 
-<h3>Nível 2: Diagrrama de Contexto</h3>
+<h3>Nível 2: Diagrama de Container</h3>
 
 > [!TIP]
 > O primeiro "zoom". Este diagrama é a decomposição do sistema em unidades de execução independentes.
 
-<details open>
-  <summary>Diagrama</summary>
-  <img src="./img/diagrams/C4/container.svg" width="100%"/>
-</details>
+<img src="./img/diagrams/C4/container.png" width="100%"/>
+
+<!-- #endregion 5.1.2 -->
+
+<!-- #region COMPONENTES -->
+
+<h3>Nível 3: Diagrama de Componentes</h3>
+
+> [!TIP]
+> Este diagrama decompõe o sistema em seus componentes internos, detalhando responsabilidades e interações.
+
+<img src="./img/diagrams/C4/componentes.png" width="100%"/>
 
 <!-- #endregion 5.1.2 -->
 
@@ -1724,11 +1733,45 @@ O fluxo de interação escolhido para representar a experiência principal do Pl
 
 <!-- #region 5.3 Principais Componentes -->
 
-<h2>5.3 Principais Componentes</h2>
+## 5.3 Principais Componentes
+ 
+O Planici é organizado em três camadas principais: frontend, backend e infraestrutura.
 
-```diff
-- TO-DO 
-```
+Cada uma é composta por módulos com responsabilidades bem delimitadas.
+ 
+### 5.3.1 Frontend — Next.js
+ 
+A interface web do Planici é construída em Next.js com abordagem mobile-first. É dividida em três zonas funcionais:
+ 
+**Área autenticada**: acessível apenas ao profissional logado. Concentra os módulos de agenda, clientes, serviços, planos, formulários personalizados e visão financeira. Todas as operações nessa zona exigem um token JWT válido e vínculo com um tenant ativo.
+ 
+**Fluxo de onboarding**: cobre o registro de conta, login (e-mail/senha e OAuth), recuperação de senha, criação ou seleção de tenant e personalização de labels. É o caminho obrigatório antes de qualquer acesso à área autenticada.
+ 
+**Link público de agendamento**: página acessível sem autenticação, gerada por tenant. Permite que clientes externos visualizem horários disponíveis e solicitem agendamentos. Totalmente separada da área autenticada para não expor nenhum dado interno do profissional.
+ 
+### 5.3.2 Backend — NestJS
+ 
+O backend segue DDD, arquitetura hexagonal event-driven com CQRS, organizando a lógica em módulos independentes por domínio:
+ 
+**Auth module**: gerencia autenticação por e-mail/senha com bcrypt, OAuth via Google, emissão e rotação de tokens JWT, refresh tokens e controle de acesso baseado em papéis (RBAC). É o ponto de entrada de toda requisição autenticada.
+ 
+**Tenant module**: isola dados por espaço de trabalho, aplica Row-Level Security em conjunto com o banco, gerencia convites de colaboradores, permissões granulares e configurações gerais do tenant, incluindo personalização de labels e ocupação profissional.
+ 
+**Scheduling module**: responsável pela lógica de disponibilidade (fixa e livre), criação e validação de agendamentos, detecção de conflitos de horário, bloqueios manuais e controle do fluxo de agendamentos pendentes oriundos do link público.
+ 
+**Domain module**: agrupa os cadastros centrais do negócio: clientes, serviços/procedimentos, planos/pacotes e formulários personalizados. Cada entidade segue regras de inativação ao invés de exclusão quando possui histórico vinculado.
+ 
+**Finance module**: registra e edita pagamentos por atendimento, calcula o resumo de receitas por período, compara períodos e gera o ranking de procedimentos mais realizados e mais rentáveis. Considera apenas pagamentos com status "pago" na agregação de receita.
+ 
+**Notification module**: consome eventos de agendamento (confirmação, cancelamento, remarcação) e produz mensagens para as filas do RabbitMQ, que as entrega via e-mail ou WhatsApp (Evolution API). Lembretes automáticos são disparados apenas para agendamentos com status confirmado.
+ 
+### 5.3.3 Infraestrutura
+ 
+**PostgreSQL (master-slave)**: banco de dados relacional com replicação por streaming. O nó master recebe todas as escritas; a réplica atende leituras. Row-Level Security é aplicado em todas as tabelas com `tenant_id`, garantindo isolamento mesmo em caso de erro na camada de aplicação. Backup diário automático com retenção mínima de sete dias (RPO menor ou igual a 24h).
+ 
+**RabbitMQ**: message broker que desacopla os fluxos assíncronos do ciclo HTTP. Mantém filas independentes para envio de e-mail, WhatsApp e registro de logs de auditoria, garantindo que falhas em integrações externas não impactem o tempo de resposta das operações principais.
+ 
+**Observabilidade e CI/CD**: monitoramento de uptime com alerta automático em até cinco minutos após falha detectada. Pipeline de CI/CD com gate de testes obrigatório antes do deploy em produção. Branches protegidas no repositório e logs de auditoria retidos por no mínimo 90 dias para rastreabilidade de incidentes.
 
 <!-- #endregion -->
 
