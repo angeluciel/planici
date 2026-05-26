@@ -1452,7 +1452,7 @@ Ponto de entrada do aplicativo. O usuário escolhe entre acessar uma conta exist
 <img src="./img/fluxo/register/index.png" alt="Registro - informações básicas" width="320" />
 
 **Descrição:**  
-Primeira etapa do cadastro. O usuário informa nome, sobrenome e e-mail, ou escolhe continuar utilizando autenticação externa, como Google ou Apple.
+Primeira etapa do cadastro. O usuário informa nome, sobrenome e e-mail, ou escolhe continuar utilizando autenticação externa, como Google.
 
 **Ações principais:**
 
@@ -1460,7 +1460,6 @@ Primeira etapa do cadastro. O usuário informa nome, sobrenome e e-mail, ou esco
 - Informar sobrenome;
 - Informar e-mail;
 - Continuar com Google;
-- Continuar com Apple;
 - Avançar para a próxima etapa.
 
 **Requisitos relacionados:** RF-01, RF-02.
@@ -1837,7 +1836,7 @@ As medidas de segurança do sistema serão organizadas em cinco frentes principa
 
 ### Autenticação
 
-O Planici permitirá autenticação por e-mail e senha, além de autenticação externa por Google e Apple OAuth. Para contas criadas com senha, a senha não será armazenada em texto puro. O sistema deverá armazenar apenas o hash da senha, utilizando bcrypt com fator de custo adequado.
+O Planici permitirá autenticação por e-mail e senha, além de autenticação externa por Google. Para contas criadas com senha, a senha não será armazenada em texto puro. O sistema deverá armazenar apenas o hash da senha, utilizando bcrypt com fator de custo adequado.
 
 Medidas previstas:
 
@@ -2080,7 +2079,7 @@ O Planici poderá se comunicar com serviços externos apenas quando necessário 
 
 - envio de e-mails;
 - envio de notificações por WhatsApp;
-- autenticação via Google ou Apple;
+- autenticação via Google;
 - processamento de pagamentos, caso essa funcionalidade seja implementada no futuro;
 - infraestrutura de hospedagem, banco de dados, backup e monitoramento.
 
