@@ -1,3 +1,5 @@
+import { match } from '@formatjs/intl-localematcher';
+import Negotiator from 'negotiator';
 import { type ProxyConfig, type NextRequest, NextResponse } from 'next/server';
 
 interface JwtPayload {
@@ -5,6 +7,13 @@ interface JwtPayload {
   iat: number;
   exp?: number;
 }
+
+const headers = { 'accept-language': 'en-US,en;q=0.5' };
+const languages = new Negotiator({ headers }).languages();
+const locales = ['en-US', 'pt-BR', 'fr'];
+const defaultLocale = 'pt-BR';
+
+match(languages, locales, defaultLocale);
 
 const publicRoutes = [
   { path: '/login', whenAuthenticated: 'redirect' },
