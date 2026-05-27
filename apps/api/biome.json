@@ -24,5 +24,10 @@
         "useSortedClasses": "off"
       }
     }
+  },
+  "javascript": {
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
+    }
   }
 }
