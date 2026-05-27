@@ -2,6 +2,7 @@ packages:
   - 'apps/*'
   - 'packages/*'
 allowBuilds:
-  nx: set this to true or false
-  sharp: set this to true or false
-  unrs-resolver: set this to true or false
+  '@biomejs/biome': true
+  nx: true
+  sharp: true
+  unrs-resolver: true

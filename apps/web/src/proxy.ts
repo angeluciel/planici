@@ -1,4 +1,4 @@
-import { type ProxyConfig, type NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse, type ProxyConfig } from 'next/server';
 
 interface JwtPayload {
   sub: string;

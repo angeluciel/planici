@@ -8,17 +8,15 @@
     "dev:web": "nx run web:dev",
     "build": "nx run-many -t build",
     "lint": "nx run-many -t lint",
+    "format": "biome format --write .",
+    "check": "biome check --write .",
     "test": "nx run-many -t test",
     "typecheck": "nx run-many -t typecheck",
     "prepare": "husky"
   },
   "lint-staged": {
-    "**/*.{js,jsx,ts,tsx}": [
-      "prettier --check",
-      "eslint --max-warnings=0"
-    ],
-    "**/*.{json,css,scss,md,html}": [
-      "prettier --check"
+    "**/*.{js,jsx,ts,tsx,json,jsonc,css}": [
+      "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
     ]
   },
   "author": "João Pedro Medeiros Izidoro",
@@ -41,18 +39,10 @@
   },
   "type": "module",
   "devDependencies": {
+    "@biomejs/biome": "^2.0.0",
     "@types/node": "^20.19.41",
-    "@typescript-eslint/eslint-plugin": "^8.59.4",
-    "@typescript-eslint/parser": "^8.59.4",
-    "eslint": "^9",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-import-x": "^4.16.2",
-    "eslint-plugin-prettier": "^5.5.5",
-    "eslint-plugin-unused-imports": "^4.4.1",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.5",
-    "nx": "^22.7.3",
-    "prettier": "^3.8.3",
-    "typescript-eslint": "^8.59.4"
+    "nx": "^22.7.3"
   }
 }
