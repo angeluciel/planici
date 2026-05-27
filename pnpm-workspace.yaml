@@ -3,6 +3,7 @@ packages:
   - 'packages/*'
 allowBuilds:
   '@biomejs/biome': true
+  '@nestjs/core': true
   nx: true
   sharp: true
   unrs-resolver: true

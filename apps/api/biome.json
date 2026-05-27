@@ -1,0 +1,28 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
+  "extends": ["../../biome.json"],
+  "root": false,
+  "linter": {
+    "domains": {
+      "react": "none",
+      "next": "none",
+      "project": "all"
+    },
+    "rules": {
+      "suspicious": {
+        "noExplicitAny": "off",
+        "noConsole": "off"
+      },
+      "correctness": {
+        "noUnusedVariables": "error",
+        "noUnusedImports": "error"
+      },
+      "style": {
+        "useImportType": "error"
+      },
+      "nursery": {
+        "useSortedClasses": "off"
+      }
+    }
+  }
+}

@@ -39,8 +39,7 @@
     "enabled": true,
     "domains": {
       "react": "recommended",
-      "next": "recommended",
-      "tailwind": "recommended"
+      "next": "all"
     },
     "rules": {
       "recommended": true,
@@ -53,6 +52,9 @@
       },
       "style": {
         "useImportType": "error"
+      },
+      "nursery": {
+        "useSortedClasses": "info"
       }
     }
   }
