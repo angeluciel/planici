@@ -5,6 +5,7 @@ import tseslint from 'typescript-eslint';
 import { defineConfig } from 'eslint/config';
 import importX from 'eslint-plugin-import-x';
 import unusedImports from 'eslint-plugin-unused-imports';
+import prettierPlugin from 'eslint-plugin-prettier/recommended';
 
 const rootConfig = defineConfig([
   {
@@ -18,14 +19,17 @@ const rootConfig = defineConfig([
     ],
   },
   {
-    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.mjs'],
+    files: ['**/*.ts', '**/*.tsx', '**/*.js'],
+    extends: [
+      ...tseslint.configs.strictTypeChecked,
+      ...tseslint.configs.stylisticTypeChecked,
+    ],
+    ignores: ['**/*.config.mjs', '**/*.config.js'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: true,
-      },
-      globals: {
-        process: 'readonly',
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
     },
     plugins: {
@@ -34,14 +38,14 @@ const rootConfig = defineConfig([
       'unused-imports': unusedImports,
     },
     rules: {
-      '@typescript-eslint/no-unused-vars': 'warn',
-      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_' },
+      ],
       '@typescript-eslint/consistent-type-imports': [
         'error',
         { prefer: 'type-imports', fixStyle: 'separate-type-imports' },
       ],
-      '@typescript-eslint/no-floating-promises': 'error',
-      '@typescript-eslint/await-thenable': 'error',
 
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': 'off',
@@ -63,10 +67,12 @@ const rootConfig = defineConfig([
         },
       ],
       'import-x/no-duplicates': 'error',
-      'no-console': ['warn', { allow: ['warn', 'error'] }],
-      eqeqeq: ['error', 'always'],
+      'import-x/no-cycle': 'error',
+
+      'no-console': ['error'],
     },
   },
+  prettierPlugin,
 ]);
 
 export default rootConfig;
