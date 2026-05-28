@@ -1,19 +1,13 @@
-import { match } from '@formatjs/intl-localematcher';
-import Negotiator from 'negotiator';
-import { type ProxyConfig, type NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse, type ProxyConfig } from 'next/server';
+import createMiddleware from 'next-intl/middleware';
+
+import { routing } from './i18n/routing';
 
 interface JwtPayload {
   sub: string;
   iat: number;
   exp?: number;
 }
-
-const headers = { 'accept-language': 'en-US,en;q=0.5' };
-const languages = new Negotiator({ headers }).languages();
-const locales = ['en-US', 'pt-BR', 'fr'];
-const defaultLocale = 'pt-BR';
-
-match(languages, locales, defaultLocale);
 
 const publicRoutes = [
   { path: '/login', whenAuthenticated: 'redirect' },
@@ -26,8 +20,6 @@ const PROTECTED_PREFIXES = ['/dashboard', '/profile'] as const;
 
 const REDIRECT_WHEN_NOT_AUTHENTICATED = '/login';
 const REDIRECT_WHEN_AUTHENTICATED = '/dashboard';
-
-// i18n
 
 async function verifyJwt(token: string): Promise<JwtPayload | null> {
   try {
@@ -77,20 +69,31 @@ async function verifyJwt(token: string): Promise<JwtPayload | null> {
 
 // W3C Trace Context Helpers (T-017 / AL-08)
 
-function getOrCreateTraceId(request: NextRequest): string {
-  const traceparent = request.headers.get('traceparent');
-  if (traceparent) {
-    const parts = traceparent.split('-');
-    if (parts.length === 4 && parts[1]?.length === 32) return parts[1];
-  }
-
+function generateTraceId(): string {
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
   return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+function getOrCreateTraceId(request: NextRequest): string {
+  const traceparent = request.headers.get('traceparent');
+  if (!traceparent) return generateTraceId();
+
+  const parts = traceparent.split('-');
+  if (parts.length !== 4) return generateTraceId();
+  if (parts[1]?.length !== 32) return generateTraceId();
+
+  return parts[1];
+}
+
+const intlMiddleware = createMiddleware(routing);
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  const intlResponse = intlMiddleware(request);
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (intlResponse) return intlResponse;
 
   const traceId = getOrCreateTraceId(request);
   const requestHeaders = new Headers(request.headers);
