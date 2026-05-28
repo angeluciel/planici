@@ -1,4 +1,6 @@
 import { type NextRequest, NextResponse, type ProxyConfig } from 'next/server';
+import createMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
 
 interface JwtPayload {
   sub: string;
@@ -17,8 +19,6 @@ const PROTECTED_PREFIXES = ['/dashboard', '/profile'] as const;
 
 const REDIRECT_WHEN_NOT_AUTHENTICATED = '/login';
 const REDIRECT_WHEN_AUTHENTICATED = '/dashboard';
-
-// i18n
 
 async function verifyJwt(token: string): Promise<JwtPayload | null> {
   try {
@@ -80,8 +80,13 @@ function getOrCreateTraceId(request: NextRequest): string {
   return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+const intlMiddleware = createMiddleware(routing);
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  const intlResponse = intlMiddleware(request);
+  if (intlResponse) return intlResponse;
 
   const traceId = getOrCreateTraceId(request);
   const requestHeaders = new Headers(request.headers);
