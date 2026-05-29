@@ -48,6 +48,18 @@ Planici foi desenvolvido para profissionais que desejam gerenciar sua agenda, cl
 - **Personalizacao de Servicos:** Definir seus proprios tipos de servicos, duracao e precos
 - **Configuracao de Fluxo de Trabalho:** Adaptar o sistema ao seu processo de negocio especifico
 
-# Como usar
+# Instalando o Planici
 
-...
+Para instalar o Planici, siga estas etapas:
+
+```bash
+pnpm install
+```
+
+# Rodando o Planici
+
+Para rodar como
+
+```bash
+pnpm build
+```
