@@ -30,7 +30,7 @@
 Antes de começar, verifique se você atende os seguintes requisitos:
 
 - Você instalou a versão LTS de `nodejs`.
-- Você leu o [Documento de RFC]('./docs/RFC.md').
+- Você leu o [Documento de RFC](docs/RFC.md).
 
 ## Instalando o Planici
 
