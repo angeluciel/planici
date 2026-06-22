@@ -1,0 +1,34 @@
+name: planici-monorepo
+
+services:
+  proxy:
+    container_name: planici-proxy
+    restart: unless-stopped
+    build:
+      context: proxy
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./proxy/certs:/certs:ro
+    networks:
+      - planici-network
+
+  backend:
+    container_name: planici-backend
+    restart: on-failure:3
+    build:
+      context: backend
+      dockerfile: ./apps/backend/Dockerfile
+    networks:
+      - planici-network
+
+  web:
+    container_name: planici-web
+    build:
+      context: web
+    networks:
+      - planici-network
+
+networks:
+  planici-network:

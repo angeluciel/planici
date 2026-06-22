@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+
+    "experimentalDecorators": true,
+
+    "noUncheckedSideEffectImports": true
+  },
+  "files": [],
+  "references": [{ "path": "./apps/web" }]
+}
