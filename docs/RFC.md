@@ -46,7 +46,7 @@
 | 1.5 | [Objetivos do Projeto](#15-objetivos-do-projeto) | Objetivo geral e específicos |
 | 1.6 | [Métricas de Sucesso (KPIs)](#16-métricas-de-sucesso-kpis) | Critérios mensuráveis de sucesso |
 | 2 | [Engenharia de Requisitos](#2-engenharia-de-requisitos) | Requisitos funcionais, não funcionais e regras de negócio |
-| 2.1 | [Personas](#21-personas) | Persona Carlos |
+| 2.1 | [Personas](#21-personas) | Persona Mariana (terapeuta autônoma) e Carlos |
 | 2.2 | [Casos de Uso Principais](#22-casos-de-uso-principais) | UCs por módulo (autenticação, clientes, agenda, pagamentos...) |
 | 2.3 | [Requisitos Funcionais (RF)](#23-requisitos-funcionais-rf) | RF-01 a RF-43, organizados por módulo |
 | 2.4 | [Requisitos Não Funcionais (RNF)](#24-requisitos-não-funcionais-rnf) | Desempenho, segurança, LGPD, usabilidade, escalabilidade |
@@ -61,7 +61,7 @@
 | 4.3 | [Fluxo de Interação do Usuário](#43-fluxo-de-interação-do-usuário) | Passo a passo da criação de conta até o dashboard |
 | 5 | [Arquitetura do Sistema](#5-arquitetura-do-sistema) | Visão técnica da arquitetura do Planici |
 | 5.1 | [Diagrama C4](#51-diagrama-c4) | Diagramas de contexto e containers (C4 Model) |
-| 5.2 | [Modelo de Dados](#52-modelo-de-dados) | Diagrama entidade-relacionamento (ERM) |
+| 5.2 | [Modelo de Dados](#52-modelo-de-dados) | Modelo Entidade-Relacionamento (MER) |
 | 5.3 | [Principais Componentes](#53-principais-componentes) | Componentes principais do sistema |
 | 5.4 | [Stack Tecnológica](#54-stack-tecnológica) | Next.js, NestJS, PostgreSQL e RabbitMQ |
 | 6 | [Segurança e Privacidade](#6-segurança-e-privacidade) | Estratégia de segurança e conformidade LGPD |
@@ -93,9 +93,9 @@ A demanda foi identificada a partir de contato direto com uma profissional autô
 A partir dessa demanda pontual, identificou-se um padrão recorrente no perfil de micro-empreendedores de serviços personalizados: atuação individual, baixo suporte técnico e necessidade de ferramentas acessíveis e simples. Essa percepção motivou o escopo expandido do projeto para além da demanda original.
 <h3 style="color:#C90606">Projeto solicitado por:</h3>
 <ul>
-  <li><strong>Profissional autônoma:</strong> Terapeuta com CNPJ: 62.551.135\0001-00, atuando de forma individual.</li>
+  <li><strong>Profissional autônoma:</strong> Terapeuta com CNPJ próprio (informado em sigilo; ex.: 62.XXX.XXX/0001-00), atuando de forma individual.</li>
   <li><strong>Contexto:</strong> Necessidade de substituir controle manual em planilhas por ferramenta integrada e personalizada.</li>
-  <li><strong>Problema relatado:</strong> Os aplicativos especializados disponíveis no mercado são caros e não permitem a customização necessária o modelo de negócio da profissional.</li>
+  <li><strong>Problema relatado:</strong> Os aplicativos especializados disponíveis no mercado são caros e não permitem a customização necessária para o modelo de negócio da profissional.</li>
 </ul>
 
 <!-- #endregion -->
@@ -126,14 +126,14 @@ A partir dessa demanda pontual, identificou-se um padrão recorrente no perfil d
 
 <strong>Principais Limitações:</strong>
 <ul>
-  <li>Versão Starter limitada com custo alto (USD 20/mes)</li>
-  <li>Versão completa (Premium) USD 61/mes</li>
+  <li>Versão Starter limitada com custo alto (USD 20/mês)</li>
+  <li>Versão completa (Premium) USD 61/mês</li>
   <li>Interface complexa, muitas opções</li>
   <li>Voltada para booking online (cliente agendando sozinho)</li>
   <li>Requer conhecimento técnico para setup avançado</li>
 </ul>
 <details open>
-  <summary><h4>Image<h4/></summary>
+  <summary><h4>Imagem</h4></summary>
   <img alt=" img" src="./img/solutions/acuity.png" />
   <img alt=" img" src="./img/solutions/acuity.png" />
 </details>
@@ -161,7 +161,7 @@ A partir dessa demanda pontual, identificou-se um padrão recorrente no perfil d
 
 <strong>Principais Limitações:</strong>
 <ul>
-  <li>Versão gratuita limitada (max 50 agendamentos/mes)</li>
+  <li>Versão gratuita limitada (máx. 50 agendamentos/mês)</li>
   <li>Sem customização personalizada de campos de cliente e agenda</li>
   <li>Interface web confusa</li>
   <li>Somente SMS, sem integração com WhatsApp</li>
@@ -169,7 +169,7 @@ A partir dessa demanda pontual, identificou-se um padrão recorrente no perfil d
   <li>Sem aplicativo desktop</li>
 </ul>
 <details open>
-  <summary><h4>Image<h4/></summary>
+  <summary><h4>Imagem</h4></summary>
   <img alt="img" src="./img/solutions/minhaAgenda.png" />
   <img alt="img" src="./img/solutions/minhaAgenda.png" />
 </details>
@@ -179,7 +179,7 @@ A partir dessa demanda pontual, identificou-se um padrão recorrente no perfil d
 
 <!-- #region TERCEIRA SOLUÇÃO: GOOGLE CALENDAR -->
 
-<h3>Segunda Solução: Google Calendar</h3>
+<h3>Terceira Solução: Google Calendar</h3>
 
 <a href="https://calendar.google.com/calendar/u/0/r?pli=1">Link</a><br/>
 
@@ -206,7 +206,7 @@ A partir dessa demanda pontual, identificou-se um padrão recorrente no perfil d
 </ul>
 
 <details open>
-  <summary><h4>Image<h4/></summary>
+  <summary><h4>Imagem</h4></summary>
   <img alt="img" src="./img/solutions/google-agenda.png"/>
 </details>
 
@@ -240,7 +240,7 @@ Nenhuma solução existente combina TODOS os seguintes requisitos:
 <strong>Preço Acessível</strong>
 <ul>
   <li><strong>MinhaAgenda</strong>: Plano grátis aceitável</li>
-  <li><strong>Acuity</strong>: Sem plano grátis, plano mais barato à R$100, incompleto.</li>
+  <li><strong>Acuity</strong>: Sem plano grátis, plano mais barato a R$ 100, incompleto.</li>
   <li><strong>Google Calendar</strong>: Grátis, porém o mais incompleto da lista em questão de features.</li>
 </ul>
 
@@ -259,7 +259,7 @@ Nenhuma solução existente combina TODOS os seguintes requisitos:
 </ul>
 
 <h4>Nicho Atendido</h4>
-Profissionais autonomos com foco em serviços personalizados que atuem individualmente.
+Profissionais autônomos com foco em serviços personalizados que atuem individualmente.
 O nicho principal é no modelo de negócio individual, e não venda de produtos, e de faturamento baixo-médio.
 
 <!-- #endregion-->
@@ -277,7 +277,7 @@ O sistema é voltado para profissionais autônomos, empresários individuais e p
   <li>Atua de forma independente, sem funcionários ou suporte administrativo.</li>
   <li>Faixa etária ampla (25 a 60+ anos), reforçando a necessidade de interface simples e sem curva de aprendizado.</li>
   <li>Já teve contato com outras ferramentas de gestão ou calendário, mas abandonou por complexidade ou custo.</li>
-  <li>Não possui conhecimento técnico em tecnologia, mas sabe usar smartphone e navegador no dia-a-dia.</li>
+  <li>Não possui conhecimento técnico em tecnologia, mas sabe usar smartphone e navegador no dia a dia.</li>
 </ul>
 
 <strong>Contexto de Uso:</strong>
@@ -321,11 +321,11 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 
 <ul>
   <li>
-  A usuária principal consegue realizar as tarefas do dia-a-dia (agendamento, registro de cliente, lançamento financeiro) sem precisar de auxílio de outras ferramentas.
+  A usuária principal consegue realizar as tarefas do dia a dia (agendamento, registro de cliente, lançamento financeiro) sem precisar de auxílio de outras ferramentas.
   </li>
-  <li>Tempo para completar um agendamento completo inferior a 4 minutos.</li>
-  <li>Tempo de resposta das principais telas inferior a 500ms</li>
-  <li>Zero perda de dados registrados pela usuária durante o período de uso do MVP.</li>
+  <li>Tempo para concluir um agendamento completo inferior a 5 minutos e em menos de 5 cliques, alinhado às metas das seções 1.4 e 1.5 (valor canônico do fluxo essencial).</li>
+  <li>Tempo de resposta das telas de leitura (agenda, clientes, financeiro) inferior a 500ms; operações de escrita inferiores a 1s, conforme RNF-02. O carregamento de página (page load) segue o RNF-01 (P95 &lt; 2s).</li>
+  <li>Zero perda de dados em operação normal; em cenário de desastre, a perda máxima admitida segue o RPO definido no RNF-06 (RPO &le; 24h).</li>
   <li>Pelo menos 80% das funcionalidades do plano gratuito utilizadas ativamente pela usuária após 30 dias.</li>
 </ul>
 
@@ -336,7 +336,17 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 <!-- #region 2.1 PERSONAS -->
 
 <h2>2.1 Personas</h2>
-<a href="/docs/img/persona-carlos.pdf" download>PDF Persona Carlos</a>
+
+<h3>Persona primária: Mariana — Terapeuta autônoma (usuária-origem)</h3>
+<ul>
+  <li><strong>Perfil:</strong> Terapeuta autônoma com CNPJ, atuando individualmente, sem equipe de suporte administrativo. Representa a usuária que originou a demanda (seção 1.2) e a "usuária principal" referida nos KPIs (seção 1.6).</li>
+  <li><strong>Faixa etária:</strong> 35–55 anos. Usa smartphone e navegador no dia a dia, sem conhecimento técnico.</li>
+  <li><strong>Cenário atual:</strong> Controla agenda e finanças em planilhas Excel, sem integração entre as informações.</li>
+  <li><strong>Necessidades:</strong> Registrar atendimento, cliente e pagamento logo após fechar o acordo, em poucos cliques; vincular clientes a procedimentos e planos; acompanhar receitas; personalizar a linguagem do sistema ao seu contexto (ex.: "Pacientes" em vez de "Clientes").</li>
+  <li><strong>Dores:</strong> Ferramentas especializadas caras e pouco flexíveis; soluções genéricas que não cobrem clientes e finanças.</li>
+</ul>
+
+<a href="/docs/img/persona-carlos.pdf" download>PDF Persona Carlos (persona secundária)</a>
 <details>
   <summary><h4>Persona Carlos - Imagem<h4/></summary>
   <img alt=" img" src="/docs/img/persona-carlos.png" />
@@ -359,6 +369,7 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 | UC-02  | Entrar com conta Google                        | Profissional            | RF-02                   |
 | UC-03  | Recuperar senha                                | Profissional            | RF-03                   |
 | UC-04  | Gerenciar perfil e dados do negócio            | Profissional            | RF-04                   |
+| UC-04a | Criar e selecionar tenant (espaço de trabalho) | Profissional            | RF-04a                  |
 | UC-05  | Convidar colaborador para o espaço de trabalho | Administrador do tenant | RF-05                   |
 | UC-06  | Definir permissões de colaborador              | Administrador do tenant | RF-06                   |
 
@@ -479,13 +490,18 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
     <td>MVP</td>
   </tr>
   <tr>
+    <td>RF-04a</td>
+    <td><strong>Criar e selecionar tenant (espaço de trabalho)</strong><br>No onboarding, o profissional cria seu primeiro tenant (espaço de trabalho) e, quando possuir mais de um, pode selecionar entre eles. A criação do tenant é passo obrigatório do fluxo de primeiro acesso (login → registro → criação do tenant → dashboard), e todos os dados operacionais ficam vinculados ao tenant ativo. Conforme RN-02.</td>
+    <td>MVP</td>
+  </tr>
+  <tr>
     <td>RF-05</td>
-    <td><strong>Multiusuário por tenant</strong><br>Contas nos planos Basic ou superior podem convidar colaboradores com acesso ao mesmo espaço de trabalho.</td>
+    <td><strong>Multiusuário por tenant</strong><br>Contas nos planos Basic ou superior podem convidar colaboradores com acesso ao mesmo espaço de trabalho. <em>RBAC (Role-Based Access Control)/convite de colaboradores é WANTS (fora do MVP); no MVP o tenant possui um único usuário (o profissional).</em></td>
     <td>WANTS</td>
   </tr>
   <tr>
     <td>RF-06</td>
-    <td><strong>Controle de permissões</strong><br>O administrador do tenant define o nível de acesso de cada colaborador, como somente agenda ou acesso financeiro.</td>
+    <td><strong>Controle de permissões</strong><br>O administrador do tenant define o nível de acesso de cada colaborador, como somente agenda ou acesso financeiro. <em>Recurso WANTS (fora do MVP); o controle de papéis/permissões só se aplica quando o multiusuário (RF-05) estiver disponível.</em></td>
     <td>WANTS</td>
   </tr>
 </table>
@@ -506,7 +522,7 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   </tr>
   <tr>
     <td>RF-08</td>
-    <td><strong>Editar e excluir cliente</strong><br>O profissional pode atualizar ou remover um cadastro de cliente.</td>
+    <td><strong>Editar, inativar e excluir cliente</strong><br>O profissional pode atualizar os dados de um cliente. A exclusão definitiva só é permitida para clientes <strong>sem</strong> histórico vinculado (atendimentos, pagamentos, planos ou formulários aplicados). Clientes <strong>com</strong> histórico vinculado não são removidos fisicamente: a operação resulta em inativação (soft delete), preservando o histórico para consultas, relatórios e controle financeiro. Conforme RN-05 e RN-24.</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -537,7 +553,7 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   </tr>
   <tr>
     <td>RF-12</td>
-    <td><strong>Editar e excluir procedimento</strong><br>O profissional pode atualizar ou remover um procedimento do catálogo.</td>
+    <td><strong>Editar, inativar e excluir procedimento</strong><br>O profissional pode atualizar um procedimento do catálogo. A exclusão definitiva só é permitida para procedimentos <strong>sem</strong> vínculo a agendamentos, planos ou histórico financeiro. Procedimentos <strong>com</strong> esse vínculo não são removidos fisicamente: a operação resulta em inativação (soft delete), impedindo novos usos e preservando o histórico. Conforme RN-06 e RN-24.</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -568,7 +584,7 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   </tr>
   <tr>
     <td>RF-16</td>
-    <td><strong>Editar e excluir plano</strong><br>O profissional pode atualizar ou remover um plano do catálogo.</td>
+    <td><strong>Editar, inativar e excluir plano</strong><br>O profissional pode atualizar um plano do catálogo. A exclusão definitiva só é permitida para planos <strong>sem</strong> uso em agendamentos, histórico de clientes ou registros financeiros. Planos <strong>com</strong> esse uso não são removidos fisicamente: a operação resulta em inativação (soft delete), impedindo novos usos e mantendo o histórico preservado. Conforme RN-08 e RN-24.</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -697,17 +713,17 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   </tr>
   <tr>
     <td>RF-33</td>
-    <td><strong>Notificação de confirmação de agendamento</strong><br>Ao confirmar um agendamento, o cliente recebe uma notificação por e-mail e/ou WhatsApp com os detalhes.</td>
+    <td><strong>Notificação de confirmação de agendamento</strong><br>Ao confirmar um agendamento, o sistema envia ao cliente uma notificação com os detalhes por e-mail e/ou WhatsApp, desde que haja canal de envio configurado e habilitado para o evento. Se nenhum canal estiver configurado, a operação prossegue normalmente sem envio. Conforme RN-17 e RN-19.</td>
     <td>MVP</td>
   </tr>
   <tr>
     <td>RF-34</td>
-    <td><strong>Lembrete antes do horário</strong><br>O sistema envia um lembrete automático ao cliente com antecedência configurável (ex: 24h ou 1h antes).</td>
+    <td><strong>Lembrete antes do horário</strong><br>O sistema envia um lembrete automático ao cliente com antecedência configurável (ex: 24h ou 1h antes), apenas para agendamentos confirmados e desde que haja canal de envio configurado e habilitado para o evento. Sem canal configurado, nenhum envio é tentado. Conforme RN-17, RN-18 e RN-19.</td>
     <td>MVP</td>
   </tr>
   <tr>
     <td>RF-35</td>
-    <td><strong>Notificação de cancelamento ou remarcação</strong><br>O cliente é notificado automaticamente quando o profissional cancela ou altera um agendamento.</td>
+    <td><strong>Notificação de cancelamento ou remarcação</strong><br>Quando o profissional cancela ou altera um agendamento, o sistema notifica o cliente automaticamente, desde que haja canal de envio configurado e habilitado para o evento. Se nenhum canal estiver configurado, a operação prossegue normalmente sem envio. Conforme RN-17 e RN-19.</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -785,10 +801,10 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 <table>
   <tr>
     <th>Requisito</th>
-    <th>Quality Attribute</th>
-    <th>Description</th>
-    <th>Metric / Acceptance Criteria</th>
-    <th>Priority</th>
+    <th>Atributo de Qualidade</th>
+    <th>Descrição</th>
+    <th>Métrica / Critério de Aceitação</th>
+    <th>Prioridade</th>
   </tr>
   <tr>
     <td>RNF-01</td>
@@ -820,10 +836,10 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 <table>
   <tr>
     <th>Requisito</th>
-    <th>Quality Attribute</th>
-    <th>Description</th>
-    <th>Metric / Acceptance Criteria</th>
-    <th>Priority</th>
+    <th>Atributo de Qualidade</th>
+    <th>Descrição</th>
+    <th>Métrica / Critério de Aceitação</th>
+    <th>Prioridade</th>
   </tr>
   <tr>
     <td>RNF-04</td>
@@ -834,7 +850,7 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   </tr>
   <tr>
     <td>RNF-05</td>
-    <td><strong>Disaster Recover (RTO)</strong></td>
+    <td><strong>Disaster Recovery (RTO)</strong></td>
     <td>Em caso de queda do servidor, o sistema deve retornar ao ar em tempo hábil de forma automatizada, minimizando intervenção manual e impacto nos profissionais durante o horário de atendimento.</td>
     <td>RTO <= 2h | Reinicialização automatizada (process manager + health checks)</td>
     <td>MVP</td>
@@ -862,16 +878,16 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 <table>
   <tr>
     <th>Requisito</th>
-    <th>Quality Attribute</th>
-    <th>Description</th>
-    <th>Metric / Acceptance Criteria</th>
-    <th>Priority</th>
+    <th>Atributo de Qualidade</th>
+    <th>Descrição</th>
+    <th>Métrica / Critério de Aceitação</th>
+    <th>Prioridade</th>
   </tr>
   <tr>
     <td>RNF-08</td>
     <td><strong>Authentication Security</strong></td>
     <td>O sistema deve armazenar senhas com hash seguro e utilizar tokens de curta duração com rotação, reduzindo a superfície de ataque em caso de comprometimento de credenciais.</td>
-    <td>bcrypt cost ≥ 12 | JWT exp ≤ 24h | Refresh tokens rotativos e invalidados no logout</td>
+    <td>bcrypt cost ≥ 12 | JWT exp ≤ 24h | Refresh tokens rotativos e invalidados no logout | Política de senha: mínimo de 8 caracteres, ao menos 1 número e 1 símbolo (ver RN-26)</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -893,7 +909,7 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
     <td><strong>Audit Logging</strong></td>
     <td>Ações críticas devem ser registradas para fins de auditoria, rastreabilidade e detecção de uso indevido. Os logs devem incluir contexto suficiente para investigação de incidentes.</td>
     <td>Registro de: login, alteração de dados, exclusões e exportações — com timestamp, usuário e IP | Retenção ≥ 90 dias</td>
-    <td>Wants</td>
+    <td>WANTS</td>
   </tr>
 </table>
 
@@ -904,15 +920,15 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 <table>
   <tr>
     <th>Requisito</th>
-    <th>Quality Attribute</th>
-    <th>Description</th>
-    <th>Metric / Acceptance Criteria</th>
-    <th>Priority</th>
+    <th>Atributo de Qualidade</th>
+    <th>Descrição</th>
+    <th>Métrica / Critério de Aceitação</th>
+    <th>Prioridade</th>
   </tr>
   <tr>
     <td>RNF-12</td>
     <td><strong>Consent & Legal Basis</strong></td>
-    <td>O sistema deve exigir aceite explícito dos termos de uso e política de privacidade no cadastro, com registro rastreável, atendendo à legal de consentimento exigida pela LGPD.</td>
+    <td>O sistema deve exigir aceite explícito dos termos de uso e política de privacidade no cadastro, com registro rastreável, atendendo à exigência legal de consentimento prevista na LGPD.</td>
     <td>Aceite registrado com timestamp e versão do documento | Exibição obrigatória no onboarding</td>
     <td>MVP</td>
   </tr>
@@ -921,14 +937,14 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
     <td><strong>Right of Access & Data Portability</strong></td>
     <td>O profissional deve poder exportar todos os seus dados e os dados dos seus clientes em formato legível, exercendo o direito de portabilidade previsto na LGPD.</td>
     <td>Exportação disponível em JSON ou CSV | Entrega em ≤ 72h após solicitação</td>
-    <td>Wants</td>
+    <td>WANTS</td>
   </tr>
   <tr>
     <td>RNF-14</td>
     <td><strong>Right to Erasure</strong></td>
     <td>O profissional deve poder solicitar a exclusão permanente da conta e de todos os dados associados (clientes, agendamentos, arquivos), exercendo o direito ao esquecimento previsto na LGPD.</td>
     <td>Remoção completa de todos os dados associados em ≤ 30 dias após solicitação</td>
-    <td>Wants</td>
+    <td>WANTS</td>
   </tr>
   <tr>
     <td>RNF-15</td>
@@ -946,10 +962,10 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 <table>
   <tr>
     <th>Requisito</th>
-    <th>Quality Attribute</th>
-    <th>Description</th>
-    <th>Metric / Acceptance Criteria</th>
-    <th>Priority</th>
+    <th>Atributo de Qualidade</th>
+    <th>Descrição</th>
+    <th>Métrica / Critério de Aceitação</th>
+    <th>Prioridade</th>
   </tr>
   <tr>
     <td>RNF-16</td>
@@ -970,7 +986,7 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
     <td><strong>Accessibility</strong></td>
     <td>Os componentes principais do sistema devem atender às diretrizes de acessibilidade WCAG 2.1 nível AA, garantindo que usuários com deficiências visuais ou motoras consigam utilizar os fluxos essenciais.</td>
     <td>WCAG 2.1 AA nos fluxos principais: contraste de cores, navegação por teclado e atributos ARIA</td>
-    <td>Wants</td>
+    <td>WANTS</td>
   </tr>
 </table>
 
@@ -981,10 +997,10 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 <table>
   <tr>
     <th>Requisito</th>
-    <th>Quality Attribute</th>
-    <th>Description</th>
-    <th>Metric / Acceptance Criteria</th>
-    <th>Priority</th>
+    <th>Atributo de Qualidade</th>
+    <th>Descrição</th>
+    <th>Métrica / Critério de Aceitação</th>
+    <th>Prioridade</th>
   </tr>
   <tr>
     <td>RNF-19</td>
@@ -1016,15 +1032,15 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 <table>
   <tr>
     <th>Requisito</th>
-    <th>Quality Attribute</th>
-    <th>Description</th>
-    <th>Metric / Acceptance Criteria</th>
-    <th>Priority</th>
+    <th>Atributo de Qualidade</th>
+    <th>Descrição</th>
+    <th>Métrica / Critério de Aceitação</th>
+    <th>Prioridade</th>
   </tr>
   <tr>
     <td>RNF-22</td>
     <td><strong>Horizontal Scalability</strong></td>
-    <td>A camada de aplicação deve ser stateless para permitir escalonamento horizontal sem refatoração estrutural, suportando o crescimento da de tenants sem degradação de performance.</td>
+    <td>A camada de aplicação deve ser stateless para permitir escalonamento horizontal sem refatoração estrutural, suportando o crescimento da base de tenants sem degradação de performance.</td>
     <td>API stateless (sem sessão server-side) | Suporte a escalonamento horizontal até 5.000 tenants sem refatoração</td>
     <td>MVP</td>
   </tr>
@@ -1132,6 +1148,8 @@ Horários fora da disponibilidade configurada não devem aparecer como disponív
 
 Horários bloqueados manualmente pelo profissional também não devem aparecer como disponíveis.
 
+Precedência em caso de sobreposição: para uma data específica, a disponibilidade livre (RF-19) substitui a regra fixa daquele dia da semana (RF-18), não se somando a ela. Bloqueios manuais prevalecem sobre ambas as formas de disponibilidade.
+
 ---
 
 ### RN-10: Criação de agendamentos
@@ -1176,7 +1194,7 @@ Um pagamento registrado deve conter valor, forma de pagamento e data de pagament
 
 O valor pago não pode ser negativo.
 
-A data de pagamento não pode ser posterior à data atual, salvo se o sistema permitir registro de pagamentos futuros como previsão.
+A data de pagamento não pode ser posterior à data atual. O registro de pagamentos com data futura (previsão) não é permitido no MVP; todo pagamento registrado refere-se a um valor já recebido.
 
 ---
 
@@ -1272,6 +1290,8 @@ A personalização de labels altera apenas a exibição na interface, sem modifi
 
 Por exemplo, o sistema pode exibir "Pacientes" no lugar de "Clientes", mas a entidade continua representando o cadastro de clientes no domínio do sistema.
 
+Para evitar ambiguidade ao longo do documento, fica fixado o termo canônico do domínio: "Serviço" e "Procedimento" referem-se à mesma entidade interna (`service`); da mesma forma, "Plano" e "Pacote" referem-se à mesma entidade interna (`plan`). As variações de nomenclatura existem apenas na camada de labels descrita por esta regra.
+
 ---
 
 ### RN-23: Configuração de ocupação profissional
@@ -1294,6 +1314,8 @@ Quando necessário, o sistema deve preferir inativação, cancelamento ou arquiv
 
 Operações que afetam agenda, pagamentos, permissões, exclusão de dados ou configurações do tenant devem passar por validação adicional antes de serem concluídas.
 
+O mecanismo de validação adicional é definido assim: para operações reversíveis (ex.: cancelar agendamento, editar pagamento), exibir um diálogo de confirmação obrigatório antes de concluir. Para operações destrutivas e irreversíveis (ex.: exclusão definitiva de cliente, procedimento ou plano sem histórico), além do diálogo, exigir que o usuário digite um texto de confirmação (ex.: o nome da entidade ou a palavra "EXCLUIR") para habilitar a ação.
+
 Exemplos de operações críticas:
 
 - excluir ou inativar cliente;
@@ -1302,6 +1324,18 @@ Exemplos de operações críticas:
 - alterar permissões de colaborador;
 - alterar configurações de notificação;
 - remover procedimentos ou planos já utilizados.
+
+---
+
+### RN-26: Política de senha
+
+No cadastro por e-mail e senha (RF-01) e na redefinição de senha (RF-03), a senha definida pelo usuário deve atender, no mínimo, aos seguintes critérios mensuráveis:
+
+- comprimento mínimo de 8 caracteres;
+- pelo menos 1 número;
+- pelo menos 1 símbolo (caractere não alfanumérico).
+
+Senhas que não atendam a todos os critérios devem ser rejeitadas, com indicação clara dos requisitos não cumpridos. Esta regra dá respaldo formal aos critérios exibidos no mockup de definição de senha (seção 4.2) e complementa o RNF-08.
 
 <!-- #endregion -->
 
@@ -1364,7 +1398,7 @@ O fluxo principal descreve a primeira interação do profissional com o sistema:
 <!-- #region 3.2 Fluxo Alternativos -->
 
 <h2>3.2 Fluxos alternativos</h2>
-Além do fluxo principal, o sistema precisa ldiar de forma resiliente com cenários de erro, cancelamentos e comportamentos atípicos. Abaixo estão detalhados os principais fluxos alternativos de operação diária.
+Além do fluxo principal, o sistema precisa lidar de forma resiliente com cenários de erro, cancelamentos e comportamentos atípicos. Abaixo estão detalhados os principais fluxos alternativos de operação diária.
 
 ### Fluxo 1: Cliente Agenda horário pelo Link Público (conflito)
 Este cenário descreve o comportamento quando um cliente tenta agendar um horário que acabou de ser ocupado, demonstrando a proteção contra _overbooking_.
@@ -1395,7 +1429,7 @@ Este diagrama ilustra a regra de negócio que impede a exclusão (Hard Delete) d
 <h1>4. Mockups e Experiência do Usuário (UX)</h1>
 
 > [!NOTE]
-> Esta seção apresenta a visualização inicial do Planici antes da implementação, com nos mockups desenvolvidos no Figma (mobile-first).
+> Esta seção apresenta a visualização inicial do Planici antes da implementação, com base nos mockups desenvolvidos no Figma (mobile-first).
 
 **Ferramenta Utilizada:** Figma
 
@@ -1415,7 +1449,7 @@ O fluxo é dividido em três zonas funcionais:
 
 **Fluxo Linear:** `login -> register -> tenants/new -> dashboard -> agenda/clientes/serviços`
 
-O perfil do usuário é independente do tenant, o mesmo usuário pode gerenciar múltiplos negócios, semelhante ao modelo de organizações do Sup.
+O perfil do usuário é independente do tenant, o mesmo usuário pode gerenciar múltiplos negócios, semelhante ao modelo de organizações do Supabase.
 <details>
   <summary>Fluxograma</summary>
   <img src="./img/diagrams/fluxograma.svg" alt="fluxograma"/>
@@ -1715,6 +1749,9 @@ O fluxo de interação escolhido para representar a experiência principal do Pl
 
 <img src="./img/diagrams/C4/componentes.png" width="100%"/>
 
+> [!NOTE]
+> Além dos componentes ilustrados, a arquitetura inclui um serviço de **object storage** (S3-compatível) para binários de foto de perfil (RF-04) e de campos imagem/arquivo de formulários (RF-38), e um **scheduler temporal** (cron worker + tabela de lembretes) para o disparo programado de lembretes (RF-34). Detalhes em 5.3.2 e 5.3.3.
+
 <!-- #endregion 5.1.2 -->
 
 <!-- #endregion 5.1 -->
@@ -1723,10 +1760,12 @@ O fluxo de interação escolhido para representar a experiência principal do Pl
 
 <h2>5.2 Modelo de Dados</h2>
 
+O modelo de dados é representado por meio de um Modelo Entidade-Relacionamento (MER):
+
 > [!TIP]
 > O arquivo .dbml em 'docs/schema.dbml' apresenta o modelo de dados usado no website _dbdiagram.io_.
 
-<img src='./img/diagrams/erm-diagram.svg' alt="modelo er" />
+<img src='./img/diagrams/erm-diagram.svg' alt="Modelo Entidade-Relacionamento (MER)" />
 
 <!-- #endregion -->
 
@@ -1750,27 +1789,37 @@ A interface web do Planici é construída em Next.js com abordagem mobile-first.
  
 ### 5.3.2 Backend — NestJS
  
-O backend segue DDD, arquitetura hexagonal event-driven com CQRS, organizando a lógica em módulos independentes por domínio:
+O backend segue DDD (Domain-Driven Design), arquitetura hexagonal orientada a eventos com CQRS (Command Query Responsibility Segregation), organizando a lógica em módulos independentes por domínio:
  
 **Auth module**: gerencia autenticação por e-mail/senha com bcrypt, OAuth via Google, emissão e rotação de tokens JWT, refresh tokens e controle de acesso baseado em papéis (RBAC). É o ponto de entrada de toda requisição autenticada.
  
-**Tenant module**: isola dados por espaço de trabalho, aplica Row-Level Security em conjunto com o banco, gerencia convites de colaboradores, permissões granulares e configurações gerais do tenant, incluindo personalização de labels e ocupação profissional.
+**Tenant module**: isola dados por espaço de trabalho, aplica Row-Level Security (RLS) em conjunto com o banco e gerencia as configurações gerais do tenant, incluindo personalização de labels e ocupação profissional. No MVP cada tenant possui um único usuário (papel Owner); convites de colaboradores e permissões granulares por papel são funcionalidades WANTS (fora do MVP — ver RF-05/RF-06).
+
+Para que o RLS funcione com a API stateless e pool de conexões, o `tenant_id` autenticado é propagado ao contexto de sessão do PostgreSQL a cada requisição: um interceptor abre uma transação e executa `SET LOCAL app.current_tenant = <tenant_id>` antes das consultas; as políticas de RLS filtram pelas linhas cujo `tenant_id` corresponde a essa variável. Como `SET LOCAL` tem escopo de transação, o valor é descartado automaticamente no commit/rollback, garantindo que a conexão devolvida ao pool não carregue o contexto de um tenant para outro. Um teste automatizado de "zero vazamento entre tenants" valida esse isolamento.
  
 **Scheduling module**: responsável pela lógica de disponibilidade (fixa e livre), criação e validação de agendamentos, detecção de conflitos de horário, bloqueios manuais e controle do fluxo de agendamentos pendentes oriundos do link público.
+
+A proteção contra overbooking (RN-10, Fluxo 1) não depende apenas da validação na camada de aplicação, pois duas requisições simultâneas — por exemplo, uma do link público e outra do profissional — poderiam passar pela checagem antes de qualquer gravação. A garantia é dada no nível do banco: uma constraint de exclusão por range de tempo por profissional (`EXCLUDE USING gist` sobre `tstzrange` de início/fim, combinada ao `profissional_id` via extensão `btree_gist`) impede a persistência de dois agendamentos sobrepostos para o mesmo profissional. Em alternativa ou complemento, a criação ocorre em transação que aplica `SELECT ... FOR UPDATE` sobre as linhas de disponibilidade/agendamentos do intervalo, serializando concorrentes. A violação da constraint é tratada como conflito de horário e retornada ao solicitante.
  
 **Domain module**: agrupa os cadastros centrais do negócio: clientes, serviços/procedimentos, planos/pacotes e formulários personalizados. Cada entidade segue regras de inativação ao invés de exclusão quando possui histórico vinculado.
  
 **Finance module**: registra e edita pagamentos por atendimento, calcula o resumo de receitas por período, compara períodos e gera o ranking de procedimentos mais realizados e mais rentáveis. Considera apenas pagamentos com status "pago" na agregação de receita.
  
 **Notification module**: consome eventos de agendamento (confirmação, cancelamento, remarcação) e produz mensagens para as filas do RabbitMQ, que as entrega via e-mail ou WhatsApp (Evolution API). Lembretes automáticos são disparados apenas para agendamentos com status confirmado.
+
+Como o RabbitMQ é um broker de processamento assíncrono imediato e não um agendador de jobs futuros, os lembretes com antecedência configurável (RF-34/RN-18, ex.: 24h ou 1h antes do atendimento) são tratados por um **scheduler temporal dedicado**: um *cron worker* executa em intervalo fixo (ex.: a cada minuto), varre a tabela de lembretes pendentes (`reminders`) cuja janela de disparo chegou e publica a mensagem na fila do RabbitMQ para entrega. Cada lembrete possui chave de idempotência (por agendamento + tipo + janela) e marcação de "enviado", evitando lembrete duplicado mesmo com múltiplas instâncias do worker. No MVP, esse cron worker pode operar como um processo único agendado no próprio backend (NestJS Schedule), dispensando broker de mensagens com agendamento nativo.
  
 ### 5.3.3 Infraestrutura
  
-**PostgreSQL (master-slave)**: banco de dados relacional com replicação por streaming. O nó master recebe todas as escritas; a réplica atende leituras. Row-Level Security é aplicado em todas as tabelas com `tenant_id`, garantindo isolamento mesmo em caso de erro na camada de aplicação. Backup diário automático com retenção mínima de sete dias (RPO menor ou igual a 24h).
+**PostgreSQL (single-node no MVP)**: banco de dados relacional executado em instância única no MVP. Todas as leituras e escritas vão para o mesmo nó, o que garante naturalmente a consistência read-after-write exigida pelos fluxos críticos — por exemplo, criar agendamento (RF-20) e em seguida verificar conflito (RN-10) ou visualizar a agenda (RF-22), e registrar pagamento (RF-26) e em seguida consultar o resumo financeiro (RF-29/RN-15) —, sem o risco de lag de replicação. Row-Level Security é aplicado em todas as tabelas com `tenant_id`, garantindo isolamento mesmo em caso de erro na camada de aplicação. Backup diário automático com retenção mínima de sete dias (RPO menor ou igual a 24h). A réplica de leitura (topologia primário-réplica com streaming) é tratada como **evolução futura opcional**, a ser introduzida apenas quando a carga justificar; quando adotada, fluxos sensíveis a read-after-write devem ler do primário.
  
-**RabbitMQ**: message broker que desacopla os fluxos assíncronos do ciclo HTTP. Mantém filas independentes para envio de e-mail, WhatsApp e registro de logs de auditoria, garantindo que falhas em integrações externas não impactem o tempo de resposta das operações principais.
+**Object storage (S3-compatível)**: serviço de armazenamento de binários (ex.: S3 ou MinIO) para a foto de perfil do profissional (RF-04) e para campos de formulário do tipo imagem/arquivo (RF-38). Os binários não são guardados no PostgreSQL, evitando impacto em performance (RNF-01/RNF-02) e backup (RNF-06); o banco persiste apenas os metadados e a referência ao objeto. Acesso por URLs assinadas com expiração, limites de tamanho e tipo (allowlist de MIME) validados no upload, e varredura de malware antes de disponibilizar o arquivo.
+
+**RabbitMQ**: message broker que desacopla os fluxos assíncronos do ciclo HTTP. Mantém filas independentes para envio de e-mail, WhatsApp e registro de logs de auditoria, garantindo que falhas em integrações externas não impactem o tempo de resposta das operações principais. Por ser um broker leve, mantém a topologia coerente com a infraestrutura de baixo custo (RNF-04); como alternativa de MVP, a fila pode ser implementada no próprio PostgreSQL (tabela de outbox/jobs com `SELECT ... FOR UPDATE SKIP LOCKED`), reduzindo o número de serviços a operar.
  
-**Observabilidade e CI/CD**: monitoramento de uptime com alerta automático em até cinco minutos após falha detectada. Pipeline de CI/CD com gate de testes obrigatório antes do deploy em produção. Branches protegidas no repositório e logs de auditoria retidos por no mínimo 90 dias para rastreabilidade de incidentes.
+**Observabilidade e CI/CD**: a stack de observabilidade combina o **Sentry** para captura e agrupamento de erros da aplicação (APM/error tracking) com um **monitor de uptime dedicado** (ex.: UptimeRobot, Better Stack ou Grafana) responsável pelos testes de disponibilidade e pelo alerta automático em até cinco minutos após falha detectada (RNF-21) — não há dependência de Azure nem de qualquer provedor de nuvem específico nesta camada. Pipeline de CI/CD com gate de testes obrigatório antes do deploy em produção. Branches protegidas no repositório e logs de auditoria retidos por no mínimo 90 dias para rastreabilidade de incidentes.
+
+**Topologia de deploy do MVP**: para honrar a infraestrutura de baixo custo (RNF-04) e a recuperação simples via process manager + health checks (RNF-05), o alvo do MVP é um deploy enxuto — frontend (Next.js), backend (NestJS) com o cron worker de lembretes, PostgreSQL single-node, broker leve (ou fila no próprio banco) e object storage gerenciado — passível de operar em uma única VM ou em poucos contêineres. Réplica de banco, cluster e decomposição em microsserviços são introduzidos incrementalmente apenas quando a carga justificar.
 
 <!-- #endregion -->
 
@@ -1787,32 +1836,35 @@ O suporte nativo a TypeScript reforça a consistência de tipos entre backend e 
 ### NestJS - Backend
 **Motivo da escolha:** NestJS foi escolhido como framework de backend por se alinhar diretamente com três pilares arquiteturais que guiam este projeto:
 
-#### **1. Compatibilidade com Domain-Driver Design e Arquitetura Hexagonal**
-O projeto adota como modelo de referência o repositório [domain-drive-hexagon](https://github.com/Sairyss/domain-driven-hexagon/tree/master), que aconselha a separação entre camadas de domínio, aplicação e infraestrutura, além de uso de ports & adapters para isolar a lógica de negócio de frameworks externos. O NestJS viabiliza essa estrutura de forma nativa: seu sistema de módulos (`  @Modules  `), injeção de dependência (DI Container), e decorators permite organizar o código exatamente nas camadas descritas pelo modelo.
+#### **1. Compatibilidade com Domain-Driven Design e Arquitetura Hexagonal**
+O projeto adota como modelo de referência o repositório [domain-driven-hexagon](https://github.com/Sairyss/domain-driven-hexagon/tree/master), que aconselha a separação entre camadas de domínio, aplicação e infraestrutura, além de uso de ports & adapters para isolar a lógica de negócio de frameworks externos. O NestJS viabiliza essa estrutura de forma nativa: seu sistema de módulos (`  @Modules  `), injeção de dependência (Dependency Injection — DI Container), e decorators permite organizar o código exatamente nas camadas descritas pelo modelo.
 
 #### **2. Suporte às boas práticas de backend em TypeScript**
-Seguindo as diretrizes do [backend-best-practices](https://github.com/Sairyss/backend-best-practices), o projeto prioriza: validação robusta de entrada (via à `class-validator`, `class-transformer` e `zod`, integrados nativamente ao NestJS), tratamento centralizado de erros, uso de DTOs para contratos de API bem definidos, e separação clara entre camadas de comando e queries (padrão CQRS).
+Seguindo as diretrizes do [backend-best-practices](https://github.com/Sairyss/backend-best-practices), o projeto prioriza: validação robusta de entrada, tratamento centralizado de erros, uso de DTOs para contratos de API bem definidos, e separação clara entre camadas de comando e queries (padrão CQRS).
 
-O NestJS oferece o móudlo `@nestjs/cqrs` que implementa CQRS de forma idiomática, além de pipes, guards e interceptors que encapsulam preocupações transversais como autenticação, logging e validação sem poluir a lógica de negócio.
+A estratégia de validação adota o **`class-validator` (com `class-transformer`) como ferramenta primária** para todos os DTOs e endpoints HTTP, por sua integração nativa ao NestJS via `ValidationPipe`, atendendo ao RNF-10 (validação de entrada em todos os endpoints) com um único contrato consistente. O `zod` fica reservado, quando necessário, à validação de dados que não passam por DTOs decorados (ex.: parsing de payloads de webhooks externos ou variáveis de ambiente), evitando a coexistência de dois padrões concorrentes sobre o mesmo boundary.
+
+O NestJS oferece o módulo `@nestjs/cqrs` que implementa CQRS de forma idiomática, além de pipes, guards e interceptors que encapsulam preocupações transversais como autenticação, logging e validação sem poluir a lógica de negócio.
 
 #### **3. Preparado para padrões de sistemas distribuídos**
 Com referência ao [system-design-patterns](https://github.com/Sairyss/system-design-patterns), o projeto considera desde o início padrões como idempotência, mensageria e resiliência. O NestJS possui suporte oficial a microservices e camadas de transporte (Redis, RabbitMQ, Kafka, gRPC), o que significa que caso o sistema cresça e exija decomposição em serviços independentes, a migração é estruturalmente suportada sem reescrever a base do código.
 
 
-### PostgreSQL (replica master-slave) - Banco de Dados
-**Motivo da escolha:** O PostgreSQL foi escolhido como banco de dados principal por ser o SGBD relacional open-source com o conjunto de funcionalidades mais maduro disponível, combinando confirmidade ACID, suporte nativo a JSON/JSONB (crucial para o domínio da aplicação), tipos avançados e extensibilidade via extensões.
+### PostgreSQL - Banco de Dados
+**Motivo da escolha:** O PostgreSQL foi escolhido como banco de dados principal por ser o SGBD relacional open-source com o conjunto de funcionalidades mais maduro disponível, combinando conformidade ACID, suporte nativo a JSON/JSONB (crucial para o domínio da aplicação), tipos avançados e extensibilidade via extensões. Recursos como a constraint `EXCLUDE USING gist` (com `btree_gist`) para impedir overbooking e o Row-Level Security para isolamento por tenant pesaram diretamente na escolha.
 
-#### Modelo master-slave (replicação por streaming):
-O projeto adota a topologia master-slave com replicação assíncrona por streaming nativa do PostgreSQL. As motivações são:
-* O nó master recebe todas as operações de escrita (como criação de usuários, persistência de eventos de domínio, etc).
-* O nó de réplica recebe os dados do master em tempo real e fica disponível exclusivamente para leitura.
+#### Topologia no MVP: instância única (single-node):
+No MVP o PostgreSQL opera como instância única, alinhado à infraestrutura de baixo custo (RNF-04) e suficiente para a carga inicial. Concentrar leituras e escritas no mesmo nó preserva a consistência read-after-write dos fluxos críticos (agenda e financeiro), sem o lag de replicação que uma réplica assíncrona introduziria.
 
-Essa separação implementa na infraestrutura o mesom princípio que o padrão CQRS implementa no código: comandos (escrita) e queries (leitura).
+#### Evolução futura: réplica de leitura:
+Caso a carga justifique, pode-se introduzir uma réplica de leitura (topologia primário-réplica com streaming) como otimização. Diferente do que uma analogia simplista sugere, replicação física **não** equivale a CQRS: o CQRS separa modelos de comando e de consulta no código e não exige réplica física nem tolera, por si só, leitura desatualizada em fluxos transacionais. Por isso, quando uma réplica for adotada, os fluxos sensíveis a read-after-write (criação de agendamento + detecção de conflito, registro de pagamento + resumo financeiro) continuarão lendo do nó primário.
 
 
 ### RabbitMQ - Message Broker (mensageria assíncrona)
 
-**Motivo da escolha:** O RabbitMQ foi escolhido como broker de mensagens para desacoplar os fluxos que não precisam de resposta imediata do clico de vida da requisição HTTP principal. Os três casos de uso centrais são: **logs de auditoria, notificações via whatsapp** e **notificações via e-mail**.
+**Motivo da escolha:** O RabbitMQ foi escolhido como broker de mensagens para desacoplar os fluxos que não precisam de resposta imediata do ciclo de vida da requisição HTTP principal. Os três casos de uso centrais são: **logs de auditoria, notificações via WhatsApp** e **notificações via e-mail**.
+
+O RabbitMQ trata o *despacho imediato* das mensagens, mas **não agenda jobs futuros**: o agendamento temporal dos lembretes (RF-34/RN-18) é responsabilidade do cron worker + tabela `reminders` descrito em 5.3.2/5.3.3, que apenas publica na fila quando a janela de disparo chega. Para manter a infraestrutura de baixo custo (RNF-04), o broker é mantido em configuração leve; alternativamente, no MVP a mensageria pode ser substituída por uma fila no próprio PostgreSQL (padrão outbox com `SELECT ... FOR UPDATE SKIP LOCKED`), reduzindo serviços a operar sem alterar os contratos da aplicação.
 
 
 <!-- #endregion -->
@@ -1846,6 +1898,14 @@ Medidas previstas:
 - recuperação de senha por link temporário enviado por e-mail;
 - uso de tokens de autenticação com tempo de expiração;
 - invalidação de sessões ou tokens em caso de logout ou troca de senha.
+
+#### Proteção contra força bruta e credential stuffing
+
+Para reduzir o risco de comprometimento de contas, além do rate limit por IP (RNF-10), o sistema deverá adotar:
+
+- **lockout progressivo por conta:** após um número limitado de tentativas de login malsucedidas, o sistema aplica atraso crescente e, no limite, bloqueio temporário da conta, independentemente do IP de origem;
+- **proteção contra credential stuffing distribuído:** combinação de limite por conta **e** por IP, com monitoramento de picos de falhas de autenticação (rate limit por IP isolado é insuficiente contra ataques distribuídos);
+- **MFA/2FA opcional (TOTP):** segundo fator de autenticação baseado em TOTP, disponível de forma opcional ao menos para o papel **Owner**, dada a sensibilidade dos dados de clientes tratados no tenant.
 
 ### Autorização e Permissões
 
@@ -1926,6 +1986,44 @@ Algumas informações exigem cuidado especial, como:
 - observações e respostas de formulários personalizados.
 
 Credenciais de integração não devem ser exibidas integralmente após o cadastro. Quando possível, devem ser criptografadas em repouso ou armazenadas em serviço seguro de secrets. Tokens temporários, como recuperação de senha ou verificação de e-mail, devem possuir expiração e não devem ser reutilizáveis após o uso.
+
+### Segurança do Link Público de Agendamento
+
+O link público de agendamento (RF-23) é um endpoint **não autenticado** que expõe disponibilidade do profissional e aceita solicitações de agendamento de pessoas sem conta (RN-11). Por isso, além do rate limit genérico por IP (RNF-10) — facilmente contornável e que pode bloquear clientes legítimos atrás de NAT —, esse endpoint deverá possuir controles dedicados:
+
+- **CAPTCHA/challenge** antes de submeter uma solicitação de agendamento, para conter automação e spam de pendências;
+- **verificação de contato** (confirmação de e-mail ou telefone) antes de a solicitação ser efetivada;
+- **limites por slug/janela de tempo:** restrição do número de solicitações por slug de tenant e por janela temporal, complementando o limite por IP;
+- **slugs não enumeráveis:** o identificador público do tenant não deve ser sequencial nem facilmente adivinhável, dificultando enumeração e scraping de disponibilidade;
+- **expiração automática de solicitações pendentes:** solicitações não confirmadas pelo profissional expiram após prazo definido, evitando poluição da fila de pendentes.
+
+### Tokens em Links Acionáveis de Notificação
+
+As notificações de confirmação, cancelamento e remarcação (RF-33 a RF-35) podem incluir links acionáveis enviados ao cliente por e-mail ou WhatsApp (ex.: "confirmar" ou "cancelar" agendamento). Caso esses links existam, eles representam superfície de ataque (IDOR/manipulação de agendamento alheio) e deverão usar tokens:
+
+- **assinados** (verificáveis pelo servidor, não adivinháveis);
+- **de uso único** (invalidados após a primeira ação);
+- **com expiração** compatível com a janela do atendimento;
+- **com escopo restrito a um único agendamento**, sem permitir acesso a outros recursos do tenant ou do cliente.
+
+Caso o MVP não implemente links acionáveis nas notificações (apenas conteúdo informativo), isso deverá ser declarado explicitamente, dispensando os controles acima até que tais links sejam introduzidos.
+
+### Controle de Exportação de Dados
+
+A exportação de relatórios financeiros (RF-32) e a exportação dos dados do tenant e de seus clientes (RNF-13) constituem um vetor de exfiltração em massa de dados pessoais. Além de registrar a exportação como evento auditável, o sistema deverá adotar controles preventivos:
+
+- **restrição por papel:** a exportação completa de dados fica restrita a papéis específicos (ex.: Owner/Admin);
+- **reautenticação ou confirmação adicional** para a exportação completa (RNF-13);
+- **limite de frequência** de exportações por usuário/tenant;
+- **alerta de auditoria** em exportações de grande volume, para detecção de uso anômalo.
+
+### Segurança das Integrações Externas e Webhooks
+
+As integrações com WhatsApp (Evolution API) e com provedores de e-mail podem envolver webhooks de entrada (status de entrega) e chamadas a instâncias configuradas pelo próprio tenant. Para reduzir a superfície de ataque, o sistema deverá:
+
+- **validar a assinatura/origem de todo webhook recebido**, rejeitando requisições não autenticadas (proteção contra spoofing de status);
+- **proteger contra SSRF** nas integrações configuráveis pelo tenant (ex.: URL de instância Evolution self-hosted), por meio de allowlist de destinos e bloqueio de endereços internos/privados;
+- armazenar as credenciais de integração de forma segura, conforme já descrito em *Dados Sensíveis e Credenciais de Integração*.
 
 ### Auditoria e Monitoramento
 
@@ -2030,7 +2128,29 @@ Os dados serão tratados para permitir que o profissional utilize as funcionalid
 - geração de relatórios financeiros;
 - personalização da experiência da aplicação.
 
-O Planici não deverá utilizar os dados para finalidades incompatíveis com o funcionamento do sistema sem consentimento ou base legal adequada.
+O Planici não deverá utilizar os dados para finalidades incompatíveis com o funcionamento do sistema sem base legal adequada (art. 7 da LGPD).
+
+### Bases Legais do Tratamento
+
+Todo tratamento de dados pessoais deve estar amparado em uma das hipóteses do art. 7 da LGPD (princípio da transparência, art. 6, VI). O Planici mapeia cada finalidade à sua base legal:
+
+| Finalidade / categoria de dado | Base legal (art. 7) |
+|---|---|
+| Dados do profissional titular da conta (criação/acesso, gerenciamento de tenant, uso das funcionalidades contratadas) | **Execução de contrato** (art. 7, V) |
+| Logs de auditoria, prevenção a fraudes e segurança da plataforma | **Legítimo interesse** (art. 7, IX) |
+| Comunicações que dependam de manifestação do titular (ex.: marketing) | **Consentimento** (art. 7, I), livre, informado, destacado e revogável |
+| Dados de clientes finais cadastrados pelo profissional | Tratados pelo Planici na qualidade de **operador**, sob a base legal definida pelo profissional-controlador (em regra, execução de contrato/legítimo interesse do controlador) |
+
+O aceite dos Termos de Serviço e da Política de Privacidade no cadastro constitui **execução de contrato** (art. 7, V) e não consentimento no sentido técnico do art. 8; o consentimento (art. 7, I) é coletado de forma destacada apenas quando o tratamento o exigir (ver *Consentimento e Transparência*).
+
+### Papéis: Controlador e Operador
+
+Em relação aos dados dos **clientes finais** cadastrados no sistema:
+
+- o **profissional (ou empresa) usuária** atua como **controlador** desses dados, definindo finalidades e bases legais;
+- o **Planici** atua como **operador**, tratando os dados em nome do controlador e segundo suas instruções.
+
+A relação entre as partes é regida por **cláusula/contrato de tratamento de dados** nos termos do art. 39 da LGPD, integrante dos Termos de Serviço, estabelecendo as instruções do controlador, as obrigações de segurança do operador e as condições de eliminação/devolução dos dados ao fim do contrato.
 
 ### Minimização de Dados
 
@@ -2043,21 +2163,26 @@ Exemplos:
 - para solicitar um agendamento pelo link público, o cliente deve informar apenas os dados necessários para identificação e contato;
 - formulários personalizados devem ser configurados pelo próprio profissional, evitando coleta excessiva por padrão.
 
-### Dados Potencialmente Sensíveis
+### Dados Sensíveis (art. 11)
 
-Como o Planici pode ser utilizado por terapeutas, nutricionistas, personal trainers e outros profissionais de atendimento personalizado, existe a possibilidade de o usuário inserir informações potencialmente sensíveis em campos livres, observações ou formulários personalizados.
+Como o Planici se destina, entre outros, a terapeutas, nutricionistas, psicólogos e personal trainers, o tratamento de **dados sensíveis de saúde** (art. 5, II) — inseridos em campos livres, observações ou formulários personalizados — é **provável**, e não meramente potencial. O art. 11 da LGPD impõe regime diferenciado a esses dados.
 
 Por isso, o sistema deverá:
 
-- evitar solicitar dados sensíveis por padrão;
-- indicar que campos livres devem ser usados apenas quando necessário;
+- **reconhecer expressamente** que campos livres, observações e respostas de formulários podem conter dados sensíveis de saúde;
+- coletar **consentimento específico e destacado** (art. 11, I) do titular para o tratamento desses dados, quando aplicável, separado do aceite geral dos Termos/Política;
+- aplicar **criptografia em repouso obrigatória** às observações e às respostas de formulários personalizados que possam conter dados sensíveis;
+- evitar solicitar dados sensíveis por padrão e indicar que campos livres devem ser usados apenas quando necessário;
 - permitir que o profissional defina quais informações serão coletadas nos formulários;
-- proteger respostas de formulários com as mesmas regras de autenticação, autorização e isolamento por tenant;
+- proteger as respostas de formulários com as mesmas regras de autenticação, autorização e isolamento por tenant;
+- elaborar **Relatório de Impacto à Proteção de Dados Pessoais (RIPD/DPIA, art. 38)** antes do tratamento em larga escala de dados sensíveis;
 - deixar claro que o Planici não substitui prontuários eletrônicos, sistemas médicos regulamentados ou documentos clínicos oficiais.
 
-### Consentimento e Transparência
+### Aceite Contratual, Consentimento e Transparência
 
-Durante o cadastro, o usuário deverá aceitar os Termos de Serviço e a Política de Privacidade. O aceite deve ser registrado com:
+Durante o cadastro, o usuário deverá aceitar os Termos de Serviço e a Política de Privacidade. Esse aceite caracteriza, juridicamente, a base de **execução de contrato** (art. 7, V) — e não "consentimento" no sentido técnico do art. 8 da LGPD. O consentimento (art. 7, I) é uma base distinta, exigida apenas para tratamentos que dele dependam (ex.: comunicações de marketing ou dados sensíveis), caso em que deve ser coletado de forma livre, informada, **destacada** e **revogável** (art. 8, §5). Essa distinção esclarece e complementa o RNF-12, que trata do registro rastreável do aceite.
+
+O aceite deve ser registrado com:
 
 - identificador do usuário;
 - data e hora do aceite;
@@ -2085,23 +2210,38 @@ O Planici poderá se comunicar com serviços externos apenas quando necessário 
 
 O compartilhamento deve ser limitado ao mínimo necessário para execução da funcionalidade. O sistema não deve vender dados pessoais nem compartilhar dados com terceiros para fins de marketing sem consentimento explícito.
 
+Sobre os **suboperadores**:
+
+- todo terceiro que trate dados pessoais por conta do Planici (suboperador) será regido por **contrato de tratamento de dados** (art. 39 da LGPD), com obrigações de segurança e confidencialidade;
+- os **operadores principais** previstos incluem: provedor de e-mail transacional, provedor de mensageria WhatsApp (Evolution API), Google (autenticação OAuth), provedor de hospedagem/infraestrutura, serviço de banco de dados e backup, e serviço de monitoramento de erros (Sentry, que pode capturar dados pessoais em logs de erro);
+- **transferência internacional de dados** (arts. 33 a 35): como parte desses operadores pode armazenar ou processar dados fora do Brasil, a transferência observará as salvaguardas dos arts. 33-35 (ex.: cláusulas-padrão contratuais ou garantias adequadas reconhecidas pela ANPD).
+
 ### Armazenamento e Retenção
 
 Os dados serão armazenados em banco de dados relacional, com separação lógica por tenant. O sistema deverá manter backups automáticos para reduzir risco de perda de dados.
 
-Diretrizes de retenção:
+Em observância aos arts. 15 e 16 e ao princípio da necessidade (art. 6, III), os prazos de retenção são delimitados:
 
 - dados operacionais ficam armazenados enquanto a conta ou tenant estiver ativo;
-- dados inativados podem ser mantidos quando necessários para histórico, relatórios e integridade financeira;
-- logs de auditoria devem possuir retenção mínima definida;
-- backups devem seguir política de retenção própria;
-- dados excluídos da aplicação poderão permanecer em backups por tempo limitado, até expiração do ciclo de retenção.
+- após o **encerramento da conta/tenant**, os dados pessoais são **eliminados ou anonimizados em até 30 dias**, ressalvadas obrigações legais de guarda;
+- dados inativados podem ser mantidos quando necessários para histórico, relatórios e integridade financeira, até que cesse a finalidade legal/contratual;
+- **logs de auditoria** são retidos por **90 dias** (conforme RNF-11);
+- **backups** seguem retenção de **7 dias** (conforme RNF-06), após o que os dados já excluídos da aplicação são definitivamente purgados ao expirar o ciclo de backup.
 
-### Solicitação de Acesso, Exportação e Remoção de Dados
+### Direitos do Titular (arts. 18, 19 e 8, §5)
 
-O usuário deverá poder solicitar acesso, correção, exportação ou exclusão de seus dados, conforme previsto pela LGPD.
+Os direitos do titular previstos na LGPD são **incondicionais** e devem ser garantidos **já no MVP**, independentemente da existência de tela automatizada. São assegurados:
 
-No MVP, caso ainda não exista uma tela automatizada para isso, essas solicitações poderão ser feitas por canal de suporte definido pelo projeto. Em versões futuras, o sistema poderá oferecer uma área de configurações para o próprio usuário solicitar:
+- **acesso** aos dados (art. 18, I e II);
+- **correção** de dados incompletos, inexatos ou desatualizados (art. 18, III);
+- **eliminação/exclusão** de dados (art. 18, VI), respeitadas as regras de negócio e obrigações legais;
+- **portabilidade** dos dados (art. 18, V);
+- **oposição** a tratamento realizado com base em hipótese dispensada de consentimento (art. 18, §2);
+- **revogação do consentimento** a qualquer momento, de forma facilitada e gratuita (art. 8, §5).
+
+No MVP, enquanto não houver tela de autoatendimento, essas solicitações são atendidas por **canal explícito** — o e-mail do Encarregado/DPO (ex.: `dpo@planici.com.br`) —, com **resposta em até 15 dias** para confirmação/acesso, em conformidade com o art. 19 da LGPD. O atendimento aos direitos do titular é, portanto, requisito **obrigatório** do MVP, e não um item "WANTS".
+
+Em versões futuras, o sistema poderá oferecer uma área de configurações para o próprio usuário solicitar de forma automatizada:
 
 - exportação dos dados em formato JSON ou CSV;
 - alteração de dados cadastrais;
@@ -2115,7 +2255,7 @@ Quando a exclusão definitiva for aplicável, ela deverá remover ou anonimizar 
 
 ### Responsabilidades do Usuário
 
-O profissional que utiliza o Planici também é responsável pelos dados que decide cadastrar sobre seus próprios clientes. Assim, o sistema deverá orientar o usuário a:
+O profissional que utiliza o Planici atua como **controlador** dos dados que decide cadastrar sobre seus próprios clientes (sendo o Planici **operador**, conforme *Papéis: Controlador e Operador* e a cláusula do art. 39). Cabe a ele, nessa condição, definir finalidades e bases legais e responder pelos dados que cadastra. Assim, o sistema deverá orientar o usuário a:
 
 - cadastrar apenas informações necessárias;
 - evitar inserir dados sensíveis sem necessidade;
@@ -2123,6 +2263,21 @@ O profissional que utiliza o Planici também é responsável pelos dados que dec
 - respeitar pedidos de exclusão ou correção feitos por seus clientes;
 - configurar adequadamente permissões de colaboradores;
 - proteger suas credenciais de acesso.
+
+### Aviso de Privacidade no Link Público
+
+O cliente final que utiliza o link público de agendamento (RF-23) tem seus dados coletados (nome, e-mail e telefone) **sem criar conta** e, portanto, sem passar pelo onboarding em que os Termos são aceitos. Para atender ao direito à informação (art. 9 da LGPD), a própria página pública de agendamento deverá, **no momento da coleta**:
+
+- exibir um **aviso de privacidade resumido**, identificando o controlador (o profissional/tenant), a finalidade do tratamento e a base legal aplicável;
+- informar como o titular pode exercer seus direitos;
+- registrar o aceite/ciência do cliente final antes do envio dos dados, quando o tratamento depender de consentimento.
+
+### Encarregado pelo Tratamento (DPO) e Resposta a Incidentes
+
+Em conformidade com a LGPD, o Planici deverá:
+
+- **indicar um Encarregado pelo Tratamento de Dados (DPO, art. 41)**, com canal de contato público (ex.: `dpo@planici.com.br`) para titulares e para a ANPD;
+- manter um **plano de resposta a incidentes de segurança**, incluindo detecção, contenção e avaliação do risco, e a **comunicação de incidentes à ANPD e aos titulares afetados** em prazo razoável (art. 48), quando o incidente puder acarretar risco ou dano relevante.
 
 ### Medidas de Privacidade por Design
 
@@ -2142,17 +2297,20 @@ O Planici adotará medidas de privacidade desde a concepção do sistema:
 
 # 7. Planejamento do Projeto
 
+> [!NOTE]
+> O cronograma prioriza um **MVP enxuto** (agenda + clientes + pagamentos manuais + link público) e move as funcionalidades WANTS — multiusuário/RBAC e convites de colaboradores (RF-05/RF-06) — para a fase pós-MVP. Os testes são distribuídos ao longo dos marcos (não concentrados ao final): o gate de testes obrigatório no CI/CD (RNF-20) vigora desde M1 e cada módulo entrega seus próprios testes, mantendo a cobertura mínima de 70% nos módulos críticos (RNF-19). Entregáveis de segurança e LGPD são embutidos por marco, em vez de revisados apenas no encerramento.
+
 | Marco | Descrição | Prazo |
 |---|---|---|
-| M1 | Setup técnico do projeto, incluindo criação dos repositórios, estrutura inicial do frontend e backend, configuração do banco de dados, variáveis de ambiente, autenticação base e prova de conceito da comunicação entre interface, API e banco. | Semanas 1 e 2 |
-| M2 | Implementação da base do sistema: cadastro, login, recuperação de senha, criação/seleção de tenant, perfil do usuário e estrutura inicial de permissões. Este marco garante que o usuário consiga acessar o sistema e operar dentro de um espaço de trabalho isolado. | Semanas 3 e 4 |
-| M3 | Implementação dos cadastros principais do domínio: clientes, procedimentos/serviços e planos/pacotes. Também inclui busca, edição, inativação e vínculo básico entre cliente, serviço e plano. | Semanas 5 e 6 |
-| M4 | Implementação da agenda e dos agendamentos, incluindo configuração de disponibilidade, criação manual de agendamento, edição, cancelamento, bloqueio de horários e visualização em formato diário ou semanal. | Semanas 7 e 8 |
-| M5 | Implementação do link público de agendamento e fluxo de confirmação pelo profissional. Neste marco, o cliente externo poderá solicitar um horário sem possuir conta, e o profissional poderá confirmar ou recusar a solicitação. | Semana 9 |
-| M6 | Implementação dos módulos de pagamento e visão financeira, incluindo registro de pagamento por atendimento, status de pagamento, resumo de receitas por período e ranking básico de procedimentos. | Semana 10 |
-| M7 | Implementação das funcionalidades complementares do MVP, como formulários personalizados, configurações do espaço de trabalho, personalização de labels e notificações básicas por e-mail ou WhatsApp, conforme viabilidade técnica. | Semana 11 |
-| M8 | Testes, validação e melhorias gerais, incluindo testes de fluxo principal, correção de bugs, revisão de segurança, validação de isolamento por tenant, ajustes de responsividade, acessibilidade e desempenho. | Semana 12 |
-| M9 | Preparação da entrega final, incluindo revisão da documentação, prints atualizados, ajustes nos diagramas, publicação/deploy da aplicação, roteiro de apresentação e validação final com o usuário-alvo. | Semana 13 |
+| M1 | **Fundação de arquitetura.** Repositórios, estrutura de frontend (Next.js) e backend (NestJS) com DDD/hexagonal e CQRS, configuração do PostgreSQL single-node, variáveis de ambiente, pipeline de CI/CD com **gate de testes obrigatório desde o início** (RNF-20) e prova de conceito da comunicação interface↔API↔banco. Inclui a base de isolamento: RLS habilitado e propagação de `tenant_id` via `SET LOCAL` em transação, com teste automatizado de "zero vazamento entre tenants". | Semanas 1 a 3 |
+| M2 | **Autenticação e conta.** Cadastro, login (e-mail/senha e OAuth Google), verificação de e-mail, recuperação de senha, criação/seleção de tenant e perfil do usuário, com o object storage para foto de perfil (RF-04). No MVP o tenant tem usuário único (papel Owner). Entregáveis LGPD: registro de consentimento versionado (aceite de Termos/Política) e logs de auditoria de autenticação. Testes unitários e de integração do módulo de auth. | Semanas 4 e 5 |
+| M3 | **Cadastros do domínio.** Clientes, procedimentos/serviços e planos/pacotes, incluindo busca, edição, inativação (soft delete) e vínculo básico entre cliente, serviço e plano. Auditoria de criação/alteração/inativação e RLS validado nas novas tabelas. Testes por módulo. | Semanas 6 e 7 |
+| M4 | **Agenda e agendamentos.** Configuração de disponibilidade (fixa e livre), criação manual de agendamento, edição, cancelamento, bloqueio de horários e visualização diária/semanal. Detecção de conflito/overbooking garantida no banco (constraint `EXCLUDE USING gist` / `SELECT ... FOR UPDATE`). Testes de concorrência do overbooking, alcançando a cobertura mínima do módulo crítico (RNF-19). | Semanas 8 e 9 |
+| M5 | **Link público e confirmação.** Página pública de agendamento (cliente externo solicita horário sem conta) e fluxo de confirmação/recusa pelo profissional. Entregáveis de segurança/LGPD: controles anti-abuso (rate limit por slug/janela, slug não enumerável), aviso de privacidade e consentimento do cliente final. Testes do fluxo público. | Semana 10 |
+| M6 | **Pagamentos e visão financeira.** Registro de pagamento por atendimento, status de pagamento, resumo de receitas por período e ranking básico de procedimentos. Como é módulo crítico, atinge a cobertura mínima (RNF-19); auditoria de operações financeiras. | Semana 11 |
+| M7 | **Notificações.** Notificações por e-mail e WhatsApp (confirmação/cancelamento/remarcação) e o **scheduler temporal de lembretes** (cron worker + tabela `reminders`, com idempotência) para RF-34/RN-18. Inclui fallback de canal e tratamento das credenciais de integração. Testes do worker e da idempotência. | Semana 12 |
+| M8 | **Formulários personalizados e configuração do workspace.** Formulários dinâmicos (campos texto/imagem/arquivo via object storage, RF-38), configurações do espaço de trabalho e personalização de labels. Cuidados de LGPD com campos potencialmente sensíveis (avisos na UI, proteção das respostas). Testes do módulo. | Semana 13 |
+| M9 | **Hardening e entrega final.** Testes E2E do fluxo principal, revisão de segurança e validação final de isolamento por tenant, ajustes de responsividade/acessibilidade/desempenho, revisão da documentação e diagramas, publicação/deploy e validação com a usuária-alvo. | Semana 14 |
 
 # 8. Referências
 
