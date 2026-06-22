@@ -1724,7 +1724,7 @@ O fluxo de interação escolhido para representar a experiência principal do Pl
 > [!TIP]
 > A visão macro do sistema. O foco não é a tecnologia, mas sim como o software se encaixa no ecossistema e no mundo real.
 
-<img src="./img/diagrams/C4/context.svg" width="100%"/>
+<img src="./img/diagrams/C4/context.png" width="100%"/>
 
 
 <!-- #endregion 5.1.1 -->
