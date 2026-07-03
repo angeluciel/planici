@@ -81,7 +81,7 @@
 <!-- #endregion -->
 
 <h1 style="color:#D89F0F">1. Visão do Produto</h1>
-O Planici resolve o problema encontrado em softwares complicados, incompletos ou caros de agenda e gestão de negócio, utilizando uma interface intuitiva para gerenciar os compromissos, gastos e lucros, e clientes de um micro e pequeno negócio.
+O Planici existe para que profissionais autônomos de atendimento personalizado parem de gerenciar clientes, agenda e financeiro em planilhas soltas ou aplicativos caros e engessados. Em vez disso, eles registram um atendimento em menos de 5 minutos, direto do celular, logo após fechar com o cliente, com uma interface que se adapta à identidade do seu negócio, sem mensalidade proibitiva nem curva de aprendizado.
 
 <h2 style="color:#770404">1.1. Contexto e Problema</h2>
 Profissionais de atendimento personalizado (terapeutas, nutricionistas, personal trainers) costumam trabalhar sozinhos ou com equipes pequenas e acabam concentrando agenda, cadastro de clientes, procedimentos, preços e finanças.
@@ -306,7 +306,7 @@ Nenhum conhecimento técnico necessário, o sistema deve funcionar sem manual, t
 
 <h2 style="color:#770404">1.5. Objetivos do Projeto</h2>
 <h3 style="color:#C90606">Objetivo Geral</h3>
-Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta integrada, intuitiva e acessível para gestão de agenda, clientes e finanças, eliminando a dependência de planilhas e reduzindo a sobrecarga administrativa do dia a dia.
+Desenvolver uma solução de software que oferece á profissionais autônomos de serviços personalizados uma forma intuitiva e acessível de gerenciar suas agendas, clientes e finanças, eliminando a dependência de planilhas e reduzindo a sobrecarga administrativa do dia a dia.
 
 <h4 style="color:#C90606">Objetivos Específicos</h4>
 
@@ -468,8 +468,8 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 | UC-49  | Configurar ocupação profissional | Profissional   | RF-43                   | Pós-MVP |
 | UC-50  | Personalizar labels do sistema   | Profissional   | RF-43                   | Pós-MVP |
 
-> [!WARNING]
-> **Pendência de imagem:** o diagrama `use-case.png` ainda reflete o escopo anterior (notificações, formulários e planos como MVP). Atualizar o diagrama para destacar a fase de cada caso de uso.
+> [!NOTE]
+> O diagrama agrupa os casos de uso por módulo e indica a fase de cada um por cor: branco = MVP, cinza (estereótipo `«Pós-MVP»`) = Pós-MVP. Os códigos entre parênteses referenciam as tabelas acima. Fonte editável do diagrama: `img/diagrams/use-case.puml`.
 
 
 <!-- #endregion -->

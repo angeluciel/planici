@@ -1,0 +1,103 @@
+@startuml use-case
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle awesome
+skinparam usecase {
+  BorderColor #333333
+  BackgroundColor #FFFFFF
+  BackgroundColor<<Pós-MVP>> #EEEEEE
+  BorderColor<<Pós-MVP>> #999999
+}
+skinparam rectangle {
+  BorderColor #333333
+}
+
+actor "Profissional" as Prof
+actor "Administrador\ndo tenant" as Admin
+actor "Cliente" as Cliente
+actor "Sistema\n(Scheduler/Notificações)" as Sistema
+
+Admin --|> Prof
+
+rectangle "Planici" {
+
+  package "Administração" {
+    usecase "Gerenciar colaboradores\ne permissões\n(UC-05, UC-06)" as UC_Colaboradores <<Pós-MVP>>
+    usecase "Configurar espaço\nde trabalho\n(UC-49, UC-50)" as UC_Config <<Pós-MVP>>
+  }
+
+  package "Conta e espaço de trabalho" {
+    usecase "Gerenciar conta, perfil\ne dados do negócio\n(UC-01..04)" as UC_Conta
+    usecase "Gerenciar tenant\n(espaço de trabalho)\n(UC-04a)" as UC_Tenant
+  }
+
+  package "Operação principal" {
+    usecase "Gerenciar clientes\n(UC-07..11)" as UC_Clientes
+    usecase "Gerenciar procedimentos\ne serviços\n(UC-12..15)" as UC_Servicos
+    usecase "Gerenciar planos\ne pacotes\n(UC-16..20)" as UC_Planos <<Pós-MVP>>
+    usecase "Gerenciar agenda\ne disponibilidade\n(UC-21, UC-22, UC-30)" as UC_Agenda
+    usecase "Gerenciar agendamentos\n(UC-23..26)" as UC_Agendamentos
+    usecase "Gerar link público\nde agendamento\n(UC-27)" as UC_GerarLink
+    usecase "Gerenciar pagamentos\n(UC-31..33)" as UC_Pagamentos
+    usecase "Gerenciar formulários\npersonalizados\n(UC-42..48)" as UC_Forms <<Pós-MVP>>
+  }
+
+  package "Canal público" {
+    usecase "Solicitar agendamento\npor link público\n(UC-28)" as UC_LinkPublico
+    usecase "Visualizar horários\ndisponíveis" as UC_Horarios
+    usecase "Confirmar ou recusar\nsolicitação\n(UC-29)" as UC_Confirmar
+  }
+
+  package "Relatórios e automações" {
+    usecase "Visualizar resumo de\nreceitas por período\n(UC-34)" as UC_Receitas
+    usecase "Consultar relatórios\nfinanceiros avançados\n(UC-35..37)" as UC_Relatorios <<Pós-MVP>>
+    usecase "Configurar notificações\n(UC-41)" as UC_ConfigNotif <<Pós-MVP>>
+    usecase "Enviar confirmação\nde agendamento\n(UC-38)" as UC_NotifConfirmacao <<Pós-MVP>>
+    usecase "Enviar lembrete\nantes do atendimento\n(UC-39)" as UC_NotifLembrete <<Pós-MVP>>
+    usecase "Notificar cancelamento\nou remarcação\n(UC-40)" as UC_NotifAlteracao <<Pós-MVP>>
+  }
+}
+
+' Conexões principais
+Prof --> UC_Conta
+Prof --> UC_Tenant
+Prof --> UC_Clientes
+Prof --> UC_Servicos
+Prof --> UC_Agenda
+Prof --> UC_Agendamentos
+Prof --> UC_GerarLink
+Prof --> UC_Pagamentos
+Prof --> UC_Receitas
+Prof --> UC_Relatorios
+Prof --> UC_ConfigNotif
+Prof --> UC_Config
+Prof --> UC_Planos
+Prof --> UC_Forms
+Prof --> UC_Confirmar
+
+Admin --> UC_Colaboradores
+
+Cliente --> UC_LinkPublico
+
+Sistema --> UC_NotifConfirmacao
+Sistema --> UC_NotifLembrete
+Sistema --> UC_NotifAlteracao
+
+' Relações essenciais
+UC_LinkPublico ..> UC_Horarios : <<include>>
+
+UC_NotifConfirmacao ..> UC_Confirmar : <<extend>>
+UC_NotifLembrete ..> UC_Agendamentos : <<extend>>
+UC_NotifAlteracao ..> UC_Agendamentos : <<extend>>
+UC_Forms ..> UC_Clientes : <<extend>>
+UC_Forms ..> UC_Servicos : <<extend>>
+UC_Forms ..> UC_Planos : <<extend>>
+UC_Pagamentos ..> UC_Agendamentos : <<extend>>
+
+legend right
+  |= Cor |= Fase |
+  | <#FFFFFF> | MVP |
+  | <#EEEEEE> | Pós-MVP |
+endlegend
+@enduml

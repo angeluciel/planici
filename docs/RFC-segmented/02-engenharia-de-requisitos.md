@@ -120,8 +120,8 @@
 | UC-49  | Configurar ocupação profissional | Profissional   | RF-43                   | Pós-MVP |
 | UC-50  | Personalizar labels do sistema   | Profissional   | RF-43                   | Pós-MVP |
 
-> [!WARNING]
-> **Pendência de imagem:** o diagrama `use-case.png` ainda reflete o escopo anterior (notificações, formulários e planos como MVP). Atualizar o diagrama para destacar a fase de cada caso de uso.
+> [!NOTE]
+> O diagrama agrupa os casos de uso por módulo e indica a fase de cada um por cor: branco = MVP, cinza (estereótipo `«Pós-MVP»`) = Pós-MVP. Os códigos entre parênteses referenciam as tabelas acima. Fonte editável do diagrama: `../img/diagrams/use-case.puml`.
 
 
 <!-- #endregion -->
