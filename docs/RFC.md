@@ -22,7 +22,7 @@
         <td align="center">Aplicação Web</td>
         <td align="center">João Pedro Medeiros Izidoro</td>
         <td align="center">10/03/2026</td>
-        <td align="center">v1.0</td>
+        <td align="center">v1.1 (revisão de escopo — 03/07/2026)</td>
       </tr>
     </tbody>
   </table>
@@ -48,13 +48,17 @@
 | 2 | [Engenharia de Requisitos](#2-engenharia-de-requisitos) | Requisitos funcionais, não funcionais e regras de negócio |
 | 2.1 | [Personas](#21-personas) | Persona Mariana (terapeuta autônoma) e Carlos |
 | 2.2 | [Casos de Uso Principais](#22-casos-de-uso-principais) | UCs por módulo (autenticação, clientes, agenda, pagamentos...) |
-| 2.3 | [Requisitos Funcionais (RF)](#23-requisitos-funcionais-rf) | RF-01 a RF-43, organizados por módulo |
-| 2.4 | [Requisitos Não Funcionais (RNF)](#24-requisitos-não-funcionais-rnf) | Desempenho, segurança, LGPD, usabilidade, escalabilidade |
-| 2.5 | [Regras de Negócio](#25-regras-de-negócio) | RN-01 a RN-25 |
+| 2.3 | [Requisitos Funcionais (RF)](#23-requisitos-funcionais-rf) | RF-01 a RF-43, organizados por módulo e classificados por fase (MVP / Pós-MVP) |
+| 2.4 | [Requisitos Não Funcionais (RNF)](#24-requisitos-não-funcionais-rnf) | Desempenho, segurança, LGPD, usabilidade, testes e qualidade |
+| 2.5 | [Regras de Negócio](#25-regras-de-negócio) | RN-01 a RN-26 |
 | 2.6 | [Fora de Escopo](#26-fora-de-escopo) | O que o sistema não irá implementar |
+| 2.7 | [Tabela MVP × Pós-MVP](#27-tabela-mvp--pós-mvp) | Fonte canônica da fase de cada área do produto |
+| 2.8 | [Matriz de Rastreabilidade](#28-matriz-de-rastreabilidade) | Problema → requisito → fluxo → tela → regra → KPI → teste |
+| 2.9 | [Validação com Usuários](#29-validação-com-usuários) | Plano de testes com 3–5 profissionais e validação pós-MVP |
 | 3 | [Fluxos e Comportamento do Sistema](#3-fluxos-e-comportamento-do-sistema) | Fluxogramas dos principais fluxos |
 | 3.1 | [Fluxo Principal de Usuário (OnBoarding)](#31-fluxo-principal-de-usuário-onboarding) | Primeiro acesso e criação do tenant |
 | 3.2 | [Fluxos Alternativos](#32-fluxos-alternativos) | Conflito de horário, cancelamento, exclusão com dependências |
+| 3.3 | [Critérios de Aceite do Fluxo Principal](#33-critérios-de-aceite-do-fluxo-principal) | Cenários Gherkin do fluxo central do MVP |
 | 4 | [Mockups e Experiência do Usuário (UX)](#4-mockups-e-experiência-do-usuário-ux) | Protótipos no Figma (mobile-first) |
 | 4.1 | [Fluxo de Navegação](#41-fluxo-de-navegação) | Zonas funcionais e fluxo linear de telas |
 | 4.2 | [Wireframes ou Mockups das Telas](#42-wireframes-ou-mockups-das-telas) | Telas de onboarding, tenant setup e área principal |
@@ -63,7 +67,8 @@
 | 5.1 | [Diagrama C4](#51-diagrama-c4) | Diagramas de contexto e containers (C4 Model) |
 | 5.2 | [Modelo de Dados](#52-modelo-de-dados) | Modelo Entidade-Relacionamento (MER) |
 | 5.3 | [Principais Componentes](#53-principais-componentes) | Componentes principais do sistema |
-| 5.4 | [Stack Tecnológica](#54-stack-tecnológica) | Next.js, NestJS, PostgreSQL e RabbitMQ |
+| 5.4 | [Stack Tecnológica](#54-stack-tecnológica) | Next.js, NestJS e PostgreSQL |
+| 5.5 | [Plano de Deploy Público](#55-plano-de-deploy-público) | Provedores, URL pública, backup, env vars, migrations e rollback |
 | 6 | [Segurança e Privacidade](#6-segurança-e-privacidade) | Estratégia de segurança e conformidade LGPD |
 | 6.1 | [Segurança da Aplicação](#61-segurança-da-aplicação) | Autenticação, autorização, OWASP e auditoria |
 | 6.2 | [Privacidade e LGPD](#62-privacidade-e-lgpd) | Dados coletados, consentimento e direitos do usuário |
@@ -262,6 +267,11 @@ Nenhuma solução existente combina TODOS os seguintes requisitos:
 Profissionais autônomos com foco em serviços personalizados que atuem individualmente.
 O nicho principal é no modelo de negócio individual, e não venda de produtos, e de faturamento baixo-médio.
 
+> [!IMPORTANT]
+> **Nota de escopo — entrega acadêmica vs. produto comercial**
+>
+> O Portfólio II entregará um MVP acadêmico funcional focado no fluxo essencial de gestão de agenda, clientes, serviços, pagamentos manuais e visão financeira básica. Funcionalidades comerciais mais amplas, como planos pagos, múltiplos usuários, integrações com WhatsApp, formulários avançados, automações e arquitetura distribuída, são tratadas como evolução futura e não compõem o escopo obrigatório da entrega acadêmica. A visão de produto descrita nesta seção (versão gratuita/paga, personalização completa de tema) é direcionamento comercial futuro, não compromisso do MVP.
+
 <!-- #endregion-->
 
 <!-- #endregion -->
@@ -300,16 +310,19 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 
 <h4 style="color:#C90606">Objetivos Específicos</h4>
 
-- Implementar um sistema de autenticação seguro com suporte a cadastro por e-mail/senha e login social via Google OAuth, garantindo isolamento completo de dados por tenant.
-- Desenvolver os módulos de cadastro e gestão de clientes, serviços, procedimentos e planos, permitindo que o profissional organize seu catálogo de ofertas e seu histórico de atendimentos em um único lugar.
-- Construir um módulo de agenda com suporte a disponibilidade fixa e livre, criação manual de agendamentos, bloqueio de horários e visualização diária e semanal.
-- Disponibilizar um link público de agendamento por tenant, permitindo que clientes externos solicitem horários sem criar conta, com fluxo de confirmação ou recusa pelo profissional.
-- Implementar o módulo financeiro com registro de pagamentos por atendimento, controle de status (pago, pendente, cancelado), resumo de receitas por período e ranking de procedimentos.
-- Criar um sistema de notificações automáticas via e-mail e WhatsApp para confirmações, lembretes e cancelamentos de agendamentos, configurável pelo profissional.
-- Desenvolver um mecanismo de formulários personalizados aplicáveis a clientes, serviços e planos, permitindo que cada profissional adapte os campos coletados ao seu modelo de negócio.
-- Oferecer personalização da interface por ocupação profissional, incluindo renomeação de entidades do sistema (como "Clientes" para "Pacientes") sem alterar a estrutura interna dos dados.
-- Garantir conformidade com a LGPD por meio de consentimento explícito no cadastro, minimização de dados coletados e isolamento de informações por tenant com Row-Level Security no banco de dados.
+- Implementar um sistema de autenticação seguro com cadastro por e-mail/senha e login social via Google OAuth, garantindo isolamento completo de dados por tenant.
+- Permitir a criação de um espaço de trabalho (tenant) por profissional no onboarding, com um único usuário (papel Owner) no MVP.
+- Desenvolver o cadastro e a gestão básica de clientes (criar, editar, buscar e inativar preservando histórico).
+- Desenvolver o cadastro e a gestão básica de serviços/procedimentos (nome, duração estimada e valor padrão, com inativação preservando histórico).
+- Construir um módulo de agenda com disponibilidade básica (fixa e livre), criação manual de agendamentos, bloqueio de horários, visualização diária e semanal e prevenção de conflito de horário.
+- Disponibilizar um link público simples de agendamento por tenant, permitindo que clientes externos solicitem horários sem criar conta, com fluxo de confirmação ou recusa pelo profissional.
+- Implementar o registro manual de pagamentos por atendimento, com controle de status (pago, pendente, cancelado) e visão financeira básica (resumo de receitas por período).
+- Garantir acessibilidade (WCAG 2.1 AA) nos fluxos principais do MVP.
+- Garantir conformidade com a LGPD por meio de consentimento explícito no cadastro, minimização de dados coletados, aviso de privacidade no link público e isolamento de informações por tenant com Row-Level Security no banco de dados.
+- Aplicar TDD nos fluxos críticos, com cobertura mínima de 75% no backend e 25% no frontend, análise estática contínua via SonarCloud e deploy público documentado.
 - Entregar uma aplicação responsiva e de alta usabilidade, com tempo de carregamento das páginas principais inferior a 2 segundos em conexão 4G e fluxos essenciais concluídos em menos de 5 cliques.
+
+> **Evolução futura (fora do MVP):** notificações automáticas por e-mail/WhatsApp, formulários personalizados, personalização de labels por ocupação profissional, planos/pacotes de serviços, comparativos e rankings financeiros, exportação de relatórios, multiusuário por tenant e arquitetura distribuída serão avaliados em fases posteriores, caso a necessidade seja validada. Ver [Tabela MVP × Pós-MVP](#27-tabela-mvp--pós-mvp).
  
 
 
@@ -321,12 +334,14 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 
 <ul>
   <li>
-  A usuária principal consegue realizar as tarefas do dia a dia (agendamento, registro de cliente, lançamento financeiro) sem precisar de auxílio de outras ferramentas.
+  A usuária principal executa o fluxo central completo (criar conta → criar tenant → cadastrar serviço → cadastrar cliente → configurar agenda → criar agendamento → registrar pagamento → consultar visão financeira) sem auxílio de outras ferramentas.
   </li>
   <li>Tempo para concluir um agendamento completo inferior a 5 minutos e em menos de 5 cliques, alinhado às metas das seções 1.4 e 1.5 (valor canônico do fluxo essencial).</li>
+  <li>Cliente e serviço cadastrados sem auxílio, em menos de 2 minutos cada.</li>
+  <li>Solicitação de agendamento pelo link público concluída por um cliente externo sem instruções prévias.</li>
+  <li><strong>Validação com usuários:</strong> taxa de sucesso &ge; 80% por tarefa nos testes com 3 a 5 profissionais autônomos (ver <a href="#29-validação-com-usuários">seção 2.9</a>).</li>
   <li>Tempo de resposta das telas de leitura (agenda, clientes, financeiro) inferior a 500ms; operações de escrita inferiores a 1s, conforme RNF-02. O carregamento de página (page load) segue o RNF-01 (P95 &lt; 2s).</li>
   <li>Zero perda de dados em operação normal; em cenário de desastre, a perda máxima admitida segue o RPO definido no RNF-06 (RPO &le; 24h).</li>
-  <li>Pelo menos 80% das funcionalidades do plano gratuito utilizadas ativamente pela usuária após 30 dias.</li>
 </ul>
 
 <!-- #endregion -->
@@ -363,95 +378,98 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 ## Casos de uso por módulo
 
 ### 2.2.1. Autenticação e conta
-| Código | Caso de uso                                    | Ator principal          | Requisitos relacionados |
-| ------ | ---------------------------------------------- | ----------------------- | ----------------------- |
-| UC-01  | Criar conta com e-mail e senha                 | Profissional            | RF-01                   |
-| UC-02  | Entrar com conta Google                        | Profissional            | RF-02                   |
-| UC-03  | Recuperar senha                                | Profissional            | RF-03                   |
-| UC-04  | Gerenciar perfil e dados do negócio            | Profissional            | RF-04                   |
-| UC-04a | Criar e selecionar tenant (espaço de trabalho) | Profissional            | RF-04a                  |
-| UC-05  | Convidar colaborador para o espaço de trabalho | Administrador do tenant | RF-05                   |
-| UC-06  | Definir permissões de colaborador              | Administrador do tenant | RF-06                   |
+| Código | Caso de uso                                    | Ator principal          | Requisitos relacionados | Fase    |
+| ------ | ---------------------------------------------- | ----------------------- | ----------------------- | ------- |
+| UC-01  | Criar conta com e-mail e senha                 | Profissional            | RF-01                   | MVP     |
+| UC-02  | Entrar com conta Google                        | Profissional            | RF-02                   | MVP     |
+| UC-03  | Recuperar senha                                | Profissional            | RF-03                   | MVP     |
+| UC-04  | Gerenciar perfil e dados do negócio            | Profissional            | RF-04                   | MVP     |
+| UC-04a | Criar e selecionar tenant (espaço de trabalho) | Profissional            | RF-04a                  | MVP     |
+| UC-05  | Convidar colaborador para o espaço de trabalho | Administrador do tenant | RF-05                   | Pós-MVP |
+| UC-06  | Definir permissões de colaborador              | Administrador do tenant | RF-06                   | Pós-MVP |
 
 ### 2.2.2. Clientes
-| Código | Caso de uso                             | Ator principal | Requisitos relacionados |
-| ------ | --------------------------------------- | -------------- | ----------------------- |
-| UC-07  | Cadastrar cliente                       | Profissional   | RF-07                   |
-| UC-08  | Editar cliente                          | Profissional   | RF-08                   |
-| UC-09  | Inativar cliente             | Profissional   | RF-08                   |
-| UC-10  | Buscar e filtrar clientes               | Profissional   | RF-09                   |
-| UC-11  | Visualizar ficha e histórico do cliente | Profissional   | RF-10                   |
+| Código | Caso de uso                             | Ator principal | Requisitos relacionados | Fase |
+| ------ | --------------------------------------- | -------------- | ----------------------- | ---- |
+| UC-07  | Cadastrar cliente                       | Profissional   | RF-07                   | MVP  |
+| UC-08  | Editar cliente                          | Profissional   | RF-08                   | MVP  |
+| UC-09  | Inativar cliente             | Profissional   | RF-08                   | MVP  |
+| UC-10  | Buscar e filtrar clientes               | Profissional   | RF-09                   | MVP  |
+| UC-11  | Visualizar ficha e histórico do cliente | Profissional   | RF-10                   | MVP  |
 
 ### 2.2.3. Procedimentos e serviços
-| Código | Caso de uso                      | Ator principal | Requisitos relacionados |
-| ------ | -------------------------------- | -------------- | ----------------------- |
-| UC-12  | Cadastrar procedimento           | Profissional   | RF-11                   |
-| UC-13  | Editar procedimento              | Profissional   | RF-12                   |
-| UC-14  | Excluir ou inativar procedimento | Profissional   | RF-12                   |
-| UC-15  | Listar procedimentos cadastrados | Profissional   | RF-13                   |
+| Código | Caso de uso                      | Ator principal | Requisitos relacionados | Fase |
+| ------ | -------------------------------- | -------------- | ----------------------- | ---- |
+| UC-12  | Cadastrar procedimento           | Profissional   | RF-11                   | MVP  |
+| UC-13  | Editar procedimento              | Profissional   | RF-12                   | MVP  |
+| UC-14  | Excluir ou inativar procedimento | Profissional   | RF-12                   | MVP  |
+| UC-15  | Listar procedimentos cadastrados | Profissional   | RF-13                   | MVP  |
 
 ### 2.2.4. Pacotes e planos
-| Código | Caso de uso                  | Ator principal | Requisitos relacionados |
-| ------ | ---------------------------- | -------------- | ----------------------- |
-| UC-16  | Criar plano ou pacote        | Profissional   | RF-14                   |
-| UC-17  | Associar serviços a um plano | Profissional   | RF-15                   |
-| UC-18  | Editar plano                 | Profissional   | RF-16                   |
-| UC-19  | Excluir ou inativar plano    | Profissional   | RF-16                   |
-| UC-20  | Listar planos cadastrados    | Profissional   | RF-17                   |
+| Código | Caso de uso                  | Ator principal | Requisitos relacionados | Fase    |
+| ------ | ---------------------------- | -------------- | ----------------------- | ------- |
+| UC-16  | Criar plano ou pacote        | Profissional   | RF-14                   | Pós-MVP |
+| UC-17  | Associar serviços a um plano | Profissional   | RF-15                   | Pós-MVP |
+| UC-18  | Editar plano                 | Profissional   | RF-16                   | Pós-MVP |
+| UC-19  | Excluir ou inativar plano    | Profissional   | RF-16                   | Pós-MVP |
+| UC-20  | Listar planos cadastrados    | Profissional   | RF-17                   | Pós-MVP |
 
 ### 2.2.5. Agenda e agendamentos
-| Código | Caso de uso                                     | Ator principal       | Requisitos relacionados |
-| ------ | ----------------------------------------------- | -------------------- | ----------------------- |
-| UC-21  | Configurar disponibilidade fixa                 | Profissional         | RF-18                   |
-| UC-22  | Configurar disponibilidade livre                | Profissional         | RF-19                   |
-| UC-23  | Criar agendamento manual                        | Profissional         | RF-20                   |
-| UC-24  | Editar agendamento                              | Profissional         | RF-21                   |
-| UC-25  | Cancelar agendamento                            | Profissional         | RF-21                   |
-| UC-26  | Visualizar agenda diária ou semanal             | Profissional         | RF-22                   |
-| UC-27  | Gerar link público de agendamento               | Profissional/Sistema | RF-23                   |
-| UC-28  | Solicitar agendamento por link público          | Cliente              | RF-23                   |
-| UC-29  | Confirmar ou recusar solicitação de agendamento | Profissional         | RF-24                   |
-| UC-30  | Bloquear horário na agenda                      | Profissional         | RF-25                   |
+| Código | Caso de uso                                     | Ator principal       | Requisitos relacionados | Fase |
+| ------ | ----------------------------------------------- | -------------------- | ----------------------- | ---- |
+| UC-21  | Configurar disponibilidade fixa                 | Profissional         | RF-18                   | MVP  |
+| UC-22  | Configurar disponibilidade livre                | Profissional         | RF-19                   | MVP  |
+| UC-23  | Criar agendamento manual                        | Profissional         | RF-20                   | MVP  |
+| UC-24  | Editar agendamento                              | Profissional         | RF-21                   | MVP  |
+| UC-25  | Cancelar agendamento                            | Profissional         | RF-21                   | MVP  |
+| UC-26  | Visualizar agenda diária ou semanal             | Profissional         | RF-22                   | MVP  |
+| UC-27  | Gerar link público de agendamento               | Profissional/Sistema | RF-23                   | MVP  |
+| UC-28  | Solicitar agendamento por link público          | Cliente              | RF-23                   | MVP  |
+| UC-29  | Confirmar ou recusar solicitação de agendamento | Profissional         | RF-24                   | MVP  |
+| UC-30  | Bloquear horário na agenda                      | Profissional         | RF-25                   | MVP  |
 
 ### 2.2.6. Pagamentos
-| Código | Caso de uso                                   | Ator principal | Requisitos relacionados |
-| ------ | --------------------------------------------- | -------------- | ----------------------- |
-| UC-31  | Registrar pagamento de atendimento            | Profissional   | RF-26                   |
-| UC-32  | Editar pagamento registrado                   | Profissional   | RF-27                   |
-| UC-33  | Visualizar status de pagamento do atendimento | Profissional   | RF-28                   |
+| Código | Caso de uso                                   | Ator principal | Requisitos relacionados | Fase |
+| ------ | --------------------------------------------- | -------------- | ----------------------- | ---- |
+| UC-31  | Registrar pagamento de atendimento            | Profissional   | RF-26                   | MVP  |
+| UC-32  | Editar pagamento registrado                   | Profissional   | RF-27                   | MVP  |
+| UC-33  | Visualizar status de pagamento do atendimento | Profissional   | RF-28                   | MVP  |
 
 ### 2.2.7. Visão financeira e relatórios.
-| Código | Caso de uso                               | Ator principal | Requisitos relacionados |
-| ------ | ----------------------------------------- | -------------- | ----------------------- |
-| UC-34  | Visualizar resumo de receitas por período | Profissional   | RF-29                   |
-| UC-35  | Comparar receitas entre períodos          | Profissional   | RF-30                   |
-| UC-36  | Visualizar ranking de procedimentos       | Profissional   | RF-31                   |
-| UC-37  | Exportar relatório financeiro             | Profissional   | RF-32                   |
+| Código | Caso de uso                               | Ator principal | Requisitos relacionados | Fase    |
+| ------ | ----------------------------------------- | -------------- | ----------------------- | ------- |
+| UC-34  | Visualizar resumo de receitas por período | Profissional   | RF-29                   | MVP     |
+| UC-35  | Comparar receitas entre períodos          | Profissional   | RF-30                   | Pós-MVP |
+| UC-36  | Visualizar ranking de procedimentos       | Profissional   | RF-31                   | Pós-MVP |
+| UC-37  | Exportar relatório financeiro             | Profissional   | RF-32                   | Pós-MVP |
 
 ### 2.2.8. Notificações
-| Código | Caso de uso                                | Ator principal | Requisitos relacionados |
-| ------ | ------------------------------------------ | -------------- | ----------------------- |
-| UC-38  | Enviar confirmação de agendamento          | Sistema        | RF-33                   |
-| UC-39  | Enviar lembrete antes do atendimento       | Sistema        | RF-34                   |
-| UC-40  | Notificar cancelamento ou remarcação       | Sistema        | RF-35                   |
-| UC-41  | Configurar canais e eventos de notificação | Profissional   | RF-36                   |
+| Código | Caso de uso                                | Ator principal | Requisitos relacionados | Fase    |
+| ------ | ------------------------------------------ | -------------- | ----------------------- | ------- |
+| UC-38  | Enviar confirmação de agendamento          | Sistema        | RF-33                   | Pós-MVP |
+| UC-39  | Enviar lembrete antes do atendimento       | Sistema        | RF-34                   | Pós-MVP |
+| UC-40  | Notificar cancelamento ou remarcação       | Sistema        | RF-35                   | Pós-MVP |
+| UC-41  | Configurar canais e eventos de notificação | Profissional   | RF-36                   | Pós-MVP |
 
 ### 2.2.9. Formulários personalizados
-| Código | Caso de uso                                     | Ator principal | Requisitos relacionados |
-| ------ | ----------------------------------------------- | -------------- | ----------------------- |
-| UC-42  | Criar modelo de formulário                      | Profissional   | RF-37                   |
-| UC-43  | Adicionar e ordenar campos do formulário        | Profissional   | RF-38                   |
-| UC-44  | Editar modelo de formulário                     | Profissional   | RF-39                   |
-| UC-45  | Excluir modelo de formulário                    | Profissional   | RF-39                   |
-| UC-46  | Aplicar formulário a cliente, serviço ou plano  | Profissional   | RF-40                   |
-| UC-47  | Editar respostas de formulário aplicado         | Profissional   | RF-41                   |
-| UC-48  | Visualizar formulários aplicados a uma entidade | Profissional   | RF-42                   |
+| Código | Caso de uso                                     | Ator principal | Requisitos relacionados | Fase    |
+| ------ | ----------------------------------------------- | -------------- | ----------------------- | ------- |
+| UC-42  | Criar modelo de formulário                      | Profissional   | RF-37                   | Pós-MVP |
+| UC-43  | Adicionar e ordenar campos do formulário        | Profissional   | RF-38                   | Pós-MVP |
+| UC-44  | Editar modelo de formulário                     | Profissional   | RF-39                   | Pós-MVP |
+| UC-45  | Excluir modelo de formulário                    | Profissional   | RF-39                   | Pós-MVP |
+| UC-46  | Aplicar formulário a cliente, serviço ou plano  | Profissional   | RF-40                   | Pós-MVP |
+| UC-47  | Editar respostas de formulário aplicado         | Profissional   | RF-41                   | Pós-MVP |
+| UC-48  | Visualizar formulários aplicados a uma entidade | Profissional   | RF-42                   | Pós-MVP |
 
 ### 2.2.10. Configuração do espaço de trabalho
-| Código | Caso de uso                      | Ator principal | Requisitos relacionados |
-| ------ | -------------------------------- | -------------- | ----------------------- |
-| UC-49  | Configurar ocupação profissional | Profissional   | RF-43                   |
-| UC-50  | Personalizar labels do sistema   | Profissional   | RF-43                   |
+| Código | Caso de uso                      | Ator principal | Requisitos relacionados | Fase    |
+| ------ | -------------------------------- | -------------- | ----------------------- | ------- |
+| UC-49  | Configurar ocupação profissional | Profissional   | RF-43                   | Pós-MVP |
+| UC-50  | Personalizar labels do sistema   | Profissional   | RF-43                   | Pós-MVP |
+
+> [!WARNING]
+> **Pendência de imagem:** o diagrama `use-case.png` ainda reflete o escopo anterior (notificações, formulários e planos como MVP). Atualizar o diagrama para destacar a fase de cada caso de uso.
 
 
 <!-- #endregion -->
@@ -459,6 +477,9 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 <!-- #region 2.3 RFs -->
 
 <h2>2.3 Requisitos Funcionais (RF)</h2>
+
+> [!NOTE]
+> **Legenda de prioridade:** <strong>MVP</strong> — obrigatório para a entrega do Portfólio II; <strong>Pós-MVP</strong> — planejado como evolução futura, fora do escopo obrigatório da entrega acadêmica. A [Tabela MVP × Pós-MVP](#27-tabela-mvp--pós-mvp) é a fonte canônica em caso de dúvida.
 
 <table>
   <tr>
@@ -496,13 +517,13 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   </tr>
   <tr>
     <td>RF-05</td>
-    <td><strong>Multiusuário por tenant</strong><br>Contas nos planos Basic ou superior podem convidar colaboradores com acesso ao mesmo espaço de trabalho. <em>RBAC (Role-Based Access Control)/convite de colaboradores é WANTS (fora do MVP); no MVP o tenant possui um único usuário (o profissional).</em></td>
-    <td>WANTS</td>
+    <td><strong>Multiusuário por tenant</strong><br>O profissional pode convidar colaboradores com acesso ao mesmo espaço de trabalho. <em>RBAC (Role-Based Access Control)/convite de colaboradores é Pós-MVP; no MVP o tenant possui um único usuário (o profissional, papel Owner).</em></td>
+    <td>Pós-MVP</td>
   </tr>
   <tr>
     <td>RF-06</td>
-    <td><strong>Controle de permissões</strong><br>O administrador do tenant define o nível de acesso de cada colaborador, como somente agenda ou acesso financeiro. <em>Recurso WANTS (fora do MVP); o controle de papéis/permissões só se aplica quando o multiusuário (RF-05) estiver disponível.</em></td>
-    <td>WANTS</td>
+    <td><strong>Controle de permissões</strong><br>O administrador do tenant define o nível de acesso de cada colaborador, como somente agenda ou acesso financeiro. <em>Recurso Pós-MVP; o controle de papéis/permissões só se aplica quando o multiusuário (RF-05) estiver disponível.</em></td>
+    <td>Pós-MVP</td>
   </tr>
 </table>
 
@@ -517,12 +538,12 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   </tr>
   <tr>
     <td>RF-07</td>
-    <td><strong>Criar cliente</strong><br>O profissional pode cadastrar um cliente com nome, telefone, e-mail e observações, ou utilizar um formulário personalizado.</td>
+    <td><strong>Criar cliente</strong><br>O profissional pode cadastrar um cliente com nome, telefone, e-mail e observações (campos fixos mínimos no MVP; formulários personalizados são Pós-MVP).</td>
     <td>MVP</td>
   </tr>
   <tr>
     <td>RF-08</td>
-    <td><strong>Editar, inativar e excluir cliente</strong><br>O profissional pode atualizar os dados de um cliente. A exclusão definitiva só é permitida para clientes <strong>sem</strong> histórico vinculado (atendimentos, pagamentos, planos ou formulários aplicados). Clientes <strong>com</strong> histórico vinculado não são removidos fisicamente: a operação resulta em inativação (soft delete), preservando o histórico para consultas, relatórios e controle financeiro. Conforme RN-05 e RN-24.</td>
+    <td><strong>Editar, inativar e excluir cliente</strong><br>O profissional pode atualizar os dados de um cliente. A exclusão definitiva só é permitida para clientes <strong>sem</strong> histórico vinculado (atendimentos e pagamentos; planos e formulários quando essas funcionalidades Pós-MVP existirem). Clientes <strong>com</strong> histórico vinculado não são removidos fisicamente: a operação resulta em inativação (soft delete), preservando o histórico para consultas, relatórios e controle financeiro. Conforme RN-05 e RN-24.</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -532,7 +553,7 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   </tr>
   <tr>
     <td>RF-10</td>
-    <td><strong>Histórico de atendimentos do cliente</strong><br>Na ficha do cliente, o profissional visualiza todos os atendimentos anteriores, procedimentos realizados, planos ativos e valores pagos.</td>
+    <td><strong>Histórico de atendimentos do cliente</strong><br>Na ficha do cliente, o profissional visualiza todos os atendimentos anteriores, procedimentos realizados e valores pagos (planos ativos passam a compor a ficha quando o módulo de planos, Pós-MVP, existir).</td>
     <td>MVP</td>
   </tr>
 </table>
@@ -548,7 +569,7 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   </tr>
   <tr>
     <td>RF-11</td>
-    <td><strong>Criar procedimento</strong><br>O profissional cadastra procedimentos com nome, duração estimada, valor padrão, ou utiliza um formulário personalizado.</td>
+    <td><strong>Criar procedimento</strong><br>O profissional cadastra procedimentos com nome, duração estimada e valor padrão.</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -574,23 +595,23 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   </tr>
   <tr>
     <td>RF-14</td>
-    <td><strong>Criar plano</strong><br>O profissional cadastra um pacote de serviços com nome, descrição, preço, moeda, ciclo de cobrança (mensal, semanal, avulso etc.), ou utiliza um formulário personalizado.</td>
-    <td>MVP</td>
+    <td><strong>Criar plano</strong><br>O profissional cadastra um pacote de serviços com nome, descrição, preço, moeda e ciclo de cobrança (mensal, semanal, avulso etc.).</td>
+    <td>Pós-MVP</td>
   </tr>
   <tr>
     <td>RF-15</td>
     <td><strong>Associar serviços a um plano</strong><br>O profissional define quais serviços fazem parte de um plano, com quantidade e possibilidade de substituir o preço individual do serviço dentro do pacote.</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
   <tr>
     <td>RF-16</td>
     <td><strong>Editar, inativar e excluir plano</strong><br>O profissional pode atualizar um plano do catálogo. A exclusão definitiva só é permitida para planos <strong>sem</strong> uso em agendamentos, histórico de clientes ou registros financeiros. Planos <strong>com</strong> esse uso não são removidos fisicamente: a operação resulta em inativação (soft delete), impedindo novos usos e mantendo o histórico preservado. Conforme RN-08 e RN-24.</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
   <tr>
     <td>RF-17</td>
     <td><strong>Listagem de planos</strong><br>O profissional visualiza todos os planos cadastrados em uma lista.</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
 </table>
 
@@ -615,7 +636,7 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   </tr>
   <tr>
     <td>RF-20</td>
-    <td><strong>Criar agendamento pelo profissional</strong><br>O profissional agenda um atendimento escolhendo cliente, plano ou serviço, data e horário.</td>
+    <td><strong>Criar agendamento pelo profissional</strong><br>O profissional agenda um atendimento escolhendo cliente, serviço, data e horário (a seleção de plano passa a existir quando o módulo de planos, Pós-MVP, for entregue).</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -688,17 +709,17 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   <tr>
     <td>RF-30</td>
     <td><strong>Comparativo entre períodos</strong><br>O sistema apresenta a comparação de receita entre dois períodos (ex: mês atual vs. mês anterior).</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
   <tr>
     <td>RF-31</td>
     <td><strong>Ranking de procedimentos</strong><br>O sistema exibe os procedimentos mais realizados e os que mais geraram receita no período.</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
   <tr>
     <td>RF-32</td>
     <td><strong>Exportação de relatório</strong><br>O profissional pode exportar o relatório financeiro em PDF ou Excel.</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
 </table>
 
@@ -714,22 +735,22 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   <tr>
     <td>RF-33</td>
     <td><strong>Notificação de confirmação de agendamento</strong><br>Ao confirmar um agendamento, o sistema envia ao cliente uma notificação com os detalhes por e-mail e/ou WhatsApp, desde que haja canal de envio configurado e habilitado para o evento. Se nenhum canal estiver configurado, a operação prossegue normalmente sem envio. Conforme RN-17 e RN-19.</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
   <tr>
     <td>RF-34</td>
     <td><strong>Lembrete antes do horário</strong><br>O sistema envia um lembrete automático ao cliente com antecedência configurável (ex: 24h ou 1h antes), apenas para agendamentos confirmados e desde que haja canal de envio configurado e habilitado para o evento. Sem canal configurado, nenhum envio é tentado. Conforme RN-17, RN-18 e RN-19.</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
   <tr>
     <td>RF-35</td>
     <td><strong>Notificação de cancelamento ou remarcação</strong><br>Quando o profissional cancela ou altera um agendamento, o sistema notifica o cliente automaticamente, desde que haja canal de envio configurado e habilitado para o evento. Se nenhum canal estiver configurado, a operação prossegue normalmente sem envio. Conforme RN-17 e RN-19.</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
   <tr>
     <td>RF-36</td>
     <td><strong>Configuração de canais de notificação</strong><br>O profissional configura as credenciais e canais de envio (e-mail, WhatsApp via Evolution API) e escolhe quais eventos disparam cada canal. As preferências são armazenadas nas configurações do tenant.</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
 </table>
 
@@ -745,32 +766,32 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   <tr>
     <td>RF-37</td>
     <td><strong>Criar modelo de formulário</strong><br>O profissional cria um modelo de formulário com nome, descrição e tipo de entidade-alvo sugerida (cliente, serviço ou plano).</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
   <tr>
     <td>RF-38</td>
     <td><strong>Adicionar e ordenar campos</strong><br>O profissional adiciona campos ao formulário (texto, número, data, seleção, imagem, arquivo, etc.), define rótulo, obrigatoriedade e ordem de exibição.</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
   <tr>
     <td>RF-39</td>
     <td><strong>Editar e excluir modelo de formulário</strong><br>O profissional pode atualizar ou remover um modelo de formulário e seus campos.</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
   <tr>
     <td>RF-40</td>
     <td><strong>Aplicar formulário a uma entidade</strong><br>O profissional aplica um modelo de formulário a um cliente, serviço ou plano específico e preenche as respostas.</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
   <tr>
     <td>RF-41</td>
     <td><strong>Editar respostas de formulário aplicado</strong><br>O profissional pode atualizar as respostas de um formulário já aplicado a uma entidade.</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
   <tr>
     <td>RF-42</td>
     <td><strong>Visualizar formulários de uma entidade</strong><br>Na ficha de um cliente, serviço ou plano, o profissional visualiza todos os formulários aplicados e suas respostas.</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
 </table>
 
@@ -786,7 +807,7 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   <tr>
     <td>RF-43</td>
     <td><strong>Configurar ocupação e labels</strong><br>O profissional seleciona sua ocupação (ex: psicólogo, personal trainer, advogado) e pode personalizar os nomes exibidos para clientes, serviços e planos no sistema (ex: "Pacientes", "Consultas", "Mensalidades").</td>
-    <td>MVP</td>
+    <td>Pós-MVP</td>
   </tr>
 </table>
 
@@ -810,7 +831,7 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
     <td>RNF-01</td>
     <td><strong>Page Load Performance</strong></td>
     <td>As principais páginas do sistema (agenda, clientes, financeiro) devem carregar rapidamente em conexões móveis para garantir boa experiência ao profissional em campo. O impacto direto é na adoção e retenção do produto.</td>
-    <td>P95 &lt; 2s em conexão 4G @ 500 usuários simultâneos</td>
+    <td>P95 &lt; 2s em conexão 4G</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -908,8 +929,8 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
     <td>RNF-11</td>
     <td><strong>Audit Logging</strong></td>
     <td>Ações críticas devem ser registradas para fins de auditoria, rastreabilidade e detecção de uso indevido. Os logs devem incluir contexto suficiente para investigação de incidentes.</td>
-    <td>Registro de: login, alteração de dados, exclusões e exportações — com timestamp, usuário e IP | Retenção ≥ 90 dias</td>
-    <td>WANTS</td>
+    <td>MVP: registro de login, alteração de dados e exclusões/inativações — com timestamp, usuário e IP. Pós-MVP: exportações, retenção ≥ 90 dias e trilha completa de auditoria</td>
+    <td>MVP</td>
   </tr>
 </table>
 
@@ -936,15 +957,15 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
     <td>RNF-13</td>
     <td><strong>Right of Access & Data Portability</strong></td>
     <td>O profissional deve poder exportar todos os seus dados e os dados dos seus clientes em formato legível, exercendo o direito de portabilidade previsto na LGPD.</td>
-    <td>Exportação disponível em JSON ou CSV | Entrega em ≤ 72h após solicitação</td>
-    <td>WANTS</td>
+    <td>Exportação automatizada (self-service) em JSON ou CSV | Entrega em ≤ 72h após solicitação. <em>No MVP, o direito é garantido por atendimento manual via canal do DPO em até 15 dias (ver seção 6.2 — Direitos do Titular); a automação é Pós-MVP.</em></td>
+    <td>Pós-MVP</td>
   </tr>
   <tr>
     <td>RNF-14</td>
     <td><strong>Right to Erasure</strong></td>
     <td>O profissional deve poder solicitar a exclusão permanente da conta e de todos os dados associados (clientes, agendamentos, arquivos), exercendo o direito ao esquecimento previsto na LGPD.</td>
-    <td>Remoção completa de todos os dados associados em ≤ 30 dias após solicitação</td>
-    <td>WANTS</td>
+    <td>Remoção completa de todos os dados associados em ≤ 30 dias após solicitação. <em>No MVP, o direito é garantido por atendimento manual via canal do DPO (ver seção 6.2); a tela de autoatendimento é Pós-MVP.</em></td>
+    <td>Pós-MVP</td>
   </tr>
   <tr>
     <td>RNF-15</td>
@@ -984,9 +1005,9 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   <tr>
     <td>RNF-18</td>
     <td><strong>Accessibility</strong></td>
-    <td>Os componentes principais do sistema devem atender às diretrizes de acessibilidade WCAG 2.1 nível AA, garantindo que usuários com deficiências visuais ou motoras consigam utilizar os fluxos essenciais.</td>
-    <td>WCAG 2.1 AA nos fluxos principais: contraste de cores, navegação por teclado e atributos ARIA</td>
-    <td>WANTS</td>
+    <td>Os fluxos principais do MVP (login, criação de tenant, cadastro de cliente, cadastro de serviço, agenda, agendamento manual, link público, registro de pagamento e visão financeira básica) devem atender às diretrizes de acessibilidade WCAG 2.1 nível AA, garantindo que usuários com deficiências visuais ou motoras consigam utilizá-los.</td>
+    <td>WCAG 2.1 AA nos fluxos principais: navegação por teclado, foco visível, contraste adequado, labels acessíveis nos campos, feedback de erro textual (não apenas visual), estados vazios compreensíveis, botões com nome acessível e fluxo público utilizável em mobile</td>
+    <td>MVP</td>
   </tr>
 </table>
 
@@ -1004,23 +1025,23 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
   </tr>
   <tr>
     <td>RNF-19</td>
-    <td><strong>Test Coverage</strong></td>
-    <td>Os módulos de maior criticidade de negócio (agendamento, pagamentos e autenticação) devem ter cobertura de testes automatizados suficiente para garantir regressão segura a cada deploy.</td>
-    <td>Cobertura ≥ 70% (unitários + integração) nos módulos críticos</td>
+    <td><strong>Test Coverage & TDD</strong></td>
+    <td>A estratégia de testes adota <strong>TDD nos fluxos críticos</strong> (autenticação, tenant, agenda/conflito de horário, link público e pagamentos). Testes obrigatórios: unitários no backend; integração no backend para autenticação, tenant, clientes, serviços, agenda, link público e pagamentos; testes de componentes/fluxos principais no frontend; e pelo menos um teste E2E cobrindo o fluxo principal do MVP (conta → tenant → serviço → cliente → agenda → agendamento → pagamento → visão financeira).</td>
+    <td>Cobertura mínima: <strong>backend ≥ 75%</strong> | <strong>frontend ≥ 25%</strong> | ≥ 1 teste E2E do fluxo principal</td>
     <td>MVP</td>
   </tr>
   <tr>
     <td>RNF-20</td>
-    <td><strong>CI/CD & Version Control</strong></td>
-    <td>O processo de deploy deve ser automatizado com etapa obrigatória de testes, reduzindo risco de regressões em produção e garantindo rastreabilidade de mudanças via controle de versão.</td>
-    <td>Git com branches protegidas | Pipeline CI/CD com gate de testes obrigatório antes do deploy em produção</td>
+    <td><strong>CI/CD, Version Control & Static Analysis</strong></td>
+    <td>O processo de deploy deve ser automatizado com etapa obrigatória de testes, reduzindo risco de regressões em produção e garantindo rastreabilidade de mudanças via controle de versão. O <strong>SonarCloud</strong> será utilizado como ferramenta de análise estática de código, code smells, bugs, duplicações, cobertura de testes e vulnerabilidades; o pipeline de CI executa a análise automatizada e bloqueia merge/deploy quando o quality gate mínimo não for atendido.</td>
+    <td>Git com branches protegidas | Pipeline CI/CD com gate de testes obrigatório antes do deploy em produção | Quality gate do SonarCloud bloqueante no CI</td>
     <td>MVP</td>
   </tr>
   <tr>
     <td>RNF-21</td>
     <td><strong>Observability & Alerting</strong></td>
     <td>O sistema deve ter monitoramento de uptime e alertas automáticos em caso de indisponibilidade ou erros críticos, permitindo resposta rápida a incidentes antes que impactem os profissionais.</td>
-    <td>Alerta disparado em <= 5 min após falha detectada (Sentry com Azure Standard Tests)</td>
+    <td>Alerta disparado em <= 5 min após falha detectada (Sentry para erros de aplicação + monitor de uptime dedicado)</td>
     <td>MVP</td>
   </tr>
 </table>
@@ -1041,7 +1062,7 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
     <td>RNF-22</td>
     <td><strong>Horizontal Scalability</strong></td>
     <td>A camada de aplicação deve ser stateless para permitir escalonamento horizontal sem refatoração estrutural, suportando o crescimento da base de tenants sem degradação de performance.</td>
-    <td>API stateless (sem sessão server-side) | Suporte a escalonamento horizontal até 5.000 tenants sem refatoração</td>
+    <td>API stateless (sem sessão server-side), permitindo escalonamento horizontal sem refatoração estrutural (metas numéricas de escala são evolução futura)</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -1062,7 +1083,7 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 <h2>2.5 Regras de Negócio</h2>
 
 > [!TIP]
-> As regras de negócio definem condições, restrições e comportamentos obrigatórios do sistema Planici para garantir consistência, segurança e coerência entre clientes, agenda, procedimentos, planos, pagamentos e configurações do espaço de trabalho.
+> As regras de negócio definem condições, restrições e comportamentos obrigatórios do sistema Planici para garantir consistência, segurança e coerência entre clientes, agenda, procedimentos, planos, pagamentos e configurações do espaço de trabalho. Regras marcadas com **[Pós-MVP]** valem apenas quando a funcionalidade correspondente (adiada) for implementada.
 
 ### RN-01: Acesso autenticado
 
@@ -1080,7 +1101,7 @@ Um usuário não pode visualizar, editar ou excluir dados pertencentes a outro t
 
 ---
 
-### RN-03: Permissões de colaboradores
+### RN-03: Permissões de colaboradores [Pós-MVP]
 
 Quando o recurso de múltiplos usuários estiver disponível, somente administradores do tenant poderão convidar colaboradores e alterar suas permissões.
 
@@ -1100,7 +1121,7 @@ Não deve ser permitido cadastrar dois clientes com o mesmo e-mail dentro do mes
 
 ### RN-05: Exclusão de clientes
 
-Clientes que possuam histórico de atendimentos, pagamentos, planos ou formulários aplicados não devem ser removidos definitivamente do sistema.
+Clientes que possuam histórico de atendimentos ou pagamentos (e, quando as funcionalidades Pós-MVP existirem, planos ou formulários aplicados) não devem ser removidos definitivamente do sistema.
 
 Nesses casos, o cliente deve ser apenas inativado, preservando o histórico necessário para consultas futuras, relatórios e controle financeiro.
 
@@ -1118,7 +1139,7 @@ Procedimentos vinculados a agendamentos, planos ou histórico financeiro não de
 
 ---
 
-### RN-07: Cadastro de planos
+### RN-07: Cadastro de planos [Pós-MVP]
 
 Todo plano deve estar vinculado a um tenant.
 
@@ -1132,7 +1153,7 @@ Quando um procedimento for associado a um plano, o sistema deve permitir definir
 
 ---
 
-### RN-08: Exclusão de planos
+### RN-08: Exclusão de planos [Pós-MVP]
 
 Planos já utilizados em agendamentos, histórico de clientes ou registros financeiros não devem ser removidos definitivamente.
 
@@ -1156,7 +1177,7 @@ Precedência em caso de sobreposição: para uma data específica, a disponibili
 
 Todo agendamento deve estar vinculado a um tenant.
 
-Um agendamento criado pelo profissional deve possuir cliente, serviço ou plano, data e horário.
+Um agendamento criado pelo profissional deve possuir cliente, serviço, data e horário (a opção de vincular plano passa a existir com o módulo de planos, Pós-MVP).
 
 Não deve ser permitido criar dois agendamentos no mesmo horário para o mesmo profissional quando houver conflito de disponibilidade.
 
@@ -1178,7 +1199,7 @@ O profissional pode confirmar ou recusar solicitações recebidas pelo link púb
 
 ### RN-12: Alteração e cancelamento de agendamentos
 
-O profissional pode alterar data, horário, cliente, serviço ou plano de um agendamento existente, desde que o novo horário esteja disponível.
+O profissional pode alterar data, horário, cliente ou serviço de um agendamento existente, desde que o novo horário esteja disponível.
 
 Agendamentos cancelados devem manter o registro histórico no sistema.
 
@@ -1220,7 +1241,7 @@ Agendamentos cancelados não devem gerar receita, salvo quando houver pagamento 
 
 ---
 
-### RN-16: Ranking de procedimentos
+### RN-16: Ranking de procedimentos [Pós-MVP]
 
 O ranking de procedimentos deve considerar os procedimentos realizados dentro do período selecionado pelo profissional.
 
@@ -1230,7 +1251,7 @@ Procedimentos inativados devem continuar aparecendo em relatórios históricos q
 
 ---
 
-### RN-17: Notificações de agendamento
+### RN-17: Notificações de agendamento [Pós-MVP]
 
 Ao confirmar um agendamento, o sistema deve enviar uma notificação ao cliente quando houver canal de envio configurado.
 
@@ -1240,7 +1261,7 @@ Se nenhum canal de notificação estiver configurado, o sistema deve permitir a 
 
 ---
 
-### RN-18: Lembretes automáticos
+### RN-18: Lembretes automáticos [Pós-MVP]
 
 O sistema deve enviar lembretes automáticos antes do horário do atendimento conforme a antecedência configurada pelo profissional.
 
@@ -1250,7 +1271,7 @@ Agendamentos pendentes, recusados ou cancelados não devem receber lembretes aut
 
 ---
 
-### RN-19: Configuração de notificações
+### RN-19: Configuração de notificações [Pós-MVP]
 
 As configurações de canais de notificação pertencem ao tenant.
 
@@ -1260,7 +1281,7 @@ Credenciais de integração, quando utilizadas, devem ser armazenadas de forma s
 
 ---
 
-### RN-20: Formulários personalizados
+### RN-20: Formulários personalizados [Pós-MVP]
 
 Todo modelo de formulário deve pertencer a um tenant.
 
@@ -1272,7 +1293,7 @@ A ordem dos campos definida pelo profissional deve ser preservada na exibição 
 
 ---
 
-### RN-21: Aplicação de formulários
+### RN-21: Aplicação de formulários [Pós-MVP]
 
 Um formulário personalizado pode ser aplicado a uma entidade compatível, como cliente, serviço ou plano.
 
@@ -1282,7 +1303,7 @@ Alterações futuras no modelo do formulário não devem apagar automaticamente 
 
 ---
 
-### RN-22: Personalização de labels
+### RN-22: Personalização de labels [Pós-MVP]
 
 O profissional pode personalizar os nomes exibidos para entidades do sistema, como clientes, serviços e planos.
 
@@ -1294,7 +1315,7 @@ Para evitar ambiguidade ao longo do documento, fica fixado o termo canônico do 
 
 ---
 
-### RN-23: Configuração de ocupação profissional
+### RN-23: Configuração de ocupação profissional [Pós-MVP]
 
 O profissional deve poder selecionar sua ocupação para adaptar a linguagem e a experiência do sistema ao seu contexto de uso.
 
@@ -1321,9 +1342,8 @@ Exemplos de operações críticas:
 - excluir ou inativar cliente;
 - cancelar agendamento;
 - editar pagamento;
-- alterar permissões de colaborador;
-- alterar configurações de notificação;
-- remover procedimentos ou planos já utilizados.
+- remover procedimentos já utilizados;
+- (Pós-MVP) alterar permissões de colaborador, alterar configurações de notificação e remover planos já utilizados.
 
 ---
 
@@ -1370,6 +1390,79 @@ O sistema não se integra a prontuários eletrônicos, sistemas do CFM, TISS ou 
 ### 2.6.8. Funcionalidades de marketing:
 O sistema não oferece email marketing, campanhas promocionais, cupons de desconto, automações de vendas ou ferramentas de CRM voltadas a captação de novos clientes.
 
+> [!NOTE]
+> Os itens desta seção **não serão implementados** em nenhuma fase. Funcionalidades planejadas mas adiadas (notificações, formulários personalizados, planos etc.) não são "fora de escopo": estão classificadas como Pós-MVP na [Tabela MVP × Pós-MVP](#27-tabela-mvp--pós-mvp).
+
+<!-- #endregion -->
+
+<!-- #region 2.7 Tabela MVP x Pós-MVP -->
+
+<h2>2.7 Tabela MVP × Pós-MVP</h2>
+
+Fonte canônica da fase de cada área do produto. Em caso de divergência entre seções, prevalece esta tabela.
+
+| Área | MVP / Portfólio II | Pós-MVP / Evolução futura |
+|---|---|---|
+| Autenticação | Cadastro, login (e-mail/senha e Google OAuth), recuperação de senha e tenant único por usuário | Login social adicional, políticas avançadas de sessão |
+| Tenant | Criação de um espaço de trabalho por profissional (usuário único, papel Owner) | Múltiplos usuários por tenant, convites, papéis e permissões |
+| Clientes | CRUD básico, busca e inativação quando houver histórico | Campos avançados, segmentações e importação/exportação |
+| Serviços | CRUD básico de serviços/procedimentos | Pacotes complexos, regras avançadas de preço |
+| Agenda | Disponibilidade básica (fixa e livre), visualização diária/semanal, agendamento manual e bloqueio de horários | Scheduler avançado, lembretes automáticos, integrações de calendário |
+| Link público | Solicitação simples de horário sem conta, com confirmação/recusa pelo profissional | Confirmações automáticas, antifraude avançado, personalização profunda |
+| Pagamentos | Registro manual de pagamento e status | Integração com gateways, cobrança online, conciliação automática |
+| Financeiro | Resumo básico por período | Exportações avançadas, comparativos, rankings e dashboards completos |
+| Notificações | Feedbacks internos simples da aplicação; e-mail transacional de conta via AWS SES (verificação de e-mail e recuperação de senha) | Notificações automáticas de agendamento por e-mail, WhatsApp, templates e webhooks |
+| Formulários | Campos fixos mínimos | Formulários personalizados completos com anexos |
+| Personalização | — | Ocupação profissional e labels customizadas |
+| Arquitetura | NestJS modular, Next.js, PostgreSQL e RLS; AWS S3 para foto de perfil | RabbitMQ, arquitetura distribuída, microservices, workers complexos, CQRS/event-driven |
+| Qualidade | TDD, 75% backend, 25% frontend, SonarCloud e CI/CD | Observabilidade avançada e quality gates mais rigorosos |
+
+<!-- #endregion -->
+
+<!-- #region 2.8 Matriz de Rastreabilidade -->
+
+<h2>2.8 Matriz de Rastreabilidade</h2>
+
+Ligação entre problema, requisito, fluxo, tela, regra de negócio, KPI e teste/critério de aceite do fluxo central do MVP.
+
+| Problema / necessidade | Requisito | Fluxo / caso de uso | Tela / mockup | Regra de negócio | KPI | Teste / critério de aceite |
+|---|---|---|---|---|---|---|
+| Profissional precisa de espaço próprio e seguro | RF-01–RF-04a | Onboarding / criação de tenant (3.1, UC-01–UC-04a) | Telas de registro e tenant (4.2) | RN-01, RN-02, RN-26 | Fluxo central sem auxílio | Testes de integração de auth/tenant; teste de zero vazamento entre tenants |
+| Profissional perde tempo organizando clientes em planilhas | RF-07–RF-10 | Criar cliente (UC-07) | Tela de cadastro de cliente (pendente) | RN-04, RN-05 | Cliente criado em < 2 min | Critério 3.3.1 + teste de integração de clientes |
+| Profissional precisa organizar serviços ofertados | RF-11–RF-13 | Criar serviço (UC-12) | Tela de serviços (pendente) | RN-06 | Serviço criado sem auxílio em < 2 min | Critério 3.3.2 + teste de integração de serviços |
+| Profissional precisa controlar horários disponíveis | RF-18–RF-22, RF-25 | Configurar agenda e agendar (UC-21–UC-26, UC-30) | Tela de agenda (pendente) | RN-09, RN-10, RN-12 | Agendamento em < 5 min e < 5 cliques | Critério 3.3.3 + testes de concorrência de conflito |
+| Cliente precisa solicitar horário sem conta | RF-23, RF-24 | Link público (UC-27–UC-29) | Tela pública de agendamento (pendente) | RN-11 | Solicitação concluída sem instruções | Critério 3.3.4 + teste E2E do link público |
+| Profissional precisa controlar recebimentos | RF-26–RF-29 | Registrar pagamento e consultar financeiro (UC-31–UC-34) | Tela de pagamento/financeiro (pendente) | RN-13, RN-14, RN-15 | Consulta financeira compreendida na validação | Critério 3.3.5 + teste de integração de pagamentos |
+
+<!-- #endregion -->
+
+<!-- #region 2.9 Validação com Usuários -->
+
+<h2>2.9 Validação com Usuários</h2>
+
+### Plano de validação do MVP
+
+O MVP será validado com **3 a 5 profissionais autônomos** de perfis distintos (ex.: terapeuta, nutricionista, personal trainer, esteticista, consultor autônomo). Cada participante executará as tarefas do fluxo central: criar conta; criar tenant; cadastrar cliente; cadastrar serviço; configurar agenda; criar agendamento manual; solicitar horário pelo link público; registrar pagamento; consultar a visão financeira básica.
+
+Métricas coletadas: taxa de sucesso por tarefa; tempo de execução por tarefa; dúvidas ou bloqueios observados; feedback qualitativo; intenção de uso.
+
+| Participante | Perfil | Tarefas testadas | Taxa de sucesso | Principais dificuldades | Ajustes gerados |
+|---|---|---:|---:|---|---|
+| P1 | Terapeuta | MVP completo | A preencher | A preencher | A preencher |
+| P2 | Nutricionista | MVP completo | A preencher | A preencher | A preencher |
+| P3 | Personal trainer | MVP completo | A preencher | A preencher | A preencher |
+| P4 (opcional) | Esteticista | MVP completo | A preencher | A preencher | A preencher |
+| P5 (opcional) | Consultor autônomo | MVP completo | A preencher | A preencher | A preencher |
+
+### Validação pós-MVP com a usuária principal
+
+| Etapa | Descrição | Métrica |
+|---|---|---|
+| Teste guiado | Usuária executa fluxo completo sem intervenção | Taxa de sucesso por tarefa |
+| Medição de tempo | Cronometrar cliente → serviço → agenda → pagamento | Tempo total e tempo por etapa |
+| Feedback qualitativo | Registrar dúvidas, termos confusos e fricções | Lista de ajustes priorizados |
+| Reteste | Repetir fluxo após correções | Redução de erros e tempo |
+
 <!-- #endregion -->
 
 <h1>3. Fluxos e Comportamento do Sistema</h1>
@@ -1380,7 +1473,24 @@ O sistema não oferece email marketing, campanhas promocionais, cupons de descon
 <!-- #region 3.1 OnBoard -->
 
 <h2>3.1 Fluxo principal de Usuário (OnBoarding)</h2>
-O fluxo principal descreve a primeira interação do profissional com o sistema: desde o acesso inicial até a entrada no espaço de trabalho configurado. O sistema permite criar um novo ambiente (Tenant) ou ingressar em um existente via convite.
+O fluxo principal descreve a primeira interação do profissional com o sistema: desde o acesso inicial até a entrada no espaço de trabalho configurado. No MVP, cada profissional cria seu próprio ambiente (Tenant) no onboarding; o ingresso em um tenant existente via convite é evolução Pós-MVP (RF-05).
+
+Os fluxos cobertos pelo MVP são:
+
+1. Primeiro acesso e criação de tenant.
+2. Cadastro de cliente.
+3. Cadastro de serviço.
+4. Configuração de agenda.
+5. Agendamento manual.
+6. Solicitação pelo link público.
+7. Confirmação/recusa da solicitação pelo profissional.
+8. Registro de pagamento manual.
+9. Consulta da visão financeira básica.
+
+Os critérios de aceite dos fluxos centrais estão na <a href="#33-critérios-de-aceite-do-fluxo-principal">seção 3.3</a>.
+
+> [!WARNING]
+> **Pendência de imagem:** o diagrama `main-flow.svg` ainda exibe a opção de ingressar em tenant por convite; atualizar para o fluxo MVP (criação de tenant apenas).
 
 <br/>
 
@@ -1409,7 +1519,7 @@ Este cenário descreve o comportamento quando um cliente tenta agendar um horár
 </details>
 
 ### Fluxo 2: Cancelamento de Agendamento pelo Profissional
-Neste fluxo, o profissional precisa cancelar um atendimento. O sistema deve garantir que o histórico seja mantido, a receita não seja contabilizada indevidamente e o cliente seja notificado (caso os canais estejam ativos).
+Neste fluxo, o profissional precisa cancelar um atendimento. O sistema deve garantir que o histórico seja mantido e que a receita não seja contabilizada indevidamente. No MVP, o profissional comunica o cliente por canal externo; a notificação automática (RF-35) é Pós-MVP.
 
 <details open>
   <summary>Flowchart</summary>
@@ -1423,6 +1533,84 @@ Este diagrama ilustra a regra de negócio que impede a exclusão (Hard Delete) d
   <summary>Flowchart</summary>
   <img src="./img/diagrams/fourth-flow.svg"/>
 </details>
+
+<!-- #endregion -->
+
+<!-- #region 3.3 Critérios de Aceite -->
+
+<h2>3.3 Critérios de Aceite do Fluxo Principal</h2>
+
+Critérios de aceite dos fluxos centrais do MVP, em formato Gherkin. Cada cenário é coberto por testes automatizados conforme o RNF-19 e referenciado pela [Matriz de Rastreabilidade](#28-matriz-de-rastreabilidade).
+
+### 3.3.1 Criar cliente (RF-07, RN-02, RN-04)
+
+```gherkin
+Cenário: Criar cliente com dados mínimos
+Dado que o profissional está autenticado
+E possui um tenant ativo
+Quando acessa a tela de clientes
+E informa nome e ao menos um contato válido
+E confirma o cadastro
+Então o cliente é criado vinculado ao tenant ativo
+E aparece na listagem de clientes
+E pode ser selecionado em um agendamento
+E não fica acessível para outros tenants
+```
+
+### 3.3.2 Criar serviço (RF-11, RN-06)
+
+```gherkin
+Cenário: Criar serviço/procedimento
+Dado que o profissional está autenticado
+E possui um tenant ativo
+Quando acessa a tela de serviços
+E informa nome, duração e valor padrão
+E confirma o cadastro
+Então o serviço é criado vinculado ao tenant ativo
+E fica disponível para seleção em agendamentos
+E pode ser inativado sem apagar histórico já vinculado
+```
+
+### 3.3.3 Configurar agenda (RF-18, RF-19, RN-09, RN-10)
+
+```gherkin
+Cenário: Configurar disponibilidade básica
+Dado que o profissional está autenticado
+E possui um tenant ativo
+Quando define dias e horários de atendimento
+E salva a configuração de agenda
+Então o sistema registra a disponibilidade do tenant
+E utiliza essa disponibilidade para exibir horários possíveis
+E impede horários conflitantes ou fora da janela configurada
+```
+
+### 3.3.4 Solicitar agendamento pelo link público (RF-23, RF-24, RN-11)
+
+```gherkin
+Cenário: Cliente solicita horário pelo link público
+Dado que existe um tenant com link público ativo
+E há horários disponíveis configurados
+Quando o cliente acessa o link público
+E escolhe um serviço, data e horário disponível
+E informa nome e contato
+E aceita ou toma ciência do aviso de privacidade
+E envia a solicitação
+Então o sistema cria uma solicitação de agendamento com status pendente
+E o horário não deve ser confirmado automaticamente sem ação do profissional
+E o profissional consegue visualizar a solicitação na agenda
+```
+
+### 3.3.5 Registrar pagamento manual (RF-26, RN-13, RN-15)
+
+```gherkin
+Cenário: Registrar pagamento de um atendimento
+Dado que existe um agendamento vinculado a cliente e serviço
+Quando o profissional informa valor, forma de pagamento, data e status pago
+E confirma o registro
+Então o pagamento é associado ao agendamento
+E o status financeiro do atendimento é atualizado
+E o valor pago passa a compor a visão financeira básica do período correspondente
+```
 
 <!-- #endregion -->
 
@@ -1445,9 +1633,9 @@ O fluxo é dividido em três zonas funcionais:
 
 **Setup do negócio:** Após o primeiro login, o usuário é direcionado para criar seu tenant (o negócio que ele gerencia): `tenants -> tenants/new` (tipo -> nome/detalhes -> confirmação)
 
-**Área principal:** Após o setup, o usuário acessa o dashboard com acesso às seções: `agenda`, `clientes`, `serviços`, `forms` e `planos`.
+**Área principal:** Após o setup, o usuário acessa o dashboard com acesso às seções do MVP: `agenda`, `clientes`, `serviços` e `financeiro`. As seções `forms` e `planos` são Pós-MVP e não compõem o dashboard do MVP.
 
-**Fluxo Linear:** `login -> register -> tenants/new -> dashboard -> agenda/clientes/serviços`
+**Fluxo Linear:** `login -> register -> tenants/new -> dashboard -> agenda/clientes/serviços/financeiro`
 
 O perfil do usuário é independente do tenant, o mesmo usuário pode gerenciar múltiplos negócios, semelhante ao modelo de organizações do Supabase.
 <details>
@@ -1531,7 +1719,7 @@ O usuário cria uma senha segura para acessar o sistema. A interface informa os 
 - Visualizar os critérios de segurança;
 - Avançar para a próxima etapa.
 
-**Requisitos relacionados:** RF-01, RNF-15.
+**Requisitos relacionados:** RF-01, RNF-08, RN-26.
 
 ---
 
@@ -1583,9 +1771,9 @@ Após o login, o usuário visualiza os negócios aos quais possui acesso. Cada e
 - Visualizar empresas cadastradas;
 - Selecionar uma empresa existente;
 - Criar uma nova empresa;
-- Acessar notificações ou opções do perfil.
+- Acessar opções do perfil.
 
-**Requisitos relacionados:** RF-04, RF-05, RF-06.
+**Requisitos relacionados:** RF-04, RF-04a.
 
 ---
 
@@ -1598,14 +1786,15 @@ Quando o usuário ainda não possui nenhuma empresa cadastrada ou vinculada à s
 
 **Ações principais:**
 
-- Criar nova empresa;
-- Ingressar em uma empresa existente por convite.
+- Criar nova empresa.
 
-**Requisitos relacionados:** RF-04, RF-05.
+*(O ingresso em empresa existente por convite é Pós-MVP — RF-05.)*
+
+**Requisitos relacionados:** RF-04, RF-04a.
 
 ---
 
-#### Novo Tenant — Passo 1: Área de Atuação
+#### Novo Tenant — Passo 1: Área de Atuação [personalização decorrente é Pós-MVP]
 
 <img src="./img/fluxo/tenants/new.png" alt="Seleção de área de atuação" width="320" />
 
@@ -1622,7 +1811,7 @@ O usuário seleciona sua área profissional. Essa informação será utilizada p
 
 ---
 
-#### Novo Tenant — Passo 1b: Área Personalizada
+#### Novo Tenant — Passo 1b: Área Personalizada [Pós-MVP]
 
 **Descrição:**  
 Caso o usuário selecione a opção **Outra**, o sistema permite informar manualmente uma área de atuação. Essa resposta pode ser usada para sugerir nomes personalizados para as seções da aplicação.
@@ -1637,7 +1826,7 @@ Caso o usuário selecione a opção **Outra**, o sistema permite informar manual
 
 ---
 
-#### Novo Tenant — Passo 2: Personalização dos Nomes
+#### Novo Tenant — Passo 2: Personalização dos Nomes [Pós-MVP]
 
 <img src="./img/fluxo/tenants/new-renaming.png" alt="Personalização dos nomes das seções" width="320" />
 
@@ -1667,13 +1856,33 @@ Após concluir o setup do negócio, o usuário acessa a área principal do siste
 **Ações principais por módulo:**
 
 - **Agenda:** visualizar e editar agendamentos, consultar horários, procedimentos e localização;
-- **Formulários:** visualizar formulários cadastrados e criar novos modelos;
 - **Clientes:** buscar clientes, visualizar registros e criar novos cadastros;
-- **Procedimentos/Consultas:** visualizar serviços cadastrados, adicionar novos procedimentos, excluir ou expandir categorias.
+- **Procedimentos/Consultas:** visualizar serviços cadastrados, adicionar novos procedimentos, excluir ou expandir categorias;
+- **Formulários (Pós-MVP):** visualizar formulários cadastrados e criar novos modelos.
 
-**Requisitos relacionados:** RF-07 a RF-43.
+**Requisitos relacionados:** RF-07 a RF-13, RF-18 a RF-29 (MVP); RF-37 a RF-42 (Pós-MVP).
 
 ---
+
+### Cobertura de Telas do MVP
+
+| Fluxo | Mobile | Desktop/Web | Estados necessários | Status |
+|---|---|---|---|---|
+| Login | Sim | Sim | erro/loading/sucesso | A validar (mockup mobile existe; desktop pendente) |
+| Onboarding / criação de tenant | Sim | Sim | vazio/erro/sucesso | A validar (mockup mobile existe; desktop pendente) |
+| Cadastro de cliente | Sim | Sim | vazio/erro/sucesso | Pendente (mockup dedicado) |
+| Cadastro de serviço | Sim | Sim | vazio/erro/sucesso | Pendente (mockup dedicado) |
+| Agenda | Sim | Sim | vazio/conflito/loading | Pendente (mockup dedicado) |
+| Agendamento manual | Sim | Sim | erro/confirmação | Pendente (mockup dedicado) |
+| Link público | Sim | Sim | vazio/erro/confirmação | Pendente (mockup) |
+| Pagamento manual | Sim | Sim | erro/sucesso | Pendente (mockup) |
+| Financeiro básico | Sim | Sim | vazio/loading | Pendente (mockup) |
+
+> [!WARNING]
+> **Tarefas pendentes de UX (não inventar evidências):**
+> 1. Criar/atualizar no Figma e exportar para `docs/img/fluxo/` os mockups pendentes da tabela acima, em mobile **e** desktop.
+> 2. Revisar o protótipo no Figma: equilibrar cobertura mobile/desktop, organizar fluxos navegáveis, nomear telas com clareza e incluir estados de erro, vazios, loading e confirmação de ações críticas.
+> 3. Remover do fluxo navegável do MVP as telas de personalização de nomes e de convite (Pós-MVP).
 
 <!-- #endregion -->
 
@@ -1694,13 +1903,12 @@ O fluxo de interação escolhido para representar a experiência principal do Pl
 7. O usuário aceita os Termos de Serviço e conclui o cadastro.
 8. Após o primeiro login, o sistema verifica se o usuário já participa de algum tenant.
 9. Caso o usuário ainda não possua tenant, o sistema exibe o estado vazio da tela de empresas.
-10. O usuário escolhe entre criar um novo tenant ou ingressar em um tenant existente por convite.
+10. O usuário cria um novo tenant (o ingresso em tenant existente por convite é Pós-MVP).
 11. Ao criar um novo tenant, o usuário seleciona sua área de atuação.
-12. Caso a área não esteja disponível, o usuário seleciona “Outra” e informa uma área personalizada.
-13. O sistema sugere nomes personalizados para as seções principais da aplicação.
-14. O usuário aceita, ajusta ou mantém os nomes padrão.
-15. O sistema cria o tenant e direciona o usuário para a área principal.
-16. O usuário acessa o dashboard e passa a navegar entre agenda, clientes, serviços, formulários e planos.
+12. *(Pós-MVP)* Caso a área não esteja disponível, o usuário seleciona “Outra” e informa uma área personalizada.
+13. *(Pós-MVP)* O sistema sugere nomes personalizados para as seções principais da aplicação, e o usuário aceita, ajusta ou mantém os nomes padrão.
+14. O sistema cria o tenant e direciona o usuário para a área principal.
+15. O usuário acessa o dashboard e passa a navegar entre agenda, clientes, serviços e financeiro.
 
 ### Representação visual do fluxo
 
@@ -1750,7 +1958,10 @@ O fluxo de interação escolhido para representar a experiência principal do Pl
 <img src="./img/diagrams/C4/componentes.png" width="100%"/>
 
 > [!NOTE]
-> Além dos componentes ilustrados, a arquitetura inclui um serviço de **object storage** (S3-compatível) para binários de foto de perfil (RF-04) e de campos imagem/arquivo de formulários (RF-38), e um **scheduler temporal** (cron worker + tabela de lembretes) para o disparo programado de lembretes (RF-34). Detalhes em 5.3.2 e 5.3.3.
+> Além dos componentes ilustrados, a arquitetura do MVP inclui o **AWS S3** como object storage para o binário da foto de perfil (RF-04) e o **AWS SES** para e-mails transacionais de conta (verificação de e-mail e recuperação de senha — RF-01/RF-03). Uploads de campos de formulário (RF-38) e o scheduler temporal de lembretes (RF-34) são Pós-MVP. Detalhes em 5.3.3 e 5.3.4.
+
+> [!WARNING]
+> **Pendência de imagem:** os diagramas C4 (contexto, containers e componentes) ainda exibem RabbitMQ, filas e o módulo de notificações como parte do MVP; atualizar para a topologia enxuta (frontend Next.js, backend NestJS, PostgreSQL, S3, SES), com os componentes Pós-MVP destacados como evolução.
 
 <!-- #endregion 5.1.2 -->
 
@@ -1781,19 +1992,19 @@ Cada uma é composta por módulos com responsabilidades bem delimitadas.
  
 A interface web do Planici é construída em Next.js com abordagem mobile-first. É dividida em três zonas funcionais:
  
-**Área autenticada**: acessível apenas ao profissional logado. Concentra os módulos de agenda, clientes, serviços, planos, formulários personalizados e visão financeira. Todas as operações nessa zona exigem um token JWT válido e vínculo com um tenant ativo.
+**Área autenticada**: acessível apenas ao profissional logado. No MVP, concentra os módulos de agenda, clientes, serviços e visão financeira básica (planos e formulários personalizados são Pós-MVP). Todas as operações nessa zona exigem um token JWT válido e vínculo com um tenant ativo.
  
-**Fluxo de onboarding**: cobre o registro de conta, login (e-mail/senha e OAuth), recuperação de senha, criação ou seleção de tenant e personalização de labels. É o caminho obrigatório antes de qualquer acesso à área autenticada.
+**Fluxo de onboarding**: cobre o registro de conta, login (e-mail/senha e OAuth), recuperação de senha e criação ou seleção de tenant (a personalização de labels é Pós-MVP). É o caminho obrigatório antes de qualquer acesso à área autenticada.
  
 **Link público de agendamento**: página acessível sem autenticação, gerada por tenant. Permite que clientes externos visualizem horários disponíveis e solicitem agendamentos. Totalmente separada da área autenticada para não expor nenhum dado interno do profissional.
  
 ### 5.3.2 Backend — NestJS
  
-O backend segue DDD (Domain-Driven Design), arquitetura hexagonal orientada a eventos com CQRS (Command Query Responsibility Segregation), organizando a lógica em módulos independentes por domínio:
+No MVP, o backend é um **NestJS modular**, organizado em módulos independentes por domínio e guiado por princípios de DDD (Domain-Driven Design) na separação entre domínio, aplicação e infraestrutura. Padrões de maior complexidade — arquitetura hexagonal completa, CQRS e orientação a eventos — são evolução Pós-MVP (ver 5.3.4), a ser adotada apenas se a necessidade for validada; a arquitetura do MVP evita dependências distribuídas para reduzir risco de entrega.
  
-**Auth module**: gerencia autenticação por e-mail/senha com bcrypt, OAuth via Google, emissão e rotação de tokens JWT, refresh tokens e controle de acesso baseado em papéis (RBAC). É o ponto de entrada de toda requisição autenticada.
+**Auth module**: gerencia autenticação por e-mail/senha com bcrypt, OAuth via Google, emissão e rotação de tokens JWT e refresh tokens. No MVP não há RBAC: cada tenant possui um único usuário (papel Owner). É o ponto de entrada de toda requisição autenticada.
  
-**Tenant module**: isola dados por espaço de trabalho, aplica Row-Level Security (RLS) em conjunto com o banco e gerencia as configurações gerais do tenant, incluindo personalização de labels e ocupação profissional. No MVP cada tenant possui um único usuário (papel Owner); convites de colaboradores e permissões granulares por papel são funcionalidades WANTS (fora do MVP — ver RF-05/RF-06).
+**Tenant module**: isola dados por espaço de trabalho, aplica Row-Level Security (RLS) em conjunto com o banco e gerencia as configurações gerais do tenant. No MVP cada tenant possui um único usuário (papel Owner); convites de colaboradores, permissões granulares por papel e personalização de labels/ocupação profissional são funcionalidades Pós-MVP (ver RF-05/RF-06 e RF-43).
 
 Para que o RLS funcione com a API stateless e pool de conexões, o `tenant_id` autenticado é propagado ao contexto de sessão do PostgreSQL a cada requisição: um interceptor abre uma transação e executa `SET LOCAL app.current_tenant = <tenant_id>` antes das consultas; as políticas de RLS filtram pelas linhas cujo `tenant_id` corresponde a essa variável. Como `SET LOCAL` tem escopo de transação, o valor é descartado automaticamente no commit/rollback, garantindo que a conexão devolvida ao pool não carregue o contexto de um tenant para outro. Um teste automatizado de "zero vazamento entre tenants" valida esse isolamento.
  
@@ -1801,25 +2012,33 @@ Para que o RLS funcione com a API stateless e pool de conexões, o `tenant_id` a
 
 A proteção contra overbooking (RN-10, Fluxo 1) não depende apenas da validação na camada de aplicação, pois duas requisições simultâneas — por exemplo, uma do link público e outra do profissional — poderiam passar pela checagem antes de qualquer gravação. A garantia é dada no nível do banco: uma constraint de exclusão por range de tempo por profissional (`EXCLUDE USING gist` sobre `tstzrange` de início/fim, combinada ao `profissional_id` via extensão `btree_gist`) impede a persistência de dois agendamentos sobrepostos para o mesmo profissional. Em alternativa ou complemento, a criação ocorre em transação que aplica `SELECT ... FOR UPDATE` sobre as linhas de disponibilidade/agendamentos do intervalo, serializando concorrentes. A violação da constraint é tratada como conflito de horário e retornada ao solicitante.
  
-**Domain module**: agrupa os cadastros centrais do negócio: clientes, serviços/procedimentos, planos/pacotes e formulários personalizados. Cada entidade segue regras de inativação ao invés de exclusão quando possui histórico vinculado.
+**Domain module**: agrupa os cadastros centrais do negócio no MVP: clientes e serviços/procedimentos. Cada entidade segue regras de inativação ao invés de exclusão quando possui histórico vinculado. (Planos/pacotes e formulários personalizados serão incorporados a este módulo na fase Pós-MVP.)
  
-**Finance module**: registra e edita pagamentos por atendimento, calcula o resumo de receitas por período, compara períodos e gera o ranking de procedimentos mais realizados e mais rentáveis. Considera apenas pagamentos com status "pago" na agregação de receita.
+**Finance module**: registra e edita pagamentos por atendimento e calcula o resumo de receitas por período. Considera apenas pagamentos com status "pago" na agregação de receita. (Comparativo entre períodos, ranking de procedimentos e exportação de relatórios são Pós-MVP.)
  
-**Notification module**: consome eventos de agendamento (confirmação, cancelamento, remarcação) e produz mensagens para as filas do RabbitMQ, que as entrega via e-mail ou WhatsApp (Evolution API). Lembretes automáticos são disparados apenas para agendamentos com status confirmado.
-
-Como o RabbitMQ é um broker de processamento assíncrono imediato e não um agendador de jobs futuros, os lembretes com antecedência configurável (RF-34/RN-18, ex.: 24h ou 1h antes do atendimento) são tratados por um **scheduler temporal dedicado**: um *cron worker* executa em intervalo fixo (ex.: a cada minuto), varre a tabela de lembretes pendentes (`reminders`) cuja janela de disparo chegou e publica a mensagem na fila do RabbitMQ para entrega. Cada lembrete possui chave de idempotência (por agendamento + tipo + janela) e marcação de "enviado", evitando lembrete duplicado mesmo com múltiplas instâncias do worker. No MVP, esse cron worker pode operar como um processo único agendado no próprio backend (NestJS Schedule), dispensando broker de mensagens com agendamento nativo.
+**Mailer (AWS SES)**: envio dos e-mails transacionais de conta do MVP — verificação de e-mail no cadastro (RF-01) e link de recuperação de senha (RF-03) — por meio do AWS SES. Não há módulo de notificações de agendamento no MVP; esse módulo, com seus canais, eventos e scheduler de lembretes, é evolução Pós-MVP (ver 5.3.4).
  
 ### 5.3.3 Infraestrutura
  
 **PostgreSQL (single-node no MVP)**: banco de dados relacional executado em instância única no MVP. Todas as leituras e escritas vão para o mesmo nó, o que garante naturalmente a consistência read-after-write exigida pelos fluxos críticos — por exemplo, criar agendamento (RF-20) e em seguida verificar conflito (RN-10) ou visualizar a agenda (RF-22), e registrar pagamento (RF-26) e em seguida consultar o resumo financeiro (RF-29/RN-15) —, sem o risco de lag de replicação. Row-Level Security é aplicado em todas as tabelas com `tenant_id`, garantindo isolamento mesmo em caso de erro na camada de aplicação. Backup diário automático com retenção mínima de sete dias (RPO menor ou igual a 24h). A réplica de leitura (topologia primário-réplica com streaming) é tratada como **evolução futura opcional**, a ser introduzida apenas quando a carga justificar; quando adotada, fluxos sensíveis a read-after-write devem ler do primário.
  
-**Object storage (S3-compatível)**: serviço de armazenamento de binários (ex.: S3 ou MinIO) para a foto de perfil do profissional (RF-04) e para campos de formulário do tipo imagem/arquivo (RF-38). Os binários não são guardados no PostgreSQL, evitando impacto em performance (RNF-01/RNF-02) e backup (RNF-06); o banco persiste apenas os metadados e a referência ao objeto. Acesso por URLs assinadas com expiração, limites de tamanho e tipo (allowlist de MIME) validados no upload, e varredura de malware antes de disponibilizar o arquivo.
+**Object storage (AWS S3)**: armazenamento do binário da foto de perfil do profissional (RF-04). O binário não é guardado no PostgreSQL, evitando impacto em performance (RNF-01/RNF-02) e backup (RNF-06); o banco persiste apenas os metadados e a referência ao objeto. Acesso por URLs assinadas com expiração e limites de tamanho e tipo (allowlist de MIME) validados no upload. No Pós-MVP, o mesmo serviço passa a receber os campos de formulário do tipo imagem/arquivo (RF-38), com varredura de malware antes de disponibilizar o arquivo.
 
-**RabbitMQ**: message broker que desacopla os fluxos assíncronos do ciclo HTTP. Mantém filas independentes para envio de e-mail, WhatsApp e registro de logs de auditoria, garantindo que falhas em integrações externas não impactem o tempo de resposta das operações principais. Por ser um broker leve, mantém a topologia coerente com a infraestrutura de baixo custo (RNF-04); como alternativa de MVP, a fila pode ser implementada no próprio PostgreSQL (tabela de outbox/jobs com `SELECT ... FOR UPDATE SKIP LOCKED`), reduzindo o número de serviços a operar.
+**E-mail transacional (AWS SES)**: entrega dos e-mails de verificação de conta e recuperação de senha. Credenciais IAM com escopo mínimo; domínios remetentes verificados (SPF/DKIM).
  
-**Observabilidade e CI/CD**: a stack de observabilidade combina o **Sentry** para captura e agrupamento de erros da aplicação (APM/error tracking) com um **monitor de uptime dedicado** (ex.: UptimeRobot, Better Stack ou Grafana) responsável pelos testes de disponibilidade e pelo alerta automático em até cinco minutos após falha detectada (RNF-21) — não há dependência de Azure nem de qualquer provedor de nuvem específico nesta camada. Pipeline de CI/CD com gate de testes obrigatório antes do deploy em produção. Branches protegidas no repositório e logs de auditoria retidos por no mínimo 90 dias para rastreabilidade de incidentes.
+**Observabilidade e CI/CD**: a stack de observabilidade combina o **Sentry** para captura e agrupamento de erros da aplicação (APM/error tracking) com um **monitor de uptime dedicado** (ex.: UptimeRobot, Better Stack ou Grafana) responsável pelos testes de disponibilidade e pelo alerta automático em até cinco minutos após falha detectada (RNF-21) — não há dependência de Azure nem de qualquer provedor de nuvem específico nesta camada. Pipeline de CI/CD com gate de testes obrigatório e análise estática do **SonarCloud** com quality gate bloqueante antes do deploy em produção (RNF-20). Branches protegidas no repositório e logs mínimos de ações críticas (RNF-11); retenção estendida de 90 dias e trilha completa de auditoria são Pós-MVP.
 
-**Topologia de deploy do MVP**: para honrar a infraestrutura de baixo custo (RNF-04) e a recuperação simples via process manager + health checks (RNF-05), o alvo do MVP é um deploy enxuto — frontend (Next.js), backend (NestJS) com o cron worker de lembretes, PostgreSQL single-node, broker leve (ou fila no próprio banco) e object storage gerenciado — passível de operar em uma única VM ou em poucos contêineres. Réplica de banco, cluster e decomposição em microsserviços são introduzidos incrementalmente apenas quando a carga justificar.
+**Topologia de deploy do MVP (serverless/gerenciada)**: para honrar a infraestrutura de baixo custo (RNF-04), o MVP opera inteiramente em serviços gerenciados — frontend Next.js no **AWS Amplify Hosting**, backend NestJS em **AWS Lambda**, **Neon** (PostgreSQL gerenciado) como banco, **AWS S3** para a foto de perfil e **AWS SES** para e-mails transacionais. A recuperação de falhas (RNF-05) é delegada ao provedor: Lambda e Amplify reiniciam/reprovisionam automaticamente, e o health check da API valida cada publicação. Réplica de banco, cluster e decomposição em microsserviços são introduzidos incrementalmente apenas quando a carga justificar. Detalhes operacionais na seção [5.5 Plano de Deploy Público](#55-plano-de-deploy-público).
+
+### 5.3.4 Evolução Pós-MVP da arquitetura
+
+Componentes avaliados apenas após a validação do MVP, quando a necessidade se confirmar:
+
+- **RabbitMQ (ou fila no próprio PostgreSQL via outbox com `SELECT ... FOR UPDATE SKIP LOCKED`)**: desacoplamento dos fluxos assíncronos (notificações de agendamento por e-mail/WhatsApp, logs de auditoria em fila).
+- **Notification module + scheduler temporal de lembretes**: cron worker + tabela `reminders` com chave de idempotência (agendamento + tipo + janela) para lembretes com antecedência configurável (RF-34/RN-18); o broker despacha, o scheduler agenda.
+- **CQRS / arquitetura hexagonal completa / orientação a eventos**: adotados se a complexidade do domínio justificar; a estrutura modular do NestJS suporta a migração sem reescrita.
+- **Workers dedicados e microservices**: decomposição incremental orientada por carga.
+- **Réplica de leitura do PostgreSQL**: conforme descrito em 5.4; fluxos sensíveis a read-after-write continuam lendo do primário.
 
 <!-- #endregion -->
 
@@ -1840,14 +2059,14 @@ O suporte nativo a TypeScript reforça a consistência de tipos entre backend e 
 O projeto adota como modelo de referência o repositório [domain-driven-hexagon](https://github.com/Sairyss/domain-driven-hexagon/tree/master), que aconselha a separação entre camadas de domínio, aplicação e infraestrutura, além de uso de ports & adapters para isolar a lógica de negócio de frameworks externos. O NestJS viabiliza essa estrutura de forma nativa: seu sistema de módulos (`  @Modules  `), injeção de dependência (Dependency Injection — DI Container), e decorators permite organizar o código exatamente nas camadas descritas pelo modelo.
 
 #### **2. Suporte às boas práticas de backend em TypeScript**
-Seguindo as diretrizes do [backend-best-practices](https://github.com/Sairyss/backend-best-practices), o projeto prioriza: validação robusta de entrada, tratamento centralizado de erros, uso de DTOs para contratos de API bem definidos, e separação clara entre camadas de comando e queries (padrão CQRS).
+Seguindo as diretrizes do [backend-best-practices](https://github.com/Sairyss/backend-best-practices), o projeto prioriza: validação robusta de entrada, tratamento centralizado de erros e uso de DTOs para contratos de API bem definidos. (A separação formal entre comandos e queries — padrão CQRS — é evolução Pós-MVP, ver 5.3.4.)
 
 A estratégia de validação adota o **`class-validator` (com `class-transformer`) como ferramenta primária** para todos os DTOs e endpoints HTTP, por sua integração nativa ao NestJS via `ValidationPipe`, atendendo ao RNF-10 (validação de entrada em todos os endpoints) com um único contrato consistente. O `zod` fica reservado, quando necessário, à validação de dados que não passam por DTOs decorados (ex.: parsing de payloads de webhooks externos ou variáveis de ambiente), evitando a coexistência de dois padrões concorrentes sobre o mesmo boundary.
 
-O NestJS oferece o módulo `@nestjs/cqrs` que implementa CQRS de forma idiomática, além de pipes, guards e interceptors que encapsulam preocupações transversais como autenticação, logging e validação sem poluir a lógica de negócio.
+O NestJS oferece pipes, guards e interceptors que encapsulam preocupações transversais como autenticação, logging e validação sem poluir a lógica de negócio.
 
-#### **3. Preparado para padrões de sistemas distribuídos**
-Com referência ao [system-design-patterns](https://github.com/Sairyss/system-design-patterns), o projeto considera desde o início padrões como idempotência, mensageria e resiliência. O NestJS possui suporte oficial a microservices e camadas de transporte (Redis, RabbitMQ, Kafka, gRPC), o que significa que caso o sistema cresça e exija decomposição em serviços independentes, a migração é estruturalmente suportada sem reescrever a base do código.
+#### **3. Margem de evolução estrutural**
+O NestJS possui suporte oficial a microservices e camadas de transporte (Redis, RabbitMQ, Kafka, gRPC): caso o sistema cresça no Pós-MVP e exija decomposição em serviços independentes, a migração é estruturalmente suportada sem reescrever a base do código. Nenhum desses componentes integra o MVP (ver 5.3.4).
 
 
 ### PostgreSQL - Banco de Dados
@@ -1860,19 +2079,61 @@ No MVP o PostgreSQL opera como instância única, alinhado à infraestrutura de 
 Caso a carga justifique, pode-se introduzir uma réplica de leitura (topologia primário-réplica com streaming) como otimização. Diferente do que uma analogia simplista sugere, replicação física **não** equivale a CQRS: o CQRS separa modelos de comando e de consulta no código e não exige réplica física nem tolera, por si só, leitura desatualizada em fluxos transacionais. Por isso, quando uma réplica for adotada, os fluxos sensíveis a read-after-write (criação de agendamento + detecção de conflito, registro de pagamento + resumo financeiro) continuarão lendo do nó primário.
 
 
-### RabbitMQ - Message Broker (mensageria assíncrona)
+### Serviços gerenciados AWS (S3 e SES)
 
-**Motivo da escolha:** O RabbitMQ foi escolhido como broker de mensagens para desacoplar os fluxos que não precisam de resposta imediata do ciclo de vida da requisição HTTP principal. Os três casos de uso centrais são: **logs de auditoria, notificações via WhatsApp** e **notificações via e-mail**.
+**Motivo da escolha:** o MVP delega a serviços gerenciados as responsabilidades que não justificam infraestrutura própria: o **AWS S3** armazena o binário da foto de perfil (RF-04) com URLs assinadas, e o **AWS SES** entrega os e-mails transacionais de conta (verificação de e-mail e recuperação de senha, RF-01/RF-03) com custo próximo de zero na escala do projeto. Ambos se integram às credenciais IAM já necessárias para o deploy na AWS (Amplify + Lambda, ver seção 5.5).
 
-O RabbitMQ trata o *despacho imediato* das mensagens, mas **não agenda jobs futuros**: o agendamento temporal dos lembretes (RF-34/RN-18) é responsabilidade do cron worker + tabela `reminders` descrito em 5.3.2/5.3.3, que apenas publica na fila quando a janela de disparo chega. Para manter a infraestrutura de baixo custo (RNF-04), o broker é mantido em configuração leve; alternativamente, no MVP a mensageria pode ser substituída por uma fila no próprio PostgreSQL (padrão outbox com `SELECT ... FOR UPDATE SKIP LOCKED`), reduzindo serviços a operar sem alterar os contratos da aplicação.
+> **Mensageria (Pós-MVP):** RabbitMQ — ou uma fila no próprio PostgreSQL (padrão outbox com `SELECT ... FOR UPDATE SKIP LOCKED`) — passa a ser avaliado quando as notificações automáticas de agendamento (RF-33 a RF-36) forem implementadas. Ver 5.3.4.
 
+<!-- #endregion -->
+
+<!-- #region 5.5 Plano de Deploy Público -->
+
+<h2>5.5 Plano de Deploy Público</h2>
+
+| Item | Definição |
+|---|---|
+| Frontend | AWS Amplify Hosting (Next.js) |
+| Backend | AWS Lambda (NestJS) |
+| Banco de dados | Neon — PostgreSQL gerenciado (sem orçamento para RDS) |
+| Object storage | AWS S3 (foto de perfil, RF-04) |
+| E-mail transacional | AWS SES (verificação de e-mail e recuperação de senha) |
+| URL pública | `https://planici.co` |
+| Ambiente | Produção pública para avaliação acadêmica |
+| Build | Build automatizado no CI a partir da branch `main` |
+| Backup | Backup diário automático do banco, RPO ≤ 24h, retenção ≥ 7 dias (RNF-06) |
+| Migrations | Geradas com `drizzle-kit generate` e aplicadas automaticamente no pipeline antes da publicação; falha na migration bloqueia o deploy |
+| Deploy | Pipeline CI/CD com testes + quality gate SonarCloud obrigatórios antes da publicação (RNF-20) |
+| Validação do deploy | Health check da API, smoke test do fluxo principal e verificação da URL pública após cada publicação |
+| Rollback | Reverter para o último build estável do provedor (Amplify/Lambda mantêm versões anteriores) e restaurar backup do banco quando necessário |
+
+Variáveis de ambiente mínimas do MVP:
+
+```env
+DATABASE_URL=
+JWT_SECRET=
+JWT_REFRESH_SECRET=
+NEXT_PUBLIC_API_URL=
+CORS_ORIGIN=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+AWS_REGION=
+AWS_S3_BUCKET=
+SES_FROM_EMAIL=
+SONAR_TOKEN=
+SENTRY_DSN=
+NODE_ENV=production
+```
+
+> [!NOTE]
+> As credenciais AWS (S3/SES/Lambda) são fornecidas via IAM role do ambiente de execução, sem chaves estáticas em variáveis de ambiente. Variáveis de WhatsApp/Evolution API, RabbitMQ e demais integrações **não** integram o MVP e serão documentadas quando as respectivas funcionalidades forem implementadas (Pós-MVP).
 
 <!-- #endregion -->
 
 # 6. Segurança e Privacidade
 
 > [!NOTE]
-> A segurança do Planici é um requisito essencial, pois o sistema armazena informações de profissionais autônomos, clientes, agenda, serviços, planos, pagamentos, formulários personalizados e configurações do espaço de trabalho. Como o sistema opera em modelo multi-tenant, a principal preocupação de segurança é garantir que cada profissional ou empresa acesse somente os dados do seu próprio tenant.
+> A segurança do Planici é um requisito essencial, pois o sistema armazena informações de profissionais autônomos, clientes, agenda, serviços, pagamentos e configurações do espaço de trabalho (e, no Pós-MVP, planos e formulários personalizados). Como o sistema opera em modelo multi-tenant, a principal preocupação de segurança é garantir que cada profissional ou empresa acesse somente os dados do seu próprio tenant.
 
 As medidas de segurança do sistema serão organizadas em cinco frentes principais:
 
@@ -1909,24 +2170,16 @@ Para reduzir o risco de comprometimento de contas, além do rate limit por IP (R
 
 ### Autorização e Permissões
 
-O sistema terá controle de acesso baseado em papéis e permissões, especialmente para tenants com múltiplos usuários. Cada usuário poderá estar vinculado a um ou mais tenants, e suas permissões dependerão do papel atribuído dentro daquele espaço de trabalho.
+**No MVP**, cada tenant possui um único usuário — o profissional, com papel **Owner** e acesso total ao seu espaço de trabalho. A autorização se resume a duas verificações: usuário autenticado (RN-01) e vínculo com o tenant dos dados acessados (RN-02), reforçado por RLS no banco.
 
-Exemplos de papéis previstos:
+**[Pós-MVP]** Quando o multiusuário (RF-05/RF-06) for implementado, o sistema passará a ter controle de acesso baseado em papéis e permissões:
 
 - **Owner:** responsável principal pelo tenant, com acesso total;
 - **Admin:** gerencia configurações, usuários e dados operacionais;
 - **Member:** acessa funcionalidades operacionais permitidas;
 - **Viewer:** possui acesso limitado para consulta.
 
-As permissões poderão ser definidas por recurso e ação, por exemplo:
-
-- `clients:create`;
-- `clients:read`;
-- `appointments:update`;
-- `payments:read`;
-- `settings:manage`.
-
-Com isso, será possível criar perfis como “acesso somente à agenda” ou “acesso a clientes e serviços, mas sem acesso financeiro”.
+As permissões poderão ser definidas por recurso e ação (ex.: `clients:create`, `payments:read`, `settings:manage`), permitindo perfis como “acesso somente à agenda” ou “acesso a clientes e serviços, mas sem acesso financeiro”.
 
 ### Isolamento por Tenant
 
@@ -1981,11 +2234,11 @@ Algumas informações exigem cuidado especial, como:
 - hash de senha;
 - tokens de sessão;
 - tokens de recuperação de senha;
-- credenciais de integração com WhatsApp ou e-mail;
 - dados pessoais de clientes;
-- observações e respostas de formulários personalizados.
+- observações em campos livres;
+- **[Pós-MVP]** credenciais de integração com WhatsApp e respostas de formulários personalizados.
 
-Credenciais de integração não devem ser exibidas integralmente após o cadastro. Quando possível, devem ser criptografadas em repouso ou armazenadas em serviço seguro de secrets. Tokens temporários, como recuperação de senha ou verificação de e-mail, devem possuir expiração e não devem ser reutilizáveis após o uso.
+Credenciais de integração, quando existirem (Pós-MVP), não devem ser exibidas integralmente após o cadastro e devem ser criptografadas em repouso ou armazenadas em serviço seguro de secrets. Tokens temporários, como recuperação de senha ou verificação de e-mail, devem possuir expiração e não devem ser reutilizáveis após o uso.
 
 ### Segurança do Link Público de Agendamento
 
@@ -1997,29 +2250,29 @@ O link público de agendamento (RF-23) é um endpoint **não autenticado** que e
 - **slugs não enumeráveis:** o identificador público do tenant não deve ser sequencial nem facilmente adivinhável, dificultando enumeração e scraping de disponibilidade;
 - **expiração automática de solicitações pendentes:** solicitações não confirmadas pelo profissional expiram após prazo definido, evitando poluição da fila de pendentes.
 
-### Tokens em Links Acionáveis de Notificação
+### Tokens em Links Acionáveis de Notificação [Pós-MVP]
 
-As notificações de confirmação, cancelamento e remarcação (RF-33 a RF-35) podem incluir links acionáveis enviados ao cliente por e-mail ou WhatsApp (ex.: "confirmar" ou "cancelar" agendamento). Caso esses links existam, eles representam superfície de ataque (IDOR/manipulação de agendamento alheio) e deverão usar tokens:
+**O MVP não implementa notificações de agendamento nem links acionáveis** (RF-33 a RF-35 são Pós-MVP); os controles abaixo ficam dispensados até que tais links sejam introduzidos.
+
+Quando as notificações de confirmação, cancelamento e remarcação forem implementadas e incluírem links acionáveis enviados ao cliente (ex.: "confirmar" ou "cancelar" agendamento), esses links representam superfície de ataque (IDOR/manipulação de agendamento alheio) e deverão usar tokens:
 
 - **assinados** (verificáveis pelo servidor, não adivinháveis);
 - **de uso único** (invalidados após a primeira ação);
 - **com expiração** compatível com a janela do atendimento;
 - **com escopo restrito a um único agendamento**, sem permitir acesso a outros recursos do tenant ou do cliente.
 
-Caso o MVP não implemente links acionáveis nas notificações (apenas conteúdo informativo), isso deverá ser declarado explicitamente, dispensando os controles acima até que tais links sejam introduzidos.
+### Controle de Exportação de Dados [Pós-MVP]
 
-### Controle de Exportação de Dados
-
-A exportação de relatórios financeiros (RF-32) e a exportação dos dados do tenant e de seus clientes (RNF-13) constituem um vetor de exfiltração em massa de dados pessoais. Além de registrar a exportação como evento auditável, o sistema deverá adotar controles preventivos:
+A exportação de relatórios financeiros (RF-32) e a exportação automatizada dos dados do tenant e de seus clientes (RNF-13) são funcionalidades Pós-MVP; os controles abaixo se aplicam quando forem implementadas. A exportação constitui um vetor de exfiltração em massa de dados pessoais: além de registrar a exportação como evento auditável, o sistema deverá adotar controles preventivos:
 
 - **restrição por papel:** a exportação completa de dados fica restrita a papéis específicos (ex.: Owner/Admin);
 - **reautenticação ou confirmação adicional** para a exportação completa (RNF-13);
 - **limite de frequência** de exportações por usuário/tenant;
 - **alerta de auditoria** em exportações de grande volume, para detecção de uso anômalo.
 
-### Segurança das Integrações Externas e Webhooks
+### Segurança das Integrações Externas e Webhooks [Pós-MVP]
 
-As integrações com WhatsApp (Evolution API) e com provedores de e-mail podem envolver webhooks de entrada (status de entrega) e chamadas a instâncias configuradas pelo próprio tenant. Para reduzir a superfície de ataque, o sistema deverá:
+No MVP, a única integração de envio é o AWS SES (e-mails de conta), sem webhooks de entrada configuráveis pelo tenant. Quando as integrações Pós-MVP com WhatsApp (Evolution API) e provedores de e-mail de notificação forem implementadas, elas podem envolver webhooks de entrada (status de entrega) e chamadas a instâncias configuradas pelo próprio tenant. Para reduzir a superfície de ataque, o sistema deverá:
 
 - **validar a assinatura/origem de todo webhook recebido**, rejeitando requisições não autenticadas (proteção contra spoofing de status);
 - **proteger contra SSRF** nas integrações configuráveis pelo tenant (ex.: URL de instância Evolution self-hosted), por meio de allowlist de destinos e bloqueio de endereços internos/privados;
@@ -2029,17 +2282,17 @@ As integrações com WhatsApp (Evolution API) e com provedores de e-mail podem e
 
 Ações críticas devem ser registradas para fins de auditoria, rastreabilidade e investigação de incidentes. Os logs devem registrar informações suficientes para análise, mas sem armazenar dados sensíveis desnecessários.
 
-Eventos auditáveis:
+Eventos auditáveis no MVP:
 
 - login e logout;
 - falhas repetidas de autenticação;
 - criação, alteração e exclusão/inativação de clientes;
 - criação, alteração e cancelamento de agendamentos;
-- alteração de permissões;
-- exportação de relatórios;
+- registro e edição de pagamentos;
 - solicitação de exclusão de conta ou dados;
-- alterações nas configurações do tenant;
-- alteração de credenciais de notificação.
+- alterações nas configurações do tenant.
+
+Eventos auditáveis Pós-MVP (quando as funcionalidades existirem): alteração de permissões, exportação de relatórios e alteração de credenciais de notificação.
 
 Os logs devem conter, quando aplicável:
 
@@ -2078,11 +2331,7 @@ O sistema poderá coletar e armazenar os seguintes dados:
 - nome do espaço de trabalho;
 - slug ou identificador público;
 - área de atuação;
-- configurações de personalização;
-- labels customizadas, como “Clientes”, “Pacientes”, “Serviços” ou “Consultas”;
-- plano contratado;
-- configurações de notificações;
-- credenciais de integração, quando fornecidas pelo usuário.
+- **[Pós-MVP]** configurações de personalização e labels customizadas (como “Pacientes” ou “Consultas”), configurações de notificações e credenciais de integração fornecidas pelo usuário.
 
 #### Dados de clientes cadastrados pelo profissional
 
@@ -2090,10 +2339,8 @@ O sistema poderá coletar e armazenar os seguintes dados:
 - e-mail;
 - telefone;
 - observações;
-- preferências de notificação;
 - histórico de atendimentos;
-- respostas de formulários personalizados;
-- arquivos ou imagens anexadas, se essa funcionalidade for utilizada.
+- **[Pós-MVP]** preferências de notificação, respostas de formulários personalizados e arquivos ou imagens anexadas.
 
 #### Dados de agenda e atendimento
 
@@ -2118,15 +2365,14 @@ O sistema poderá coletar e armazenar os seguintes dados:
 
 Os dados serão tratados para permitir que o profissional utilize as funcionalidades principais do Planici, incluindo:
 
-- criação e acesso à conta;
+- criação e acesso à conta (incluindo e-mails de verificação e recuperação de senha);
 - gerenciamento de tenants;
 - cadastro e consulta de clientes;
-- controle de serviços, procedimentos e planos;
+- controle de serviços e procedimentos;
 - criação e acompanhamento de agendamentos;
-- envio de notificações de confirmação, lembrete, cancelamento ou remarcação;
 - controle de pagamentos;
-- geração de relatórios financeiros;
-- personalização da experiência da aplicação.
+- visão financeira básica;
+- **[Pós-MVP]** envio de notificações de confirmação, lembrete, cancelamento ou remarcação; planos/pacotes; relatórios avançados; personalização da experiência da aplicação.
 
 O Planici não deverá utilizar os dados para finalidades incompatíveis com o funcionamento do sistema sem base legal adequada (art. 7 da LGPD).
 
@@ -2169,12 +2415,11 @@ Como o Planici se destina, entre outros, a terapeutas, nutricionistas, psicólog
 
 Por isso, o sistema deverá:
 
-- **reconhecer expressamente** que campos livres, observações e respostas de formulários podem conter dados sensíveis de saúde;
+- **reconhecer expressamente** que campos livres e observações (e, no Pós-MVP, respostas de formulários personalizados) podem conter dados sensíveis de saúde;
 - coletar **consentimento específico e destacado** (art. 11, I) do titular para o tratamento desses dados, quando aplicável, separado do aceite geral dos Termos/Política;
-- aplicar **criptografia em repouso obrigatória** às observações e às respostas de formulários personalizados que possam conter dados sensíveis;
+- aplicar **criptografia em repouso obrigatória** às observações que possam conter dados sensíveis (e às respostas de formulários, quando existirem);
 - evitar solicitar dados sensíveis por padrão e indicar que campos livres devem ser usados apenas quando necessário;
-- permitir que o profissional defina quais informações serão coletadas nos formulários;
-- proteger as respostas de formulários com as mesmas regras de autenticação, autorização e isolamento por tenant;
+- **[Pós-MVP]** permitir que o profissional defina quais informações serão coletadas nos formulários e proteger as respostas com as mesmas regras de autenticação, autorização e isolamento por tenant;
 - elaborar **Relatório de Impacto à Proteção de Dados Pessoais (RIPD/DPIA, art. 38)** antes do tratamento em larga escala de dados sensíveis;
 - deixar claro que o Planici não substitui prontuários eletrônicos, sistemas médicos regulamentados ou documentos clínicos oficiais.
 
@@ -2202,18 +2447,17 @@ A Política de Privacidade deve explicar de forma clara:
 
 O Planici poderá se comunicar com serviços externos apenas quando necessário para funcionamento de funcionalidades específicas, como:
 
-- envio de e-mails;
-- envio de notificações por WhatsApp;
+- envio de e-mails transacionais de conta (AWS SES);
 - autenticação via Google;
-- processamento de pagamentos, caso essa funcionalidade seja implementada no futuro;
-- infraestrutura de hospedagem, banco de dados, backup e monitoramento.
+- infraestrutura de hospedagem, banco de dados, backup e monitoramento;
+- **[Pós-MVP]** envio de notificações por WhatsApp e processamento de pagamentos, caso essas funcionalidades sejam implementadas no futuro.
 
 O compartilhamento deve ser limitado ao mínimo necessário para execução da funcionalidade. O sistema não deve vender dados pessoais nem compartilhar dados com terceiros para fins de marketing sem consentimento explícito.
 
 Sobre os **suboperadores**:
 
 - todo terceiro que trate dados pessoais por conta do Planici (suboperador) será regido por **contrato de tratamento de dados** (art. 39 da LGPD), com obrigações de segurança e confidencialidade;
-- os **operadores principais** previstos incluem: provedor de e-mail transacional, provedor de mensageria WhatsApp (Evolution API), Google (autenticação OAuth), provedor de hospedagem/infraestrutura, serviço de banco de dados e backup, e serviço de monitoramento de erros (Sentry, que pode capturar dados pessoais em logs de erro);
+- os **operadores principais** do MVP incluem: AWS (hospedagem/infraestrutura — Amplify, Lambda, S3 — e e-mail transacional via SES), Google (autenticação OAuth), Neon (banco de dados e backup) e Sentry (monitoramento de erros, que pode capturar dados pessoais em logs de erro). No Pós-MVP, soma-se o provedor de mensageria WhatsApp (Evolution API);
 - **transferência internacional de dados** (arts. 33 a 35): como parte desses operadores pode armazenar ou processar dados fora do Brasil, a transferência observará as salvaguardas dos arts. 33-35 (ex.: cláusulas-padrão contratuais ou garantias adequadas reconhecidas pela ANPD).
 
 ### Armazenamento e Retenção
@@ -2239,7 +2483,7 @@ Os direitos do titular previstos na LGPD são **incondicionais** e devem ser gar
 - **oposição** a tratamento realizado com base em hipótese dispensada de consentimento (art. 18, §2);
 - **revogação do consentimento** a qualquer momento, de forma facilitada e gratuita (art. 8, §5).
 
-No MVP, enquanto não houver tela de autoatendimento, essas solicitações são atendidas por **canal explícito** — o e-mail do Encarregado/DPO (ex.: `dpo@planici.com.br`) —, com **resposta em até 15 dias** para confirmação/acesso, em conformidade com o art. 19 da LGPD. O atendimento aos direitos do titular é, portanto, requisito **obrigatório** do MVP, e não um item "WANTS".
+No MVP, enquanto não houver tela de autoatendimento, essas solicitações são atendidas por **canal explícito** — o e-mail do Encarregado/DPO (ex.: `dpo@planici.com.br`) —, com **resposta em até 15 dias** para confirmação/acesso, em conformidade com o art. 19 da LGPD. O atendimento aos direitos do titular é, portanto, requisito **obrigatório** do MVP; o que fica para o Pós-MVP (RNF-13/RNF-14) é apenas a **automação** desse atendimento (tela de autoatendimento e exportação self-service).
 
 Em versões futuras, o sistema poderá oferecer uma área de configurações para o próprio usuário solicitar de forma automatizada:
 
@@ -2261,8 +2505,8 @@ O profissional que utiliza o Planici atua como **controlador** dos dados que dec
 - evitar inserir dados sensíveis sem necessidade;
 - manter dados atualizados;
 - respeitar pedidos de exclusão ou correção feitos por seus clientes;
-- configurar adequadamente permissões de colaboradores;
-- proteger suas credenciais de acesso.
+- proteger suas credenciais de acesso;
+- **[Pós-MVP]** configurar adequadamente permissões de colaboradores, quando o multiusuário existir.
 
 ### Aviso de Privacidade no Link Público
 
@@ -2286,7 +2530,7 @@ O Planici adotará medidas de privacidade desde a concepção do sistema:
 - coleta mínima de dados;
 - campos opcionais claramente identificados;
 - isolamento por tenant;
-- permissões por papel;
+- acesso restrito ao Owner do tenant (permissões por papel no Pós-MVP);
 - logs de auditoria para ações críticas;
 - criptografia no tráfego;
 - não exposição de senhas, tokens ou credenciais;
@@ -2298,19 +2542,19 @@ O Planici adotará medidas de privacidade desde a concepção do sistema:
 # 7. Planejamento do Projeto
 
 > [!NOTE]
-> O cronograma prioriza um **MVP enxuto** (agenda + clientes + pagamentos manuais + link público) e move as funcionalidades WANTS — multiusuário/RBAC e convites de colaboradores (RF-05/RF-06) — para a fase pós-MVP. Os testes são distribuídos ao longo dos marcos (não concentrados ao final): o gate de testes obrigatório no CI/CD (RNF-20) vigora desde M1 e cada módulo entrega seus próprios testes, mantendo a cobertura mínima de 70% nos módulos críticos (RNF-19). Entregáveis de segurança e LGPD são embutidos por marco, em vez de revisados apenas no encerramento.
+> O cronograma entrega um **MVP enxuto e validável** (autenticação + tenant + clientes + serviços + agenda + link público + pagamentos manuais + financeiro básico). Funcionalidades Pós-MVP (notificações, formulários personalizados, planos, multiusuário) não possuem marco de entrega. Os testes são distribuídos ao longo dos marcos com **TDD nos fluxos críticos**: o gate de testes obrigatório no CI/CD e o quality gate do SonarCloud (RNF-20) vigoram desde M1, mantendo a cobertura mínima de 75% no backend e 25% no frontend (RNF-19). Entregáveis de segurança, acessibilidade e LGPD são embutidos por marco, em vez de revisados apenas no encerramento.
 
 | Marco | Descrição | Prazo |
 |---|---|---|
-| M1 | **Fundação de arquitetura.** Repositórios, estrutura de frontend (Next.js) e backend (NestJS) com DDD/hexagonal e CQRS, configuração do PostgreSQL single-node, variáveis de ambiente, pipeline de CI/CD com **gate de testes obrigatório desde o início** (RNF-20) e prova de conceito da comunicação interface↔API↔banco. Inclui a base de isolamento: RLS habilitado e propagação de `tenant_id` via `SET LOCAL` em transação, com teste automatizado de "zero vazamento entre tenants". | Semanas 1 a 3 |
-| M2 | **Autenticação e conta.** Cadastro, login (e-mail/senha e OAuth Google), verificação de e-mail, recuperação de senha, criação/seleção de tenant e perfil do usuário, com o object storage para foto de perfil (RF-04). No MVP o tenant tem usuário único (papel Owner). Entregáveis LGPD: registro de consentimento versionado (aceite de Termos/Política) e logs de auditoria de autenticação. Testes unitários e de integração do módulo de auth. | Semanas 4 e 5 |
-| M3 | **Cadastros do domínio.** Clientes, procedimentos/serviços e planos/pacotes, incluindo busca, edição, inativação (soft delete) e vínculo básico entre cliente, serviço e plano. Auditoria de criação/alteração/inativação e RLS validado nas novas tabelas. Testes por módulo. | Semanas 6 e 7 |
-| M4 | **Agenda e agendamentos.** Configuração de disponibilidade (fixa e livre), criação manual de agendamento, edição, cancelamento, bloqueio de horários e visualização diária/semanal. Detecção de conflito/overbooking garantida no banco (constraint `EXCLUDE USING gist` / `SELECT ... FOR UPDATE`). Testes de concorrência do overbooking, alcançando a cobertura mínima do módulo crítico (RNF-19). | Semanas 8 e 9 |
-| M5 | **Link público e confirmação.** Página pública de agendamento (cliente externo solicita horário sem conta) e fluxo de confirmação/recusa pelo profissional. Entregáveis de segurança/LGPD: controles anti-abuso (rate limit por slug/janela, slug não enumerável), aviso de privacidade e consentimento do cliente final. Testes do fluxo público. | Semana 10 |
-| M6 | **Pagamentos e visão financeira.** Registro de pagamento por atendimento, status de pagamento, resumo de receitas por período e ranking básico de procedimentos. Como é módulo crítico, atinge a cobertura mínima (RNF-19); auditoria de operações financeiras. | Semana 11 |
-| M7 | **Notificações.** Notificações por e-mail e WhatsApp (confirmação/cancelamento/remarcação) e o **scheduler temporal de lembretes** (cron worker + tabela `reminders`, com idempotência) para RF-34/RN-18. Inclui fallback de canal e tratamento das credenciais de integração. Testes do worker e da idempotência. | Semana 12 |
-| M8 | **Formulários personalizados e configuração do workspace.** Formulários dinâmicos (campos texto/imagem/arquivo via object storage, RF-38), configurações do espaço de trabalho e personalização de labels. Cuidados de LGPD com campos potencialmente sensíveis (avisos na UI, proteção das respostas). Testes do módulo. | Semana 13 |
-| M9 | **Hardening e entrega final.** Testes E2E do fluxo principal, revisão de segurança e validação final de isolamento por tenant, ajustes de responsividade/acessibilidade/desempenho, revisão da documentação e diagramas, publicação/deploy e validação com a usuária-alvo. | Semana 14 |
+| M1 | **Fundação técnica.** Repositórios, estrutura de frontend (Next.js) e backend (NestJS modular), Neon (PostgreSQL), variáveis de ambiente, pipeline de CI/CD com **gate de testes e SonarCloud obrigatórios desde o início** (RNF-20) e **prova de deploy público mínima** (Amplify + Lambda + Neon, seção 5.5). Inclui a base de isolamento: RLS habilitado e propagação de `tenant_id` via `SET LOCAL` em transação, com teste automatizado de "zero vazamento entre tenants". | Semanas 1 a 3 |
+| M2 | **Autenticação e criação de tenant.** Cadastro, login (e-mail/senha e OAuth Google), verificação de e-mail e recuperação de senha via AWS SES, criação/seleção de tenant e perfil do usuário com foto no AWS S3 (RF-04). Tenant com usuário único (papel Owner). Entregáveis LGPD: registro de consentimento versionado (aceite de Termos/Política) e logs de auditoria de autenticação. Testes backend com TDD (unitários e integração). | Semanas 4 e 5 |
+| M3 | **Clientes e serviços.** CRUD de clientes e de serviços/procedimentos, incluindo busca, edição e inativação (soft delete). Critérios de aceite 3.3.1 e 3.3.2 atendidos; acessibilidade (RNF-18) dos fluxos entregues. Auditoria de criação/alteração/inativação e RLS validado nas novas tabelas. Testes por módulo. | Semanas 6 e 7 |
+| M4 | **Agenda e agendamento manual.** Configuração de disponibilidade (fixa e livre), criação manual de agendamento, edição, cancelamento, bloqueio de horários e visualização diária/semanal. Detecção de conflito/overbooking garantida no banco (constraint `EXCLUDE USING gist` / `SELECT ... FOR UPDATE`). Critério de aceite 3.3.3; testes de concorrência do overbooking (RNF-19). | Semanas 8 e 9 |
+| M5 | **Link público simples.** Página pública de agendamento (cliente externo solicita horário sem conta) e fluxo de confirmação/recusa pelo profissional. Entregáveis de segurança/LGPD: controles anti-abuso (rate limit por slug/janela, slug não enumerável, expiração de pendentes), aviso de privacidade e ciência do cliente final. Critério de aceite 3.3.4; testes do fluxo público. | Semana 10 |
+| M6 | **Pagamento manual e financeiro básico.** Registro de pagamento por atendimento, status de pagamento e resumo de receitas por período. Critério de aceite 3.3.5; módulo crítico com TDD e cobertura mínima (RNF-19); auditoria de operações financeiras. | Semana 11 |
+| M7 | **UX, acessibilidade e mockups finais.** Revisão de responsividade mobile + desktop/web, estados vazios/erro/loading/confirmação, verificação WCAG 2.1 AA dos fluxos principais (RNF-18) e atualização das evidências visuais no RFC (tabela de cobertura de telas da seção 4.2). | Semana 12 |
+| M8 | **Validação com usuários.** Testes com 3 a 5 profissionais autônomos executando o fluxo central completo (seção 2.9); preenchimento da tabela de evidências e priorização dos ajustes gerados. | Semana 13 |
+| M9 | **Hardening e entrega final.** Teste E2E do fluxo principal, revisão de segurança e validação final de isolamento por tenant, ajustes decorrentes da validação, revisão da documentação e diagramas, deploy público final (`https://planici.co`) e validação pós-MVP com a usuária principal. Checklist final de consistência. | Semana 14 |
 
 # 8. Referências
 
@@ -2352,6 +2596,19 @@ THE POSTGRESQL GLOBAL DEVELOPMENT GROUP. *PostgreSQL Documentation*.
 
 VMWARE (PIVOTAL). *RabbitMQ Documentation*. 2024. Disponível em:
 https://www.rabbitmq.com/documentation.html. Acesso em: 12 mai. 2026.
+*(Referência mantida para a evolução Pós-MVP de mensageria — seção 5.3.4; não integra a stack do MVP.)*
+
+AMAZON WEB SERVICES. *AWS Documentation — Amplify Hosting, Lambda, S3 e SES*.
+2026. Disponível em: https://docs.aws.amazon.com. Acesso em: 03 jul. 2026.
+
+NEON. *Neon Documentation — Serverless PostgreSQL*. 2026. Disponível em:
+https://neon.com/docs. Acesso em: 03 jul. 2026.
+
+DRIZZLE TEAM. *Drizzle ORM Documentation — drizzle-kit*. 2026. Disponível em:
+https://orm.drizzle.team/docs. Acesso em: 03 jul. 2026.
+
+SONARSOURCE. *SonarCloud Documentation*. 2026. Disponível em:
+https://docs.sonarsource.com/sonarqube-cloud. Acesso em: 03 jul. 2026.
 
 ## Soluções Concorrentes Analisadas
 
