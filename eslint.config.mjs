@@ -38,6 +38,9 @@ const rootConfig = defineConfig([
       'unused-imports': unusedImports,
     },
     rules: {
+      '@typescript-eslint/restrict-plus-operands': 'off',
+      '@typescript-eslint/no-unnecessary-condition': 'warn',
+
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_' },

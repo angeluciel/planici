@@ -1,0 +1,60 @@
+:root,
+[data-theme='light'] {
+  --text-primary: var(--color-neutral-1000);
+  --text-secondary: var(--color-neutral-800);
+  --text-bold: var(--color-neutral-1200);
+  --text-disabled: var(--color-neutral-400A);
+  --text-inverse: var(--color-neutral-0);
+  --text-selected: var(--color-blue-700);
+  --text-brand: var(--color-pink-700);
+
+  --text-link: var(--color-blue-700);
+  --text-link-pressed: var(--color-blue-800);
+  --text-link-visited: var(--color-pink-800);
+  --text-link-visited-pressed: var(--color-pink-900);
+
+  --text-accent-gray: var(--color-neutral-900);
+  --text-accent-gray-bolder: var(--color-neutral-1100);
+  --text-accent-orange: var(--color-orange-900);
+  --text-accent-orange-bolder: var(--color-orange-1000);
+
+  --text-status-danger: var(--color-red-800);
+  --text-status-danger-bolder: var(--color-red-900);
+  --text-status-information: var(--color-blue-800);
+  --text-status-information-bolder: var(--color-blue-900);
+  --text-status-warning: var(--color-yellow-700);
+  --text-status-warning-bolder: var(--color-yellow-900);
+  --text-status-warning-inverse: var(--color-neutral-1000);
+  --text-status-success: var(--color-green-800);
+  --text-status-success-bolder: var(--color-green-900);
+}
+
+[data-theme='dark'] {
+  --text-primary: var(--color-darkNeutral-1000);
+  --text-secondary: var(--color-darkNeutral-800);
+  --text-bold: var(--color-darkNeutral-1200);
+  --text-disabled: var(--color-darkNeutral-400A);
+  --text-inverse: var(--color-darkNeutral-0);
+  --text-selected: var(--color-blue-300);
+  --text-brand: var(--color-pink-400);
+
+  --text-link: var(--color-blue-400);
+  --text-link-pressed: var(--color-blue-300);
+  --text-link-visited: var(--color-pink-300);
+  --text-link-visited-pressed: var(--color-pink-200);
+
+  --text-accent-gray: var(--color-darkNeutral-900);
+  --text-accent-gray-bolder: var(--color-darkNeutral-1100);
+  --text-accent-orange: var(--color-orange-200);
+  --text-accent-orange-bolder: var(--color-orange-100);
+
+  --text-status-danger: var(--color-red-300);
+  --text-status-danger-bolder: var(--color-red-200);
+  --text-status-information: var(--color-blue-300);
+  --text-status-information-bolder: var(--color-blue-200);
+  --text-status-warning: var(--color-yellow-300);
+  --text-status-warning-bolder: var(--color-yellow-200);
+  --text-status-warning-inverse: var(--color-darkNeutral-100);
+  --text-status-success: var(--color-green-300);
+  --text-status-success-bolder: var(--color-green-200);
+}

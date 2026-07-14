@@ -7,6 +7,14 @@
   "auth": {
     "login": {
       "title": "Welcome!"
+    },
+    "register": {
+      "stepper": {
+        "1": "New Account",
+        "2": "Password",
+        "3": "Terms",
+        "4": "Profile"
+      }
     }
   }
 }
