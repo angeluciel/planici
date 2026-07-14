@@ -1,0 +1,264 @@
+:root,
+[data-theme='light'] {
+  /* accent / neutral */
+  --background-accent-neutral: var(--color-neutral-100);
+  --background-accent-neutral-hovered: var(--color-neutral-200);
+  --background-accent-neutral-pressed: var(--color-neutral-300);
+  --background-accent-neutral-bold: var(--color-neutral-1000);
+  --background-accent-neutral-bold-hovered: var(--color-neutral-900);
+  --background-accent-neutral-bold-pressed: var(--color-neutral-800);
+
+  /* accent / inverse */
+  --background-accent-inverse-subtle: var(--color-neutral-200A);
+  --background-accent-inverse-subtle-hovered: var(--color-neutral-300A);
+  --background-accent-inverse-subtle-pressed: var(--color-neutral-400A);
+
+  /* accent / gray */
+  --background-accent-gray-subtlest: var(--color-neutral-50);
+  --background-accent-gray-subtlest-hovered: var(--color-neutral-100);
+  --background-accent-gray-subtlest-pressed: var(--color-neutral-200);
+  --background-accent-gray-subtler: var(--color-neutral-100);
+  --background-accent-gray-subtler-hovered: var(--color-neutral-200);
+  --background-accent-gray-subtler-pressed: var(--color-neutral-300);
+  --background-accent-gray-subtle: var(--color-neutral-400);
+  --background-accent-gray-subtle-hovered: var(--color-neutral-300);
+  --background-accent-gray-subtle-pressed: var(--color-neutral-200);
+  --background-accent-gray-bold: var(--color-neutral-600);
+  --background-accent-gray-bold-hovered: var(--color-neutral-700);
+  --background-accent-gray-bold-pressed: var(--color-neutral-800);
+
+  /* accent / green */
+  --background-accent-green-subtlest: var(--color-neutral-0);
+  --background-accent-green-subtlest-hovered: var(--color-green-100);
+  --background-accent-green-subtlest-pressed: var(--color-green-200);
+  --background-accent-green-subtler: var(--color-green-100);
+  --background-accent-green-subtler-hovered: var(--color-green-200);
+  --background-accent-green-subtler-pressed: var(--color-green-300);
+  --background-accent-green-subtle: var(--color-green-400);
+  --background-accent-green-subtle-hovered: var(--color-green-300);
+  --background-accent-green-subtle-pressed: var(--color-green-200);
+  --background-accent-green-bold: var(--color-green-600);
+  --background-accent-green-bold-hovered: var(--color-green-700);
+  --background-accent-green-bold-pressed: var(--color-green-800);
+
+  /* accent / orange */
+  --background-accent-orange-subtlest: var(--color-orange-50);
+  --background-accent-orange-subtlest-hovered: var(--color-orange-100);
+  --background-accent-orange-subtlest-pressed: var(--color-orange-200);
+  --background-accent-orange-subtler: var(--color-orange-100);
+  --background-accent-orange-subtler-hovered: var(--color-orange-200);
+  --background-accent-orange-subtler-pressed: var(--color-orange-300);
+  --background-accent-orange-subtle: var(--color-orange-400);
+  --background-accent-orange-subtle-hovered: var(--color-orange-300);
+  --background-accent-orange-subtle-pressed: var(--color-orange-200);
+  --background-accent-orange-bold: var(--color-orange-600);
+  --background-accent-orange-bold-hovered: var(--color-orange-700);
+  --background-accent-orange-bold-pressed: var(--color-orange-800);
+
+  /* accent / disabled */
+  --background-accent-disabled: var(--color-neutral-200A);
+
+  /* status / warning */
+  --background-status-warning: var(--color-yellow-100);
+  --background-status-warning-hovered: var(--color-yellow-200);
+  --background-status-warning-pressed: var(--color-yellow-300);
+  --background-status-warning-subtler: var(--color-yellow-200);
+  --background-status-warning-subtler-hovered: var(--color-yellow-300);
+  --background-status-warning-subtler-pressed: var(--color-yellow-400);
+  --background-status-warning-subtle: var(--color-yellow-300);
+  --background-status-warning-bold: var(--color-yellow-400);
+  --background-status-warning-bold-hovered: var(--color-yellow-500);
+  --background-status-warning-bold-pressed: var(--color-yellow-600);
+
+  /* status / danger */
+  --background-status-danger: var(--color-red-50);
+  --background-status-danger-hovered: var(--color-red-100);
+  --background-status-danger-pressed: var(--color-red-200);
+  --background-status-danger-subtler: var(--color-red-100);
+  --background-status-danger-subtler-hovered: var(--color-red-200);
+  --background-status-danger-subtler-pressed: var(--color-red-300);
+  --background-status-danger-subtle: var(--color-red-300);
+  --background-status-danger-bold: var(--color-red-600);
+  --background-status-danger-bold-hovered: var(--color-red-700);
+  --background-status-danger-bold-pressed: var(--color-red-800);
+  --background-status-danger-inverse: var(--color-red-700);
+  --background-status-danger-inverse-hovered: var(--color-red-800);
+  --background-status-danger-inverse-pressed: var(--color-red-800);
+
+  /* status / information */
+  --background-status-information: var(--color-blue-50);
+  --background-status-information-hovered: var(--color-blue-200);
+  --background-status-information-pressed: var(--color-blue-300);
+  --background-status-information-subtler: var(--color-blue-200);
+  --background-status-information-subtler-hovered: var(--color-blue-300);
+  --background-status-information-subtler-pressed: var(--color-blue-400);
+  --background-status-information-subtle: var(--color-blue-400);
+  --background-status-information-bold: var(--color-blue-600);
+  --background-status-information-bold-hovered: var(--color-blue-700);
+  --background-status-information-bold-pressed: var(--color-blue-800);
+
+  /* status / success */
+  --background-status-success: var(--color-green-50);
+  --background-status-success-hovered: var(--color-green-100);
+  --background-status-success-pressed: var(--color-green-200);
+  --background-status-success-subtler: var(--color-green-100);
+  --background-status-success-subtler-hovered: var(--color-green-200);
+  --background-status-success-subtler-pressed: var(--color-green-300);
+  --background-status-success-subtle: var(--color-green-300);
+  --background-status-success-bold: var(--color-green-700);
+  --background-status-success-bold-hovered: var(--color-green-800);
+  --background-status-success-bold-pressed: var(--color-green-900);
+
+  /* skeleton */
+  --background-skeleton: var(--color-neutral-200A);
+  --background-skeleton-subtle: var(--color-neutral-100A);
+
+  /* selected */
+  --background-selected: var(--color-pink-50);
+  --background-selected-hovered: var(--color-pink-50);
+  --background-selected-pressed: var(--color-pink-100);
+  --background-selected-bold: var(--color-pink-600);
+  --background-selected-bold-hovered: var(--color-pink-700);
+  --background-selected-bold-pressed: var(--color-pink-800);
+
+  /* brand */
+  --background-brand-subtlest: var(--color-pink-50);
+  --background-brand-subtlest-hovered: var(--color-pink-100);
+  --background-brand-subtlest-pressed: var(--color-pink-200);
+  --background-brand-subtler: var(--color-pink-200);
+  --background-brand-bold: var(--color-pink-600);
+  --background-brand-bold-hovered: var(--color-pink-800);
+  --background-brand-bold-pressed: var(--color-pink-900);
+}
+
+[data-theme='dark'] {
+  /* accent / neutral */
+  --background-accent-neutral: var(--color-darkNeutral-100);
+  --background-accent-neutral-hovered: var(--color-darkNeutral-150);
+  --background-accent-neutral-pressed: var(--color-darkNeutral-200);
+  --background-accent-neutral-bold: var(--color-darkNeutral-1000);
+  --background-accent-neutral-bold-hovered: var(--color-darkNeutral-900);
+  --background-accent-neutral-bold-pressed: var(--color-darkNeutral-800);
+
+  /* accent / inverse */
+  --background-accent-inverse-subtle: var(--color-darkNeutral-150A);
+  --background-accent-inverse-subtle-hovered: var(--color-darkNeutral-200A);
+  --background-accent-inverse-subtle-pressed: var(--color-darkNeutral-300A);
+
+  /* accent / gray */
+  --background-accent-gray-subtlest: var(--color-darkNeutral-50);
+  --background-accent-gray-subtlest-hovered: var(--color-darkNeutral-100);
+  --background-accent-gray-subtlest-pressed: var(--color-darkNeutral-200);
+  --background-accent-gray-subtler: var(--color-darkNeutral-100);
+  --background-accent-gray-subtler-hovered: var(--color-darkNeutral-200);
+  --background-accent-gray-subtler-pressed: var(--color-darkNeutral-300);
+  --background-accent-gray-subtle: var(--color-darkNeutral-400);
+  --background-accent-gray-subtle-hovered: var(--color-darkNeutral-300);
+  --background-accent-gray-subtle-pressed: var(--color-darkNeutral-200);
+  --background-accent-gray-bold: var(--color-darkNeutral-600);
+  --background-accent-gray-bold-hovered: var(--color-darkNeutral-700);
+  --background-accent-gray-bold-pressed: var(--color-darkNeutral-800);
+
+  /* accent / green */
+  --background-accent-green-subtlest: var(--color-green-1000);
+  --background-accent-green-subtlest-hovered: var(--color-green-950);
+  --background-accent-green-subtlest-pressed: var(--color-green-900);
+  --background-accent-green-subtler: var(--color-green-950);
+  --background-accent-green-subtler-hovered: var(--color-green-900);
+  --background-accent-green-subtler-pressed: var(--color-green-800);
+  --background-accent-green-subtle: var(--color-green-700);
+  --background-accent-green-subtle-hovered: var(--color-green-800);
+  --background-accent-green-subtle-pressed: var(--color-green-900);
+  --background-accent-green-bold: var(--color-green-500);
+  --background-accent-green-bold-hovered: var(--color-green-400);
+  --background-accent-green-bold-pressed: var(--color-green-300);
+
+  /* accent / orange */
+  --background-accent-orange-subtlest: var(--color-orange-1000);
+  --background-accent-orange-subtlest-hovered: var(--color-orange-950);
+  --background-accent-orange-subtlest-pressed: var(--color-orange-900);
+  --background-accent-orange-subtler: var(--color-orange-950);
+  --background-accent-orange-subtler-hovered: var(--color-orange-900);
+  --background-accent-orange-subtler-pressed: var(--color-orange-800);
+  --background-accent-orange-subtle: var(--color-orange-700);
+  --background-accent-orange-subtle-hovered: var(--color-orange-800);
+  --background-accent-orange-subtle-pressed: var(--color-orange-900);
+  --background-accent-orange-bold: var(--color-orange-500);
+  --background-accent-orange-bold-hovered: var(--color-orange-400);
+  --background-accent-orange-bold-pressed: var(--color-orange-300);
+
+  /* accent / disabled */
+  --background-accent-disabled: var(--color-darkNeutral-200A);
+
+  /* status / warning */
+  --background-status-warning: var(--color-yellow-950);
+  --background-status-warning-hovered: var(--color-yellow-900);
+  --background-status-warning-pressed: var(--color-yellow-800);
+  --background-status-warning-subtler: var(--color-yellow-900);
+  --background-status-warning-subtler-hovered: var(--color-yellow-800);
+  --background-status-warning-subtler-pressed: var(--color-yellow-700);
+  --background-status-warning-subtle: var(--color-yellow-700);
+  --background-status-warning-bold: var(--color-yellow-400);
+  --background-status-warning-bold-hovered: var(--color-yellow-500);
+  --background-status-warning-bold-pressed: var(--color-yellow-600);
+
+  /* status / danger */
+  --background-status-danger: var(--color-red-1000);
+  --background-status-danger-hovered: var(--color-red-950);
+  --background-status-danger-pressed: var(--color-red-900);
+  --background-status-danger-subtler: var(--color-red-950);
+  --background-status-danger-subtler-hovered: var(--color-red-900);
+  --background-status-danger-subtler-pressed: var(--color-red-800);
+  --background-status-danger-subtle: var(--color-red-800);
+  --background-status-danger-bold: var(--color-red-500);
+  --background-status-danger-bold-hovered: var(--color-red-400);
+  --background-status-danger-bold-pressed: var(--color-red-300);
+  --background-status-danger-inverse: var(--color-red-400);
+  --background-status-danger-inverse-hovered: var(--color-red-300);
+  --background-status-danger-inverse-pressed: var(--color-red-200);
+
+  /* status / information */
+  --background-status-information: var(--color-blue-1000);
+  --background-status-information-hovered: var(--color-blue-950);
+  --background-status-information-pressed: var(--color-blue-900);
+  --background-status-information-subtler: var(--color-blue-900);
+  --background-status-information-subtler-hovered: var(--color-blue-800);
+  --background-status-information-subtler-pressed: var(--color-blue-700);
+  --background-status-information-subtle: var(--color-blue-700);
+  --background-status-information-bold: var(--color-blue-300);
+  --background-status-information-bold-hovered: var(--color-blue-200);
+  --background-status-information-bold-pressed: var(--color-blue-100);
+
+  /* status / success */
+  --background-status-success: var(--color-green-1000);
+  --background-status-success-hovered: var(--color-green-950);
+  --background-status-success-pressed: var(--color-green-900);
+  --background-status-success-subtler: var(--color-green-950);
+  --background-status-success-subtler-hovered: var(--color-green-900);
+  --background-status-success-subtler-pressed: var(--color-green-800);
+  --background-status-success-subtle: var(--color-green-800);
+  --background-status-success-bold: var(--color-green-400);
+  --background-status-success-bold-hovered: var(--color-green-300);
+  --background-status-success-bold-pressed: var(--color-green-200);
+
+  /* skeleton */
+  --background-skeleton: var(--color-darkNeutral-200A);
+  --background-skeleton-subtle: var(--color-darkNeutral-100A);
+
+  /* selected */
+  --background-selected: var(--color-pink-1000);
+  --background-selected-hovered: var(--color-pink-1000);
+  --background-selected-pressed: var(--color-pink-950);
+  --background-selected-bold: var(--color-pink-300);
+  --background-selected-bold-hovered: var(--color-pink-200);
+  --background-selected-bold-pressed: var(--color-pink-100);
+
+  /* brand */
+  --background-brand-subtlest: var(--color-pink-1000);
+  --background-brand-subtlest-hovered: var(--color-pink-950);
+  --background-brand-subtlest-pressed: var(--color-pink-900);
+  --background-brand-subtler: var(--color-pink-800);
+  --background-brand-bold: var(--color-pink-300);
+  --background-brand-bold-hovered: var(--color-pink-300);
+  --background-brand-bold-pressed: var(--color-pink-200);
+}

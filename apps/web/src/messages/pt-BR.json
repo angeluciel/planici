@@ -7,6 +7,14 @@
   "auth": {
     "login": {
       "title": "Olá"
+    },
+    "register": {
+      "stepper": {
+        "1": "Criar Conta",
+        "2": "Senha",
+        "3": "Termos",
+        "4": "Perfil"
+      }
     }
   }
 }

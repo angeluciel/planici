@@ -1,0 +1,30 @@
+:root,
+[data-theme='light'] {
+  --icon: var(--color-neutral-1000);
+  --icon-subtle: var(--color-neutral-800);
+  --icon-subtlest: var(--color-neutral-700);
+  --icon-disabled: var(--color-neutral-400A);
+  --icon-inverse: var(--color-neutral-0);
+  --icon-selected: var(--color-blue-600);
+  --icon-brand: var(--color-pink-600);
+  --icon-danger: var(--color-red-600);
+  --icon-warning: var(--color-yellow-600);
+  --icon-warning-inverse: var(--color-neutral-1000);
+  --icon-success: var(--color-green-600);
+  --icon-information: var(--color-blue-600);
+}
+
+[data-theme='dark'] {
+  --icon: var(--color-darkNeutral-1100);
+  --icon-subtle: var(--color-darkNeutral-700);
+  --icon-subtlest: var(--color-darkNeutral-600);
+  --icon-disabled: var(--color-darkNeutral-400A);
+  --icon-inverse: var(--color-darkNeutral-100);
+  --icon-selected: var(--color-blue-400);
+  --icon-brand: var(--color-pink-200);
+  --icon-danger: var(--color-red-500);
+  --icon-warning: var(--color-yellow-500);
+  --icon-warning-inverse: var(--color-darkNeutral-100);
+  --icon-success: var(--color-emerald-500);
+  --icon-information: var(--color-blue-500);
+}

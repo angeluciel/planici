@@ -1,0 +1,44 @@
+:root {
+  /* border widths (spaces/border/*) — same in every theme */
+  --border-width-base: 1px;
+  --border-width-selected: 2px;
+  --border-width-focused: 2px;
+}
+
+:root,
+[data-theme='light'] {
+  --border: var(--color-neutral-300A);
+  --border-bold: var(--color-neutral-600);
+  --border-disabled: var(--color-neutral-200A);
+  --border-focused: var(--color-blue-500);
+  --border-input: var(--color-neutral-500);
+  --border-inverse: var(--color-neutral-0);
+  --border-selected: var(--color-blue-700);
+  --border-brand: var(--color-pink-700);
+
+  --border-warning: var(--color-yellow-600);
+  --border-warning-subtle: var(--color-yellow-300);
+  --border-danger: var(--color-red-600);
+  --border-danger-subtle: var(--color-red-300);
+  --border-success: var(--color-emerald-600);
+  --border-success-subtle: var(--color-emerald-300);
+}
+
+[data-theme='dark'] {
+  --border: var(--color-darkNeutral-300A);
+  /* Figma also uses neutral/600 in dark mode (flagged as likely bug) */
+  --border-bold: var(--color-neutral-600);
+  --border-disabled: var(--color-darkNeutral-200A);
+  --border-focused: var(--color-blue-300);
+  --border-input: var(--color-darkNeutral-600);
+  --border-inverse: var(--color-darkNeutral-0);
+  --border-selected: var(--color-blue-400);
+  --border-brand: var(--color-pink-400);
+
+  --border-warning: var(--color-yellow-500);
+  --border-warning-subtle: var(--color-yellow-800);
+  --border-danger: var(--color-red-500);
+  --border-danger-subtle: var(--color-red-800);
+  --border-success: var(--color-emerald-500);
+  --border-success-subtle: var(--color-emerald-800);
+}
