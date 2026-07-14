@@ -23,11 +23,42 @@ export default async function RegisterPage() {
             </button>
           </div>
 
-          <div>
-            <RegisterStepper steps={steps} currentStep={2} />
+          <div className='flex flex-col gap-8 justify-center items-center'>
+            <div className='flex flex-col gap-12 items-center'>
+              <div className='flex flex-col gap-12 items-center'>
+                {/* ICON LATER */}
+                <div className='w-20 h-10 rounded-sm bg-icon-brand'></div>
+
+                <RegisterStepper currentStep={1} steps={steps} />
+              </div>
+
+              <h1 className='font-heading-lg'>Vamos Criar sua conta</h1>
+            </div>
+
+            <div className='flex flex-col gap-4 items-center w-full'>
+              <button className='w-full px-4 h-10 gap-2 border-2 border-border font-body-sm font-medium rounded-md'>
+                Continuar com Google
+              </button>
+              <div className='flex gap-2 items-center text-text-bold'>
+                <div className='h-0.5 w-full bg-background-accent-disabled' />
+                ou
+                <div className='h-0.5 w-full bg-background-accent-disabled' />
+              </div>
+              <label className='gap-1 flex flex-col items-start font-body-sm font-medium w-full'>
+                Seu e-mail
+                <input
+                  className='flex rounded-md justify-start border-2 border-border-input placeholder:text-text-disabled text-text-bold text-body-sm p-2 w-full'
+                  placeholder='email@example.com'
+                />
+              </label>
+            </div>
           </div>
 
-          <div></div>
+          <div className='flex w-full pb-4 items-center-safe justify-center-safe'>
+            <span className='font-body-caption'>
+              2026 PLANICI, Todos os Direitos Reservados
+            </span>
+          </div>
         </div>
 
         <div className='hidden md:block'></div>

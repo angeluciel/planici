@@ -30,7 +30,7 @@ export function RegisterStepper({
   steps: Step[];
 }) {
   return (
-    <Stepper>
+    <Stepper className='hidden lg:flex'>
       {steps.map((step, i) => (
         <Fragment key={step.name}>
           <StepperItem state={getState(i, currentStep)}>
