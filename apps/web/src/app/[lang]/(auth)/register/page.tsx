@@ -1,16 +1,18 @@
 import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 
+import { Logo } from '@/components/logo';
 import { RegisterStepper } from '@/components/register-stepper';
 
 export default async function RegisterPage() {
   const t = await getTranslations('auth.register');
 
   const steps = [
-    { name: t('stepper.1'), href: '/a' },
-    { name: t('stepper.2'), href: '/b' },
-    { name: t('stepper.3'), href: '/b' },
-    { name: t('stepper.4'), href: '/b' },
+    { name: t('steps.first.stepper'), href: '/a' },
+    { name: t('steps.second.stepper'), href: '/b' },
+    { name: t('steps.third.stepper'), href: '/b' },
+    { name: t('steps.fourth.stepper'), href: '/b' },
   ];
   return (
     <>
@@ -18,7 +20,7 @@ export default async function RegisterPage() {
         <div className='flex flex-col grow justify-between items-center'>
           {/* header */}
           <div className='min-w-full py-3 flex justify-start items-center'>
-            <button className='p-3 rounded-md bg-surface-raised hover:bg-surface-raised-hovered shadow-raised transition-all duration-100 active:bg-surface-raised-pressed'>
+            <button className='p-3 rounded-md bg-surface-raised hover:bg-surface-raised-hovered shadow-raised transition-all duration-100 active:bg-surface-raised-pressed lg:hidden'>
               <ArrowLeft />
             </button>
           </div>
@@ -26,8 +28,7 @@ export default async function RegisterPage() {
           <div className='flex flex-col gap-8 justify-center items-center'>
             <div className='flex flex-col gap-12 items-center'>
               <div className='flex flex-col gap-12 items-center'>
-                {/* ICON LATER */}
-                <div className='w-20 h-10 rounded-sm bg-icon-brand'></div>
+                <Logo className='h-8 w-auto' />
 
                 <RegisterStepper currentStep={1} steps={steps} />
               </div>
@@ -51,6 +52,15 @@ export default async function RegisterPage() {
                   placeholder='email@example.com'
                 />
               </label>
+              <div className='flex flex-col gap-8 items-center w-full'>
+                <div className='flex justify-center items-center w-full gap-1.5 h-9 px-2 rounded-sm bg-background-brand-bold text-text-inverse'>
+                  {' '}
+                  Continuar com e-mail{' '}
+                </div>{' '}
+                <span>
+                  Já tem uma conta? <Link href={'/login'}>Entrar</Link>.
+                </span>
+              </div>
             </div>
           </div>
 

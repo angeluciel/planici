@@ -348,6 +348,7 @@
   --color-icon-warning-inverse: var(--icon-warning-inverse);
   --color-icon-success: var(--icon-success);
   --color-icon-information: var(--icon-information);
+  --color-logo: var(--logo);
 
   /* elevation */
   --color-surface: var(--surface);
