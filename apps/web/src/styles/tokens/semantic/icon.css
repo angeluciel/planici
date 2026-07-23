@@ -12,6 +12,7 @@
   --icon-warning-inverse: var(--color-neutral-1000);
   --icon-success: var(--color-green-600);
   --icon-information: var(--color-blue-600);
+  --logo: var(--color-pink-700);
 }
 
 [data-theme='dark'] {
@@ -27,4 +28,5 @@
   --icon-warning-inverse: var(--color-darkNeutral-100);
   --icon-success: var(--color-emerald-500);
   --icon-information: var(--color-blue-500);
+  --logo: var(--color-pink-400);
 }

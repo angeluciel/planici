@@ -9,11 +9,26 @@
       "title": "Welcome!"
     },
     "register": {
-      "stepper": {
-        "1": "New Account",
-        "2": "Password",
-        "3": "Terms",
-        "4": "Profile"
+      "steps": {
+        "first": {
+          "stepper": "Create an Account",
+          "title": "Let's create your account",
+          "google-btn": "Continue with Google",
+          "divider": "Network",
+          "input": "Your E-mail",
+          "next-btn": "Continue with e-mail",
+          "link": "Already have an account?",
+          "sign-in": "Sign In"
+        },
+        "second": {
+          "stepper": "Password"
+        },
+        "third": {
+          "stepper": "Terms"
+        },
+        "fourth": {
+          "stepper": "Profile"
+        }
       }
     }
   }

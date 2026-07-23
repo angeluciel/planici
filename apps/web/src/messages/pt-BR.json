@@ -9,11 +9,26 @@
       "title": "Olá"
     },
     "register": {
-      "stepper": {
-        "1": "Criar Conta",
-        "2": "Senha",
-        "3": "Termos",
-        "4": "Perfil"
+      "steps": {
+        "first": {
+          "stepper": "Criar conta",
+          "title": "Vamos criar sua conta!",
+          "google-btn": "Continuar com google",
+          "divider": "ou",
+          "input": "Seu e-mail",
+          "next-btn": "Continuar com e-mail",
+          "link": "Já tem uma conta?",
+          "sign-in": "Entrar"
+        },
+        "second": {
+          "stepper": "Senha"
+        },
+        "third": {
+          "stepper": "Termos"
+        },
+        "fourth": {
+          "stepper": "Perfil"
+        }
       }
     }
   }
