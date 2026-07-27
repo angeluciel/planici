@@ -1,36 +1,76 @@
-import { ArrowLeft } from 'lucide-react';
+'use client';
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
+import { AccountStep, PasswordStep, ProfileStep, TermsStep } from './steps';
+
+import Header from '@/components/header';
 import { Logo } from '@/components/logo';
 import { RegisterStepper } from '@/components/register-stepper';
 
-export default async function RegisterPage() {
-  const t = await getTranslations('auth.register');
+interface FormData {
+  email: string;
+  password: string;
+  acceptedTerms: boolean;
+}
 
-  const steps = [
+const initialData: FormData = {
+  email: '',
+  password: '',
+  acceptedTerms: false,
+};
+
+const steps = [AccountStep, PasswordStep, TermsStep, ProfileStep];
+
+export default function RegisterPage() {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [formData, setFormData] = useState<FormData>(initialData);
+
+  const StepComponent = steps[currentStep];
+
+  function goBack() {
+    setCurrentStep((step) => Math.max(0, step - 1));
+  }
+
+  function goForward() {
+    //async
+    const isValid = true; // validate current step with the form data
+
+    if (!isValid) return;
+
+    const isLastStep = currentStep === steps.length - 1;
+
+    if (isLastStep) {
+      // eslint-disable-next-line no-console
+      console.log('submit registration');
+      return;
+    }
+
+    setCurrentStep((step) => step + 1);
+  }
+
+  const t = useTranslations('auth.register');
+
+  const stepsT = [
     { name: t('steps.first.stepper'), href: '/a' },
     { name: t('steps.second.stepper'), href: '/b' },
     { name: t('steps.third.stepper'), href: '/b' },
     { name: t('steps.fourth.stepper'), href: '/b' },
   ];
+
   return (
     <>
       <div className='min-h-screen flex flex-1 px-4 bg-surface'>
         <div className='flex flex-col grow justify-between items-center'>
-          {/* header */}
-          <div className='min-w-full py-3 flex justify-start items-center'>
-            <button className='p-3 rounded-md bg-surface-raised hover:bg-surface-raised-hovered shadow-raised transition-all duration-100 active:bg-surface-raised-pressed lg:hidden'>
-              <ArrowLeft />
-            </button>
-          </div>
+          <Header />
 
           <div className='flex flex-col gap-8 justify-center items-center'>
             <div className='flex flex-col gap-12 items-center'>
               <div className='flex flex-col gap-12 items-center'>
                 <Logo className='h-8 w-auto' />
 
-                <RegisterStepper currentStep={1} steps={steps} />
+                <RegisterStepper currentStep={1} steps={stepsT} />
               </div>
 
               <h1 className='font-heading-lg'>Vamos Criar sua conta</h1>
@@ -56,19 +96,23 @@ export default async function RegisterPage() {
                 <div className='flex justify-center items-center w-full gap-1.5 h-9 px-2 rounded-sm bg-background-brand-bold text-text-inverse'>
                   {' '}
                   Continuar com e-mail{' '}
-                </div>{' '}
+                </div>
                 <span>
-                  Já tem uma conta? <Link href={'/login'}>Entrar</Link>.
+                  Já tem uma conta?{' '}
+                  <Link className='text-text-link' href={'/login'}>
+                    Entrar
+                  </Link>
+                  .
                 </span>
               </div>
             </div>
           </div>
 
-          <div className='flex w-full pb-4 items-center-safe justify-center-safe'>
+          <footer className='flex w-full pb-4 items-center-safe justify-center-safe'>
             <span className='font-body-caption'>
               2026 PLANICI, Todos os Direitos Reservados
             </span>
-          </div>
+          </footer>
         </div>
 
         <div className='hidden md:block'></div>
