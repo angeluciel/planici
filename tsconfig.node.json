@@ -8,5 +8,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["eslint.config.mjs", "*.config.mjs", "*.config.ts"]
+  "include": ["*.config.mjs", "*.config.ts"]
 }

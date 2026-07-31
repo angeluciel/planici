@@ -1,35 +1,35 @@
 {
-  "common": {
-    "save": "Save",
-    "cancel": "Cancel",
-    "loading": "Loading"
-  },
-  "auth": {
-    "login": {
-      "title": "Welcome!"
-    },
-    "register": {
-      "steps": {
-        "first": {
-          "stepper": "Create an Account",
-          "title": "Let's create your account",
-          "google-btn": "Continue with Google",
-          "divider": "Network",
-          "input": "Your E-mail",
-          "next-btn": "Continue with e-mail",
-          "link": "Already have an account?",
-          "sign-in": "Sign In"
-        },
-        "second": {
-          "stepper": "Password"
-        },
-        "third": {
-          "stepper": "Terms"
-        },
-        "fourth": {
-          "stepper": "Profile"
-        }
-      }
-    }
-  }
+	"common": {
+		"save": "Save",
+		"cancel": "Cancel",
+		"loading": "Loading"
+	},
+	"auth": {
+		"login": {
+			"title": "Welcome!"
+		},
+		"register": {
+			"steps": {
+				"first": {
+					"stepper": "Create an Account",
+					"title": "Let's create your account",
+					"google-btn": "Continue with Google",
+					"divider": "Network",
+					"input": "Your E-mail",
+					"next-btn": "Continue with e-mail",
+					"link": "Already have an account?",
+					"sign-in": "Sign In"
+				},
+				"second": {
+					"stepper": "Password"
+				},
+				"third": {
+					"stepper": "Terms"
+				},
+				"fourth": {
+					"stepper": "Profile"
+				}
+			}
+		}
+	}
 }

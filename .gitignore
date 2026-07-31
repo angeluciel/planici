@@ -10,9 +10,8 @@ out
 next-env.d.ts
 *.tsbuildinfo
 
-# Nx
-.nx/cache
-.nx/workspace-data
+# Turborepo
+.turbo
 
 # Environment
 .env
