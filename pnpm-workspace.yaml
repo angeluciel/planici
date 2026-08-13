@@ -7,3 +7,5 @@ allowBuilds:
   nx: true
   sharp: true
   unrs-resolver: true
+catalog:
+  zod: ^4.4.3

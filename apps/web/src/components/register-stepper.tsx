@@ -16,6 +16,9 @@ interface Step {
 	href: string;
 }
 
+export const STEPPER_STEPS = ["account", "password", "terms", "profile"] as const;
+export type StepperStep = (typeof STEPPER_STEPS)[number];
+
 function getState(index: number, currentStep: number): StepState {
 	const step = index + 1;
 	if (step < currentStep) return "completed";
