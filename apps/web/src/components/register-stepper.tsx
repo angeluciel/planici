@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Fragment } from "react/jsx-runtime";
 import { cn } from "@/lib/utils";
 import {
@@ -13,11 +12,7 @@ import {
 
 interface Step {
 	name: string;
-	href: string;
 }
-
-export const STEPPER_STEPS = ["account", "password", "terms", "profile"] as const;
-export type StepperStep = (typeof STEPPER_STEPS)[number];
 
 function getState(index: number, currentStep: number): StepState {
 	const step = index + 1;
@@ -42,9 +37,7 @@ export function RegisterStepper({
 							<StepperIndicator state={getState(i, currentStep)}>
 								{i + 1}
 							</StepperIndicator>
-							<Link className="" href={step.href}>
-								{step.name}
-							</Link>
+							<span>{step.name}</span>
 						</StepperItem>
 
 						{i < steps.length - 1 && <StepperSeparator />}

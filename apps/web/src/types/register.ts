@@ -1,29 +1,37 @@
+export const REGISTER_STEPS = [
+	"account",
+	"password",
+	"terms",
+	"profile",
+] as const;
+export type RegisterStep = (typeof REGISTER_STEPS)[number];
+
 export type RegisterData = {
-  email: string;
-  password: string;
-  fullName: string;
-  slug: string;
-  acceptedTerms: boolean;
+	email: string;
+	password: string;
+	name: string;
+	slug: string;
+	acceptedTerms: boolean;
 };
 
 export const EMPTY_REGISTER_DATA: RegisterData = {
-  email: "",
-  password: "",
-  fullName: "",
-  slug: "",
-  acceptedTerms: false,
+	email: "",
+	password: "",
+	name: "",
+	slug: "",
+	acceptedTerms: false,
 };
 
 export type StepProps = {
-  defaultValues: RegisterData;
-  onNext: (values: Partial<RegisterData>) => void;
-  onBack: () => void;
-  isFirst: boolean;
-  isLast: boolean;
+	defaultValues: RegisterData;
+	onNext: (values: Partial<RegisterData>) => void;
+	onBack: () => void;
+	isFirst: boolean;
+	isLast: boolean;
 };
 
 export type StepDefinition = {
-  slug: string;
-  label: string;
-  Component: React.ComponentType<StepProps>;
+	slug: RegisterStep;
+	label: string;
+	Component: React.ComponentType<StepProps>;
 };

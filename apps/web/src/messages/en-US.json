@@ -14,20 +14,36 @@
 					"stepper": "Create an Account",
 					"title": "Let's create your account",
 					"google-btn": "Continue with Google",
-					"divider": "Network",
-					"input": "Your E-mail",
+					"divider": "or",
+					"input": {
+						"label": "Your E-mail",
+						"placeholder": "email@example.com"
+					},
 					"next-btn": "Continue with e-mail",
 					"link": "Already have an account?",
 					"sign-in": "Sign In"
 				},
 				"second": {
-					"stepper": "Password"
+					"stepper": "Password",
+					"title": "Create your password",
+					"input": "Your password",
+					"next-btn": "Continue",
+					"back-btn": "Back"
 				},
 				"third": {
-					"stepper": "Terms"
+					"stepper": "Terms",
+					"title": "Terms of use",
+					"checkbox": "I have read and accept the terms of use and privacy policy",
+					"next-btn": "Continue",
+					"back-btn": "Back"
 				},
 				"fourth": {
-					"stepper": "Profile"
+					"stepper": "Profile",
+					"title": "Complete your profile",
+					"name-input": "Your name",
+					"slug-input": "Username",
+					"next-btn": "Create account",
+					"back-btn": "Back"
 				}
 			}
 		}
