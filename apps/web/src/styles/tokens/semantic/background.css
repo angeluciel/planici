@@ -258,7 +258,7 @@
 	--background-brand-subtlest-hovered: var(--color-pink-950);
 	--background-brand-subtlest-pressed: var(--color-pink-900);
 	--background-brand-subtler: var(--color-pink-800);
-	--background-brand-bold: var(--color-pink-300);
+	--background-brand-bold: var(--color-pink-400);
 	--background-brand-bold-hovered: var(--color-pink-300);
 	--background-brand-bold-pressed: var(--color-pink-200);
 }

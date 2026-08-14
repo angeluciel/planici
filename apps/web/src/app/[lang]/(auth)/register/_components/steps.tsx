@@ -10,6 +10,7 @@ import { EyeIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { Button } from "@/components/button";
 import { Input } from "@/components/input";
 import type { StepProps } from "@/types/register";
 
@@ -75,7 +76,6 @@ function AccountStep({ defaultValues, onNext }: StepProps) {
 				placeholder={t("input.placeholder")}
 				value={email}
 				onChange={(e) => setEmail(e.target.value)}
-				status="error"
 			/>
 			{/* <label className={labelClass}>
 				{t("input")}
@@ -89,6 +89,7 @@ function AccountStep({ defaultValues, onNext }: StepProps) {
 				<FieldError message={error} />
 			</label> */}
 			<div className="flex flex-col gap-8 items-center w-full">
+				<Button text={t("next-btn")} variant="primary" />
 				<button type="submit" className={primaryButtonClass}>
 					{t("next-btn")}
 				</button>

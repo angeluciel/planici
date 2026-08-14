@@ -1,7 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import React from "react";
 import { tv, type VariantProps } from "tailwind-variants";
-import { cn } from "@/lib/utils";
 
 export const inputVariants = tv({
   slots: {
@@ -17,7 +16,7 @@ export const inputVariants = tv({
       "size-sm shrink-0 text-icon-base transition-colors group-focus-within/field:text-icon-selected",
     input:
       "w-full gap-2 pr-2 py-2 items-center flex justify-start font-body-sm placeholder:text-text-disabled text-text-bold focus:outline-none bg-transparent flex-1 min-w-0",
-    trail:
+    trailing:
       "size-sm shrink-0 text-icon-base transition-colors group-focus-within/field:text-icon-selected",
     hint: "flex w-full items-center justify-between text-text-secondary font-body-sm font-medium min-h-5",
   },
@@ -27,7 +26,7 @@ export const inputVariants = tv({
         label: "",
         textfield: "",
         leading: "",
-        trail: "",
+        trailing: "",
         hint: "",
       },
       error: {
@@ -35,14 +34,14 @@ export const inputVariants = tv({
         textfield:
           "border-border-danger focus-within:border-border-danger-subtle group/field",
         leading: "text-icon-danger group-focus-within/field:text-icon-danger",
-        trail: "text-icon-danger group-focus-within/field:text-icon-danger",
+        trailing: "text-icon-danger group-focus-within/field:text-icon-danger",
         hint: "text-text-status-danger",
       },
       success: {
         label: "",
         textfield: "",
         leading: "",
-        trail: "",
+        trailing: "",
         hint: "",
       },
     },
@@ -113,12 +112,12 @@ export function Input({
               onClick={onTrailingIconClick}
               aria-label={trailingIconLabel}
               disabled={props.disabled}
-              className={s.trail()}
+              className={s.trailing()}
             >
               <TrailingIcon />
             </button>
           ) : (
-            <span aria-hidden className={s.trail()}>
+            <span aria-hidden className={s.trailing()}>
               <TrailingIcon />
             </span>
           ))}
