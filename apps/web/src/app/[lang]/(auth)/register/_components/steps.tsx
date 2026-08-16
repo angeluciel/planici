@@ -39,7 +39,8 @@ function AccountStep({ defaultValues, onNext }: StepProps) {
 			setStatus("default");
 			return;
 		}
-		const result = EmailValid.safeParse(event.currentTarget.value);
+		const result = AccountStepSchema.safeParse(event.currentTarget.value);
+		console.log(result);
 
 		setStatus(result.success ? "success" : "error");
 		setError(result.success ? undefined : result.error.issues[0]?.message);
@@ -48,7 +49,7 @@ function AccountStep({ defaultValues, onNext }: StepProps) {
 	function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
 		e.preventDefault();
 
-		const result = AccountStepSchema.safeParse({ email });
+		const result = AccountStepSchema.safeParse({ e });
 
 		if (!result.success) {
 			setStatus("error");
@@ -85,21 +86,10 @@ function AccountStep({ defaultValues, onNext }: StepProps) {
 				onBlur={handleEmailBlur}
 				status={status}
 			/>
-			{/* <label className={labelClass}>
-				{t("input")}
-				<input
-					type="email"
-					className={inputClass}
-					placeholder="email@example.com"
-					value={email}
-					onChange={(e) => setEmail(e.target.value)}
-				/>
-				<FieldError message={error} />
-			</label> */}
 			<div className="flex flex-col gap-8 items-center w-full">
 				<Button text={t("next-btn")} variant="primary" />
 				<span>
-					{t("link")}
+					{t("link")}{" "}
 					<Link className="text-text-link" href={"/login"}>
 						{t("sign-in")}
 					</Link>
