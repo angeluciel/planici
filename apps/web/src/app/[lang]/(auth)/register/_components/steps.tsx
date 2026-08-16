@@ -2,6 +2,7 @@
 
 import {
 	AccountStepSchema,
+	EmailValid,
 	PasswordStepSchema,
 	ProfileStepSchema,
 	TermsStepSchema,
@@ -11,17 +12,8 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/button";
-import { Input } from "@/components/input";
+import { type FieldStatus, Input } from "@/components/input";
 import type { StepProps } from "@/types/register";
-
-const inputClass =
-	"flex rounded-md justify-start border-2 border-border-input placeholder:text-text-disabled text-text-bold text-body-sm p-2 w-full";
-const labelClass =
-	"gap-1 flex flex-col items-start font-body-sm font-medium w-full";
-const primaryButtonClass =
-	"flex justify-center items-center w-full gap-1.5 h-9 px-2 rounded-sm bg-background-brand-bold text-text-inverse";
-const secondaryButtonClass =
-	"flex justify-center items-center w-full gap-1.5 h-9 px-2 rounded-sm border-2 border-border font-medium";
 
 function FieldError({ message }: { message?: string }) {
 	if (!message) return null;
@@ -30,26 +22,40 @@ function FieldError({ message }: { message?: string }) {
 	);
 }
 
-function BackButton({ onBack, label }: { onBack: () => void; label: string }) {
-	return (
-		<button type="button" className={secondaryButtonClass} onClick={onBack}>
-			{label}
-		</button>
-	);
-}
-
 function AccountStep({ defaultValues, onNext }: StepProps) {
 	const t = useTranslations("auth.register.steps.first");
 	const [email, setEmail] = useState(defaultValues.email);
 	const [error, setError] = useState<string>();
+	const [status, setStatus] = useState<FieldStatus>("default");
 
-	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+	function handleEmailChange(e: React.ChangeEvent<HTMLInputElement>) {
+		setEmail(e?.currentTarget.value);
+		setStatus("default");
+		setError(undefined);
+	}
+
+	function handleEmailBlur(event: React.FocusEvent<HTMLInputElement>) {
+		if (event.currentTarget.value === "") {
+			setStatus("default");
+			return;
+		}
+		const result = EmailValid.safeParse(event.currentTarget.value);
+
+		setStatus(result.success ? "success" : "error");
+		setError(result.success ? undefined : result.error.issues[0]?.message);
+	}
+
+	function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
 		e.preventDefault();
+
 		const result = AccountStepSchema.safeParse({ email });
+
 		if (!result.success) {
+			setStatus("error");
 			setError(result.error.issues[0]?.message);
 			return;
 		}
+		setStatus("success");
 		setError(undefined);
 		onNext(result.data);
 	}
@@ -75,7 +81,9 @@ function AccountStep({ defaultValues, onNext }: StepProps) {
 				type="email"
 				placeholder={t("input.placeholder")}
 				value={email}
-				onChange={(e) => setEmail(e.target.value)}
+				onChange={handleEmailChange}
+				onBlur={handleEmailBlur}
+				status={status}
 			/>
 			{/* <label className={labelClass}>
 				{t("input")}
@@ -90,11 +98,8 @@ function AccountStep({ defaultValues, onNext }: StepProps) {
 			</label> */}
 			<div className="flex flex-col gap-8 items-center w-full">
 				<Button text={t("next-btn")} variant="primary" />
-				<button type="submit" className={primaryButtonClass}>
-					{t("next-btn")}
-				</button>
 				<span>
-					{t("link")}{" "}
+					{t("link")}
 					<Link className="text-text-link" href={"/login"}>
 						{t("sign-in")}
 					</Link>
@@ -136,10 +141,7 @@ function PasswordStep({ defaultValues, onNext, onBack }: StepProps) {
 				/>
 				<FieldError message={error} />
 			</label>
-			<button type="submit" className={primaryButtonClass}>
-				{t("next-btn")}
-			</button>
-			<BackButton onBack={onBack} label={t("back-btn")} />
+			<Button text={`Next`} variant="primary" />
 		</form>
 	);
 }
