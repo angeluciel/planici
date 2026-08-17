@@ -11,6 +11,7 @@ import { EyeIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { z } from "zod/mini";
 import { Button } from "@/components/button";
 import { type FieldStatus, Input } from "@/components/input";
 import type { StepProps } from "@/types/register";
@@ -39,11 +40,17 @@ function AccountStep({ defaultValues, onNext }: StepProps) {
 			setStatus("default");
 			return;
 		}
-		const result = AccountStepSchema.safeParse(event.currentTarget.value);
-		console.log(result);
+		const result = AccountStepSchema.safeParse({
+			email: event.currentTarget.value,
+		});
 
 		setStatus(result.success ? "success" : "error");
-		setError(result.success ? undefined : result.error.issues[0]?.message);
+
+		if (!result.success) {
+			setStatus("error");
+			setError(z.flattenError(result.error).fieldErrors.email?.[0]);
+			return;
+		}
 	}
 
 	function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
@@ -53,7 +60,7 @@ function AccountStep({ defaultValues, onNext }: StepProps) {
 
 		if (!result.success) {
 			setStatus("error");
-			setError(result.error.issues[0]?.message);
+			setError("");
 			return;
 		}
 		setStatus("success");
@@ -85,6 +92,7 @@ function AccountStep({ defaultValues, onNext }: StepProps) {
 				onChange={handleEmailChange}
 				onBlur={handleEmailBlur}
 				status={status}
+				help={error}
 			/>
 			<div className="flex flex-col gap-8 items-center w-full">
 				<Button text={t("next-btn")} variant="primary" />
