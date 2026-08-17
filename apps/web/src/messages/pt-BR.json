@@ -26,7 +26,11 @@
 				"second": {
 					"stepper": "Senha",
 					"title": "Crie sua senha",
-					"input": "Sua senha",
+					"input": {
+						"label": "Sua Senha",
+						"placeholder": "Senh@Secret@123",
+						"help": "Pelo menos 8 caractéres"
+					},
 					"next-btn": "Continuar",
 					"back-btn": "Voltar"
 				},

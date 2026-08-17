@@ -1,13 +1,5 @@
 import { z } from "zod";
 
-export const EmailValid = z
-	.string({
-		error: (issue) => (issue.input === undefined ? "Email is required." : "Invalid input."),
-	})
-	.min(1, { error: "Email is required." })
-	.pipe(z.email({ error: "Invalid email." }))
-	.transform((val) => val.toLowerCase().trim());
-
 export const CreateUser = z.object({
 	email: z
 		.string({

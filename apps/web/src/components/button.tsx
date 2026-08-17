@@ -5,7 +5,7 @@ export const buttonVariants = tv({
 	slots: {
 		root: [
 			"w-full flex gap-1.5 px-2 items-center rounded-sm transition-all duration-100 ease-out",
-			"text-center font-body-sm font-medium",
+			"text-center font-body-sm font-medium cursor-pointer",
 		],
 		leading: "",
 		trailing: "",

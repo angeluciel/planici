@@ -8,6 +8,7 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { FormState } from "react-hook-form";
 import { Logo } from "@/components/logo";
 import { RegisterStepper } from "@/components/register-stepper";
 import {
@@ -44,8 +45,6 @@ export default function RegisterFlow() {
 	const requestedIndex = REGISTER_STEPS.indexOf(
 		searchParams.get("step") as RegisterStep,
 	);
-	// Deep links past the first incomplete step are clamped back to it, since
-	// form data only lives in client state.
 	const currentIndex =
 		requestedIndex === -1
 			? 0
