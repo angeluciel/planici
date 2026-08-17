@@ -85,7 +85,7 @@ export default function RegisterFlow() {
 	const StepComponent = STEP_COMPONENTS[currentSlug];
 
 	return (
-		<div className="flex flex-col gap-8 justify-center items-center">
+		<div className="flex flex-col gap-8 justify-center items-center max-w-lg">
 			<div className="flex flex-col gap-12 items-center">
 				<div className="flex flex-col gap-12 items-center">
 					<Logo className="h-8 w-auto" />
