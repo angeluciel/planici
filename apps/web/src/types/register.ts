@@ -9,6 +9,7 @@ export type RegisterStep = (typeof REGISTER_STEPS)[number];
 export type RegisterData = {
 	email: string;
 	password: string;
+	confirmPassword: string;
 	name: string;
 	slug: string;
 	acceptedTerms: boolean;
@@ -17,6 +18,7 @@ export type RegisterData = {
 export const EMPTY_REGISTER_DATA: RegisterData = {
 	email: "",
 	password: "",
+	confirmPassword: "",
 	name: "",
 	slug: "",
 	acceptedTerms: false,

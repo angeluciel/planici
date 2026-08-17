@@ -18,6 +18,7 @@ export const CreateUser = z.object({
 			error: (issue) => (issue.input === undefined ? "Password is missing." : "Invalid password."),
 		})
 		.min(8, { error: "Password is too weak." }),
+	confirmPassword: z.string().min(1, "Please confirm your password."),
 	slug: z
 		.string({
 			error: (issue) => (issue.input === undefined ? "Slug is missing." : "Invalid slug."),
@@ -29,8 +30,17 @@ export const CreateUser = z.object({
 });
 
 export const AccountStepSchema = CreateUser.pick({ email: true });
-export const PasswordStepSchema = CreateUser.pick({ password: true });
+export const PasswordStepSchema = CreateUser.pick({
+	password: true,
+	confirmPassword: true,
+}).refine((d) => d.password === d.confirmPassword, {
+	message: "Passwords don't match",
+	path: ["confirmPassword"],
+});
+
 export const TermsStepSchema = z.object({
-	acceptedTerms: z.literal(true, { error: "You must accept the terms to continue." }),
+	acceptedTerms: z.literal(true, {
+		error: "You must accept the terms to continue.",
+	}),
 });
 export const ProfileStepSchema = CreateUser.pick({ name: true, slug: true });

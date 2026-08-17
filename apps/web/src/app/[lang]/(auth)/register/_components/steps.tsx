@@ -3,16 +3,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
 	AccountStepSchema,
-	EmailValid,
 	PasswordStepSchema,
 	ProfileStepSchema,
 	TermsStepSchema,
 } from "@planici/schemas";
+import { Eye, EyeClosed } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod/mini";
+import { type FieldPath, useForm } from "react-hook-form";
 import { Button } from "@/components/button";
 import { type FieldStatus, Input } from "@/components/input";
 import type { StepProps } from "@/types/register";
@@ -78,64 +76,44 @@ function AccountStep({ defaultValues, onNext }: StepProps) {
 
 function PasswordStep({ defaultValues, onNext, onBack }: StepProps) {
 	const t = useTranslations("auth.register.steps.second");
-	const [password, setPassword] = useState(defaultValues.password);
-	const [error, setError] = useState<string>();
-	const [status, setStatus] = useState<FieldStatus>("default");
+	const { getFieldState, formState, register, handleSubmit } = useForm({
+		resolver: zodResolver(PasswordStepSchema),
+		defaultValues: defaultValues,
+		mode: "onChange",
+	});
 
-	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-		setPassword(e?.currentTarget.value);
-		setStatus("default");
-		setError(undefined);
-	}
+	const { errors } = formState;
 
-	function handleBlur(event: React.FocusEvent<HTMLInputElement>) {
-		if (event.currentTarget.value === "") {
-			setStatus("default");
-			return;
-		}
-		const result = PasswordStepSchema.safeParse({
-			email: event.currentTarget.value,
-		});
+	type FormValues = z.infer<typeof PasswordStepSchema>;
+	const statusOf = (name: FieldPath<FormValues>): FieldStatus => {
+		const { error, isDirty, invalid } = getFieldState(name, formState);
+		if (error) return "error";
+		if (isDirty && !invalid) return "success";
+		return "default";
+	};
 
-		setStatus(result.success ? "success" : "error");
-
-		if (!result.success) {
-			setStatus("error");
-			setError(z.flattenError(result.error).fieldErrors.password?.[0]);
-			return;
-		}
-	}
-
-	function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
-		e.preventDefault();
-
-		const result = PasswordStepSchema.safeParse({ e });
-
-		if (!result.success) {
-			setStatus("error");
-			setError("");
-			return;
-		}
-		setStatus("success");
-		setError(undefined);
-		onNext(result.data);
-	}
-
+	const passwordStatus = statusOf("password");
+	const confirmStatus = statusOf("confirmPassword");
 	return (
 		<form
-			onSubmit={handleSubmit}
+			onSubmit={handleSubmit(onNext)}
 			className="flex flex-col gap-4 items-center w-full"
 		>
 			<Input
 				label={t("input.label")}
 				type="password"
-				value={password}
-				onChange={handleChange}
-				onBlur={handleBlur}
-				help={error ? error : t("input.help")}
-				status={status}
+				{...register("password")}
+				help={errors ? errors.password?.message : t("input.help")}
+				status={passwordStatus}
 			/>
-			<Button text={`Next`} variant="primary" />
+			<Input
+				label={t("input.label")}
+				type="password"
+				{...register("confirmPassword")}
+				status={confirmStatus}
+				help={errors ? errors.confirmPassword?.message : t("input.help")}
+			/>
+			<Button text={`Next`} variant="primary" type="submit" />
 		</form>
 	);
 }
