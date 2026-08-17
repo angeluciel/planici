@@ -26,7 +26,11 @@
 				"second": {
 					"stepper": "Password",
 					"title": "Create your password",
-					"input": "Your password",
+					"input": {
+						"label": "Your Password",
+						"placeholder": "Secret Password",
+						"help": "At least 8 Characters"
+					},
 					"next-btn": "Continue",
 					"back-btn": "Back"
 				},

@@ -1,5 +1,6 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
 	AccountStepSchema,
 	EmailValid,
@@ -7,70 +8,36 @@ import {
 	ProfileStepSchema,
 	TermsStepSchema,
 } from "@planici/schemas";
-import { EyeIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { z } from "zod/mini";
 import { Button } from "@/components/button";
 import { type FieldStatus, Input } from "@/components/input";
 import type { StepProps } from "@/types/register";
 
-function FieldError({ message }: { message?: string }) {
-	if (!message) return null;
-	return (
-		<span className="font-body-caption text-text-status-danger">{message}</span>
-	);
-}
-
 function AccountStep({ defaultValues, onNext }: StepProps) {
 	const t = useTranslations("auth.register.steps.first");
-	const [email, setEmail] = useState(defaultValues.email);
-	const [error, setError] = useState<string>();
-	const [status, setStatus] = useState<FieldStatus>("default");
 
-	function handleEmailChange(e: React.ChangeEvent<HTMLInputElement>) {
-		setEmail(e?.currentTarget.value);
-		setStatus("default");
-		setError(undefined);
-	}
+	const { getFieldState, formState, register, handleSubmit } = useForm({
+		resolver: zodResolver(AccountStepSchema),
+		defaultValues: { email: defaultValues.email ?? "" },
+		mode: "onBlur",
+	});
+	const { errors } = formState;
+	const { error, isDirty, invalid } = getFieldState("email", formState);
 
-	function handleEmailBlur(event: React.FocusEvent<HTMLInputElement>) {
-		if (event.currentTarget.value === "") {
-			setStatus("default");
-			return;
-		}
-		const result = AccountStepSchema.safeParse({
-			email: event.currentTarget.value,
-		});
-
-		setStatus(result.success ? "success" : "error");
-
-		if (!result.success) {
-			setStatus("error");
-			setError(z.flattenError(result.error).fieldErrors.email?.[0]);
-			return;
-		}
-	}
-
-	function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
-		e.preventDefault();
-
-		const result = AccountStepSchema.safeParse({ e });
-
-		if (!result.success) {
-			setStatus("error");
-			setError("");
-			return;
-		}
-		setStatus("success");
-		setError(undefined);
-		onNext(result.data);
+	let status: FieldStatus = "default";
+	if (error) {
+		status = "error";
+	} else if (isDirty && !invalid) {
+		status = "success";
 	}
 
 	return (
 		<form
-			onSubmit={handleSubmit}
+			onSubmit={handleSubmit(onNext)}
 			className="flex flex-col gap-4 items-center w-full"
 		>
 			<button
@@ -88,17 +55,18 @@ function AccountStep({ defaultValues, onNext }: StepProps) {
 				label={t("input.label")}
 				type="email"
 				placeholder={t("input.placeholder")}
-				value={email}
-				onChange={handleEmailChange}
-				onBlur={handleEmailBlur}
+				{...register("email")}
 				status={status}
-				help={error}
+				help={errors.email?.message}
 			/>
 			<div className="flex flex-col gap-8 items-center w-full">
-				<Button text={t("next-btn")} variant="primary" />
-				<span>
+				<Button text={t("next-btn")} variant="primary" type="submit" />
+				<span className="text-sm">
 					{t("link")}{" "}
-					<Link className="text-text-link" href={"/login"}>
+					<Link
+						className="text-text-link hover:text-text-link-pressed visited:text-text-link-visited hover:visited:text-text-link-visited-pressed"
+						href={"/login"}
+					>
 						{t("sign-in")}
 					</Link>
 					.
@@ -112,14 +80,43 @@ function PasswordStep({ defaultValues, onNext, onBack }: StepProps) {
 	const t = useTranslations("auth.register.steps.second");
 	const [password, setPassword] = useState(defaultValues.password);
 	const [error, setError] = useState<string>();
+	const [status, setStatus] = useState<FieldStatus>("default");
 
-	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-		e.preventDefault();
-		const result = PasswordStepSchema.safeParse({ password });
-		if (!result.success) {
-			setError(result.error.issues[0]?.message);
+	function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+		setPassword(e?.currentTarget.value);
+		setStatus("default");
+		setError(undefined);
+	}
+
+	function handleBlur(event: React.FocusEvent<HTMLInputElement>) {
+		if (event.currentTarget.value === "") {
+			setStatus("default");
 			return;
 		}
+		const result = PasswordStepSchema.safeParse({
+			email: event.currentTarget.value,
+		});
+
+		setStatus(result.success ? "success" : "error");
+
+		if (!result.success) {
+			setStatus("error");
+			setError(z.flattenError(result.error).fieldErrors.password?.[0]);
+			return;
+		}
+	}
+
+	function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+		e.preventDefault();
+
+		const result = PasswordStepSchema.safeParse({ e });
+
+		if (!result.success) {
+			setStatus("error");
+			setError("");
+			return;
+		}
+		setStatus("success");
 		setError(undefined);
 		onNext(result.data);
 	}
@@ -129,113 +126,26 @@ function PasswordStep({ defaultValues, onNext, onBack }: StepProps) {
 			onSubmit={handleSubmit}
 			className="flex flex-col gap-4 items-center w-full"
 		>
-			<label className={labelClass}>
-				{t("input")}
-				<input
-					type="password"
-					className={inputClass}
-					value={password}
-					onChange={(e) => setPassword(e.target.value)}
-				/>
-				<FieldError message={error} />
-			</label>
+			<Input
+				label={t("input.label")}
+				type="password"
+				value={password}
+				onChange={handleChange}
+				onBlur={handleBlur}
+				help={error ? error : t("input.help")}
+				status={status}
+			/>
 			<Button text={`Next`} variant="primary" />
 		</form>
 	);
 }
 
 function TermsStep({ defaultValues, onNext, onBack }: StepProps) {
-	const t = useTranslations("auth.register.steps.third");
-	const [acceptedTerms, setAcceptedTerms] = useState(
-		defaultValues.acceptedTerms,
-	);
-	const [error, setError] = useState<string>();
-
-	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-		e.preventDefault();
-		const result = TermsStepSchema.safeParse({ acceptedTerms });
-		if (!result.success) {
-			setError(result.error.issues[0]?.message);
-			return;
-		}
-		setError(undefined);
-		onNext(result.data);
-	}
-
-	return (
-		<form
-			onSubmit={handleSubmit}
-			className="flex flex-col gap-4 items-center w-full"
-		>
-			<label className="flex gap-2 items-start font-body-sm w-full">
-				<input
-					type="checkbox"
-					checked={acceptedTerms}
-					onChange={(e) => setAcceptedTerms(e.target.checked)}
-				/>
-				{t("checkbox")}
-			</label>
-			<FieldError message={error} />
-			<button type="submit" className={primaryButtonClass}>
-				{t("next-btn")}
-			</button>
-			<BackButton onBack={onBack} label={t("back-btn")} />
-		</form>
-	);
+	return <div>a</div>;
 }
 
 function ProfileStep({ defaultValues, onNext, onBack }: StepProps) {
-	const t = useTranslations("auth.register.steps.fourth");
-	const [name, setName] = useState(defaultValues.name);
-	const [slug, setSlug] = useState(defaultValues.slug);
-	const [errors, setErrors] = useState<{ name?: string; slug?: string }>({});
-
-	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-		e.preventDefault();
-		const result = ProfileStepSchema.safeParse({ name, slug });
-		if (!result.success) {
-			const fieldErrors: { name?: string; slug?: string } = {};
-			for (const issue of result.error.issues) {
-				const field = issue.path[0];
-				if (field === "name") fieldErrors.name ??= issue.message;
-				if (field === "slug") fieldErrors.slug ??= issue.message;
-			}
-			setErrors(fieldErrors);
-			return;
-		}
-		setErrors({});
-		onNext(result.data);
-	}
-
-	return (
-		<form
-			onSubmit={handleSubmit}
-			className="flex flex-col gap-4 items-center w-full"
-		>
-			<label className={labelClass}>
-				{t("name-input")}
-				<input
-					className={inputClass}
-					value={name}
-					onChange={(e) => setName(e.target.value)}
-				/>
-				<FieldError message={errors.name} />
-			</label>
-			<label className={labelClass}>
-				{t("slug-input")}
-				<input
-					className={inputClass}
-					value={slug}
-					onChange={(e) => setSlug(e.target.value)}
-				/>
-				<FieldError message={errors.slug} />
-			</label>
-			<button type="submit" className={primaryButtonClass}>
-				{t("next-btn")}
-			</button>
-			<BackButton onBack={onBack} label={t("back-btn")} />
-		</form>
-	);
+	return <div>a</div>;
 }
 
 export { AccountStep, PasswordStep, TermsStep, ProfileStep };

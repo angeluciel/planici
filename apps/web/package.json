@@ -11,6 +11,7 @@
 	},
 	"dependencies": {
 		"@formatjs/intl-localematcher": "^0.8.8",
+		"@hookform/resolvers": "^5.9.0",
 		"@planici/schemas": "workspace:*",
 		"clsx": "^2.1.1",
 		"lucide-react": "^1.24.0",
@@ -20,6 +21,7 @@
 		"next-themes": "^0.4.6",
 		"react": "19.2.4",
 		"react-dom": "19.2.4",
+		"react-hook-form": "^7.85.0",
 		"tailwind-merge": "^3.6.0",
 		"tailwind-variants": "^3.3.1",
 		"zod": "catalog:"
