@@ -11,6 +11,7 @@ import { Eye, EyeClosed } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { type FieldPath, useForm } from "react-hook-form";
+import type z from "zod";
 import { Button } from "@/components/button";
 import { type FieldStatus, Input } from "@/components/input";
 import type { StepProps } from "@/types/register";
@@ -119,7 +120,16 @@ function PasswordStep({ defaultValues, onNext, onBack }: StepProps) {
 }
 
 function TermsStep({ defaultValues, onNext, onBack }: StepProps) {
-	return <div>a</div>;
+	return (
+		<div>
+			<div className="flex flex-col justify-center">
+				<span className="">
+					Antes de continuar, leia os nossos{" "}
+					<Link href="/">Termos de Serviço.</Link>
+				</span>
+			</div>
+		</div>
+	);
 }
 
 function ProfileStep({ defaultValues, onNext, onBack }: StepProps) {
