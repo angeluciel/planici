@@ -13,6 +13,7 @@
 				"first": {
 					"stepper": "Create an Account",
 					"title": "Let's create your account",
+					"subtitle": "How would you like to sign up?",
 					"google-btn": "Continue with Google",
 					"divider": "or",
 					"input": {
@@ -26,26 +27,47 @@
 				"second": {
 					"stepper": "Password",
 					"title": "Create your password",
+					"subtitle": "Inform a safe password to sign in to your account.",
 					"input": {
 						"label": "Your Password",
 						"placeholder": "Secret Password",
 						"help": "At least 8 Characters"
 					},
+					"confirm-input": {
+						"label": "Confirm Your Password",
+						"placeholder": "Repeat your password",
+						"help": "Both passwords must match"
+					},
+					"show-password": "Show password",
+					"hide-password": "Hide password",
 					"next-btn": "Continue",
 					"back-btn": "Back"
 				},
 				"third": {
 					"stepper": "Terms",
 					"title": "Terms of use",
-					"checkbox": "I have read and accept the terms of use and privacy policy",
-					"next-btn": "Continue",
-					"back-btn": "Back"
+					"subtitle": "Before proceeding, read our <link>Terms of Service</link>.",
+					"next-btn": "I have read and agreed"
 				},
 				"fourth": {
 					"stepper": "Profile",
 					"title": "Complete your profile",
-					"name-input": "Your name",
-					"slug-input": "Username",
+					"subtitle": "Everything's saved on the cloud. Login from your tablet, phone or desktop.",
+					"name-input": {
+						"title": "Your name",
+						"placeholder": "Luisinho Felipinho",
+						"hint": "Your first name"
+					},
+					"surname-input": {
+						"title": "Last name",
+						"placeholder": "Viena Salsitsa",
+						"hint": "Your family name"
+					},
+					"nick-input": {
+						"title": "Nickname",
+						"placeholder": "luisubrgamer",
+						"hint": "How we should call you"
+					},
 					"next-btn": "Create account",
 					"back-btn": "Back"
 				}

@@ -5,6 +5,7 @@ import {
 	PasswordStepSchema,
 	TermsStepSchema,
 } from "@planici/schemas";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -91,10 +92,25 @@ export default function RegisterFlow() {
 
 					<RegisterStepper currentStep={currentIndex + 1} steps={steps} />
 				</div>
-
-				<h1 className="font-heading-lg">
-					{t(`steps.${STEP_TRANSLATION_KEYS[currentIndex]}.title`)}
-				</h1>
+				<div className="flex flex-col gap-1 items-center">
+					<h1 className="font-heading-lg">
+						{t(`steps.${STEP_TRANSLATION_KEYS[currentIndex]}.title`)}
+					</h1>
+					<span className="font-body-md text-text-accent-gray text-center">
+						{t.rich(`steps.${STEP_TRANSLATION_KEYS[currentIndex]}.subtitle`, {
+							// Only the terms step's subtitle carries a <link> tag; the other
+							// steps simply never call this handler.
+							link: (chunks) => (
+								<Link
+									href="/terms"
+									className="text-text-link hover:text-text-link-pressed visited:text-text-link-visited hover:visited:text-text-link-visited-pressed"
+								>
+									{chunks}
+								</Link>
+							),
+						})}
+					</span>
+				</div>
 			</div>
 
 			<StepComponent

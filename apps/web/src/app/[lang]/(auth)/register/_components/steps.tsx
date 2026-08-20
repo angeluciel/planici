@@ -10,13 +10,14 @@ import {
 import { Eye, EyeClosed } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { type FieldPath, useForm } from "react-hook-form";
 import type z from "zod";
 import { Button } from "@/components/button";
 import { type FieldStatus, Input } from "@/components/input";
 import type { StepProps } from "@/types/register";
 
-function AccountStep({ defaultValues, onNext }: StepProps) {
+function AccountStep({ defaultValues, onNext }: Readonly<StepProps>) {
 	const t = useTranslations("auth.register.steps.first");
 
 	const { getFieldState, formState, register, handleSubmit } = useForm({
@@ -75,12 +76,15 @@ function AccountStep({ defaultValues, onNext }: StepProps) {
 	);
 }
 
-function PasswordStep({ defaultValues, onNext, onBack }: StepProps) {
+function PasswordStep({ defaultValues, onNext }: Readonly<StepProps>) {
 	const t = useTranslations("auth.register.steps.second");
+	const [showPassword, setShowPassword] = useState(false);
+	const [showConfirm, setShowConfirm] = useState(false);
+
 	const { getFieldState, formState, register, handleSubmit } = useForm({
 		resolver: zodResolver(PasswordStepSchema),
 		defaultValues: defaultValues,
-		mode: "onChange",
+		mode: "onBlur",
 	});
 
 	const { errors } = formState;
@@ -102,38 +106,54 @@ function PasswordStep({ defaultValues, onNext, onBack }: StepProps) {
 		>
 			<Input
 				label={t("input.label")}
-				type="password"
+				type={showPassword ? "text" : "password"}
+				placeholder={t("input.placeholder")}
 				{...register("password")}
-				help={errors ? errors.password?.message : t("input.help")}
+				help={errors.password?.message ?? t("input.help")}
 				status={passwordStatus}
+				trailingIcon={showPassword ? EyeClosed : Eye}
+				trailingIconLabel={
+					showPassword ? t("hide-password") : t("show-password")
+				}
+				onTrailingIconClick={() => setShowPassword((visible) => !visible)}
 			/>
 			<Input
-				label={t("input.label")}
-				type="password"
+				label={t("confirm-input.label")}
+				type={showConfirm ? "text" : "password"}
+				placeholder={t("confirm-input.placeholder")}
 				{...register("confirmPassword")}
 				status={confirmStatus}
-				help={errors ? errors.confirmPassword?.message : t("input.help")}
+				help={errors.confirmPassword?.message ?? t("confirm-input.help")}
+				trailingIcon={showConfirm ? EyeClosed : Eye}
+				trailingIconLabel={
+					showConfirm ? t("hide-password") : t("show-password")
+				}
+				onTrailingIconClick={() => setShowConfirm((visible) => !visible)}
 			/>
-			<Button text={`Next`} variant="primary" type="submit" />
+			<Button text={t("next-btn")} variant="primary" type="submit" />
 		</form>
 	);
 }
 
-function TermsStep({ defaultValues, onNext, onBack }: StepProps) {
+function TermsStep({ onNext }: Readonly<StepProps>) {
+	const t = useTranslations("auth.register.steps.third");
+	const { handleSubmit } = useForm({
+		resolver: zodResolver(TermsStepSchema),
+		defaultValues: { acceptedTerms: true as const },
+	});
+
 	return (
-		<div>
-			<div className="flex flex-col justify-center">
-				<span className="">
-					Antes de continuar, leia os nossos{" "}
-					<Link href="/">Termos de Serviço.</Link>
-				</span>
-			</div>
-		</div>
+		<form
+			onSubmit={handleSubmit(onNext)}
+			className="flex flex-col justify-center items-center gap-20 w-full"
+		>
+			<Button text={t("next-btn")} variant="primary" type="submit" />
+		</form>
 	);
 }
 
 function ProfileStep({ defaultValues, onNext, onBack }: StepProps) {
-	return <div>a</div>;
+	return <div></div>;
 }
 
 export { AccountStep, PasswordStep, TermsStep, ProfileStep };
