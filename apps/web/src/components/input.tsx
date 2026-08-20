@@ -17,7 +17,7 @@ export const inputVariants = tv({
 		input:
 			"w-full gap-2 pr-2 py-2 items-center flex justify-start font-body-sm placeholder:text-text-disabled text-text-bold focus:outline-none bg-transparent flex-1 min-w-0",
 		trailing:
-			"size-sm shrink-0 text-icon-base transition-colors group-focus-within/field:text-icon-selected",
+			"size-sm shrink-0 text-icon-base transition-colors group-focus-within/field:text-icon-selected cursor-pointer",
 		hint: "flex w-full items-center justify-between text-text-secondary font-body-sm font-medium min-h-5",
 	},
 	variants: {

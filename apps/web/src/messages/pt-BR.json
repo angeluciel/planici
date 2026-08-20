@@ -13,6 +13,7 @@
 				"first": {
 					"stepper": "Criar conta",
 					"title": "Vamos criar sua conta!",
+					"subtitle": "Como prefere se registrar?",
 					"google-btn": "Continuar com google",
 					"divider": "ou",
 					"input": {
@@ -26,26 +27,47 @@
 				"second": {
 					"stepper": "Senha",
 					"title": "Crie sua senha",
+					"subtitle": "Informe uma senha segura para entrar na sua conta.",
 					"input": {
 						"label": "Sua Senha",
 						"placeholder": "Senh@Secret@123",
 						"help": "Pelo menos 8 caractéres"
 					},
+					"confirm-input": {
+						"label": "Confirme Sua Senha",
+						"placeholder": "Repita sua senha",
+						"help": "As senhas devem ser iguais"
+					},
+					"show-password": "Mostrar senha",
+					"hide-password": "Ocultar senha",
 					"next-btn": "Continuar",
 					"back-btn": "Voltar"
 				},
 				"third": {
 					"stepper": "Termos",
 					"title": "Termos de uso",
-					"checkbox": "Li e aceito os termos de uso e a política de privacidade",
-					"next-btn": "Continuar",
-					"back-btn": "Voltar"
+					"subtitle": "Antes de continuar, leia os nossos <link>Termos de Serviço</link>.",
+					"next-btn": "Eu li e concordo"
 				},
 				"fourth": {
 					"stepper": "Perfil",
 					"title": "Complete seu perfil",
-					"name-input": "Seu nome",
-					"slug-input": "Nome de usuário",
+					"subtitle": "Tudo fica salvo na nuvem. Acesse do celular, tablet ou computador.",
+					"name-input": {
+						"title": "Seu nome",
+						"placeholder": "Luisinho Felipinho",
+						"hint": "Seu primeiro nome"
+					},
+					"surname-input": {
+						"title": "Sobrenome",
+						"placeholder": "Viena Salsitsa",
+						"hint": "Seu nome de família"
+					},
+					"nick-input": {
+						"title": "Apelido",
+						"placeholder": "luisubrgamer",
+						"hint": "Como prefere que a gente te chame"
+					},
 					"next-btn": "Criar conta",
 					"back-btn": "Voltar"
 				}

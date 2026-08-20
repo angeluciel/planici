@@ -1,43 +1,45 @@
 {
-  "name": "planici",
-  "version": "1.0.0",
-  "description": "TO-DO",
-  "private": true,
-  "scripts": {
-    "dev": "turbo run dev",
-    "dev:web": "turbo run dev --filter=web",
-    "build": "turbo run build",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "typecheck": "turbo run typecheck",
-    "prepare": "husky"
-  },
-  "lint-staged": {
-    "**/*.{js,jsx,ts,tsx,json,css,md}": ["biome check --write"]
-  },
-  "author": "João Pedro Medeiros Izidoro",
-  "engines": {
-    "node": ">=24.16.0"
-  },
-  "packageManager": "pnpm@11.1.2",
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "11.1.2",
-      "onFail": "download"
-    }
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "sharp"
-    ]
-  },
-  "type": "module",
-  "devDependencies": {
-    "@biomejs/biome": "2.3.8",
-    "@types/node": "^20.19.41",
-    "husky": "^9.1.7",
-    "lint-staged": "^17.0.5",
-    "turbo": "^2.10.7"
-  }
+	"name": "planici",
+	"version": "1.0.0",
+	"description": "TO-DO",
+	"private": true,
+	"scripts": {
+		"dev": "turbo run dev",
+		"dev:web": "turbo run dev --filter=web",
+		"build": "turbo run build",
+		"lint": "turbo run lint",
+		"test": "turbo run test",
+		"typecheck": "turbo run typecheck",
+		"prepare": "husky"
+	},
+	"lint-staged": {
+		"**/*.{js,jsx,ts,tsx,json,css,md}": [
+			"biome check --write"
+		]
+	},
+	"author": "João Pedro Medeiros Izidoro",
+	"engines": {
+		"node": ">=24.16.0"
+	},
+	"packageManager": "pnpm@11.1.2+sha512.415a1cc25974731e75455c1468371be74c5aa5fb7621b50d4056d222451609f11412f23fd602e6169f1e060466641f798597e1be961a10688836a67b16569499",
+	"devEngines": {
+		"packageManager": {
+			"name": "pnpm",
+			"version": "11.1.2",
+			"onFail": "download"
+		}
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"sharp"
+		]
+	},
+	"type": "module",
+	"devDependencies": {
+		"@biomejs/biome": "2.3.8",
+		"@types/node": "^20.19.41",
+		"husky": "^9.1.7",
+		"lint-staged": "^17.0.5",
+		"turbo": "^2.10.7"
+	}
 }
