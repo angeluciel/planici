@@ -153,7 +153,46 @@ function TermsStep({ onNext }: Readonly<StepProps>) {
 }
 
 function ProfileStep({ defaultValues, onNext, onBack }: StepProps) {
-	return <div></div>;
+	const t = useTranslations("auth.register.steps.fourth");
+
+  const { getFieldState, formState, register, handleSubmit } = useForm({
+    resolver: zodResolver(ProfileStepSchema),
+    defaultValues: defaultValues,
+    mode: "onBlur",
+  });
+
+  const { errors } = formState;
+
+  type FormValues = z.infer<typeof ProfileStepSchema>;
+  const statusOf = (name: FieldPath<FormValues>): FieldStatus => {
+    const { error, isDirty, invalid } = getFieldState(name, formState);
+    if (error) return "error";
+  if (isDirty && !invalid) return "success";
+  return "default";
+  }
+
+  const name = statusOf("name");
+
+	return (
+		<form className="flex flex-col gap-5 items-center w-full">
+			<Input
+				label={t("name-input.title")}
+				help={t("name-input.hint")}
+				placeholder={t("name-input.placeholder")}
+			/>
+			<Input
+				label={t("surname-input.title")}
+				help={t("surname-input.hint")}
+				placeholder={t("surname-input.hint")}
+			/>
+			<Input
+				label={t("nick-input.title")}
+				placeholder={t("nick-input.placeholder")}
+				help={t("nick-input.hint")}
+			/>
+			<Button text={t("next-btn")} type="submit" variant="primary" />
+		</form>
+	);
 }
 
 export { AccountStep, PasswordStep, TermsStep, ProfileStep };

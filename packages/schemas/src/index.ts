@@ -13,6 +13,11 @@ export const CreateUser = z.object({
 			error: (issue) => (issue.input === undefined ? "Name is missing." : "Invalid name."),
 		})
 		.min(1, { error: "Name is required." }),
+	surname: z
+		.string({
+			error: (issue) => (issue.input === undefined ? "Surname is missing." : "Invalid surname"),
+		})
+		.min(1, { error: "Surname is required." }),
 	password: z
 		.string({
 			error: (issue) => (issue.input === undefined ? "Password is missing." : "Invalid password."),
@@ -43,4 +48,9 @@ export const TermsStepSchema = z.object({
 		error: "You must accept the terms to continue.",
 	}),
 });
-export const ProfileStepSchema = CreateUser.pick({ name: true, slug: true });
+
+export const ProfileStepSchema = CreateUser.pick({
+	name: true,
+	surname: true,
+	slug: true,
+});
