@@ -155,44 +155,55 @@ function TermsStep({ onNext }: Readonly<StepProps>) {
 function ProfileStep({ defaultValues, onNext, onBack }: StepProps) {
 	const t = useTranslations("auth.register.steps.fourth");
 
-  const { getFieldState, formState, register, handleSubmit } = useForm({
-    resolver: zodResolver(ProfileStepSchema),
-    defaultValues: defaultValues,
-    mode: "onBlur",
-  });
+	const { getFieldState, formState, register, handleSubmit } = useForm({
+		resolver: zodResolver(ProfileStepSchema),
+		defaultValues: defaultValues,
+		mode: "onBlur",
+	});
 
-  const { errors } = formState;
+	const { errors } = formState;
 
-  type FormValues = z.infer<typeof ProfileStepSchema>;
-  const statusOf = (name: FieldPath<FormValues>): FieldStatus => {
-    const { error, isDirty, invalid } = getFieldState(name, formState);
-    if (error) return "error";
-  if (isDirty && !invalid) return "success";
-  return "default";
-  }
+	type FormValues = z.infer<typeof ProfileStepSchema>;
+	const statusOf = (name: FieldPath<FormValues>): FieldStatus => {
+		const { error, isDirty, invalid } = getFieldState(name, formState);
+		if (error) return "error";
+		if (isDirty && !invalid) return "success";
+		return "default";
+	};
 
-  const name = statusOf("name");
+	const nameStatus = statusOf("name");
+	const surnameStatus = statusOf("surname");
+	const nicknameStatus = statusOf("slug");
 
 	return (
-		<form className="flex flex-col gap-5 items-center w-full">
+		<form
+			className="flex flex-col gap-5 items-center w-full"
+			onSubmit={handleSubmit(onNext)}
+		>
 			<Input
 				label={t("name-input.title")}
-				help={t("name-input.hint")}
+				help={errors.name?.message ?? t("name-input.hint")}
 				placeholder={t("name-input.placeholder")}
+				status={nameStatus}
+				{...register("name")}
 			/>
 			<Input
 				label={t("surname-input.title")}
-				help={t("surname-input.hint")}
-				placeholder={t("surname-input.hint")}
+				help={errors.surname?.message ?? t("surname-input.hint")}
+				placeholder={t("surname-input.placeholder")}
+				status={surnameStatus}
+				{...register("surname")}
 			/>
 			<Input
 				label={t("nick-input.title")}
 				placeholder={t("nick-input.placeholder")}
-				help={t("nick-input.hint")}
+				help={errors.slug?.message ?? t("nick-input.hint")}
+				status={nicknameStatus}
+				{...register("slug")}
 			/>
 			<Button text={t("next-btn")} type="submit" variant="primary" />
 		</form>
 	);
 }
 
-export { AccountStep, PasswordStep, TermsStep, ProfileStep };
+export { AccountStep, PasswordStep, ProfileStep, TermsStep };
