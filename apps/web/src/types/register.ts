@@ -11,6 +11,7 @@ export type RegisterData = {
 	password: string;
 	confirmPassword: string;
 	name: string;
+	surname: string;
 	slug: string;
 	acceptedTerms: boolean;
 };
@@ -20,6 +21,7 @@ export const EMPTY_REGISTER_DATA: RegisterData = {
 	password: "",
 	confirmPassword: "",
 	name: "",
+	surname: "",
 	slug: "",
 	acceptedTerms: false,
 };
