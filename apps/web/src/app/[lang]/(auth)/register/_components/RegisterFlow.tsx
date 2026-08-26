@@ -5,13 +5,17 @@ import {
 	PasswordStepSchema,
 	TermsStepSchema,
 } from "@planici/schemas";
-import Link from "next/link";
+
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
-import { FormState } from "react-hook-form";
+import { useEffect, useRef, useState } from "react";
+import { Alert } from "@/components/alert";
 import { Logo } from "@/components/logo";
 import { RegisterStepper } from "@/components/register-stepper";
+import { useRegisterDraft } from "@/hooks/use-register-draft";
+import { registerUser } from "@/lib/api/register";
+import { useFieldError } from "@/lib/form";
+import { TERMS_VERSION } from "@/lib/legal";
 import {
 	EMPTY_REGISTER_DATA,
 	REGISTER_STEPS,
@@ -40,12 +44,22 @@ export default function RegisterFlow() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const t = useTranslations("auth.register");
+	const fieldError = useFieldError();
 
-	const [formData, setFormData] = useState<RegisterData>(EMPTY_REGISTER_DATA);
+	const { data: formData, update, clear, restored } = useRegisterDraft();
+
+	const [submitting, setSubmitting] = useState(false);
+	const [submitError, setSubmitError] = useState<string | null>(null);
+	// const [createdEmail, setCreatedEmail] = useState<string | null>(null);
+
+	const headingRef = useRef<HTMLHeadingElement>(null);
+
+	const previousIndex = useRef<number | null>(null);
 
 	const requestedIndex = REGISTER_STEPS.indexOf(
 		searchParams.get("step") as RegisterStep,
 	);
+
 	const currentIndex =
 		requestedIndex === -1
 			? 0
@@ -55,22 +69,60 @@ export default function RegisterFlow() {
 	const isLast = currentIndex === REGISTER_STEPS.length - 1;
 
 	useEffect(() => {
+		if (!restored) return;
 		if (searchParams.get("step") !== currentSlug) {
 			router.replace(`?step=${currentSlug}`);
 		}
-	}, [searchParams, currentSlug, router]);
+	}, [restored, searchParams, currentSlug, router]);
+
+	useEffect(() => {
+		if (
+			previousIndex.current !== null &&
+			previousIndex.current !== currentIndex
+		) {
+			headingRef.current?.focus();
+		}
+		previousIndex.current = currentIndex;
+	}, [currentIndex]);
 
 	const steps = STEP_TRANSLATION_KEYS.map((key) => ({
 		name: t(`steps.${key}.stepper`),
 	}));
 
-	function handleNext(values: Partial<RegisterData>) {
-		const nextData = { ...formData, ...values };
-		setFormData(nextData);
+	async function submit(data: RegisterData) {
+		setSubmitting(true);
+		setSubmitError(null);
 
+		try {
+			const result = await registerUser(data);
+
+			if (!result.ok) {
+				setSubmitError(result.error);
+				return;
+			}
+
+			clear();
+			//setCreatedEmail(data.email);
+		} catch {
+			setSubmitError("unexpected");
+		} finally {
+			setSubmitting(false);
+		}
+	}
+
+	function handleNext(values: Partial<RegisterData>) {
+		const stamped =
+			currentSlug === "terms"
+				? {
+						...values,
+						termsVersion: TERMS_VERSION,
+						acceptedTermsAt: new Date().toISOString(),
+					}
+				: values;
+
+		const nextData = update(stamped);
 		if (isLast) {
-			// TODO: call the registration API
-			console.log("submit registration", nextData);
+			void submit(nextData);
 			return;
 		}
 
@@ -79,6 +131,7 @@ export default function RegisterFlow() {
 
 	function handleBack() {
 		if (isFirst) return;
+		setSubmitError(null);
 		router.push(`?step=${REGISTER_STEPS[currentIndex - 1]}`);
 	}
 
@@ -93,25 +146,16 @@ export default function RegisterFlow() {
 					<RegisterStepper currentStep={currentIndex + 1} steps={steps} />
 				</div>
 				<div className="flex flex-col gap-1 items-center">
-					<h1 className="font-heading-lg">
+					<h1 ref={headingRef} tabIndex={-1} className="font-heading-lg">
 						{t(`steps.${STEP_TRANSLATION_KEYS[currentIndex]}.title`)}
 					</h1>
 					<span className="font-body-md text-text-accent-gray text-center">
-						{t.rich(`steps.${STEP_TRANSLATION_KEYS[currentIndex]}.subtitle`, {
-							// Only the terms step's subtitle carries a <link> tag; the other
-							// steps simply never call this handler.
-							link: (chunks) => (
-								<Link
-									href="/terms"
-									className="text-text-link hover:text-text-link-pressed visited:text-text-link-visited hover:visited:text-text-link-visited-pressed"
-								>
-									{chunks}
-								</Link>
-							),
-						})}
+						{t(`steps.${STEP_TRANSLATION_KEYS[currentIndex]}.subtitle`)}
 					</span>
 				</div>
 			</div>
+
+			{submitError && <Alert>{fieldError(submitError)}</Alert>}
 
 			<StepComponent
 				defaultValues={formData}
@@ -119,6 +163,7 @@ export default function RegisterFlow() {
 				onBack={handleBack}
 				isFirst={isFirst}
 				isLast={isLast}
+				isSubmitting={submitting}
 			/>
 		</div>
 	);

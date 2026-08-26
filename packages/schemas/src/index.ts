@@ -1,52 +1,50 @@
 import { z } from "zod";
 
+export const PASSWORD_MIN_LENGTH = 8;
+export const PASSWORD_HAS_NUMBER = /\d/;
+export const PASSWORD_HAS_SYMBOL = /[^A-Za-z0-9]/;
+
+export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
 export const CreateUser = z.object({
 	email: z
-		.string({
-			error: (issue) => (issue.input === undefined ? "Email is required." : "Invalid input."),
-		})
-		.min(1, { error: "Email is required." })
-		.pipe(z.email({ error: "Invalid email." }))
+		.string({ error: "email.required" })
+		.min(1, { error: "email.required" })
+		.pipe(z.email({ error: "email.invalid" }))
 		.transform((val) => val.toLowerCase().trim()),
 	name: z
-		.string({
-			error: (issue) => (issue.input === undefined ? "Name is missing." : "Invalid name."),
-		})
-		.min(1, { error: "Name is required." }),
+		.string({ error: "name.required" })
+		.min(1, { error: "name.required" })
+		.transform((val) => val.trim()),
 	surname: z
-		.string({
-			error: (issue) => (issue.input === undefined ? "Surname is missing." : "Invalid surname"),
-		})
-		.min(1, { error: "Surname is required." }),
+		.string({ error: "surname.required" })
+		.min(1, { error: "surname.required" })
+		.transform((val) => val.trim()),
 	password: z
-		.string({
-			error: (issue) => (issue.input === undefined ? "Password is missing." : "Invalid password."),
-		})
-		.min(8, { error: "Password is too weak." }),
-	confirmPassword: z.string().min(1, "Please confirm your password."),
+		.string({ error: "password.required" })
+		.min(PASSWORD_MIN_LENGTH, { error: "password.min" })
+		.regex(PASSWORD_HAS_NUMBER, { error: "password.number" })
+		.regex(PASSWORD_HAS_SYMBOL, { error: "password.symbol" }),
+	confirmPassword: z.string({ error: "confirmPassword.required" }).min(1, { error: "confirmPassword.required" }),
 	slug: z
-		.string({
-			error: (issue) => (issue.input === undefined ? "Slug is missing." : "Invalid slug."),
-		})
-		.min(1, { error: "Slug is required." })
-		.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
-			error: "Slug can only contain lowercase letters, numbers and hyphens.",
-		}),
+		.string({ error: "slug.required" })
+		.min(1, { error: "slug.required" })
+		.regex(SLUG_PATTERN, { error: "slug.pattern" }),
 });
 
 export const AccountStepSchema = CreateUser.pick({ email: true });
+
 export const PasswordStepSchema = CreateUser.pick({
 	password: true,
 	confirmPassword: true,
 }).refine((d) => d.password === d.confirmPassword, {
-	message: "Passwords don't match",
+	message: "confirmPassword.mismatch",
 	path: ["confirmPassword"],
 });
 
 export const TermsStepSchema = z.object({
-	acceptedTerms: z.literal(true, {
-		error: "You must accept the terms to continue.",
-	}),
+	acceptedTerms: z.literal(true, { error: "terms.required" }),
+	marketingOptIn: z.boolean(),
 });
 
 export const ProfileStepSchema = CreateUser.pick({
@@ -54,3 +52,9 @@ export const ProfileStepSchema = CreateUser.pick({
 	surname: true,
 	slug: true,
 });
+
+export type CreateUserInput = z.infer<typeof CreateUser>;
+export type AccountStepValues = z.infer<typeof AccountStepSchema>;
+export type PasswordStepValues = z.infer<typeof PasswordStepSchema>;
+export type TermsStepValues = z.infer<typeof TermsStepSchema>;
+export type ProfileStepValues = z.infer<typeof ProfileStepSchema>;

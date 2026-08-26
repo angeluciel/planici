@@ -1,77 +1,195 @@
 {
 	"common": {
-		"save": "Save",
-		"cancel": "Cancel",
-		"loading": "Loading"
+		"save": "Salvar",
+		"cancel": "Cancelar",
+		"loading": "Carregando",
+		"back": "Voltar",
+		"close": "Fechar",
+		"footer": "{year} PLANICI, Todos os Direitos Reservados"
+	},
+	"validation": {
+		"email": {
+			"required": "Informe seu e-mail.",
+			"invalid": "E-mail inválido.",
+			"taken": "Já existe uma conta com esse e-mail."
+		},
+		"name": {
+			"required": "Informe seu nome."
+		},
+		"surname": {
+			"required": "Informe seu sobrenome."
+		},
+		"password": {
+			"required": "Informe uma senha.",
+			"min": "A senha deve ter pelo menos 8 caracteres.",
+			"number": "A senha deve conter pelo menos 1 número.",
+			"symbol": "A senha deve conter pelo menos 1 símbolo."
+		},
+		"confirmPassword": {
+			"required": "Confirme sua senha.",
+			"mismatch": "As senhas não coincidem."
+		},
+		"slug": {
+			"required": "Informe um apelido.",
+			"pattern": "Use apenas letras minúsculas, números e hifens.",
+			"taken": "Esse apelido já está em uso."
+		},
+		"terms": {
+			"required": "Você precisa aceitar os termos para continuar."
+		},
+		"unexpected": "Não foi possível concluir agora. Tente novamente em instantes."
 	},
 	"auth": {
 		"login": {
-			"title": "Welcome!"
+			"title": "Olá"
 		},
 		"register": {
+			"stepper-label": "Progresso do cadastro",
+			"password-criteria": {
+				"min": "Pelo menos 8 caracteres",
+				"number": "Pelo menos 1 número",
+				"symbol": "Pelo menos 1 símbolo",
+				"met": "requisito atendido",
+				"not-met": "requisito não atendido"
+			},
+			"success": {
+				"title": "Conta criada!",
+				"subtitle": "Enviamos um e-mail de confirmação para {email}. Confirme para começar a usar o Planici.",
+				"cta": "Ir para o login"
+			},
 			"steps": {
 				"first": {
-					"stepper": "Create an Account",
-					"title": "Let's create your account",
-					"subtitle": "How would you like to sign up?",
-					"google-btn": "Continue with Google",
-					"divider": "or",
+					"stepper": "Criar conta",
+					"title": "Vamos criar sua conta!",
+					"subtitle": "Como prefere se registrar?",
+					"google-btn": "Continuar com google",
+					"divider": "ou",
 					"input": {
-						"label": "Your E-mail",
-						"placeholder": "email@example.com"
+						"label": "Seu E-mail",
+						"placeholder": "email@exemplo.com"
 					},
-					"next-btn": "Continue with e-mail",
-					"link": "Already have an account?",
-					"sign-in": "Sign In"
+					"next-btn": "Continuar com e-mail",
+					"link": "Já tem uma conta?",
+					"sign-in": "Entrar"
 				},
 				"second": {
-					"stepper": "Password",
-					"title": "Create your password",
-					"subtitle": "Inform a safe password to sign in to your account.",
+					"stepper": "Senha",
+					"title": "Crie sua senha",
+					"subtitle": "Informe uma senha segura para entrar na sua conta.",
 					"input": {
-						"label": "Your Password",
-						"placeholder": "Secret Password",
-						"help": "At least 8 Characters"
+						"label": "Sua Senha",
+						"placeholder": "Senh@Secret@123"
 					},
 					"confirm-input": {
-						"label": "Confirm Your Password",
-						"placeholder": "Repeat your password",
-						"help": "Both passwords must match"
+						"label": "Confirme Sua Senha",
+						"placeholder": "Repita sua senha",
+						"help": "As senhas devem ser iguais"
 					},
-					"show-password": "Show password",
-					"hide-password": "Hide password",
-					"next-btn": "Continue",
-					"back-btn": "Back"
+					"show-password": "Mostrar senha",
+					"hide-password": "Ocultar senha",
+					"next-btn": "Continuar",
+					"back-btn": "Voltar"
 				},
 				"third": {
-					"stepper": "Terms",
-					"title": "Terms of use",
-					"subtitle": "Before proceeding, read our <link>Terms of Service</link>.",
-					"next-btn": "I have read and agreed"
+					"stepper": "Termos",
+					"title": "Termos de uso",
+					"subtitle": "Antes de continuar, leia e aceite os documentos abaixo.",
+					"accept-label": "Li e concordo com os <terms>Termos de Serviço</terms> e a <privacy>Política de Privacidade</privacy>.",
+					"marketing-label": "Quero receber novidades e dicas do Planici por e-mail (opcional).",
+					"marketing-help": "Você pode cancelar quando quiser, sem afetar sua conta.",
+					"next-btn": "Eu li e concordo",
+					"back-btn": "Voltar"
 				},
 				"fourth": {
-					"stepper": "Profile",
-					"title": "Complete your profile",
-					"subtitle": "Everything's saved on the cloud. Login from your tablet, phone or desktop.",
+					"stepper": "Perfil",
+					"title": "Complete seu perfil",
+					"subtitle": "Tudo fica salvo na nuvem. Acesse do celular, tablet ou computador.",
 					"name-input": {
-						"title": "Your name",
+						"title": "Seu nome",
 						"placeholder": "Luisinho Felipinho",
-						"hint": "Your first name"
+						"hint": "Seu primeiro nome"
 					},
 					"surname-input": {
-						"title": "Last name",
+						"title": "Sobrenome",
 						"placeholder": "Viena Salsitsa",
-						"hint": "Your family name"
+						"hint": "Seu nome de família"
 					},
 					"nick-input": {
-						"title": "Nickname",
+						"title": "Apelido",
 						"placeholder": "luisubrgamer",
-						"hint": "How we should call you"
+						"hint": "Como prefere que a gente te chame"
 					},
-					"next-btn": "Create account",
-					"back-btn": "Back"
+					"next-btn": "Criar conta",
+					"back-btn": "Voltar"
 				}
 			}
+		}
+	},
+	"consent": {
+		"banner": {
+			"title": "Sua privacidade",
+			"description": "Usamos cookies necessários para manter o Planici funcionando. Com sua permissão, também usamos cookies de preferências e de análise para melhorar o produto.",
+			"accept-all": "Aceitar todos",
+			"reject-all": "Rejeitar todos",
+			"customize": "Personalizar",
+			"policy-link": "Política de Privacidade"
+		},
+		"dialog": {
+			"title": "Preferências de cookies",
+			"description": "Escolha quais categorias você permite. Cookies necessários não podem ser desativados porque sem eles o Planici não funciona.",
+			"save": "Salvar preferências",
+			"always-on": "Sempre ativo",
+			"cookie-table": {
+				"name": "Cookie",
+				"purpose": "Finalidade",
+				"duration": "Duração",
+				"none": "Nenhum cookie desta categoria está em uso no momento."
+			}
+		},
+		"settings-link": "Preferências de cookies",
+		"categories": {
+			"necessary": {
+				"name": "Necessários",
+				"description": "Mantêm sua sessão ativa, lembram o idioma escolhido e guardam esta própria escolha de cookies."
+			},
+			"preferences": {
+				"name": "Preferências",
+				"description": "Lembram ajustes de interface, como o tema claro ou escuro, entre visitas."
+			},
+			"analytics": {
+				"name": "Análise",
+				"description": "Ajudam a entender erros e uso do produto para melhorá-lo. Não usamos cookies de publicidade nem rastreamento entre sites."
+			}
+		},
+		"cookies": {
+			"token": {
+				"purpose": "Mantém você autenticado na sua conta.",
+				"duration": "Até a sessão expirar"
+			},
+			"locale": {
+				"purpose": "Guarda o idioma escolhido.",
+				"duration": "1 ano"
+			},
+			"consent": {
+				"purpose": "Registra sua escolha de cookies.",
+				"duration": "12 meses"
+			},
+			"theme": {
+				"purpose": "Guarda a preferência de tema claro ou escuro (armazenamento local do navegador).",
+				"duration": "Até você limpar os dados do site"
+			}
+		}
+	},
+	"legal": {
+		"terms": {
+			"title": "Termos de Serviço",
+			"updated": "Versão {version}",
+			"placeholder": "O conteúdo dos Termos de Serviço ainda será publicado."
+		},
+		"privacy": {
+			"title": "Política de Privacidade",
+			"updated": "Versão {version}",
+			"placeholder": "O conteúdo da Política de Privacidade ainda será publicado."
 		}
 	}
 }
