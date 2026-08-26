@@ -125,10 +125,10 @@
 						"placeholder": "Enter your password again",
 						"help": "The passwords must match"
 					},
-					"show-password": "Show password",
-					"hide-password": "Hide password",
-					"next-btn": "Continue",
-					"back-btn": "Back"
+					"show-password": "Mostrar senha",
+					"hide-password": "Ocultar senha",
+					"next-btn": "Continuar",
+					"back-btn": "Voltar"
 				},
 				"third": {
 					"stepper": "Terms",
@@ -150,17 +150,17 @@
 						"hint": "Your first name"
 					},
 					"surname-input": {
-						"title": "Last name",
+						"title": "Sobrenome",
 						"placeholder": "Viena Salsitsa",
-						"hint": "Your family name"
+						"hint": "Seu nome de família"
 					},
 					"nick-input": {
-						"title": "Nickname",
+						"title": "Apelido",
 						"placeholder": "luisubrgamer",
 						"hint": "What you would like us to call you"
 					},
-					"next-btn": "Create account",
-					"back-btn": "Back"
+					"next-btn": "Criar conta",
+					"back-btn": "Voltar"
 				}
 			}
 		}
