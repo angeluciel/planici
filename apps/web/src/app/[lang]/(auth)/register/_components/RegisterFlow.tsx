@@ -7,10 +7,16 @@ import { Alert } from "@/components/alert";
 import { Logo } from "@/components/logo";
 import { RegisterStepper } from "@/components/register-stepper";
 import { useRegisterDraft } from "@/hooks/use-register-draft";
+<<<<<<< HEAD
 import { requestEmailCode } from "@/lib/api/email-verification";
 import { registerUser } from "@/lib/api/register";
 import { useFieldError } from "@/lib/form";
 import { maskEmail } from "@/lib/mask";
+=======
+import { registerUser } from "@/lib/api/register";
+import { useFieldError } from "@/lib/form";
+import { TERMS_VERSION } from "@/lib/legal";
+>>>>>>> dba2e9f (todo: register steps)
 import {
 	nextStep,
 	previousStep,

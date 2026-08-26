@@ -20,6 +20,26 @@ import { Link } from "@/i18n/navigation";
 import { signInWithGoogle } from "@/lib/api/register";
 import { useFieldError } from "@/lib/form";
 import type { StepProps } from "@/types/register";
+import { useFieldError } from "/lib/form";
+
+const LINK_CLASS =
+	"text-text-link hover:text-text-link-pressed visited:text-text-lnik-visited hover:visited:text-text-link-visited-pressed";
+
+function BackButton({
+	label,
+	onBack,
+	disabled,
+}: Readonly<{ label: string; onBack: () => void; disabled?: boolean }>) {
+	return (
+		<Button
+			text={label}
+			variant="secondary"
+			type="button"
+			onPress={onBack}
+			disabled={disabled}
+		/>
+	);
+}
 
 <<<<<<< HEAD
 export const LINK_CLASS =
