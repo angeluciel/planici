@@ -1,4 +1,8 @@
-import type { RegisterData } from "@/types/register";
+import type {
+	GoogleProfile,
+	RegisterData,
+	RegisterProvider,
+} from "@/types/register";
 
 export type RegisterResult =
 	| { ok: true }
@@ -11,7 +15,11 @@ export type RegisterResult =
 
 export type RegisterPayload = {
 	email: string;
-	password: string;
+
+	password?: string;
+	provider: RegisterProvider;
+
+	emailConfirmed: boolean;
 	name: string;
 	surname: string;
 	slug: string;
@@ -26,7 +34,9 @@ export type RegisterPayload = {
 export function toRegisterPayload(data: RegisterData): RegisterPayload {
 	return {
 		email: data.email,
-		password: data.password,
+		password: data.provider === "email" ? data.password : undefined,
+		provider: data.provider,
+		emailConfirmed: data.confirmedEmail,
 		name: data.name,
 		surname: data.surname,
 		slug: data.slug,
@@ -55,6 +65,10 @@ export async function registerUser(
 	console.info("registeruser payload", { ...payload, password: "[redacted]" });
 	return { ok: true };
 }
+
+export type GoogleSignInResult =
+	| { ok: true; profile: GoogleProfile }
+	| { ok: false; error: string };
 
 export async function signInWithGoogle(): Promise<RegisterResult> {
 	console.info("signInWithGoogle: not wired yet :P");

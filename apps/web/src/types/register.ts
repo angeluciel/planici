@@ -2,9 +2,18 @@ export const REGISTER_STEPS = [
 	"account",
 	"password",
 	"terms",
+	"verify",
 	"profile",
 ] as const;
 export type RegisterStep = (typeof REGISTER_STEPS)[number];
+
+export type RegisterProvider = "email" | "google";
+
+export type GoogleProfile = {
+	email: string;
+	name: string;
+	surname: string;
+};
 
 export type RegisterData = {
 	email: string;
@@ -13,6 +22,12 @@ export type RegisterData = {
 	name: string;
 	surname: string;
 	slug: string;
+
+	provider: RegisterProvider;
+
+	confirmedEmail: boolean;
+	skippedEmailVerification: boolean;
+	codeRequestedAt: string | null;
 
 	acceptedTerms: boolean;
 	marketingOptIn: boolean;
@@ -27,6 +42,10 @@ export const EMPTY_REGISTER_DATA: RegisterData = {
 	name: "",
 	surname: "",
 	slug: "",
+	provider: "email",
+	confirmedEmail: false,
+	skippedEmailVerification: false,
+	codeRequestedAt: null,
 	acceptedTerms: false,
 	marketingOptIn: false,
 	termsVersion: "",
@@ -46,4 +65,11 @@ export type StepDefinition = {
 	slug: RegisterStep;
 	label: string;
 	Component: React.ComponentType<StepProps>;
+};
+
+export type VerifyStepProps = StepProps & {
+	onResend: () => void;
+	onSkip: () => void;
+	isSending: boolean;
+	sendError: string | null;
 };

@@ -1,3 +1,4 @@
+import { Verify } from "crypto";
 import { z } from "zod";
 
 export const PASSWORD_MIN_LENGTH = 8;
@@ -53,8 +54,19 @@ export const ProfileStepSchema = CreateUser.pick({
 	slug: true,
 });
 
+export const EMAIL_CODE_LENGTH = 6;
+export const EMAIL_CODE_PATTERN = /^\d{6}$/;
+
+export const VerifyEmailStepSchema = z.object({
+	code: z
+		.string({ error: "code.required" })
+		.min(1, { error: "code.requried" })
+		.regex(EMAIL_CODE_PATTERN, { error: "code.length" }),
+});
+
 export type CreateUserInput = z.infer<typeof CreateUser>;
 export type AccountStepValues = z.infer<typeof AccountStepSchema>;
 export type PasswordStepValues = z.infer<typeof PasswordStepSchema>;
 export type TermsStepValues = z.infer<typeof TermsStepSchema>;
 export type ProfileStepValues = z.infer<typeof ProfileStepSchema>;
+export type VerifyEmailStepSchema = z.infer<typeof VerifyEmailStepSchema>;

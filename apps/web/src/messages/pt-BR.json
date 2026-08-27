@@ -29,6 +29,14 @@
 			"required": "Confirme sua senha.",
 			"mismatch": "As senhas não coincidem."
 		},
+		"code": {
+			"required": "Informe o código enviado por e-mail.",
+			"length": "O código tem 6 dígitos.",
+			"invalid": "Código incorreto. Confira e tente de novo.",
+			"expired": "Esse código expirou. Peça um novo.",
+			"attempts": "Muitas tentativas. Peça um novo código.",
+			"rate-limited": "Espere um pouco antes de pedir outro código."
+		},
 		"slug": {
 			"required": "Informe um apelido.",
 			"pattern": "Use apenas letras minúsculas, números e hifens.",
@@ -72,6 +80,18 @@
 					"next-btn": "Continuar com e-mail",
 					"link": "Já tem uma conta?",
 					"sign-in": "Entrar"
+				},
+				"verify": {
+					"title": "Verifique seu e-mail para continuar",
+					"subtitle": "Enviamos um código de 6 dígitos para {email}.",
+					"code-label": "Código de verificação",
+					"digit-label": "Dígito {position} de {total}",
+					"resend-question": "Não recebeu?",
+					"resend": "Enviar outro código",
+					"resend-wait": "Aguarde {seconds}s",
+					"skip-question": "Não consegue achar o código?",
+					"skip": "Pular",
+					"back-btn": "Voltar"
 				},
 				"second": {
 					"stepper": "Senha",
