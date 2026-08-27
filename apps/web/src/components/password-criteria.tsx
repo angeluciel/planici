@@ -37,7 +37,7 @@ export function PasswordCriteria({
 					<li
 						key={key}
 						className={cn(
-							"flex items-center gap-1.5 font-body.sm font-medium",
+							"flex items-center gap-1.5 font-body-sm font-medium",
 							met ? "text-text-status-success" : "text-text-secondary",
 						)}
 					>

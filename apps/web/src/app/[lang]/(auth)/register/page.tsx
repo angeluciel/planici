@@ -17,7 +17,7 @@ export default async function RegisterPage() {
 					<RegisterFlow />
 				</Suspense>
 
-				<footer className="flex w-full pb-4 items-center-safe justify-center-safe">
+				<footer className="flex flex-col-reverse w-full pb-4 items-center-safe justify-center-safe gap-2">
 					<CookieSettingsLink className="font-body-caption text-text-link hover:text-text-link-pressed" />
 					<span className="font-body-caption">
 						{t("footer", { year: new Date().getFullYear() })}

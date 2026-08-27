@@ -13,12 +13,13 @@ import { useState } from "react";
 import { type FieldPath, useForm } from "react-hook-form";
 import type z from "zod";
 import { Button } from "@/components/button";
-import { PasswordCriteria } from "@/components/password-criteria"
+import { Checkbox } from "@/components/checkbox";
 import { type FieldStatus, Input } from "@/components/input";
+import { PasswordCriteria } from "@/components/password-criteria";
 import { Link } from "@/i18n/navigation";
-import { signInWithGoogle } from "/lib/api/register"
+import { signInWithGoogle } from "@/lib/api/register";
+import { useFieldError } from "@/lib/form";
 import type { StepProps } from "@/types/register";
-import { useFieldError } from "/lib/form";
 
 const LINK_CLASS =
 	"text-text-link hover:text-text-link-pressed visited:text-text-lnik-visited hover:visited:text-text-link-visited-pressed";
@@ -103,7 +104,7 @@ function PasswordStep({ defaultValues, onNext, onBack }: Readonly<StepProps>) {
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirm, setShowConfirm] = useState(false);
 
-	const { getFieldState, formState, register, handleSubmit } = useForm({
+	const { getFieldState, formState, register, handleSubmit, watch } = useForm({
 		resolver: zodResolver(PasswordStepSchema),
 		defaultValues: {
 			password: defaultValues.password,
@@ -145,7 +146,10 @@ function PasswordStep({ defaultValues, onNext, onBack }: Readonly<StepProps>) {
 					}
 					onTrailingIconClick={() => setShowPassword((visible) => !visible)}
 				/>
-				<PasswordCriteria value={watch("password") ?? ""} />
+				<PasswordCriteria
+					value={watch("password") ?? ""}
+					className="relative -top-4"
+				/>
 			</div>
 			<Input
 				label={t("confirm-input.label")}
@@ -173,34 +177,73 @@ function PasswordStep({ defaultValues, onNext, onBack }: Readonly<StepProps>) {
 
 function TermsStep({ defaultValues, onNext, onBack }: Readonly<StepProps>) {
 	const t = useTranslations("auth.register.steps.third");
-  const fieldError = useFieldError();
+	const fieldError = useFieldError();
 
-	const { formState, register handleSubmit } = useForm({
+	const { formState, register, handleSubmit } = useForm({
 		resolver: zodResolver(TermsStepSchema),
 		defaultValues: {
-      acceptedTerms: defaultValues.acceptedTerms as true,
-      marketingOptIn: defaultValues.marketingOptIn,
-    },
+			acceptedTerms: defaultValues.acceptedTerms as true,
+			marketingOptIn: defaultValues.marketingOptIn,
+		},
 	});
 
-  const { errors } = formState;
+	const { errors } = formState;
 
 	return (
 		<form
 			onSubmit={handleSubmit(onNext)}
-			className="flex flex-col justify-center items-center gap-20 w-full"
+			className="flex flex-col justify-center items-center gap-8 w-full"
 		>
-			<Button text={t("next-btn")} variant="primary" type="submit" />
+			<div className="flex w-full flex-col gap-4">
+				<Checkbox
+					{...register("acceptedTerms")}
+					status={errors.acceptedTerms ? "error" : "default"}
+					help={fieldError(errors.acceptedTerms?.message)}
+					label={t.rich("accept-label", {
+						terms: (chunks) => (
+							<Link href="/terms" className={LINK_CLASS}>
+								{chunks}
+							</Link>
+						),
+						privacy: (chunks) => (
+							<Link href="/privacy" className={LINK_CLASS}>
+								{chunks}
+							</Link>
+						),
+					})}
+				/>
+
+				<Checkbox
+					{...register("marketingOptIn")}
+					label={t("marketing-label")}
+					help={t("marketing-help")}
+				/>
+			</div>
+
+			<div className="flex w-full flex-col gap-2">
+				<Button text={t("next-btn")} variant="primary" type="submit" />
+				<BackButton label={t("back-btn")} onBack={onBack} />
+			</div>
 		</form>
 	);
 }
 
-function ProfileStep({ defaultValues, onNext, onBack }: StepProps) {
+function ProfileStep({
+	defaultValues,
+	onNext,
+	onBack,
+	isSubmitting,
+}: Readonly<StepProps>) {
 	const t = useTranslations("auth.register.steps.fourth");
+	const fieldError = useFieldError();
 
 	const { getFieldState, formState, register, handleSubmit } = useForm({
 		resolver: zodResolver(ProfileStepSchema),
-		defaultValues: defaultValues,
+		defaultValues: {
+			name: defaultValues.name,
+			surname: defaultValues.surname,
+			slug: defaultValues.slug,
+		},
 		mode: "onBlur",
 	});
 
@@ -214,10 +257,6 @@ function ProfileStep({ defaultValues, onNext, onBack }: StepProps) {
 		return "default";
 	};
 
-	const nameStatus = statusOf("name");
-	const surnameStatus = statusOf("surname");
-	const nicknameStatus = statusOf("slug");
-
 	return (
 		<form
 			className="flex flex-col gap-5 items-center w-full"
@@ -225,26 +264,36 @@ function ProfileStep({ defaultValues, onNext, onBack }: StepProps) {
 		>
 			<Input
 				label={t("name-input.title")}
-				help={errors.name?.message ?? t("name-input.hint")}
+				autoComplete="given-name"
+				help={fieldError(errors.name?.message) ?? t("name-input.hint")}
 				placeholder={t("name-input.placeholder")}
-				status={nameStatus}
+				status={statusOf("name")}
 				{...register("name")}
 			/>
 			<Input
 				label={t("surname-input.title")}
-				help={errors.surname?.message ?? t("surname-input.hint")}
+				autoComplete="family-name"
+				help={fieldError(errors.surname?.message) ?? t("surname-input.hint")}
 				placeholder={t("surname-input.placeholder")}
-				status={surnameStatus}
+				status={statusOf("surname")}
 				{...register("surname")}
 			/>
 			<Input
 				label={t("nick-input.title")}
+				autoComplete="nickname"
 				placeholder={t("nick-input.placeholder")}
-				help={errors.slug?.message ?? t("nick-input.hint")}
-				status={nicknameStatus}
+				help={fieldError(errors.slug?.message) ?? t("nick-input.hint")}
+				status={statusOf("slug")}
 				{...register("slug")}
 			/>
-			<Button text={t("next-btn")} type="submit" variant="primary" />
+			<div className="flex w-full flex-col gap-1">
+				<Button text={t("next-btn")} type="submit" variant="primary" />
+				<BackButton
+					label={t("back-btn")}
+					onBack={onBack}
+					disabled={isSubmitting}
+				/>
+			</div>
 		</form>
 	);
 }
