@@ -3,6 +3,7 @@ export const REGISTER_STEPS = [
 	"verify",
 	"password",
 	"terms",
+	"verify",
 	"profile",
 ] as const;
 export type RegisterStep = (typeof REGISTER_STEPS)[number];
