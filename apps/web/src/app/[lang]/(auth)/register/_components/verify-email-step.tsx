@@ -12,7 +12,11 @@ import { useFieldError } from "@/lib/form";
 import type { VerifyStepProps } from "@/types/register";
 
 const LINK_CLASS =
+<<<<<<< HEAD
 	"text-text-link hover:text-text-link-pressed disabled:cursor-not-allowed disabled:text-text-disabled cursor-pointer";
+=======
+	"text-text-link hover:text-text-link-pressed disabled:cursor-not-allowed disabled:text-text-disabled";
+>>>>>>> 1fd900a (otp implemented)
 
 function VerifyEmailStep({
 	defaultValues,
@@ -114,6 +118,17 @@ function VerifyEmailStep({
 					</button>
 				</span>
 			</div>
+<<<<<<< HEAD
+=======
+
+			<Button
+				text={t("back-btn")}
+				variant="secondary"
+				type="button"
+				onPress={onBack}
+				disabled={verifying}
+			/>
+>>>>>>> 1fd900a (otp implemented)
 		</div>
 	);
 }
