@@ -21,14 +21,8 @@ import { signInWithGoogle } from "@/lib/api/register";
 import { useFieldError } from "@/lib/form";
 import type { StepProps } from "@/types/register";
 
-<<<<<<< HEAD
-export const LINK_CLASS =
-	"text-text-link hover:text-text-link-pressed visited:text-text-link-visited hover:visited:text-text-link-visited-pressed";
-=======
-
 const LINK_CLASS =
 	"text-text-link hover:text-text-link-pressed visited:text-text-lnik-visited hover:visited:text-text-link-visited-pressed";
->>>>>>> 8c2a2be (todo: register steps)
 
 function BackButton({
 	label,
