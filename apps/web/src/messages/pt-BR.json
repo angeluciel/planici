@@ -5,7 +5,17 @@
 		"loading": "Carregando",
 		"back": "Voltar",
 		"close": "Fechar",
-		"footer": "{year} PLANICI, Todos os Direitos Reservados"
+		"footer": "{year} PLANICI, Todos os Direitos Reservados",
+		"inputs": {
+			"email": {
+				"label": "Your e-mail",
+				"placeholder": "email@example.com"
+			},
+			"password": {
+				"label": "Your password",
+				"placeholder": "Enter your password"
+			}
+		}
 	},
 	"validation": {
 		"email": {
@@ -50,7 +60,16 @@
 
 	"auth": {
 		"login": {
-			"title": "Olá"
+			"title": "Bem-vindo de volta",
+			"description": "Faça login e continue de onde parou.",
+			"divider": "ou",
+			"google-btn": "Continuar com Google",
+			"forgot": "Esqueceu sua senha?",
+			"checkbox": "Lembre de mim nesse dispositivo.",
+			"redirect": {
+				"text": "Não tem uma conta? ",
+				"link": "Criar nova."
+			}
 		},
 		"register": {
 			"stepper-label": "Progresso do cadastro",

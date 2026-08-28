@@ -1,0 +1,7 @@
+@import "../semantic/text.css";
+
+@layer components {
+	.link-colors {
+		@apply text-text-link hover:text-text-link-pressed visited:text-text-link-visited hover:visited:text-text-link-visited-pressed;
+	}
+}

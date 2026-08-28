@@ -21,8 +21,8 @@ import { signInWithGoogle } from "@/lib/api/register";
 import { useFieldError } from "@/lib/form";
 import type { StepProps } from "@/types/register";
 
-const LINK_CLASS =
-	"text-text-link hover:text-text-link-pressed visited:text-text-lnik-visited hover:visited:text-text-link-visited-pressed";
+export const LINK_CLASS =
+	"text-text-link hover:text-text-link-pressed visited:text-text-link-visited hover:visited:text-text-link-visited-pressed";
 
 function BackButton({
 	label,
@@ -42,6 +42,7 @@ function BackButton({
 
 function AccountStep({ defaultValues, onNext }: Readonly<StepProps>) {
 	const t = useTranslations("auth.register.steps.first");
+	const tcommon = useTranslations("common");
 	const fieldError = useFieldError();
 
 	const { getFieldState, formState, register, handleSubmit } = useForm({
@@ -71,15 +72,15 @@ function AccountStep({ defaultValues, onNext }: Readonly<StepProps>) {
 			>
 				{t("google-btn")}
 			</button>
-			<div className="flex gap-2 items-center text-text-bold">
-				<div className="h-0.5 w-full bg-background-accent-disabled" />
+			<div className="flex gap-2 items-center text-text-bold w-full">
+				<div className="h-px w-full bg-background-accent-gray-subtle" />
 				{t("divider")}
-				<div className="h-0.5 w-full bg-background-accent-disabled" />
+				<div className="h-px w-full bg-background-accent-gray-subtle" />
 			</div>
 			<Input
-				label={t("input.label")}
+				label={tcommon("inputs.email.label")}
 				type="email"
-				placeholder={t("input.placeholder")}
+				placeholder={tcommon("inputs.email.placeholder")}
 				{...register("email")}
 				status={status}
 				help={fieldError(errors.email?.message)}
@@ -100,6 +101,7 @@ function AccountStep({ defaultValues, onNext }: Readonly<StepProps>) {
 
 function PasswordStep({ defaultValues, onNext, onBack }: Readonly<StepProps>) {
 	const t = useTranslations("auth.register.steps.second");
+	const tcommon = useTranslations("common");
 	const fieldError = useFieldError();
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirm, setShowConfirm] = useState(false);
@@ -134,10 +136,10 @@ function PasswordStep({ defaultValues, onNext, onBack }: Readonly<StepProps>) {
 		>
 			<div className="flex w-full flex-col">
 				<Input
-					label={t("input.label")}
+					label={tcommon("inputs.password.label")}
 					type={showPassword ? "text" : "password"}
 					autoComplete="new-password"
-					placeholder={t("input.placeholder")}
+					placeholder={tcommon("inputs.password.placeholder")}
 					{...register("password")}
 					status={passwordStatus}
 					trailingIcon={showPassword ? EyeClosed : Eye}
