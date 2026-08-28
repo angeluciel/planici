@@ -1,8 +1,8 @@
 export const REGISTER_STEPS = [
 	"account",
+	"verify",
 	"password",
 	"terms",
-	"verify",
 	"profile",
 ] as const;
 export type RegisterStep = (typeof REGISTER_STEPS)[number];
