@@ -1,29 +1,13 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginSchema } from "@planici/schemas";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { useForm } from "react-hook-form";
 import { CookieSettingsLink } from "@/components/consent/cookie-settings-link";
 import Header from "@/components/header";
-import { Input } from "@/components/input";
 import { Logo } from "@/components/logo";
-import { Link } from "@/i18n/navigation";
-import { useFieldError } from "@/lib/form";
-import { cn } from "@/lib/utils";
-import { EMPTY_LOGIN_DATA } from "@/types/login";
+import LoginForm from "./login-form";
 
 export default async function LoginPage() {
 	const t = await getTranslations("auth.login");
 	const tcommon = await getTranslations("common");
-	const fieldError = useFieldError();
-
-	const { getFieldState, formState, register, handleSubmit } = useForm({
-		resolver: zodResolver(LoginSchema),
-		defaultValues: { email: EMPTY_LOGIN_DATA.email ?? "" },
-		mode: "onBlur",
-	});
-	const { errors } = formState;
-	// const { error, isDirty, invalid } = getFieldState("email", formState);
 
 	return (
 		<div className="min-h-screen flex flex-1 px-4 bg-surface relative">
@@ -43,41 +27,7 @@ export default async function LoginPage() {
 						</div>
 					</div>
 
-					<div className="flex flex-col gap-2 w-full">
-						<button
-							type="button"
-							className="w-full px-4 h-10 gap-2 border-2 border-border font-body-sm font-medium rounded-md"
-						>
-							{t("google-btn")}
-						</button>
-
-						<div className="flex gap-2 items-center text-text-bold w-full">
-							<div className="h-px w-full bg-background-accent-gray-subtle" />
-							{t("divider")}
-							<div className="h-px w-full bg-background-accent-gray-subtle" />
-						</div>
-
-						<Input
-							label={tcommon("inputs.email.label")}
-							placeholder={tcommon("inputs.email.placeholder")}
-							help={fieldError(errors.email?.message) ?? ""}
-						/>
-
-						<div className="flex flex-col w-full">
-							<Input
-								label={tcommon("inputs.password.label")}
-								placeholder={tcommon("inputs.password.placeholder")}
-								help={fieldError(errors.password?.message) ?? ""}
-							/>
-							<Link
-								className={cn("ml-auto relative -mt-2 link-colors")}
-								href={"/reset-password"}
-							>
-								{t("forgot")}
-							</Link>
-						</div>
-					</div>
-
+					<LoginForm />
 					{/* {submitError && <Alert>{fieldError(submitError)}</Alert>} */}
 				</div>
 

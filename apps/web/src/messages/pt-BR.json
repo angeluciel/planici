@@ -69,7 +69,8 @@
 			"redirect": {
 				"text": "Não tem uma conta? ",
 				"link": "Criar nova."
-			}
+			},
+			"next-btn": "Entrar"
 		},
 		"register": {
 			"stepper-label": "Progresso do cadastro",

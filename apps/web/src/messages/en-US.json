@@ -68,7 +68,8 @@
 			"redirect": {
 				"text": "Don't have an account? ",
 				"link": "Create one."
-			}
+			},
+			"next-btn": "Sign in"
 		},
 		"register": {
 			"stepper-label": "Registration progress",
