@@ -48,11 +48,17 @@ interface SessionErrorBody {
 export async function login(data: LoginData): Promise<LoginResult> {
 	const payload = toLoginPayload(data);
 
-	const response = await fetch(SESSION_ENDPOINT, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify(payload),
-	});
+	let response: Response;
+
+	try {
+		response = await fetch(SESSION_ENDPOINT, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(payload),
+		});
+	} catch {
+		return { ok: false, error: "network.unavailable" };
+	}
 
 	if (response.ok) return { ok: true };
 
