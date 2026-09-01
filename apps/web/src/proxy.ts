@@ -23,6 +23,15 @@ const PROTECTED_PREFIXES = ["/dashboard", "/profile"] as const;
 const REDIRECT_WHEN_NOT_AUTHENTICATED = "/login";
 const REDIRECT_WHEN_AUTHENTICATED = "/dashboard";
 
+function fromBase64Url(value: string): Uint8Array<ArrayBuffer> {
+	const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+	const padded = base64.padEnd(
+		base64.length + ((4 - (base64.length % 4)) % 4),
+		"=",
+	);
+	return Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));
+}
+
 async function verifyJwt(token: string): Promise<JwtPayload | null> {
 	try {
 		const [headerB64, payloadB64, signatureB64] = token.split(".");
@@ -39,21 +48,16 @@ async function verifyJwt(token: string): Promise<JwtPayload | null> {
 			["verify"],
 		);
 
-		const signature = Uint8Array.from(
-			atob(signatureB64.replace(/-/g, "/")),
-			(c) => c.charCodeAt(0),
-		);
-
 		const valid = await crypto.subtle.verify(
 			"HMAC",
 			cryptoKey,
-			signature,
+			fromBase64Url(signatureB64),
 			new TextEncoder().encode(`${headerB64}.${payloadB64}`),
 		);
 		if (!valid) return null;
 
 		const rawPayload: unknown = JSON.parse(
-			atob(payloadB64.replace(/-/g, "+").replace(/_/g, "/")),
+			new TextDecoder().decode(fromBase64Url(payloadB64)),
 		);
 		const payload = rawPayload as JwtPayload;
 
@@ -84,29 +88,44 @@ function getOrCreateTraceId(request: NextRequest): string {
 	return parts[1];
 }
 
+function splitLocale(pathname: string): {
+	locale: string | null;
+	rest: string;
+} {
+	for (const locale of routing.locales) {
+		if (pathname === `/${locale}`) return { locale, rest: "/" };
+		if (pathname.startsWith(`/${locale}/`)) {
+			return { locale, rest: pathname.slice(locale.length + 1) };
+		}
+	}
+	return { locale: null, rest: pathname };
+}
+
+function withLocale(locale: string, path: string): string {
+	return path === "/" ? `/${locale}` : `/${locale}${path}`;
+}
+
 const intlMiddleware = createMiddleware(routing);
 
 export async function proxy(request: NextRequest) {
 	const { pathname } = request.nextUrl;
 
-	const intlResponse = intlMiddleware(request);
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-	if (intlResponse) return intlResponse;
-
 	const traceId = getOrCreateTraceId(request);
-	const requestHeaders = new Headers(request.headers);
-	requestHeaders.set("x-trace-id", traceId);
-
-	function withTrace(res: NextResponse): NextResponse {
+	const withTrace = (res: NextResponse): NextResponse => {
 		res.headers.set("x-trace-id", traceId);
 		return res;
-	}
+	};
 
-	const publicRoute = publicRoutes.find((r) => r.path === pathname);
+	const { locale: pathLocale, rest } = splitLocale(pathname);
+	const locale = pathLocale ?? routing.defaultLocale;
+
+	const publicRoute = publicRoutes.find((r) => r.path === rest);
 
 	const isProtected =
 		!publicRoute &&
-		PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+		PROTECTED_PREFIXES.some(
+			(prefix) => rest === prefix || rest.startsWith(`${prefix}/`),
+		);
 
 	const tokenCookie = request.cookies.get("token");
 	let session: JwtPayload | null = null;
@@ -124,26 +143,33 @@ export async function proxy(request: NextRequest) {
 	}
 
 	// routing logic
-	if (pathname === "/") {
+	if (rest === "/") {
 		const dest = session
 			? REDIRECT_WHEN_AUTHENTICATED
 			: REDIRECT_WHEN_NOT_AUTHENTICATED;
-		return withTrace(NextResponse.redirect(new URL(dest, request.url)));
+		return withTrace(
+			NextResponse.redirect(new URL(withLocale(locale, dest), request.url)),
+		);
 	}
 
 	if (isProtected && !session) {
-		const url = new URL(REDIRECT_WHEN_NOT_AUTHENTICATED, request.url);
-		url.searchParams.set("next", pathname);
+		const url = new URL(
+			withLocale(locale, REDIRECT_WHEN_NOT_AUTHENTICATED),
+			request.url,
+		);
+		url.searchParams.set("next", rest);
 		return withTrace(NextResponse.redirect(url));
 	}
 
 	if (publicRoute?.whenAuthenticated === "redirect" && session) {
 		return withTrace(
-			NextResponse.redirect(new URL(REDIRECT_WHEN_AUTHENTICATED, request.url)),
+			NextResponse.redirect(
+				new URL(withLocale(locale, REDIRECT_WHEN_AUTHENTICATED), request.url),
+			),
 		);
 	}
 
-	return withTrace(NextResponse.next({ request: { headers: requestHeaders } }));
+	return withTrace(intlMiddleware(request));
 }
 
 export const config: ProxyConfig = {

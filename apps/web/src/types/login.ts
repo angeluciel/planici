@@ -1,10 +1,11 @@
-export type LoginData = {
-	email: string;
-	password: string;
-	rememberMe: boolean;
-};
+import type { EmailLoginData } from "@planici/schemas";
 
-export const EMPTY_LOGIN_DATA: LoginData = {
+export type LoginData =
+	| EmailLoginData
+	| { provider: "google"; idToken: string; rememberMe: boolean };
+
+export const EMPTY_LOGIN_DATA: EmailLoginData = {
+	provider: "email",
 	email: "",
 	password: "",
 	rememberMe: false,
