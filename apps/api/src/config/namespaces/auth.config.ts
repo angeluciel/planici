@@ -1,7 +1,7 @@
 import { registerAs } from '@nestjs/config';
 
 export const authConfig = registerAs('auth', () => ({
-  bcrypCost: Number(process.env.BCRYPT_COST ?? 12),
+  bcryptCost: Number(process.env.BCRYPT_COST ?? 12),
 
   emailCodeTtlMinutes: Number(process.env.EMAIL_CODE_TTL_MINUTES ?? 15),
   emailCodeMaxAttempts: Number(process.env.EMAIL_CODE_RESEND_SECONDS ?? 60),
