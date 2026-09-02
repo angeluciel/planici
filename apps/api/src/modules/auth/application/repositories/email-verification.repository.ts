@@ -7,7 +7,7 @@ export type EmailVerification = {
   email: string;
   codeHash: string;
   attempts: number;
-  expiredAt: Date;
+  expiresAt: Date;
   consumedAt: Date | null;
   createdAt: Date;
 };

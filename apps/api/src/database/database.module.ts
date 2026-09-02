@@ -12,7 +12,7 @@ import { databaseConfig } from '@/config/namespaces/database.config.js';
 import { DRIZZLE, PG_POOL } from '@/database/database.constants.js';
 import * as schema from './schema/index.js';
 
-export type Databae = ReturnType<typeof drizzle<typeof schema>>;
+export type Database = ReturnType<typeof drizzle<typeof schema>>;
 
 @Global()
 @Module({
