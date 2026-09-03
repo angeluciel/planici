@@ -124,6 +124,59 @@ export class AuthController {
   ): Promise<void> {
     await this.commands.execute(new LogoutCommand(body.refreshToken));
   }
+
+  /**
+   * POST /auth/password/forgot
+   * 202 if the address exists or not, so a malicious dumbass cant figure if the email is registered
+   */
+  @Post('password/forgot')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  async forgotPassword(
+    @Body(new ZodBody(ForgotPasswordSchema)) body: { email: string },
+    @Req() request: Request,
+  ): Promise<void> {
+    await this.commands.execute(
+      new RequestPasswordResetCommand(body.email, ipOf(request)),
+    );
+  }
+
+  @Post('password/reset')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  async resetPassword(
+    @Body(new ZodBody(ResetPasswordSchema))
+    body: {
+      token: string;
+      password: string;
+    },
+  ): Promise<void> {
+    await this.commands.execute(
+      new ResetPasswordCommand(body.token, body.password),
+    );
+  }
+
+  @Get('me')
+  @UseGuards(JwtAccessGuard)
+  me(@CurrentUser() user: AuthenticatedUser): Promise<MeResponse> {
+    return this.queries.execute(new GetCurrentUserQuery(user.id));
+  }
+
+  @Get('availability')
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
+  availability(
+    @Query(new ZodBody(AvailabilityQuerySchema))
+    query: {
+      email?: string;
+      slug?: string;
+    },
+  ): Promise<AvailabilityResponse> {
+    const [field, value] = query.email
+      ? (['email', query.email] as const)
+      : (['slug', query.slug as string] as const);
+
+    return this.queries.execute(new CheckAvailabilityQuery(field, value));
+  }
 }
 
 function ipOf(request: Request): string | null {
