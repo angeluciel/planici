@@ -1,4 +1,4 @@
-import { DomainEvent } from "@/shared/domain-events.js";
+import { DomainEvent } from '@/shared/domain-events.js';
 
 /** Raised before the account exists */
 export class EmailCodeRequestedEvent extends DomainEvent {
@@ -17,7 +17,7 @@ export class UserRegisteredEvent extends DomainEvent {
     readonly email: string,
     readonly name: string,
   ) {
-    super()
+    super();
   }
 }
 
@@ -29,14 +29,14 @@ export class PasswordResetRequestedEvent extends DomainEvent {
     readonly token: string,
     readonly expiresInMinutes: number,
   ) {
-    super()
+    super();
   }
 }
 
-export class PasswordChangedEvented extends DomainEvent {
+export class PasswordChangedEvent extends DomainEvent {
   constructor(
     readonly userId: string,
-    readonly email: string
+    readonly email: string,
   ) {
     super();
   }
