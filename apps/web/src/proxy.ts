@@ -14,6 +14,8 @@ const publicRoutes = [
 	{ path: "/register", whenAuthenticated: "redirect" },
 	{ path: "/forgot-password", whenAuthenticated: "redirect" },
 	{ path: "/reset-password", whenAuthenticated: "redirect" },
+	{ path: "/terms", whenAuthenticated: "allow" },
+	{ path: "/privacy", whenAuthenticated: "allow" },
 ] as const;
 
 const PROTECTED_PREFIXES = ["/dashboard", "/profile"] as const;
@@ -55,11 +57,7 @@ async function verifyJwt(token: string): Promise<JwtPayload | null> {
 		);
 		const payload = rawPayload as JwtPayload;
 
-		if (payload.exp) {
-			const exp = Temporal.Instant.fromEpochMilliseconds(payload.exp * 1000);
-			if (Temporal.Instant.compare(Temporal.Now.instant(), exp) > 0)
-				return null;
-		}
+		if (payload.exp && Date.now() > payload.exp * 1000) return null;
 
 		return payload;
 	} catch {

@@ -2,41 +2,108 @@
 	"common": {
 		"save": "Save",
 		"cancel": "Cancel",
-		"loading": "Loading"
+		"loading": "Loading",
+		"back": "Back",
+		"close": "Close",
+		"footer": "{year} PLANICI, All Rights Reserved"
+	},
+	"validation": {
+		"email": {
+			"required": "Enter your email address.",
+			"invalid": "Invalid email address.",
+			"taken": "An account with this email address already exists."
+		},
+		"name": {
+			"required": "Enter your first name."
+		},
+		"surname": {
+			"required": "Enter your last name."
+		},
+		"password": {
+			"required": "Enter a password.",
+			"min": "Your password must be at least 8 characters long.",
+			"number": "Your password must contain at least 1 number.",
+			"symbol": "Your password must contain at least 1 symbol."
+		},
+		"confirmPassword": {
+			"required": "Confirm your password.",
+			"mismatch": "The passwords do not match."
+		},
+		"code": {
+			"required": "Enter the code we emailed you.",
+			"length": "The code has 6 digits.",
+			"invalid": "Wrong code. Check it and try again.",
+			"expired": "That code expired. Ask for a new one.",
+			"attempts": "Too many attempts. Ask for a new code.",
+			"rate-limited": "Wait a moment before asking for another code."
+		},
+		"slug": {
+			"required": "Enter a nickname.",
+			"pattern": "Use only lowercase letters, numbers, and hyphens.",
+			"taken": "This nickname is already in use."
+		},
+		"terms": {
+			"required": "You must accept the terms to continue."
+		},
+		"unexpected": "We couldn't complete your request right now. Try again in a moment."
 	},
 	"auth": {
 		"login": {
-			"title": "Welcome!"
+			"title": "Hello"
 		},
 		"register": {
+			"stepper-label": "Registration progress",
+			"password-criteria": {
+				"min": "At least 8 characters",
+				"number": "At least 1 number",
+				"symbol": "At least 1 symbol",
+				"met": "requirement met",
+				"not-met": "requirement not met"
+			},
+			"success": {
+				"title": "Account created!",
+				"subtitle": "We sent a confirmation email to {email}. Confirm your email to start using Planici.",
+				"cta": "Go to login"
+			},
 			"steps": {
 				"first": {
-					"stepper": "Create an Account",
-					"title": "Let's create your account",
+					"stepper": "Create account",
+					"title": "Let's create your account!",
 					"subtitle": "How would you like to sign up?",
 					"google-btn": "Continue with Google",
 					"divider": "or",
 					"input": {
-						"label": "Your E-mail",
+						"label": "Your Email",
 						"placeholder": "email@example.com"
 					},
-					"next-btn": "Continue with e-mail",
+					"next-btn": "Continue with email",
 					"link": "Already have an account?",
-					"sign-in": "Sign In"
+					"sign-in": "Sign in"
+				},
+				"verify": {
+					"title": "Verify your email to continue",
+					"subtitle": "We sent a 6-digit code to {email}.",
+					"code-label": "Verification code",
+					"digit-label": "Digit {position} of {total}",
+					"resend-question": "Didn't get it?",
+					"resend": "Send another code",
+					"resend-wait": "Wait {seconds}s",
+					"skip-question": "Can't find the code?",
+					"skip": "Skip",
+					"back-btn": "Back"
 				},
 				"second": {
 					"stepper": "Password",
 					"title": "Create your password",
-					"subtitle": "Inform a safe password to sign in to your account.",
+					"subtitle": "Enter a secure password to access your account.",
 					"input": {
 						"label": "Your Password",
-						"placeholder": "Secret Password",
-						"help": "At least 8 Characters"
+						"placeholder": "SecureP@ssword123"
 					},
 					"confirm-input": {
 						"label": "Confirm Your Password",
-						"placeholder": "Repeat your password",
-						"help": "Both passwords must match"
+						"placeholder": "Enter your password again",
+						"help": "The passwords must match"
 					},
 					"show-password": "Show password",
 					"hide-password": "Hide password",
@@ -45,17 +112,21 @@
 				},
 				"third": {
 					"stepper": "Terms",
-					"title": "Terms of use",
-					"subtitle": "Before proceeding, read our <link>Terms of Service</link>.",
-					"next-btn": "I have read and agreed"
+					"title": "Terms of Use",
+					"subtitle": "Before continuing, read and accept the documents below.",
+					"accept-label": "I have read and agree to the <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
+					"marketing-label": "I would like to receive Planici news and tips by email (optional).",
+					"marketing-help": "You can unsubscribe at any time without affecting your account.",
+					"next-btn": "I have read and agree",
+					"back-btn": "Back"
 				},
 				"fourth": {
 					"stepper": "Profile",
 					"title": "Complete your profile",
-					"subtitle": "Everything's saved on the cloud. Login from your tablet, phone or desktop.",
+					"subtitle": "Everything is saved in the cloud. Access it from your phone, tablet, or computer.",
 					"name-input": {
-						"title": "Your name",
-						"placeholder": "Luisinho Felipinho",
+						"title": "First name",
+						"placeholder": "Luisinho",
 						"hint": "Your first name"
 					},
 					"surname-input": {
@@ -66,12 +137,79 @@
 					"nick-input": {
 						"title": "Nickname",
 						"placeholder": "luisubrgamer",
-						"hint": "How we should call you"
+						"hint": "What you would like us to call you"
 					},
 					"next-btn": "Create account",
 					"back-btn": "Back"
 				}
 			}
+		}
+	},
+	"consent": {
+		"banner": {
+			"title": "Your privacy",
+			"description": "We use necessary cookies to keep Planici working. With your permission, we also use preference and analytics cookies to improve the product.",
+			"accept-all": "Accept all",
+			"reject-all": "Reject all",
+			"customize": "Customize",
+			"policy-link": "Privacy Policy"
+		},
+		"dialog": {
+			"title": "Cookie preferences",
+			"description": "Choose which categories you allow. Necessary cookies cannot be disabled because Planici cannot function without them.",
+			"save": "Save preferences",
+			"always-on": "Always on",
+			"cookie-table": {
+				"name": "Cookie",
+				"purpose": "Purpose",
+				"duration": "Duration",
+				"none": "No cookies in this category are currently in use."
+			}
+		},
+		"settings-link": "Cookie preferences",
+		"categories": {
+			"necessary": {
+				"name": "Necessary",
+				"description": "Keep you signed in, remember your selected language, and save your cookie preferences."
+			},
+			"preferences": {
+				"name": "Preferences",
+				"description": "Remember interface settings, such as light or dark mode, between visits."
+			},
+			"analytics": {
+				"name": "Analytics",
+				"description": "Help us understand errors and product usage so we can improve it. We do not use advertising cookies or cross-site tracking."
+			}
+		},
+		"cookies": {
+			"token": {
+				"purpose": "Keeps you signed in to your account.",
+				"duration": "Until the session expires"
+			},
+			"locale": {
+				"purpose": "Stores your selected language.",
+				"duration": "1 year"
+			},
+			"consent": {
+				"purpose": "Records your cookie preferences.",
+				"duration": "12 months"
+			},
+			"theme": {
+				"purpose": "Stores your light or dark mode preference in your browser's local storage.",
+				"duration": "Until you clear the site's data"
+			}
+		}
+	},
+	"legal": {
+		"terms": {
+			"title": "Terms of Service",
+			"updated": "Version {version}",
+			"placeholder": "The Terms of Service content has not been published yet."
+		},
+		"privacy": {
+			"title": "Privacy Policy",
+			"updated": "Version {version}",
+			"placeholder": "The Privacy Policy content has not been published yet."
 		}
 	}
 }
