@@ -5,6 +5,7 @@
 		"loading": "Carregando",
 		"back": "Voltar",
 		"close": "Fechar",
+<<<<<<< HEAD
 		"footer": "{year} PLANICI, Todos os Direitos Reservados",
 		"inputs": {
 			"email": {
@@ -16,6 +17,9 @@
 				"placeholder": "Enter your password"
 			}
 		}
+=======
+		"footer": "{year} PLANICI, Todos os Direitos Reservados"
+>>>>>>> bdaa3bd (Feature/register-page (#18))
 	},
 	"validation": {
 		"email": {

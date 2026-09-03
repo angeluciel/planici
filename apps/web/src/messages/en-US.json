@@ -5,6 +5,7 @@
 		"loading": "Loading",
 		"back": "Back",
 		"close": "Close",
+<<<<<<< HEAD
 		"footer": "{year} PLANICI, All Rights Reserved",
 		"inputs": {
 			"email": {
@@ -16,6 +17,9 @@
 				"placeholder": "Enter your password"
 			}
 		}
+=======
+		"footer": "{year} PLANICI, All Rights Reserved"
+>>>>>>> bdaa3bd (Feature/register-page (#18))
 	},
 	"validation": {
 		"email": {
@@ -59,6 +63,7 @@
 	},
 	"auth": {
 		"login": {
+<<<<<<< HEAD
 			"title": "Welcome back!",
 			"description": "Sign in to pick up where you left off.",
 			"divider": "or",
@@ -70,6 +75,9 @@
 				"link": "Create one."
 			},
 			"next-btn": "Sign in"
+=======
+			"title": "Hello"
+>>>>>>> bdaa3bd (Feature/register-page (#18))
 		},
 		"register": {
 			"stepper-label": "Registration progress",
