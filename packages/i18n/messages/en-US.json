@@ -55,7 +55,27 @@
 		"terms": {
 			"required": "You must accept the terms to continue."
 		},
-		"unexpected": "We couldn't complete your request right now. Try again in a moment."
+		"unexpected": "We couldn't complete your request right now. Try again in a moment.",
+		"credentials": {
+			"invalid": "Wrong email or password."
+		},
+		"account": {
+			"locked": "Too many failed attempts. Try again in a few minutes.",
+			"inactive": "This account is not active. Contact support.",
+			"no-password": "This account signs in with Google."
+		},
+		"token": {
+			"invalid": "This link is not valid. Ask for a new one.",
+			"expired": "This link expired. Ask for a new one."
+		},
+		"session": {
+			"expired": "Your session expired. Sign in again."
+		},
+		"google": {
+			"unavailable": "Google sign-in is unavailable right now.",
+			"cancelled": "Google sign-in was cancelled.",
+			"invalid": "We couldn't validate your Google account."
+		}
 	},
 	"auth": {
 		"login": {
@@ -232,7 +252,16 @@
 			"placeholder": "The Privacy Policy content has not been published yet."
 		}
 	},
-	"password-reset-email": {
-		"title": "Reset you password here"
+	"emails": {
+		"password-reset": {
+			"preview": "Planici | Password Reset",
+			"body": {
+				"title": "Reset your Password",
+				"subtitle": "Dear {name}, someone sent you a password reset request, you can do it via the link below.",
+				"button": "Reset Password",
+				"footer": "If you don't recognize this request, you can safely ignore it. Your account is safe with us."
+			},
+			"slogan": "Because managing your plans should feel this easy."
+		}
 	}
 }

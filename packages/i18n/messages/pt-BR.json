@@ -55,9 +55,28 @@
 		"terms": {
 			"required": "Você precisa aceitar os termos para continuar."
 		},
-		"unexpected": "Não foi possível concluir agora. Tente novamente em instantes."
+		"unexpected": "Não foi possível concluir agora. Tente novamente em instantes.",
+		"credentials": {
+			"invalid": "E-mail ou senha incorretos."
+		},
+		"account": {
+			"locked": "Muitas tentativas malsucedidas. Tente novamente em alguns minutos.",
+			"inactive": "Esta conta não está ativa. Entre em contato com o suporte.",
+			"no-password": "Esta conta entra com o Google."
+		},
+		"token": {
+			"invalid": "Este link não é válido. Solicite um novo.",
+			"expired": "Este link expirou. Solicite um novo."
+		},
+		"session": {
+			"expired": "Sua sessão expirou. Entre novamente."
+		},
+		"google": {
+			"unavailable": "O login com Google está indisponível no momento.",
+			"cancelled": "O login com Google foi cancelado.",
+			"invalid": "Não conseguimos validar sua conta Google."
+		}
 	},
-
 	"auth": {
 		"login": {
 			"title": "Bem-vindo de volta",
@@ -166,7 +185,6 @@
 			}
 		}
 	},
-
 	"consent": {
 		"banner": {
 			"title": "Sua privacidade",
@@ -234,7 +252,16 @@
 			"placeholder": "O conteúdo da Política de Privacidade ainda será publicado."
 		}
 	},
-	"password-reset-email": {
-		"title": "Troque sua senha aqui"
+	"emails": {
+		"password-reset": {
+			"preview": "Planici | Reset de senha",
+			"body": {
+				"title": "Troque sua senha",
+				"subtitle": "Querido(a) {name}, alguém enviou uma solicitação de troca da sua senha, você pode fazer a troca a partir do link abaixo.",
+				"button": "Trocar Senha",
+				"footer": "Caso não tenha sido você, pode ignorar esse e-mail. Sua conta está segura com a gente."
+			},
+			"slogan": "Planejar deveria ser simples assim."
+		}
 	}
 }
