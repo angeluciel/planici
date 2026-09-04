@@ -13,6 +13,7 @@
 		"@formatjs/intl-localematcher": "^0.8.8",
 		"@hookform/resolvers": "^5.9.0",
 		"@planici/schemas": "workspace:*",
+		"@planici/i18n": "workspace:*",
 		"clsx": "^2.1.1",
 		"input-otp": "^1.5.0",
 		"lucide-react": "^1.24.0",

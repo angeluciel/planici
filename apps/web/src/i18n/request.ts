@@ -14,7 +14,9 @@ export default getRequestConfig(async ({ requestLocale }) => {
 	return {
 		locale,
 		messages: (
-			(await import(`../messages/${locale}.json`)) as { default: Messages }
+			(await import(`@planici/i18n/messages/${locale}.json`)) as {
+				default: Messages;
+			}
 		).default,
 	};
 });

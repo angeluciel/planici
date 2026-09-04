@@ -233,5 +233,8 @@
 			"updated": "Versão {version}",
 			"placeholder": "O conteúdo da Política de Privacidade ainda será publicado."
 		}
+	},
+	"password-reset-email": {
+		"title": "Troque sua senha aqui"
 	}
 }
