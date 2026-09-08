@@ -4,7 +4,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 const ip = process.env.IP_ADDRESS;
 
 const nextConfig: NextConfig = {
-	allowedDevOrigins: [ip],
+	allowedDevOrigins: ip ? [ip] : [],
 };
 
 const withNextIntl = createNextIntlPlugin();
