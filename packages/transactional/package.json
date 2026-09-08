@@ -4,10 +4,7 @@
 	"type": "module",
 	"main": "./dist/index.js",
 	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.js"
-		}
+		".": "./src/index.ts"
 	},
 	"scripts": {
 		"dev": "email dev -p 3001",

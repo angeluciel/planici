@@ -1,8 +1,10 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
+const ip = process.env.IP_ADDRESS;
+
 const nextConfig: NextConfig = {
-	allowedDevOrigins: ["18.224.113.185", "177.200.208.82"],
+	allowedDevOrigins: [ip],
 };
 
 const withNextIntl = createNextIntlPlugin();
