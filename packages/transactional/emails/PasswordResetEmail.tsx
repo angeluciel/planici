@@ -102,22 +102,26 @@ export default async function PasswordResetEmail({ name, link, locale }: Passwor
 						<Section className="w-full text-center">
 							<Row>
 								<Column className="w-full" align="center">
-									<Row className="w-full" align="center">
-										<Text className="max-w-[240px] text-center">
-											<span className="text-text-secondary text-body-s-medium">{t("slogan")}</span>
-										</Text>
-									</Row>
-									<Row className="align-middle" align="center">
-										<Link href="https://github.com/angeluciel/planici" className="px-2 w-min h-min">
-											<Img src={`${baseUrl}/github1.png`} alt="gh" width={24} />
-										</Link>
+									<Text className="max-w-[240px] text-center">
+										<span className="text-text-secondary text-body-s-medium">{t("slogan")}</span>
+									</Text>
+									<Row className="align-middle" align="center" width={124}>
+										<Column align="center" width="40">
+											<Link href="https://github.com/angeluciel/planici" className="px-2 w-min h-min">
+												<Img src={`${baseUrl}/github1.png`} alt="gh" width={24} />
+											</Link>
+										</Column>
 
-										<Link href="https://example.com" className="px-2 w-min">
-											<Img src={`${baseUrl}/Vector.png`} width={24} alt="ig" />
-										</Link>
-										<Link href="https://example.com" className="px-2 w-min">
-											<Img src={`${baseUrl}/x.png`} width={24} alt="x" />
-										</Link>
+										<Column align="center" width="40">
+											<Link href="https://example.com" className="px-2 w-min">
+												<Img src={`${baseUrl}/Vector.png`} width={24} alt="ig" />
+											</Link>
+										</Column>
+										<Column align="center" width="40">
+											<Link href="https://example.com" className="px-2 w-min">
+												<Img src={`${baseUrl}/x.png`} width={24} alt="x" />
+											</Link>
+										</Column>
 									</Row>
 								</Column>
 							</Row>
