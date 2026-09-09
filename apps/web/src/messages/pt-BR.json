@@ -5,7 +5,6 @@
 		"loading": "Carregando",
 		"back": "Voltar",
 		"close": "Fechar",
-<<<<<<< HEAD
 		"footer": "{year} PLANICI, Todos os Direitos Reservados",
 		"inputs": {
 			"email": {
@@ -17,9 +16,6 @@
 				"placeholder": "Enter your password"
 			}
 		}
-=======
-		"footer": "{year} PLANICI, Todos os Direitos Reservados"
->>>>>>> bdaa3bd (Feature/register-page (#18))
 	},
 	"validation": {
 		"email": {
@@ -74,7 +70,9 @@
 				"text": "Não tem uma conta? ",
 				"link": "Criar nova."
 			},
-			"next-btn": "Entrar"
+			"show-password": "Mostrar senha",
+			"next-btn": "Entrar",
+			"google-unavailable": "Google OAuth indisponível."
 		},
 		"register": {
 			"stepper-label": "Progresso do cadastro",

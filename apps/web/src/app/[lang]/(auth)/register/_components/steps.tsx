@@ -21,9 +21,6 @@ import { signInWithGoogle } from "@/lib/api/register";
 import { useFieldError } from "@/lib/form";
 import type { StepProps } from "@/types/register";
 
-const LINK_CLASS =
-	"text-text-link hover:text-text-link-pressed visited:text-text-lnik-visited hover:visited:text-text-link-visited-pressed";
-
 function BackButton({
 	label,
 	onBack,
@@ -40,36 +37,12 @@ function BackButton({
 	);
 }
 
-<<<<<<< HEAD
 export const LINK_CLASS =
 	"text-text-link hover:text-text-link-pressed visited:text-text-link-visited hover:visited:text-text-link-visited-pressed";
-=======
-const LINK_CLASS =
-	"text-text-link hover:text-text-link-pressed visited:text-text-lnik-visited hover:visited:text-text-link-visited-pressed";
->>>>>>> bdaa3bd (Feature/register-page (#18))
-
-function BackButton({
-	label,
-	onBack,
-	disabled,
-}: Readonly<{ label: string; onBack: () => void; disabled?: boolean }>) {
-	return (
-		<Button
-			text={label}
-			variant="secondary"
-			type="button"
-			onPress={onBack}
-			disabled={disabled}
-		/>
-	);
-}
 
 function AccountStep({ defaultValues, onNext }: Readonly<StepProps>) {
 	const t = useTranslations("auth.register.steps.first");
-<<<<<<< HEAD
 	const tcommon = useTranslations("common");
-=======
->>>>>>> bdaa3bd (Feature/register-page (#18))
 	const fieldError = useFieldError();
 
 	const { getFieldState, formState, register, handleSubmit } = useForm({
@@ -128,10 +101,7 @@ function AccountStep({ defaultValues, onNext }: Readonly<StepProps>) {
 
 function PasswordStep({ defaultValues, onNext, onBack }: Readonly<StepProps>) {
 	const t = useTranslations("auth.register.steps.second");
-<<<<<<< HEAD
 	const tcommon = useTranslations("common");
-=======
->>>>>>> bdaa3bd (Feature/register-page (#18))
 	const fieldError = useFieldError();
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirm, setShowConfirm] = useState(false);
@@ -166,17 +136,10 @@ function PasswordStep({ defaultValues, onNext, onBack }: Readonly<StepProps>) {
 		>
 			<div className="flex w-full flex-col">
 				<Input
-<<<<<<< HEAD
 					label={tcommon("inputs.password.label")}
 					type={showPassword ? "text" : "password"}
 					autoComplete="new-password"
 					placeholder={tcommon("inputs.password.placeholder")}
-=======
-					label={t("input.label")}
-					type={showPassword ? "text" : "password"}
-					autoComplete="new-password"
-					placeholder={t("input.placeholder")}
->>>>>>> bdaa3bd (Feature/register-page (#18))
 					{...register("password")}
 					status={passwordStatus}
 					trailingIcon={showPassword ? EyeClosed : Eye}

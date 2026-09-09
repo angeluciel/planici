@@ -154,19 +154,29 @@ export default function LoginForm() {
 					onTrailingIconClick={() => setShowPassword((visible) => !visible)}
 				/>
 				<Link
-					className={cn("ml-auto relative -mt-2 link-colors")}
+					className={cn("ml-auto relative -mt-2 link-colors font-body-sm")}
 					href={"/reset-password"}
 				>
 					{t("forgot")}
 				</Link>
 			</div>
-			<Checkbox label="Lembrar de mim" {...register("rememberMe")} />
-			<Button
-				disabled={isSubmitting}
-				type="submit"
-				variant="primary"
-				text={t("next-btn")}
-			/>
+			<div className="flex flex-col gap-4">
+				<Checkbox label="Lembrar de mim" {...register("rememberMe")} />
+				<div className="flex flex-col items-end">
+					<Button
+						disabled={isSubmitting}
+						type="submit"
+						variant="primary"
+						text={t("next-btn")}
+					/>
+					<span className="font-body-sm">
+						{t("redirect.text")}
+						<Link className="link-colors" href={"register"}>
+							{t("redirect.link")}
+						</Link>
+					</span>
+				</div>
+			</div>
 		</form>
 	);
 }
