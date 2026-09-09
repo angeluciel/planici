@@ -34,8 +34,7 @@ export default function LoginForm() {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submitError, setSubmitError] = useState<string | null>(null);
 
-	const t = useTranslations("auth.login");
-	const tcommon = useTranslations("common");
+	const t = useTranslations();
 	const fieldError = useFieldError();
 
 	const router = useRouter();
@@ -114,26 +113,28 @@ export default function LoginForm() {
 				type="button"
 				onClick={() => void onGoogleSignIn()}
 				disabled={!isGoogleConfigured || isSubmitting}
-				title={isGoogleConfigured ? undefined : t("google-unavailable")}
+				title={
+					isGoogleConfigured ? undefined : t("auth.login.google-unavailable")
+				}
 				className={cn(
 					"w-full px-4 h-10 gap-2 border-2 border-border font-body-sm font-medium rounded-md",
 					"disabled:cursor-not-allowed disabled:opacity-60",
 				)}
 			>
-				{t("google-btn")}
+				{t("auth.login.google-btn")}
 			</button>
 
 			<div className="flex gap-2 items-center text-text-bold w-full">
 				<div className="h-px w-full bg-background-accent-gray-subtle" />
-				{t("divider")}
+				{t("auth.login.divider")}
 				<div className="h-px w-full bg-background-accent-gray-subtle" />
 			</div>
 
 			<Input
 				autoComplete="email"
 				{...register("email")}
-				label={tcommon("inputs.email.label")}
-				placeholder={tcommon("inputs.email.placeholder")}
+				label={t("common.inputs.email.label")}
+				placeholder={t("common.inputs.email.placeholder")}
 				help={fieldError(errors.email?.message) ?? ""}
 				status={statusOf("email")}
 			/>
@@ -143,13 +144,15 @@ export default function LoginForm() {
 					autoComplete="current-password"
 					{...register("password")}
 					type={showPassword ? "text" : "password"}
-					label={tcommon("inputs.password.label")}
-					placeholder={tcommon("inputs.password.placeholder")}
+					label={t("common.inputs.password.label")}
+					placeholder={t("common.inputs.password.placeholder")}
 					help={fieldError(errors.password?.message) ?? ""}
 					status={statusOf("password")}
 					trailingIcon={showPassword ? EyeClosed : Eye}
 					trailingIconLabel={
-						showPassword ? t("hide-password") : t("show-password")
+						showPassword
+							? t("auth.login.hide-password")
+							: t("auth.login.show-password")
 					}
 					onTrailingIconClick={() => setShowPassword((visible) => !visible)}
 				/>
@@ -157,7 +160,7 @@ export default function LoginForm() {
 					className={cn("ml-auto relative -mt-2 link-colors font-body-sm")}
 					href={"/reset-password"}
 				>
-					{t("forgot")}
+					{t("auth.login.forgot")}
 				</Link>
 			</div>
 			<div className="flex flex-col gap-4">
@@ -167,12 +170,12 @@ export default function LoginForm() {
 						disabled={isSubmitting}
 						type="submit"
 						variant="primary"
-						text={t("next-btn")}
+						text={t("auth.login.next-btn")}
 					/>
 					<span className="font-body-sm">
-						{t("redirect.text")}
+						{t("auth.login.redirect.text")}
 						<Link className="link-colors" href={"register"}>
-							{t("redirect.link")}
+							{t("auth.login.redirect.link")}
 						</Link>
 					</span>
 				</div>
