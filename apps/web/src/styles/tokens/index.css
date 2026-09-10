@@ -5,6 +5,7 @@
 @import "./semantic/icon.css";
 @import "./elevation.css";
 @import "./typography.css";
+@import "./components/text.css";
 
 @theme inline {
 	--color-*: initial;

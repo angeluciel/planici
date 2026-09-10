@@ -11,6 +11,7 @@ import { requestEmailCode } from "@/lib/api/email-verification";
 import { registerUser } from "@/lib/api/register";
 import { useFieldError } from "@/lib/form";
 import { maskEmail } from "@/lib/mask";
+import { TERMS_VERSION } from "@/lib/legal";
 import {
 	nextStep,
 	previousStep,

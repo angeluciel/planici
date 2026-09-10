@@ -21,9 +21,6 @@ import { signInWithGoogle } from "@/lib/api/register";
 import { useFieldError } from "@/lib/form";
 import type { StepProps } from "@/types/register";
 
-const LINK_CLASS =
-	"text-text-link hover:text-text-link-pressed visited:text-text-lnik-visited hover:visited:text-text-link-visited-pressed";
-
 function BackButton({
 	label,
 	onBack,
@@ -40,8 +37,11 @@ function BackButton({
 	);
 }
 
+export const LINK_CLASS =
+	"text-text-link hover:text-text-link-pressed visited:text-text-link-visited hover:visited:text-text-link-visited-pressed";
+
 function AccountStep({ defaultValues, onNext }: Readonly<StepProps>) {
-	const t = useTranslations("auth.register.steps.first");
+	const t = useTranslations();
 	const fieldError = useFieldError();
 
 	const { getFieldState, formState, register, handleSubmit } = useForm({
@@ -69,27 +69,31 @@ function AccountStep({ defaultValues, onNext }: Readonly<StepProps>) {
 				onClick={() => void signInWithGoogle()}
 				className="w-full px-4 h-10 gap-2 border-2 border-border font-body-sm font-medium rounded-md"
 			>
-				{t("google-btn")}
+				{t("auth.register.steps.first.google-btn")}
 			</button>
-			<div className="flex gap-2 items-center text-text-bold">
-				<div className="h-0.5 w-full bg-background-accent-disabled" />
-				{t("divider")}
-				<div className="h-0.5 w-full bg-background-accent-disabled" />
+			<div className="flex gap-2 items-center text-text-bold w-full">
+				<div className="h-px w-full bg-background-accent-gray-subtle" />
+				{t("auth.register.steps.first.divider")}
+				<div className="h-px w-full bg-background-accent-gray-subtle" />
 			</div>
 			<Input
-				label={t("input.label")}
+				label={t("common.inputs.email.label")}
 				type="email"
-				placeholder={t("input.placeholder")}
+				placeholder={t("common.inputs.email.placeholder")}
 				{...register("email")}
 				status={status}
 				help={fieldError(errors.email?.message)}
 			/>
 			<div className="flex flex-col gap-8 items-center w-full">
-				<Button text={t("next-btn")} variant="primary" type="submit" />
+				<Button
+					text={t("auth.register.steps.first.next-btn")}
+					variant="primary"
+					type="submit"
+				/>
 				<span className="text-sm">
-					{t("link")}{" "}
+					{t("auth.register.steps.first.link")}{" "}
 					<Link className={LINK_CLASS} href={"/login"}>
-						{t("sign-in")}
+						{t("auth.register.steps.first.sign-in")}
 					</Link>
 					.
 				</span>
@@ -99,7 +103,7 @@ function AccountStep({ defaultValues, onNext }: Readonly<StepProps>) {
 }
 
 function PasswordStep({ defaultValues, onNext, onBack }: Readonly<StepProps>) {
-	const t = useTranslations("auth.register.steps.second");
+	const t = useTranslations();
 	const fieldError = useFieldError();
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirm, setShowConfirm] = useState(false);
@@ -134,15 +138,17 @@ function PasswordStep({ defaultValues, onNext, onBack }: Readonly<StepProps>) {
 		>
 			<div className="flex w-full flex-col">
 				<Input
-					label={t("input.label")}
+					label={t("common.inputs.password.label")}
 					type={showPassword ? "text" : "password"}
 					autoComplete="new-password"
-					placeholder={t("input.placeholder")}
+					placeholder={t("common.inputs.password.placeholder")}
 					{...register("password")}
 					status={passwordStatus}
 					trailingIcon={showPassword ? EyeClosed : Eye}
 					trailingIconLabel={
-						showPassword ? t("hide-password") : t("show-password")
+						showPassword
+							? t("auth.register.steps.second.hide-password")
+							: t("auth.register.steps.second.show-password")
 					}
 					onTrailingIconClick={() => setShowPassword((visible) => !visible)}
 				/>
@@ -152,24 +158,34 @@ function PasswordStep({ defaultValues, onNext, onBack }: Readonly<StepProps>) {
 				/>
 			</div>
 			<Input
-				label={t("confirm-input.label")}
+				label={t("auth.register.steps.second.confirm-input.label")}
 				type={showConfirm ? "text" : "password"}
 				autoComplete="new-password"
-				placeholder={t("confirm-input.placeholder")}
+				placeholder={t("auth.register.steps.second.confirm-input.placeholder")}
 				{...register("confirmPassword")}
 				status={confirmStatus}
 				help={
-					fieldError(errors.confirmPassword?.message) ?? t("confirm-input.help")
+					fieldError(errors.confirmPassword?.message) ??
+					t("auth.register.steps.second.confirm-input.help")
 				}
 				trailingIcon={showConfirm ? EyeClosed : Eye}
 				trailingIconLabel={
-					showConfirm ? t("hide-password") : t("show-password")
+					showConfirm
+						? t("auth.register.steps.second.hide-password")
+						: t("auth.register.steps.second.show-password")
 				}
 				onTrailingIconClick={() => setShowConfirm((visible) => !visible)}
 			/>
 			<div className="flex w-full flex-col gap-2">
-				<Button text={t("next-btn")} variant="primary" type="submit" />
-				<BackButton label={t("back-btn")} onBack={onBack} />
+				<Button
+					text={t("auth.register.steps.second.next-btn")}
+					variant="primary"
+					type="submit"
+				/>
+				<BackButton
+					label={t("auth.register.steps.second.back-btn")}
+					onBack={onBack}
+				/>
 			</div>
 		</form>
 	);
