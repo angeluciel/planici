@@ -1,12 +1,9 @@
 import { z } from "zod";
 import { EmailSchema } from "../common.js";
-
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_HAS_NUMBER = /\d/;
 export const PASSWORD_HAS_SYMBOL = /[^A-Za-z0-9]/;
-
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-
 export const CreateUser = z.object({
 	email: EmailSchema,
 	name: z
@@ -28,9 +25,7 @@ export const CreateUser = z.object({
 		.min(1, { error: "slug.required" })
 		.regex(SLUG_PATTERN, { error: "slug.pattern" }),
 });
-
 export const AccountStepSchema = CreateUser.pick({ email: true });
-
 export const PasswordStepSchema = CreateUser.pick({
 	password: true,
 	confirmPassword: true,
@@ -38,31 +33,21 @@ export const PasswordStepSchema = CreateUser.pick({
 	message: "confirmPassword.mismatch",
 	path: ["confirmPassword"],
 });
-
 export const TermsStepSchema = z.object({
 	acceptedTerms: z.literal(true, { error: "terms.required" }),
 	marketingOptIn: z.boolean(),
 });
-
 export const ProfileStepSchema = CreateUser.pick({
 	name: true,
 	surname: true,
 	slug: true,
 });
-
 export const EMAIL_CODE_LENGTH = 6;
 export const EMAIL_CODE_PATTERN = /^\d{6}$/;
-
 export const VerifyEmailStepSchema = z.object({
 	code: z
 		.string({ error: "code.required" })
 		.min(1, { error: "code.requried" })
 		.regex(EMAIL_CODE_PATTERN, { error: "code.length" }),
 });
-
-export type CreateUserInput = z.infer<typeof CreateUser>;
-export type AccountStepValues = z.infer<typeof AccountStepSchema>;
-export type PasswordStepValues = z.infer<typeof PasswordStepSchema>;
-export type TermsStepValues = z.infer<typeof TermsStepSchema>;
-export type ProfileStepValues = z.infer<typeof ProfileStepSchema>;
-export type VerifyEmailStepValues = z.infer<typeof VerifyEmailStepSchema>;
+//# sourceMappingURL=register.js.map

@@ -11,7 +11,7 @@ export class PasswordHasher {
   ) {}
 
   hash(plain: string): Promise<string> {
-    return hash(plain, this.config.bcrypCost);
+    return hash(plain, this.config.bcryptCost);
   }
 
   verify(plain: string, passwordHash: string): Promise<boolean> {
