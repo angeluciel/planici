@@ -19,13 +19,14 @@ export default async function LoginPage() {
 							<Logo className="h-8 w-auto" />
 						</div>
 						<div className="flex flex-col items-center">
-							<h1 className="font-heading-lg">{t("title")}</h1>
+							<h1 className="font-heading-lg">{t("auth.login.title")}</h1>
 							<span className="font-body-md text-text-accent-gray text-center">
-								{t("description")}
+								{t("auth.login.description")}
 							</span>
 						</div>
 					</div>
 
+					<LoginForm />
 					{/* {submitError && <Alert>{fieldError(submitError)}</Alert>} */}
 				</div>
 
