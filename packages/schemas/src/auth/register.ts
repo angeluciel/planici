@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { EmailSchema } from "../common";
+import { EmailSchema } from "../common.js";
 
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_HAS_NUMBER = /\d/;

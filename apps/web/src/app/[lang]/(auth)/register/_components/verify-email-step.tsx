@@ -3,7 +3,6 @@
 import { EMAIL_CODE_LENGTH, VerifyEmailStepSchema } from "@planici/schemas";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/button";
 import type { FieldStatus } from "@/components/input";
 import { OtpInput } from "@/components/input-otp";
 import { useResendCooldown } from "@/hooks/use-resend-cooldown";
@@ -17,7 +16,6 @@ const LINK_CLASS =
 function VerifyEmailStep({
 	defaultValues,
 	onNext,
-	onBack,
 	onResend,
 	onSkip,
 	isSending,

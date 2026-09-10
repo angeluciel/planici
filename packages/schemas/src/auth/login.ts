@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { EmailSchema } from "../common";
+import { EmailSchema } from "../common.js";
 
 export const EmailLoginSchema = z.object({
 	provider: z.literal("email"),

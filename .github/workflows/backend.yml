@@ -1,32 +1,116 @@
-name: backend-ci
+name: CI
 
 on:
+  pull_request:
+    branches: [main, dev]
   push:
     branches: [main, dev]
-  pull_request:
+  
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
+  quality:
+    name: Lint & Typecheck
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [24]
 
     steps:
       - uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
 
-      - name: Setup Node.JS ${{matrix.node-version}}
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: ${{matrix.node-version}}
-          cache: 'pnpm'
+          version: 12.3.4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      
+      - run: pnpm ci
+      - run: pnpm lint
+      - run: pnpm typecheck
+  
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-        working-directory: ./apps/api
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Run Tests
-        run: pnpm test
-        working-directory: ./apps/api
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.3.4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      
+      - run: pnpm ci
+
+      - run: pnpm test
+
+      - name: API Coverage
+        run: pnpm --filter api test:cov
+
+  e2e:
+    name: API E2E
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: planici_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.3.4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      
+      - run: pnpm ci
+
+      - name: Run API E2E Tests
+        run: pnpm --filter api test:e2e
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/planici_test
+    
+  build:
+    name: Build
+    needs: [quality, test, e2e]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.3.4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      
+      - run: pnpm ci
+      - run: pnpm build

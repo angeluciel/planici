@@ -23,9 +23,9 @@ type ConsentContextValue = {
 	record: ConsentRecord | null;
 	grants: ConsentChoices;
 	hasChosen: boolean;
-	acceptAll: () => void;
-	rejectAll: () => void;
-	save: (choices: ConsentChoices) => void;
+	acceptAll: () => Promise<void>;
+	rejectAll: () => Promise<void>;
+	save: (choices: ConsentChoices) => Promise<void>;
 	openPreferences: () => void;
 	closePreferences: () => void;
 	preferencesOpen: boolean;
@@ -33,14 +33,16 @@ type ConsentContextValue = {
 
 const ConsentContext = createContext<ConsentContextValue | null>(null);
 
-function writeConsentCookie(record: ConsentRecord) {
-	const secure = window.location.protocol === "https:" ? "; Secure" : "";
-
-	const cookie =
-		`${CONSENT_COOKIE}=${serializeConsent(record)}` +
-		`; Path=/; Max-Age=${CONSENT_MAX_AGE_SECONDS}; SameSite=Lax${secure}`;
-
-	document.cookie = cookie;
+async function writeConsentCookie(record: ConsentRecord) {
+	await cookieStore.set({
+		name: CONSENT_COOKIE,
+		value: serializeConsent(record),
+		path: "/",
+		//TODO: upgrade ts and nextjs versions
+		// @ts-expect-error maxAge is missing in this bitch ass version of ts
+		maxAge: CONSENT_MAX_AGE_SECONDS,
+		sameSite: "lax",
+	});
 }
 
 export function ConsentProvider({
@@ -50,9 +52,9 @@ export function ConsentProvider({
 	const [record, setRecord] = useState<ConsentRecord | null>(initial);
 	const [preferencesOpen, setPreferencesOpen] = useState(false);
 
-	const commit = useCallback((choices: ConsentChoices) => {
+	const commit = useCallback(async (choices: ConsentChoices) => {
 		const next = createConsentRecord(choices);
-		writeConsentCookie(next);
+		await writeConsentCookie(next);
 		setRecord(next);
 		setPreferencesOpen(false);
 	}, []);
@@ -78,7 +80,6 @@ export function ConsentProvider({
 }
 
 export function useConsent(): ConsentContextValue {
-	// biome-ignore lint: Sem problema chamar recursivamente
 	const context = useContext(ConsentContext);
 
 	if (!context) {
