@@ -1,9 +1,5 @@
 {
 	"common": {
-<<<<<<< HEAD
-=======
-
->>>>>>> df681c2 (otp implemented)
 		"save": "Save",
 		"cancel": "Cancel",
 		"loading": "Loading",
@@ -73,7 +69,9 @@
 				"text": "Don't have an account? ",
 				"link": "Create one."
 			},
-			"next-btn": "Sign in"
+			"show-password": "Show password",
+			"next-btn": "Sign in",
+			"google-unavailable": "Google OAuth not available."
 		},
 		"register": {
 			"stepper-label": "Registration progress",
