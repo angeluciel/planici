@@ -12,9 +12,6 @@ import { useFieldError } from "@/lib/form";
 import type { VerifyStepProps } from "@/types/register";
 
 const LINK_CLASS =
-
-	"text-text-link hover:text-text-link-pressed disabled:cursor-not-allowed disabled:text-text-disabled cursor-pointer";
-
 	"text-text-link hover:text-text-link-pressed disabled:cursor-not-allowed disabled:text-text-disabled cursor-pointer";
 
 function VerifyEmailStep({

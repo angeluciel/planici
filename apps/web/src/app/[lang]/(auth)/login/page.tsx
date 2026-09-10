@@ -6,8 +6,7 @@ import { Logo } from "@/components/logo";
 import LoginForm from "./login-form";
 
 export default async function LoginPage() {
-	const t = await getTranslations("auth.login");
-	const tcommon = await getTranslations("common");
+	const t = await getTranslations();
 
 	return (
 		<div className="min-h-screen flex flex-1 px-4 bg-surface relative">
@@ -27,14 +26,13 @@ export default async function LoginPage() {
 						</div>
 					</div>
 
-					<LoginForm />
 					{/* {submitError && <Alert>{fieldError(submitError)}</Alert>} */}
 				</div>
 
 				<footer className="flex flex-col-reverse w-full pb-4 items-center-safe justify-center-safe gap-2">
 					<CookieSettingsLink className="font-body-caption text-text-link hover:text-text-link-pressed" />
 					<span className="font-body-caption">
-						{tcommon("footer", { year: new Date().getFullYear() })}
+						{t("common.footer", { year: new Date().getFullYear() })}
 					</span>
 				</footer>
 			</div>

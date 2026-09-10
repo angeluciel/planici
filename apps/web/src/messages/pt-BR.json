@@ -70,7 +70,9 @@
 				"text": "Não tem uma conta? ",
 				"link": "Criar nova."
 			},
-			"next-btn": "Entrar"
+			"show-password": "Mostrar senha",
+			"next-btn": "Entrar",
+			"google-unavailable": "Google OAuth indisponível."
 		},
 		"register": {
 			"stepper-label": "Progresso do cadastro",
