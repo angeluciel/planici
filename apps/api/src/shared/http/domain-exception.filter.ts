@@ -31,14 +31,22 @@ export class DomainExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
       const payload = exception.getResponse();
-      const error =
-        typeof payload === 'object' && payload !== null && 'error' in payload
-          ? (payload as { error: string }).error
-          : status === HttpStatus.TOO_MANY_REQUESTS
-            ? 'code.rate-limited'
-            : status === HttpStatus.UNAUTHORIZED
-              ? 'session.expired'
-              : 'unexpected';
+      const error = () => {
+        if (
+          typeof payload === 'object' &&
+          payload !== null &&
+          'error' in payload
+        ) {
+          return (payload as { error: string }).error;
+        } else if (status === HttpStatus.TOO_MANY_REQUESTS) {
+          return 'code.rate-limited';
+        } else if (status === HttpStatus.UNAUTHORIZED) {
+          return 'session.expired';
+        } else {
+          return 'unexpected';
+        }
+      };
+
       response.status(status).json({ error });
       return;
     }

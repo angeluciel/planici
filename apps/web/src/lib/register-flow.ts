@@ -104,9 +104,8 @@ export function previousStep(
 	const from = REGISTER_STEPS.indexOf(current);
 
 	return (
-		activeSteps(data)
-			.filter((slug) => REGISTER_STEPS.indexOf(slug) < from)
-			.at(-1) ?? null
+		activeSteps(data).findLast((slug) => REGISTER_STEPS.indexOf(slug) < from) ??
+		null
 	);
 }
 
