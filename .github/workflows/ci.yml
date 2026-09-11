@@ -105,7 +105,7 @@ jobs:
 
   sonar:
     name: SonarQube Analysis
-    needs: [quality, test]
+    needs: [quality, test, build]
     runs-on: ubuntu-latest
 
     steps:
