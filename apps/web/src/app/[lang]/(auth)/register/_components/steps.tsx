@@ -10,7 +10,13 @@ import {
 import { Eye, EyeClosed } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { type FieldPath, useForm } from "react-hook-form";
+import {
+	type FieldPath,
+	type FieldValues,
+	type FormState,
+	type UseFormGetFieldState,
+	useForm,
+} from "react-hook-form";
 import type z from "zod";
 import { Button } from "@/components/button";
 import { Checkbox } from "@/components/checkbox";
@@ -39,6 +45,18 @@ function BackButton({
 
 export const LINK_CLASS =
 	"text-text-link hover:text-text-link-pressed visited:text-text-link-visited hover:visited:text-text-link-visited-pressed";
+
+function getFieldStatus<T extends FieldValues>(
+	name: FieldPath<T>,
+	getFieldState: UseFormGetFieldState<T>,
+	formState: FormState<T>,
+): FieldStatus {
+	const { error, isDirty, invalid } = getFieldState(name, formState);
+
+	if (error) return "error";
+	if (isDirty && !invalid) return "success";
+	return "default";
+}
 
 function AccountStep({ defaultValues, onNext }: Readonly<StepProps>) {
 	const t = useTranslations();
@@ -108,6 +126,8 @@ function PasswordStep({ defaultValues, onNext, onBack }: Readonly<StepProps>) {
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirm, setShowConfirm] = useState(false);
 
+	type FormValues = z.infer<typeof PasswordStepSchema>;
+
 	const { getFieldState, formState, register, handleSubmit, watch } = useForm({
 		resolver: zodResolver(PasswordStepSchema),
 		defaultValues: {
@@ -119,14 +139,8 @@ function PasswordStep({ defaultValues, onNext, onBack }: Readonly<StepProps>) {
 
 	const { errors } = formState;
 
-	type FormValues = z.infer<typeof PasswordStepSchema>;
-
-	const statusOf = (name: FieldPath<FormValues>): FieldStatus => {
-		const { error, isDirty, invalid } = getFieldState(name, formState);
-		if (error) return "error";
-		if (isDirty && !invalid) return "success";
-		return "default";
-	};
+	const statusOf = (name: FieldPath<FormValues>) =>
+		getFieldStatus<FormValues>(name, getFieldState, formState);
 
 	const passwordStatus = statusOf("password");
 	const confirmStatus = statusOf("confirmPassword");
@@ -253,6 +267,8 @@ function ProfileStep({
 	const t = useTranslations("auth.register.steps.fourth");
 	const fieldError = useFieldError();
 
+	type FormValues = z.infer<typeof ProfileStepSchema>;
+
 	const { getFieldState, formState, register, handleSubmit } = useForm({
 		resolver: zodResolver(ProfileStepSchema),
 		defaultValues: {
@@ -265,13 +281,8 @@ function ProfileStep({
 
 	const { errors } = formState;
 
-	type FormValues = z.infer<typeof ProfileStepSchema>;
-	const statusOf = (name: FieldPath<FormValues>): FieldStatus => {
-		const { error, isDirty, invalid } = getFieldState(name, formState);
-		if (error) return "error";
-		if (isDirty && !invalid) return "success";
-		return "default";
-	};
+	const statusOf = (name: FieldPath<FormValues>) =>
+		getFieldStatus<FormValues>(name, getFieldState, formState);
 
 	return (
 		<form

@@ -24,10 +24,10 @@ function getState(index: number, currentStep: number): StepState {
 export function RegisterStepper({
 	currentStep,
 	steps,
-}: {
+}: Readonly<{
 	currentStep: number;
 	steps: Step[];
-}) {
+}>) {
 	return (
 		<>
 			<Stepper className="hidden lg:flex">

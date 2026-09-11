@@ -34,6 +34,6 @@ export const AUTH_ERROR_CODES = [
 
 export type AuthErrorCode = (typeof AUTH_ERROR_CODES)[number];
 export type ApiErrorBody = {
-	error: AuthErrorCode | string;
+	error: AuthErrorCode | (string & {});
 	field?: string;
 };

@@ -1,5 +1,4 @@
 import type { LoginData } from "@/types/login";
-import type { GoogleProfile } from "@/types/register";
 import { requestGoogleIdToken } from "./google";
 
 export type LoginResult =

@@ -10,7 +10,7 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { randomBytes } from 'crypto';
+import { randomBytes } from 'node:crypto';
 import type { Request, Response } from 'express';
 import { tap } from 'rxjs';
 
