@@ -21,14 +21,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b
         with:
-          version: 12.3.4
-      
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
+          runtime: node@24
+          cache: true
+          install: false
       
       - run: pnpm ci
       - run: pnpm lint
@@ -41,14 +38,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b
         with:
-          version: 12.3.4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
+          runtime: node@24
+          cache: true
+          install: false
       
       - run: pnpm ci
 
@@ -79,14 +73,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b
         with:
-          version: 12.3.4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
+          runtime: node@24
+          cache: true
+          install: false
       
       - run: pnpm ci
 
@@ -103,14 +94,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b
         with:
-          version: 12.3.4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
+          runtime: node@24
+          cache: true
+          install: false
       
       - run: pnpm ci
       - run: pnpm build
+
+  sonar:
+    name: SonarQube Analysis
+    needs: [quality, test]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+        
+      - uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b
+        with:
+          runtime: node@24
+          cache: true
+          install: false
