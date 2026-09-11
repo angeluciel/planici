@@ -105,7 +105,7 @@ jobs:
 
   sonar:
     name: SonarQube Analysis
-    needs: [quality, test, build]
+    needs: [quality, test]
     runs-on: ubuntu-latest
 
     steps:
@@ -120,6 +120,9 @@ jobs:
           install: false
 
       - run: pnpm ci
+
+      - name: Build schema package
+        run: pnpm --filter @planici/schemas build
 
       - name: Generate API Coverage
         run: pnpm --filter api test:cov
