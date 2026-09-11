@@ -1,0 +1,9 @@
+{
+	"name": "@planici/i18n",
+	"private": true,
+	"type": "module",
+	"exports": {
+		"./messages/*": "./messages/*.json",
+		".": "./index.ts"
+	}
+}

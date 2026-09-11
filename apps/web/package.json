@@ -13,12 +13,13 @@
 	"dependencies": {
 		"@formatjs/intl-localematcher": "^0.8.8",
 		"@hookform/resolvers": "^5.9.0",
+		"@planici/i18n": "workspace:*",
 		"@planici/schemas": "workspace:*",
 		"clsx": "^2.1.1",
 		"input-otp": "^1.5.0",
 		"lucide-react": "^1.24.0",
 		"negotiator": "^1.0.0",
-		"next": "16.2.6",
+		"next": "16.3.4",
 		"next-intl": "^4.12.0",
 		"next-themes": "^0.4.6",
 		"react": "19.2.4",
@@ -32,10 +33,10 @@
 		"@repo/biome-config": "workspace:^",
 		"@tailwindcss/postcss": "^4",
 		"@types/negotiator": "^0.6.4",
-		"@types/node": "^20",
-		"@types/react": "^19",
-		"@types/react-dom": "^19",
+		"@types/node": "^24.13.4",
+		"@types/react": "^19.3.0",
+		"@types/react-dom": "^19.3.0",
 		"tailwindcss": "^4",
-		"typescript": "^5"
+		"typescript": "^7.0.2"
 	}
 }
