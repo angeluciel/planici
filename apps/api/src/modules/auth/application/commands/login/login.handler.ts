@@ -68,7 +68,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
 
     const user = await this.users.findByEmail(email.value);
 
-    if (!user || !user.passwordHash) {
+    if (!user?.passwordHash) {
       // spend the same time as a real bcrypt comparison and count the attempt
       await this.hasher.fakeVerify();
       await this.registerFailure(email.value, ip);

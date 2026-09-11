@@ -1,6 +1,6 @@
 class HandleStep {
 	private _currentStep: React.ReactNode;
-	private _steps: React.ReactNode[];
+	private readonly _steps: React.ReactNode[];
 
 	constructor(current: React.ReactNode, all: React.ReactNode[]) {
 		this._currentStep = current;
