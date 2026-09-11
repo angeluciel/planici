@@ -3,6 +3,7 @@
 	"private": true,
 	"type": "module",
 	"exports": {
-		"./messages/*": "./messages/*"
+		"./messages/*": "./messages/*.json",
+		".": "./index.ts"
 	}
 }

@@ -42,3 +42,7 @@ prisma/client
 *.log
 npm-debug.log*
 pnpm-debug.log*
+
+# Sonar
+.scannerwork/
+.scannerwork/*

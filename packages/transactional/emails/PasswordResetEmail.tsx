@@ -1,3 +1,4 @@
+import { getMessages, type Locale } from "@planici/i18n";
 import { createTranslator } from "next-intl";
 import {
 	Body,
@@ -17,24 +18,23 @@ import {
 import { NotoSansFont } from "./components/theme-fonts";
 import { tailwindConfig } from "./tailwind";
 
-// TODO: APAGAR APAGAR APAGAR
-
-const loaders = {
-	"en-US": () => import("@planici/i18n/messages/en-US.json"),
-	"pt-BR": () => import("@planici/i18n/messages/pt-BR.json"),
-} as const;
-
-export type Locale = keyof typeof loaders;
-
 export interface PasswordResetEmailProps {
 	name: string;
 	link: string;
 	locale: Locale;
+	baseUrl: string;
 }
 
-export default async function PasswordResetEmail({ name, link, locale }: PasswordResetEmailProps) {
+export default async function PasswordResetEmail({
+	name,
+	link,
+	locale = "en-US",
+	baseUrl,
+}: Readonly<PasswordResetEmailProps>) {
+	const messages = getMessages(locale);
+
 	const t = createTranslator({
-		messages: await import(`../../i18n/messages/${locale}.json`),
+		messages,
 		namespace: "emails.password-reset",
 		locale,
 	});
@@ -137,4 +137,5 @@ PasswordResetEmail.PreviewProps = {
 	name: "John Doe",
 	link: "https://example.com/reset",
 	locale: "en-US",
+	baseUrl: "https://d34yicvl9up261.cloudfront.net",
 } satisfies PasswordResetEmailProps;

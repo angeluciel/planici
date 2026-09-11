@@ -1,6 +1,7 @@
+import { locales } from "@planici/i18n";
 import { defineRouting } from "next-intl/routing";
 
 export const routing = defineRouting({
-	locales: ["pt-BR", "en-US"],
+	locales,
 	defaultLocale: "pt-BR",
 });

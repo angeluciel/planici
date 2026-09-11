@@ -8,8 +8,10 @@
 	},
 	"scripts": {
 		"dev": "email dev -p 3001",
-		"export": "email export",
-		"start": "email start -p 3001"
+		"start": "email start -p 3001",
+		"lint": "biome check .",
+		"typecheck": "tsc --noEmit",
+		"build": "email export"
 	},
 	"devDependencies": {
 		"@react-email/ui": "6.9.3",
@@ -23,6 +25,7 @@
 		"next-intl": "^4.12.0",
 		"react": "19.2.4",
 		"react-dom": "19.2.4",
-		"react-email": "6.9.3"
+		"react-email": "6.9.3",
+		"typescript": "^7.0.2"
 	}
 }
