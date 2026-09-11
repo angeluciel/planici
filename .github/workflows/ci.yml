@@ -118,3 +118,13 @@ jobs:
           runtime: node@24
           cache: true
           install: false
+
+      - run: pnpm ci
+
+      - name: Generate API Coverage
+        run pnpm --filter api test:cov
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
