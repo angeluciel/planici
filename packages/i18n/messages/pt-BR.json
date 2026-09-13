@@ -8,12 +8,12 @@
 		"footer": "{year} PLANICI, Todos os Direitos Reservados",
 		"inputs": {
 			"email": {
-				"label": "Your e-mail",
-				"placeholder": "email@example.com"
+				"label": "Seu e-mail",
+				"placeholder": "email@examplo.com"
 			},
 			"password": {
-				"label": "Your password",
-				"placeholder": "Enter your password"
+				"label": "Sua senha",
+				"placeholder": "Digite sua senha"
 			}
 		}
 	},
