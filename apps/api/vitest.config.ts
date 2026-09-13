@@ -9,5 +9,11 @@ export default defineConfig({
     globals: true,
     root: './',
     include: ['**/*.spec.ts'],
+    coverage: {
+      provider: 'v8',
+      reportsDirectory: './coverage',
+      reporter: ['text', 'html', 'lcov'],
+      include: ['src/**/*.ts'],
+    },
   },
 });
