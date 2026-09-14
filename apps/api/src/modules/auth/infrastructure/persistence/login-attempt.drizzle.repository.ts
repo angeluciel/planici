@@ -9,7 +9,7 @@ import type {
 } from '../../application/repositories/login-attempt.repository.js';
 
 @Injectable()
-export class DrizzleLoginRepository implements LoginAttemptRepository {
+export class DrizzleLoginAttemptRepository implements LoginAttemptRepository {
   constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
   async find(email: string): Promise<LoginAttemptState | null> {
