@@ -5,7 +5,7 @@ export class EmailCodeRequestedEvent extends DomainEvent {
   constructor(
     readonly email: string,
     readonly code: string,
-    readonly expiredInMinutes: number,
+    readonly expiresInMinutes: number,
   ) {
     super();
   }
