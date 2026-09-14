@@ -264,6 +264,16 @@
 				"footer": "If you don't recognize this request, you can safely ignore it. Your account is safe with us."
 			},
 			"slogan": "Because managing your plans should feel this easy."
+		},
+		"verification-code": {
+			"preview": "Planici | Verify your email",
+			"body": {
+				"title": "Verify your email",
+				"subtitle": "Enter the code below to verify your email address and continue creating your Planici account.",
+				"expiration": "This code expires in {minutes, plural, one {# minute} other {# minutes}}.",
+				"footer": "If you didn't request this code, you can safely ignore this email."
+			},
+			"slogan": "Because managing your plans should feel this easy."
 		}
 	}
 }

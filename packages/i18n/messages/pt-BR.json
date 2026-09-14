@@ -264,6 +264,16 @@
 				"footer": "Caso não tenha sido você, pode ignorar esse e-mail. Sua conta está segura com a gente."
 			},
 			"slogan": "Planejar deveria ser simples assim."
+		},
+		"verification-code": {
+			"preview": "Planici | Verifique seu e-mail",
+			"body": {
+				"title": "Verifique seu e-mail",
+				"subtitle": "Digite o código abaixo para verificar seu e-mail e continuar criando sua conta no Planici.",
+				"expiration": "Este código expira em {minutes, plural, one {# minuto} other {# minutos}}.",
+				"footer": "Se você não solicitou este código, pode ignorar este e-mail."
+			},
+			"slogan": "Planejar deveria ser simples assim."
 		}
 	}
 }
