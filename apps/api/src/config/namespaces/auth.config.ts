@@ -4,7 +4,7 @@ export const authConfig = registerAs('auth', () => ({
   bcryptCost: Number(process.env.BCRYPT_COST ?? 12),
 
   emailCodeTtlMinutes: Number(process.env.EMAIL_CODE_TTL_MINUTES ?? 15),
-  emailCodeMaxAttempts: Number(process.env.EMAIL_CODE_RESEND_SECONDS ?? 60),
+  emailCodeMaxAttempts: Number(process.env.EMAIL_CODE_MAX_ATTEMPTS ?? 5),
   emailCodeResendSeconds: Number(process.env.EMAIL_CODE_RESENT_SECONDS ?? 60),
 
   passwordResetTtlMinutes: Number(process.env.PASSWORD_RESET_TTL_MINUTES ?? 60),
