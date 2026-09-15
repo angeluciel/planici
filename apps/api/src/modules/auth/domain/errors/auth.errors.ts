@@ -14,14 +14,14 @@ export class SlugTakenError extends DomainError {
 }
 
 export class InvalidCredentialsError extends DomainError {
-  readonly code = '';
+  readonly code = 'credentials.invalid';
   readonly status = HttpStatus.UNAUTHORIZED;
   readonly field = 'password';
 }
 
 export class AccountLockedError extends DomainError {
   readonly code = 'account.locked';
-  readonly sttus = HttpStatus.TOO_MANY_REQUESTS;
+  readonly status = HttpStatus.TOO_MANY_REQUESTS;
 }
 
 export class AccountInactiveError extends DomainError {
