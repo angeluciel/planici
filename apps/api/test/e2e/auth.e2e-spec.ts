@@ -1,6 +1,11 @@
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { codeFrom, createTestApp, TestContext } from '../setup/test-app.js';
+import {
+  codeFrom,
+  createTestApp,
+  resetTokenFrom,
+  TestContext,
+} from '../setup/test-app.js';
 
 const EMAIL = 'ana@planici.co';
 const PASSWORD = 'planici123!';
@@ -212,5 +217,189 @@ describe('register', () => {
 
     expect(errors[0]).toBe('code.invalid');
     expect(errors.at(-1)).toBe('code.attempts');
+  });
+});
+
+describe('login', () => {
+  it('issues a session for the right password', async () => {
+    await registered();
+
+    const response = await api()
+      .post('/v1/auth/login')
+      .send({ provider: 'email', email: EMAIL, password: PASSWORD })
+      .expect(200);
+
+    expect(response.body.user.email).toBe(EMAIL);
+  });
+
+  it('answers `credentials.invalid` for wrong password or unknown account', async () => {
+    await registered();
+
+    const wrongPassword = await api()
+      .post('/v1/auth/login')
+      .send({ provider: 'email', email: EMAIL, password: 'test1!' })
+      .expect(401);
+
+    const unknown = await api()
+      .post('/v1/auth/login')
+      .send({
+        provider: 'email',
+        email: 'unknown@planici.co',
+        password: 'test1!',
+      })
+      .expect(401);
+
+    expect(wrongPassword.body.error).toBe('credentials.invalid');
+    expect(unknown.body.error).toBe('credentials.invalid');
+  });
+
+  it('locks the account after repeated failures', async () => {
+    await registered();
+
+    let lastError = '';
+    for (let attempt = 0; attempt < 6; attempt++) {
+      const response = await api()
+        .post('/v1/auth/login')
+        .send({ provider: 'email', email: EMAIL, password: 'teste1!' });
+
+      lastError = response.body.error;
+    }
+
+    expect(lastError).toBe('account.locked');
+
+    const correct = await api()
+      .post('/v1/auth/login')
+      .send({ provider: 'email', email: EMAIL, password: PASSWORD });
+    expect(correct.body.error).toBe('account.locked');
+  });
+
+  it('serves /auth/me with the access token and refuses without one', async () => {
+    const session = await registered();
+
+    const me = await api()
+      .get('/v1/auth/me')
+      .set('Authorization', `Bearer ${session.body.accessToken}`)
+      .expect(200);
+
+    expect(me.body.email).toBe(EMAIL);
+    await api().get('/v1/auth/me').expect(401);
+  });
+});
+
+describe('refresh and logout', () => {
+  it('rotates the refresh token and annihilates the family when the old one is replayed', async () => {
+    const session = await registered();
+
+    const refreshed = await api()
+      .post('/v1/auth/refresh')
+      .send({ refreshToken: session.body.refreshToken })
+      .expect(200);
+    expect(refreshed.body.refreshToken).not.toBe(session.body.refreshToken);
+
+    const replay = await api()
+      .post('/v1/auth/refresh')
+      .send({ refreshToken: session.body.refreshToken })
+      .expect(410);
+    expect(replay.body.error).toBe('token.invalid');
+
+    // reuse detection revoked the whole family
+    await api()
+      .post('/v1/auth/refresh')
+      .send({ refreshToken: refreshed.body.refreshToken })
+      .expect(401);
+  });
+
+  it('drops the session on logout', async () => {
+    const session = await registered();
+
+    await api()
+      .post('/v1/auth/logout')
+      .send({ refreshToken: session.body.refreshToken })
+      .expect(204);
+    await api()
+      .post('/v1/auth/refresh')
+      .send({ refreshToken: session.body.refreshToken })
+      .expect(401);
+  });
+});
+
+describe('password recovery', () => {
+  it('mails a single-use link that resets the password and kills live sessions', async () => {
+    const session = await registered();
+    ctx.mailer.clear();
+
+    await api()
+      .post('/v1/auth/password/forgot')
+      .send({ email: EMAIL })
+      .expect(202);
+
+    const token = resetTokenFrom(await ctx.mailer.waitFor(EMAIL));
+
+    await api()
+      .post('/v1/auth/password/reset')
+      .send({ token, password: 'passwor1d#' })
+      .expect(204);
+    await api()
+      .post('/v1/auth/login')
+      .send({ provider: 'email', email: EMAIL, password: PASSWORD })
+      .expect(401);
+    await api()
+      .post('/v1/auth/login')
+      .send({ provider: 'email', email: EMAIL, password: 'passwor1d#' })
+      .expect(200);
+
+    // sessions issued before the change must be revoked
+    await api()
+      .post('/v1/auth.refresh')
+      .send({ refreshToken: session.body.refreshToken })
+      .expect(401);
+
+    const replay = await api()
+      .post('/v1/auth/password/reset')
+      .send({ token, password: 'wron1ddd#' })
+      .expect(401);
+    expect(replay.body.error).toBe('token.invalid');
+  });
+
+  it('answers 202 for an unknown address, without mailing anyone', async () => {
+    await api()
+      .post('/v1/auth/password/forgot')
+      .send({ email: 'teste@planici.co' })
+      .expect(202);
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(ctx.mailer.lastTo('teste@planici.co')).toBeUndefined();
+  });
+
+  it('enforces password schema on reset', async () => {
+    await registered();
+    ctx.mailer.clear();
+
+    await api()
+      .post('/v1/auth/password/forgot')
+      .send({ email: EMAIL })
+      .expect(202);
+    const token = resetTokenFrom(await ctx.mailer.waitFor(EMAIL));
+
+    const response = await api()
+      .post('/v1/auth/password/reset')
+      .send({ token, password: 'weak' })
+      .expect(422);
+    expect(response.body.error).toBe('password.min');
+  });
+});
+
+describe('availability', () => {
+  it('reports whether an e-mail or slug is free', async () => {
+    await registered();
+
+    await api()
+      .get('/v1/auth/availability')
+      .query({ email: EMAIL })
+      .expect(200, { available: false });
+    await api()
+      .get('/v1/auth/availability')
+      .query({ slug: 'outra' })
+      .expect(200, { available: true });
   });
 });
