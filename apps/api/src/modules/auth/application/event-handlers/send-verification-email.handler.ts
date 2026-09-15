@@ -13,7 +13,7 @@ export class SendVerificationEmailHandler implements IEventHandler<EmailCodeRequ
   async handle(event: EmailCodeRequestedEvent): Promise<void> {
     try {
       await this.mailer.send(
-        await verificationCodeEmail(event.code, {
+        await verificationCodeEmail(event.email, {
           code: event.code,
           expiresInMinutes: event.expiresInMinutes,
           locale: 'en-US', //TODO: CHANGE so the locale is infered from ip or whatever else
