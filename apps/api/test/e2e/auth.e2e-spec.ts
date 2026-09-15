@@ -8,7 +8,7 @@ import {
 } from '../setup/test-app.js';
 
 const EMAIL = 'ana@planici.co';
-const PASSWORD = 'planici123!';
+const PASSWORD = 'password123!';
 const TERMS_VERSION = '2026-01-01';
 
 let ctx: TestContext;
@@ -129,6 +129,7 @@ describe('register', () => {
         provider: 'email',
         email: EMAIL,
         password: 'abcdefgh',
+        emailVerificationToken,
         name: 'Ana',
         surname: 'Banana',
         slug: 'ana',
@@ -188,7 +189,7 @@ describe('register', () => {
       .expect(409);
 
     expect(response.body).toMatchObject({
-      error: 'email.token',
+      error: 'email.taken',
       field: 'email',
     });
   });
@@ -299,7 +300,7 @@ describe('refresh and logout', () => {
     const replay = await api()
       .post('/v1/auth/refresh')
       .send({ refreshToken: session.body.refreshToken })
-      .expect(410);
+      .expect(401);
     expect(replay.body.error).toBe('token.invalid');
 
     // reuse detection revoked the whole family
@@ -350,7 +351,7 @@ describe('password recovery', () => {
 
     // sessions issued before the change must be revoked
     await api()
-      .post('/v1/auth.refresh')
+      .post('/v1/auth/refresh')
       .send({ refreshToken: session.body.refreshToken })
       .expect(401);
 
