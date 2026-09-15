@@ -14,6 +14,7 @@ import { mailConfig } from './namespaces/mail.config.js';
       envFilePath: ['.env.local', '.env'],
       load: [databaseConfig, jwtConfig, authConfig, mailConfig],
       validate: validateEnv,
+      ignoreEnvFile: process.env.NODE_ENV === 'test',
     }),
   ],
 })
