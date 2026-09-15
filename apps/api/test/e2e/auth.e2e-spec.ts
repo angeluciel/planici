@@ -209,14 +209,14 @@ describe('register', () => {
     await ctx.mailer.waitFor(EMAIL);
 
     const errors: string[] = [];
-    for (let attempt = 0; attempt < 5; attempt++) {
+    for (let attempt = 0; attempt < 6; attempt++) {
       const response = await api()
         .post('/v1/auth/email/verify')
         .send({ email: EMAIL, code: '000000' });
       errors.push(response.body.error);
     }
 
-    expect(errors[0]).toBe('code.invalid');
+    expect(errors.slice(0, 4)).toEqual(new Array(4).fill('code.invalid'));
     expect(errors.at(-1)).toBe('code.attempts');
   });
 });

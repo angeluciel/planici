@@ -2,16 +2,22 @@
 	"name": "@planici/emails",
 	"private": true,
 	"type": "module",
-	"main": "./dist/index.js",
+
+	"main": "./dist/src/index.js",
+	"types": "./dist/src/index.d.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": {
+			"types": "./dist/src/index.d.ts",
+			"import": "./dist/src/index.js"
+		}
 	},
 	"scripts": {
 		"dev": "email dev -p 3001",
 		"start": "email start -p 3001",
 		"lint": "biome check .",
 		"typecheck": "tsc --noEmit",
-		"build": "email export"
+		"export:emails": "email export",
+		"build": "tsc -p tsconfig.build.json"
 	},
 	"devDependencies": {
 		"@react-email/ui": "6.9.3",
