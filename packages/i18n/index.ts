@@ -1,5 +1,5 @@
-import enUS from "./messages/en-US.json";
-import ptBR from "./messages/pt-BR.json";
+import enUS from "./messages/en-US.json" with { type: "json" };
+import ptBR from "./messages/pt-BR.json" with { type: "json" };
 
 export const locales = ["en-US", "pt-BR"] as const;
 
