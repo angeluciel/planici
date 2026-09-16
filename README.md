@@ -1,12 +1,14 @@
 # Planici v1
 
+[![CI](https://img.shields.io/github/actions/workflow/status/angeluciel/planici/ci.yml?style=for-the-badge)](https://github.com/angeluciel/planici/actions)
+[![License](https://img.shields.io/github/license/angeluciel/planici?style=for-the-badge)](LICENSE)
 ![GitHub repo size](https://img.shields.io/github/repo-size/angeluciel/planici?style=for-the-badge)
 ![GitHub language count](https://img.shields.io/github/languages/count/angeluciel/planici?style=for-the-badge)
 ![GitHub forks](https://img.shields.io/github/forks/angeluciel/planici?style=for-the-badge)
 ![Github open issues](https://img.shields.io/github/issues/angeluciel/planici?style=for-the-badge)
 ![Github open pull requests](https://img.shields.io/github/issues-pr/angeluciel/planici?style=for-the-badge)
 
-![hero](https://randomimgs.blob.core.windows.net/random-imgs/background.png)
+![Planici](/docs/assets/hero.png)
 
 <p align="center">
   <b align="center">
@@ -22,7 +24,7 @@
 
 ### Ajustes e melhorias
 
-- [] Melhorar linting time
+- [X] Melhorar linting time (alterado para oxlint e biome)
 - [x] Testar Biome
 
 ## Pré-Requisitos
