@@ -1,8 +1,8 @@
 import { getMessages, type Locale } from "@planici/i18n";
 import { createTranslator } from "next-intl";
 import { Body, Column, Head, Heading, Html, Img, Link, Preview, Row, Section, Tailwind, Text } from "react-email";
-import { NotoSansFont } from "./components/theme-fonts";
-import { tailwindConfig } from "./tailwind";
+import { NotoSansFont } from "./components/theme-fonts.js";
+import { tailwindConfig } from "./tailwind.js";
 
 export interface VerificationCodeEmailProps {
 	code: string;
