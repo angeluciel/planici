@@ -26,10 +26,7 @@ export class CapturingMailer implements Mailer {
   // envio pelo event bus pro código HTTP chegar antes do e-mail
   async waitFor(
     email: string,
-    {
-      after = 0,
-      timeoutMs = 2_000,
-    }: { after?: number; timeoutMs?: number } = {},
+    { timeoutMs = 2_000 }: { after?: number; timeoutMs?: number } = {},
   ): Promise<MailMessage> {
     const deadline = Date.now() + timeoutMs;
 
