@@ -1,5 +1,5 @@
 import { render, toPlainText } from "react-email";
-import VerificationCodeEmail, { type VerificationCodeEmailProps } from "../emails/VerificationCodeEmail";
+import VerificationCodeEmail, { type VerificationCodeEmailProps } from "../emails/VerificationCodeEmail.js";
 
 export async function renderCodeVerification(props: VerificationCodeEmailProps) {
 	const html = await render(<VerificationCodeEmail {...props} />);
