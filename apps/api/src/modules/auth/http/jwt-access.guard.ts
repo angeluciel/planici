@@ -11,8 +11,8 @@ import { jwtConfig } from '@config/namespaces/jwt.config.js';
 import {
   ExpiredTokenError,
   InvalidTokenError,
-} from '../../domain/errors/auth.errors.js';
-import type { AuthenticatedUser } from '../decorators/current-user.decorator.js';
+} from '../domain/errors/auth.errors.js';
+import type { AuthenticatedUser } from './current-user.decorator.js';
 
 /**
  * Bearer-token guard. The web app keeps the token in an httpOnly cookie
