@@ -1,16 +1,16 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, EventBus, type ICommandHandler } from '@nestjs/cqrs';
 import type { SessionResponse } from '@planici/schemas';
-import { PasswordHasher } from '@/shared/crypto/password.hasher.js';
+import { PasswordHasher } from '@shared/crypto/password.hasher.js';
 import {
   EmailTakenError,
   InvalidTokenError,
   SlugTakenError,
-} from '@/modules/auth/domain/errors/auth.errors.js';
-import { UserRegisteredEvent } from '@/modules/auth/domain/events/auth.events.js';
-import { Email } from '@/modules/auth/domain/value-objects/email.vo.js';
-import { Password } from '@/modules/auth/domain/value-objects/password.vo.js';
-import { Slug } from '@/modules/auth/domain/value-objects/slug.vo.js';
+} from '@modules/auth/domain/errors/auth.errors.js';
+import { UserRegisteredEvent } from '@modules/auth/domain/events/auth.events.js';
+import { Email } from '@modules/auth/domain/value-objects/email.vo.js';
+import { Password } from '@modules/auth/domain/value-objects/password.vo.js';
+import { Slug } from '@modules/auth/domain/value-objects/slug.vo.js';
 import {
   type ConsentData,
   type GoogleIdentityData,

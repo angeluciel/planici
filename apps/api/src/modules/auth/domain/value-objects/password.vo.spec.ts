@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ValidationError } from '@/shared/http/zod-validation.pipe.js';
+import { ValidationError } from '@shared/http/zod-validation.pipe.js';
 import { Password } from './password.vo.js';
 
 /** At least 8 characters, one digit, one symbol */

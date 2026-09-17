@@ -9,16 +9,16 @@ import {
   TOKEN_SERVICE,
   type TokenService,
 } from '../../services/token.service.js';
-import { authConfig } from '@/config/namespaces/auth.config.js';
+import { authConfig } from '@config/namespaces/auth.config.js';
 import type { ConfigType } from '@nestjs/config';
 import { EmailVerifiedResponse } from '@planici/schemas';
-import { Email } from '@/modules/auth/domain/value-objects/email.vo.js';
+import { Email } from '@modules/auth/domain/value-objects/email.vo.js';
 import {
   ExpiredCodeError,
   InvalidCodeError,
   TooManyCodeAttemptsError,
-} from '@/modules/auth/domain/errors/auth.errors.js';
-import { secretsMatch } from '@/shared/crypto/hash.js';
+} from '@modules/auth/domain/errors/auth.errors.js';
+import { secretsMatch } from '@shared/crypto/hash.js';
 
 /**
  * Troca o codigo por um token de vida curta.

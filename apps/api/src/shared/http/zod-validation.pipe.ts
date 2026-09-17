@@ -1,6 +1,6 @@
 import { HttpStatus, type PipeTransform } from '@nestjs/common';
 import type { ZodType } from 'zod';
-import { DomainError } from '@/shared/errors/domain.error.js';
+import { DomainError } from '@shared/errors/domain.error.js';
 
 export class ValidationError extends DomainError {
   readonly code: string;

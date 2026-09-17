@@ -1,4 +1,4 @@
-import { EmailCodeRequestedEvent } from '@/modules/auth/domain/events/auth.events.js';
+import { EmailCodeRequestedEvent } from '@modules/auth/domain/events/auth.events.js';
 import { CommandHandler, type ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { RequestEmailCodeCommand } from './request-email-code.command.js';
 import {
@@ -9,16 +9,16 @@ import {
   USER_REPOSITORY,
   type UserRepository,
 } from '../../repositories/user.repository.js';
-import { authConfig } from '@/config/namespaces/auth.config.js';
+import { authConfig } from '@config/namespaces/auth.config.js';
 import type { ConfigType } from '@nestjs/config';
-import { TokenGenerator } from '@/shared/crypto/token.generator.js';
+import { TokenGenerator } from '@shared/crypto/token.generator.js';
 import { Inject } from '@nestjs/common';
-import { Email } from '@/modules/auth/domain/value-objects/email.vo.js';
+import { Email } from '@modules/auth/domain/value-objects/email.vo.js';
 import {
   CodeRateLimitedError,
   EmailTakenError,
-} from '@/modules/auth/domain/errors/auth.errors.js';
-import { hashSecret } from '@/shared/crypto/hash.js';
+} from '@modules/auth/domain/errors/auth.errors.js';
+import { hashSecret } from '@shared/crypto/hash.js';
 
 @CommandHandler(RequestEmailCodeCommand)
 export class RequestEmailCodeHandler implements ICommandHandler<RequestEmailCodeCommand> {

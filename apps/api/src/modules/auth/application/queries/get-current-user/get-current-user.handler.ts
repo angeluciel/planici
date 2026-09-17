@@ -1,7 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { type IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import type { MeResponse } from '@planici/schemas';
-import { InvalidTokenError } from '@/modules/auth/domain/errors/auth.errors.js';
+import { InvalidTokenError } from '@modules/auth/domain/errors/auth.errors.js';
 import {
   USER_REPOSITORY,
   type UserRepository,

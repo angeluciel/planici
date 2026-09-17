@@ -8,8 +8,8 @@ import {
 import type { ConfigType } from '@nestjs/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import { databaseConfig } from '@/config/namespaces/database.config.js';
-import { DRIZZLE, PG_POOL } from '@/database/database.constants.js';
+import { databaseConfig } from '@config/namespaces/database.config.js';
+import { DRIZZLE, PG_POOL } from '@src/database/database.constants.js';
 import * as schema from './schema/index.js';
 
 export type Database = ReturnType<typeof drizzle<typeof schema>>;

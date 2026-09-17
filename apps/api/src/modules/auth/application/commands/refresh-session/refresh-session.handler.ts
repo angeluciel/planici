@@ -1,11 +1,11 @@
 import { Inject, Logger } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { SessionResponse } from '@planici/schemas';
-import { hashSecret } from '@/shared/crypto/hash.js';
+import { hashSecret } from '@shared/crypto/hash.js';
 import {
   ExpiredTokenError,
   InvalidTokenError,
-} from '@/modules/auth/domain/errors/auth.errors.js';
+} from '@modules/auth/domain/errors/auth.errors.js';
 import {
   REFRESH_TOKEN_REPOSITORY,
   type RefreshTokenRepository,
