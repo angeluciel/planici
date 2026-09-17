@@ -31,7 +31,7 @@ import { AuthController } from './presentation/auth.controller.js';
 import { SessionFactory } from './application/services/section.factory.js';
 import { PasswordHasher } from '@shared/crypto/password.hasher.js';
 import { TokenGenerator } from '@shared/crypto/token.generator.js';
-import { JwtAccessGuard } from './presentation/guards/jwt-access.guard.js';
+import { JwtAccessGuard } from './http/jwt-access.guard.js';
 
 const commandHandlers = [
   RequestEmailCodeHandler,

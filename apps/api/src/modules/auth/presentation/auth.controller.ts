@@ -42,13 +42,15 @@ import { GetCurrentUserQuery } from '../application/queries/get-current-user/get
 import {
   type AuthenticatedUser,
   CurrentUser,
-} from './decorators/current-user.decorator.js';
-import { JwtAccessGuard } from './guards/jwt-access.guard.js';
+} from '../http/current-user.decorator.js';
+import { JwtAccessGuard } from '../http/jwt-access.guard.js';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 /**
  * parse -> hand to bus -> return
  */
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -100,7 +102,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   login(
-    @Body(new ZodBody(LoginRequestSchema)) body: LoginRequestInput,
+    @Body({
+      schema: LoginRequestSchema,
+      pipes: [new ZodBody(LoginRequestSchema)],
+    })
+    body: LoginRequestInput,
     @Req() request: Request,
   ): Promise<SessionResponse> {
     return this.commands.execute(new LoginCommand(body, contextOf(request)));
@@ -156,6 +162,7 @@ export class AuthController {
     );
   }
 
+  @ApiBearerAuth()
   @Get('me')
   @UseGuards(JwtAccessGuard)
   me(@CurrentUser() user: AuthenticatedUser): Promise<MeResponse> {
@@ -165,7 +172,10 @@ export class AuthController {
   @Get('availability')
   @Throttle({ default: { limit: 20, ttl: 60_000 } })
   availability(
-    @Query(new ZodBody(AvailabilityQuerySchema))
+    @Query({
+      schema: AvailabilityQuerySchema,
+      pipes: [new ZodBody(AvailabilityQuerySchema)],
+    })
     query: {
       email?: string;
       slug?: string;

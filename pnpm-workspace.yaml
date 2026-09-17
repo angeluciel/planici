@@ -3,6 +3,7 @@ packages:
   - 'packages/*'
 allowBuilds:
   '@parcel/watcher': true
+  '@scarf/scarf': true
   '@swc/core': true
   cpu-features: true
   esbuild: true
