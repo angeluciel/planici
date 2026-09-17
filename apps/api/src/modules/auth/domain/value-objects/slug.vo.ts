@@ -1,4 +1,4 @@
-import { ValidationError } from '@/shared/http/zod-validation.pipe.js';
+import { ValidationError } from '@shared/http/zod-validation.pipe.js';
 import { SLUG_PATTERN } from '@planici/schemas';
 
 export class Slug {

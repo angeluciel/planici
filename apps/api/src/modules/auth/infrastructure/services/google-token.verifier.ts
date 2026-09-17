@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { OAuth2Client, type TokenPayload } from 'google-auth-library';
-import { authConfig } from '@/config/namespaces/auth.config.js';
+import { authConfig } from '@config/namespaces/auth.config.js';
 import type {
   GoogleAccount,
   GoogleVerifier,

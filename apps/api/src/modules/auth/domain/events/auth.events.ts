@@ -1,4 +1,4 @@
-import { DomainEvent } from '@/shared/domain-events.js';
+import { DomainEvent } from '@shared/domain-events.js';
 
 /** Raised before the account exists */
 export class EmailCodeRequestedEvent extends DomainEvent {

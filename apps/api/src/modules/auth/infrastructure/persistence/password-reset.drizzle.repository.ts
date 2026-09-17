@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, eq, isNull } from 'drizzle-orm';
-import { DRIZZLE } from '@/database/database.constants.js';
-import type { Database } from '@/database/database.module.js';
-import { passwordResetTokens } from '@/database/schema/index.js';
+import { DRIZZLE } from '@src/database/database.constants.js';
+import type { Database } from '@src/database/database.module.js';
+import { passwordResetTokens } from '@src/database/schema/index.js';
 import type {
   PasswordResetRepository,
   PasswordResetToken,

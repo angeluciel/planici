@@ -1,15 +1,15 @@
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { Pool } from 'pg';
-import { AppModule } from '@/app.module.js';
+import { AppModule } from '@src/app.module.js';
 import {
   MAILER,
   type Mailer,
   type MailMessage,
-} from '@/modules/mail/mail.service.js';
-import { DomainExceptionFilter } from '@/shared/http/domain-exception.filter.js';
+} from '@modules/mail/mail.service.js';
+import { DomainExceptionFilter } from '@shared/http/domain-exception.filter.js';
 import { inject } from 'vitest';
-import { PG_POOL } from '@/database/database.constants.js';
+import { PG_POOL } from '@src/database/database.constants.js';
 
 // captura o e-mail enviado
 export class CapturingMailer implements Mailer {

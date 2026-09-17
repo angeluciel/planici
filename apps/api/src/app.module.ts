@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from './config/config.module.js';
+import { ConfigModule } from '@config/config.module.js';
 import { createObserveModule } from '@nestjs/observe';
 import { DatabaseModule } from './database/database.module.js';
-import { MailModule } from './modules/mail/mail.module.js';
-import { AuthModule } from './modules/auth/auth.module.js';
+import { MailModule } from '@modules/mail/mail.module.js';
+import { AuthModule } from '@modules/auth/auth.module.js';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { HealthController } from './health/health.controller.js';
 import { APP_GUARD } from '@nestjs/core';

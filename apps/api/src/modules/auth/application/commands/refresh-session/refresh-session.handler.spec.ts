@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, vi, it } from 'vitest';
-import { hashSecret } from '@/shared/crypto/hash.js';
+import { hashSecret } from '@shared/crypto/hash.js';
 import {
   InvalidTokenError,
   ExpiredTokenError,
-} from '@/modules/auth/domain/errors/auth.errors.js';
-import { User } from '@/modules/auth/domain/user.entity.js';
+} from '@modules/auth/domain/errors/auth.errors.js';
+import { User } from '@modules/auth/domain/user.entity.js';
 import type {
   RefreshTokenRepository,
   StoredRefreshToken,

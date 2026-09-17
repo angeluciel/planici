@@ -2,15 +2,15 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import {
   AccountLockedError,
   InvalidCredentialsError,
-} from '@/modules/auth/domain/errors/auth.errors.js';
-import { User } from '@/modules/auth/domain/user.entity.js';
+} from '@modules/auth/domain/errors/auth.errors.js';
+import { User } from '@modules/auth/domain/user.entity.js';
 import type { LoginAttemptRepository } from '../../repositories/login-attempt.repository.js';
 import type { UserRepository } from '../../repositories/user.repository.js';
 import type { GoogleVerifier } from '../../services/google-verifier.js';
 import type { SessionFactory } from '../../services/section.factory.js';
 import { LoginCommand } from './login.command.js';
 import { LoginHandler } from './login.handler.js';
-import { PasswordHasher } from '@/shared/crypto/password.hasher.js';
+import { PasswordHasher } from '@shared/crypto/password.hasher.js';
 
 const config = {
   bcryptCost: 4,

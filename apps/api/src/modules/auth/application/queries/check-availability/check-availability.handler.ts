@@ -1,8 +1,8 @@
 import { Inject } from '@nestjs/common';
 import { type IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import type { AvailabilityResponse } from '@planici/schemas';
-import { Email } from '@/modules/auth/domain/value-objects/email.vo.js';
-import { Slug } from '@/modules/auth/domain/value-objects/slug.vo.js';
+import { Email } from '@modules/auth/domain/value-objects/email.vo.js';
+import { Slug } from '@modules/auth/domain/value-objects/slug.vo.js';
 import {
   USER_REPOSITORY,
   type UserRepository,

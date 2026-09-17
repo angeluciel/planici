@@ -1,7 +1,7 @@
 import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
-import { mailConfig } from '@/config/namespaces/mail.config.js';
+import { mailConfig } from '@config/namespaces/mail.config.js';
 import type { Mailer, MailMessage } from '../mail.service.js';
 
 /**

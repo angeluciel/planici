@@ -1,7 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, EventBus, type ICommandHandler } from '@nestjs/cqrs';
-import { hashSecret } from '@/shared/crypto/hash.js';
-import { PasswordHasher } from '@/shared/crypto/password.hasher.js';
+import { hashSecret } from '@shared/crypto/hash.js';
+import { PasswordHasher } from '@shared/crypto/password.hasher.js';
 import {
   ExpiredTokenError,
   InvalidTokenError,

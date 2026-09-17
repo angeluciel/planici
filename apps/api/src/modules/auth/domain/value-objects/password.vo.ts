@@ -1,5 +1,5 @@
 import { PasswordSchema } from '@planici/schemas';
-import { ValidationError } from '@/shared/http/zod-validation.pipe.js';
+import { ValidationError } from '@shared/http/zod-validation.pipe.js';
 
 export class Password {
   private constructor(private readonly plain: string) {}

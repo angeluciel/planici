@@ -2,8 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConfig } from '@/config/namespaces/jwt.config.js';
-import { TokenGenerator } from '@/shared/crypto/token.generator.js';
+import { jwtConfig } from '@config/namespaces/jwt.config.js';
+import { TokenGenerator } from '@shared/crypto/token.generator.js';
 import type {
   AccessTokenPayload,
   IssuedRefreshToken,

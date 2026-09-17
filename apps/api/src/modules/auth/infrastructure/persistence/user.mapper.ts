@@ -1,4 +1,4 @@
-import type { UserRow } from '@/database/schema/users.js';
+import type { UserRow } from '@src/database/schema/users.js';
 import { type UserStatus, User } from '../../domain/user.entity.js';
 
 export function toDomain(row: UserRow): User {

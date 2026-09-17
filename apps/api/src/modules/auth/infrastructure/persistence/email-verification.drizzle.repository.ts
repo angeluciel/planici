@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, desc, eq, isNull, sql } from 'drizzle-orm';
-import { DRIZZLE } from '@/database/database.constants.js';
-import type { Database } from '@/database/database.module.js';
-import { emailVerifications } from '@/database/schema/email-verifications.js';
+import { DRIZZLE } from '@src/database/database.constants.js';
+import type { Database } from '@src/database/database.module.js';
+import { emailVerifications } from '@src/database/schema/email-verifications.js';
 import type {
   EmailVerification,
   EmailVerificationRepository,

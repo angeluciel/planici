@@ -4,7 +4,7 @@ import {
   REFRESH_TOKEN_REPOSITORY,
   type RefreshTokenRepository,
 } from '../../repositories/refresh-token.repository.js';
-import { hashSecret } from '@/shared/crypto/hash.js';
+import { hashSecret } from '@shared/crypto/hash.js';
 import { Inject } from '@nestjs/common';
 
 @CommandHandler(LogoutCommand)

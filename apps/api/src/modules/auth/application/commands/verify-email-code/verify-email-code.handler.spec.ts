@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, vi, it } from 'vitest';
-import { hashSecret } from '@/shared/crypto/hash.js';
+import { hashSecret } from '@shared/crypto/hash.js';
 import {
   ExpiredCodeError,
   InvalidCodeError,
   TooManyCodeAttemptsError,
-} from '@/modules/auth/domain/errors/auth.errors.js';
+} from '@modules/auth/domain/errors/auth.errors.js';
 import type {
   EmailVerification,
   EmailVerificationRepository,

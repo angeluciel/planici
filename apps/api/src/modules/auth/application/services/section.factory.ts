@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { SessionResponse } from '@planici/schemas';
-import { hashSecret } from '@/shared/crypto/hash.js';
+import { hashSecret } from '@shared/crypto/hash.js';
 import type { User } from '../../domain/user.entity.js';
 import {
   REFRESH_TOKEN_REPOSITORY,
   type RefreshTokenContext,
   type RefreshTokenRepository,
-} from '@/modules/auth/application/repositories/refresh-token.repository.js';
+} from '@modules/auth/application/repositories/refresh-token.repository.js';
 import { TOKEN_SERVICE, type TokenService } from './token.service.js';
 
 /**

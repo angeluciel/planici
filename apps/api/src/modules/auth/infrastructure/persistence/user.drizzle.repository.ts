@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, eq, sql } from 'drizzle-orm';
-import { DRIZZLE } from '@/database/database.constants.js';
-import type { Database } from '@/database/database.module.js';
+import { DRIZZLE } from '@src/database/database.constants.js';
+import type { Database } from '@src/database/database.module.js';
 import {
   userConsents,
   userIdentities,
   users,
-} from '@/database/schema/index.js';
+} from '@src/database/schema/index.js';
 import type {
   ConsentData,
   CreateUserData,

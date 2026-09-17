@@ -28,7 +28,7 @@ import {
   VerifyEmailCodeSchema,
 } from '@planici/schemas';
 import type { Request } from 'express';
-import { ZodBody } from '@/shared/http/zod-validation.pipe.js';
+import { ZodBody } from '@shared/http/zod-validation.pipe.js';
 import { LoginCommand } from '../application/commands/login/login.command.js';
 import { LogoutCommand } from '../application/commands/logout/logout.command.js';
 import { RefreshSessionCommand } from '../application/commands/refresh-session/refresh-session.command.js';
