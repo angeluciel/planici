@@ -2,6 +2,8 @@ import { Controller, Get, Inject } from '@nestjs/common';
 import type { Pool } from 'pg';
 import { PG_POOL } from '@src/database/database.constants.js';
 
+// TODO: implement sairyss controller per-action
+// TODO: use config app.routes.ts
 @Controller('health')
 export class HealthController {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
