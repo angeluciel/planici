@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, eq, isNull } from 'drizzle-orm';
-import { DRIZZLE } from '@/database/database.constants.js';
-import type { Database } from '@/database/database.module.js';
+import { DRIZZLE } from '@src/database/database.constants.js';
+import type { Database } from '@src/database/database.module.js';
 import type {
   RefreshTokenContext,
   RefreshTokenRepository,
   RevokeReason,
   StoredRefreshToken,
 } from '../../application/repositories/refresh-token.repository.js';
-import { refreshTokens } from '@/database/schema/index.js';
+import { refreshTokens } from '@src/database/schema/index.js';
 
 @Injectable()
 export class DrizzleRefreshTokenRepository implements RefreshTokenRepository {

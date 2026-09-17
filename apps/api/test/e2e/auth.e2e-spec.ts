@@ -216,7 +216,9 @@ describe('register', () => {
       errors.push(response.body.error);
     }
 
-    expect(errors.slice(0, 4)).toEqual(new Array(4).fill('code.invalid'));
+    expect(errors.slice(0, 4)).toEqual(
+      Array.from({ length: 4 }).fill('code.invalid'),
+    );
     expect(errors.at(-1)).toBe('code.attempts');
   });
 });

@@ -1,5 +1,5 @@
 import { EmailSchema } from '@planici/schemas';
-import { ValidationError } from '@/shared/http/zod-validation.pipe.js';
+import { ValidationError } from '@shared/http/zod-validation.pipe.js';
 
 export class Email {
   private constructor(readonly value: string) {}

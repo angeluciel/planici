@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import { DomainError } from '@/shared/errors/domain.error.js';
+import { DomainError } from '@shared/errors/domain.error.js';
 
 export class EmailTakenError extends DomainError {
   readonly code = 'email.taken';

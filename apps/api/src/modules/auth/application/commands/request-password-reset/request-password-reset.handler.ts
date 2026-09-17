@@ -9,12 +9,12 @@ import {
   PASSWORD_RESET_REPOSITORY,
   type PasswordResetRepository,
 } from '../../repositories/password-reset.repository.js';
-import { authConfig } from '@/config/namespaces/auth.config.js';
-import { TokenGenerator } from '@/shared/crypto/token.generator.js';
+import { authConfig } from '@config/namespaces/auth.config.js';
+import { TokenGenerator } from '@shared/crypto/token.generator.js';
 import type { ConfigType } from '@nestjs/config';
-import { Email } from '@/modules/auth/domain/value-objects/email.vo.js';
-import { hashSecret } from '@/shared/crypto/hash.js';
-import { PasswordResetRequestedEvent } from '@/modules/auth/domain/events/auth.events.js';
+import { Email } from '@modules/auth/domain/value-objects/email.vo.js';
+import { hashSecret } from '@shared/crypto/hash.js';
+import { PasswordResetRequestedEvent } from '@modules/auth/domain/events/auth.events.js';
 
 @CommandHandler(RequestPasswordResetCommand)
 export class RequestPasswordResetHandler implements ICommandHandler<RequestPasswordResetCommand> {

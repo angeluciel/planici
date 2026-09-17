@@ -1,6 +1,6 @@
 import { Controller, Get, Inject } from '@nestjs/common';
 import type { Pool } from 'pg';
-import { PG_POOL } from '@/database/database.constants.js';
+import { PG_POOL } from '@src/database/database.constants.js';
 
 @Controller('health')
 export class HealthController {

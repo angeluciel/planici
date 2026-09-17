@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import type { Response } from 'express';
-import { DomainError } from '@/shared/errors/domain.error.js';
+import { DomainError } from '@shared/errors/domain.error.js';
 
 /**
  * Transforma tudo no body que o web app parseia

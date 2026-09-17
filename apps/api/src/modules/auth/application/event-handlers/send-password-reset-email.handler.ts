@@ -1,10 +1,10 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { PasswordResetRequestedEvent } from '../../domain/events/auth.events.js';
 import { Inject, Logger } from '@nestjs/common';
-import { MAILER, type Mailer } from '@/modules/mail/mail.service.js';
-import { mailConfig } from '@/config/namespaces/mail.config.js';
+import { MAILER, type Mailer } from '@modules/mail/mail.service.js';
+import { mailConfig } from '@config/namespaces/mail.config.js';
 import { type ConfigType } from '@nestjs/config';
-import { passwordResetEmail } from '@/modules/mail/template/auth.template.js';
+import { passwordResetEmail } from '@modules/mail/template/auth.template.js';
 
 @EventsHandler(PasswordResetRequestedEvent)
 export class SendPasswordResetEmailHandler implements IEventHandler<PasswordResetRequestedEvent> {

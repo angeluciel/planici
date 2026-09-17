@@ -2,14 +2,14 @@ import { Inject } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { SessionResponse } from '@planici/schemas';
-import { authConfig } from '@/config/namespaces/auth.config.js';
-import { PasswordHasher } from '@/shared/crypto/password.hasher.js';
+import { authConfig } from '@config/namespaces/auth.config.js';
+import { PasswordHasher } from '@shared/crypto/password.hasher.js';
 import {
   AccountLockedError,
   InvalidCredentialsError,
-} from '@/modules/auth/domain/errors/auth.errors.js';
-import type { User } from '@/modules/auth/domain/user.entity.js';
-import { Email } from '@/modules/auth/domain/value-objects/email.vo.js';
+} from '@modules/auth/domain/errors/auth.errors.js';
+import type { User } from '@modules/auth/domain/user.entity.js';
+import { Email } from '@modules/auth/domain/value-objects/email.vo.js';
 import {
   LOGIN_ATTEMPT_REPOSITORY,
   type LoginAttemptRepository,
