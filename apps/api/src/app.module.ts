@@ -7,6 +7,7 @@ import { AuthModule } from '@modules/auth/auth.module.js';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { HealthController } from './health/health.controller.js';
 import { APP_GUARD } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -21,10 +22,14 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       throttlers: [{ name: 'default', ttl: 60_000, limit: 60 }],
       skipIf: () => process.env.THROTTLE_DISABLED === 'true',
     }),
-    ObserveModule.forRoot({
-      appKey: 'YOUR_APP_KEY',
-      appSecret: 'YOUR_APP_SECRET',
-      serviceId: 'api',
+    ObserveModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        appKey: config.getOrThrow<string>('OBSERVE_APP_KEY'),
+        appSecret: config.getOrThrow<string>('OBSERVE_APP_SECRET'),
+        serviceId: 'planici-api-observe',
+      }),
     }),
   ],
   controllers: [HealthController],

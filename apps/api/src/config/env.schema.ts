@@ -49,6 +49,9 @@ export const envSchema = z.object({
   MAIL_DRIVER: z.enum(['console', 'ses']).default('console'),
   SES_FROM_EMAIL: z.email().default('no-reply@planici.co'),
   AWS_REGION: z.string().default('us-east-1'),
+
+  OBSERVE_APP_KEY: z.string().min(1),
+  OBSERVE_APP_SECRET: z.string().min(1),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -58,7 +61,7 @@ export function validateEnv(raw: Record<string, unknown>): Env {
 
   if (!result.success) {
     const issues = result.error.issues
-      .map((issue) => ` - ${issue.path.join}(".")}: ${issue.message}`)
+      .map((issue) => ` - ${issue.path.join('.')}: ${issue.message}`)
       .join('\n');
     throw new Error(`Invalid environment:\n${issues}`);
   }

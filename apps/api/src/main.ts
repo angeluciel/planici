@@ -13,7 +13,6 @@ import helmet from 'helmet';
 import { AppModule, ObserveInstrument } from './app.module.js';
 import { DomainExceptionFilter } from './shared/http/domain-exception.filter.js';
 import { TraceInterceptor } from './shared/http/trace-interceptor.js';
-import { routesV1 } from './config/app.routes.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -77,9 +76,7 @@ async function bootstrap() {
 
   await app.listen(port);
 
-  new Logger('Bootstrap').log(
-    `API listening on http://localhost:${port}/${routesV1.version}`,
-  );
+  new Logger('Bootstrap').log(`API listening on http://localhost:${port}/api`);
 }
 
 void bootstrap();
