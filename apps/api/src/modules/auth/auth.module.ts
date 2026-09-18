@@ -27,11 +27,20 @@ import { GoogleTokenVerifier } from './infrastructure/services/google-token.veri
 import { JwtTokenService } from './infrastructure/services/jwt-token.service.js';
 import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthController } from './presentation/auth.controller.js';
 import { SessionFactory } from './application/services/section.factory.js';
 import { PasswordHasher } from '@shared/crypto/password.hasher.js';
 import { TokenGenerator } from '@shared/crypto/token.generator.js';
 import { JwtAccessGuard } from './http/jwt-access.guard.js';
+import { LoginHttpController } from './application/commands/login/login.http.controller.js';
+import { LogoutHttpController } from './application/commands/logout/logout.http.controller.js';
+import { RegisterUserHttpController } from './application/commands/register-user/register-user.http.controller.js';
+import { ResetPasswordHttpController } from './application/commands/reset-password/reset-password.http.controller.js';
+import { RefreshSessionHttpController } from './application/commands/refresh-session/refresh-session.http.controller.js';
+import { VerifyEmailCodeHttpController } from './application/commands/verify-email-code/verify-email-code.http.controller.js';
+import { RequestEmailCodeHttpController } from './application/commands/request-email-code/request-email-code.http.controller.js';
+import { RequestPasswordResetHttpController } from './application/commands/request-password-reset/request-password-reset.http.controller.js';
+import { GetCurrentUserHttpController } from './application/queries/get-current-user/get-current-user.http.js';
+import { CheckAvailabilityHttpController } from './application/queries/check-availability/check-availability.http.js';
 
 const commandHandlers = [
   RequestEmailCodeHandler,
@@ -82,9 +91,22 @@ const adapters = [
   },
 ];
 
+const httpControllers = [
+  LoginHttpController,
+  LogoutHttpController,
+  RegisterUserHttpController,
+  ResetPasswordHttpController,
+  RefreshSessionHttpController,
+  VerifyEmailCodeHttpController,
+  RequestEmailCodeHttpController,
+  RequestPasswordResetHttpController,
+  GetCurrentUserHttpController,
+  CheckAvailabilityHttpController,
+];
+
 @Module({
   imports: [CqrsModule, JwtModule.register({})],
-  controllers: [AuthController],
+  controllers: [...httpControllers],
   providers: [
     ...commandHandlers,
     ...queryHandlers,

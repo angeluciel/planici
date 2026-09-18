@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { Logger } from '@nestjs/common';
+import { Logger, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {
   DocumentBuilder,
@@ -28,7 +28,11 @@ async function bootstrap() {
   // e o throttling só é útil se o endereço for confiável
   app.getHttpAdapter().getInstance().set('trust proxy', 1);
 
-  app.setGlobalPrefix(routesV1.version);
+  app.setGlobalPrefix('/api');
+
+  app.enableVersioning({
+    type: VersioningType.URI,
+  });
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Planici API')

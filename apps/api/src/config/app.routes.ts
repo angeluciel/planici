@@ -10,6 +10,5 @@ export const routesV1 = {
   version: v1,
   auth: {
     root: authRoot,
-    delete: `/${authRoot}/:id`,
   },
 };

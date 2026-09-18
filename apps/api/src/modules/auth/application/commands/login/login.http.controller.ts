@@ -17,7 +17,10 @@ import { LoginCommand } from './login.command.js';
 import { contextOf } from '@src/modules/auth/http/request-context.js';
 
 @ApiTags(routesV1.auth.root)
-@Controller(routesV1.auth.root)
+@Controller({
+  path: routesV1.auth.root,
+  version: '1',
+})
 export class LoginHttpController {
   constructor(private readonly commands: CommandBus) {}
 
