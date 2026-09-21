@@ -16,16 +16,16 @@ import {
   type GoogleIdentityData,
   USER_REPOSITORY,
   type UserRepository,
-} from '../../repositories/user.repository.js';
+} from '../../ports/repositories/user.repository.js';
 import {
   GOOGLE_VERIFIER,
   type GoogleVerifier,
-} from '../../services/google-verifier.js';
-import { SessionFactory } from '../../services/section.factory.js';
+} from '../../ports/services/google-verifier.js';
+import { SessionFactory } from '../../ports/services/session.factory.js';
 import {
   TOKEN_SERVICE,
   type TokenService,
-} from '../../services/token.service.js';
+} from '../../ports/services/token.service.js';
 import { RegisterUserCommand } from './register-user.command.js';
 
 @CommandHandler(RegisterUserCommand)

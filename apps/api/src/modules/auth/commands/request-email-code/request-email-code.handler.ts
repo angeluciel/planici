@@ -4,11 +4,11 @@ import { RequestEmailCodeCommand } from './request-email-code.command.js';
 import {
   EMAIL_VERIFICATION_REPOSITORY,
   type EmailVerificationRepository,
-} from '../../repositories/email-verification.repository.js';
+} from '../../ports/repositories/email-verification.repository.js';
 import {
   USER_REPOSITORY,
   type UserRepository,
-} from '../../repositories/user.repository.js';
+} from '../../ports/repositories/user.repository.js';
 import { authConfig } from '@config/namespaces/auth.config.js';
 import type { ConfigType } from '@nestjs/config';
 import { TokenGenerator } from '@shared/crypto/token.generator.js';

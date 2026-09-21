@@ -5,7 +5,7 @@ import { InvalidTokenError } from '@modules/auth/domain/errors/auth.errors.js';
 import {
   USER_REPOSITORY,
   type UserRepository,
-} from '../../repositories/user.repository.js';
+} from '../../ports/repositories/user.repository.js';
 import { GetCurrentUserQuery } from './get-current-user.query.js';
 
 @QueryHandler(GetCurrentUserQuery)

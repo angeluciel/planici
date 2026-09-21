@@ -1,5 +1,5 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { PasswordResetRequestedEvent } from '../../domain/events/auth.events.js';
+import { PasswordResetRequestedEvent } from '../domain/events/auth.events.js';
 import { Inject, Logger } from '@nestjs/common';
 import { MAILER, type Mailer } from '@modules/mail/mail.service.js';
 import { mailConfig } from '@config/namespaces/mail.config.js';

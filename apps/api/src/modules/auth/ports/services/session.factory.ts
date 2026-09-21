@@ -6,7 +6,7 @@ import {
   REFRESH_TOKEN_REPOSITORY,
   type RefreshTokenContext,
   type RefreshTokenRepository,
-} from '@modules/auth/application/repositories/refresh-token.repository.js';
+} from '@modules/auth/ports/repositories/refresh-token.repository.js';
 import { TOKEN_SERVICE, type TokenService } from './token.service.js';
 
 /**

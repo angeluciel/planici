@@ -6,7 +6,7 @@ import { passwordResetTokens } from '@src/database/schema/index.js';
 import type {
   PasswordResetRepository,
   PasswordResetToken,
-} from '../../application/repositories/password-reset.repository.js';
+} from '../../ports/repositories/password-reset.repository.js';
 
 @Injectable()
 export class DrizzlePasswordResetRepository implements PasswordResetRepository {
