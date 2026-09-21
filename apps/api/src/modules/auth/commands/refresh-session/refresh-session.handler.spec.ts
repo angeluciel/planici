@@ -8,9 +8,9 @@ import { User } from '@modules/auth/domain/user.entity.js';
 import type {
   RefreshTokenRepository,
   StoredRefreshToken,
-} from '../../repositories/refresh-token.repository.js';
-import type { UserRepository } from '../../repositories/user.repository.js';
-import { SessionFactory } from '../../services/section.factory.js';
+} from '../../ports/repositories/refresh-token.repository.js';
+import type { UserRepository } from '../../ports/repositories/user.repository.js';
+import { SessionFactory } from '../../ports/services/session.factory.js';
 import { RefreshSessionCommand } from './refresh-session.command.js';
 import { RefreshSessionHandler } from './refresh-session.handler.js';
 
