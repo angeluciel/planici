@@ -8,7 +8,7 @@ import type {
   AccessTokenPayload,
   IssuedRefreshToken,
   TokenService,
-} from '../../application/services/token.service.js';
+} from '../../ports/services/token.service.js';
 import {
   ExpiredTokenError,
   InvalidTokenError,

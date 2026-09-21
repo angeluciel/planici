@@ -5,25 +5,25 @@ import { PasswordHasher } from '@shared/crypto/password.hasher.js';
 import {
   ExpiredTokenError,
   InvalidTokenError,
-} from '../../../domain/errors/auth.errors.js';
-import { PasswordChangedEvent } from '../../../domain/events/auth.events.js';
-import { Password } from '../../../domain/value-objects/password.vo.js';
+} from '../../domain/errors/auth.errors.js';
+import { PasswordChangedEvent } from '../../domain/events/auth.events.js';
+import { Password } from '../../domain/value-objects/password.vo.js';
 import {
   LOGIN_ATTEMPT_REPOSITORY,
   type LoginAttemptRepository,
-} from '../../repositories/login-attempt.repository.js';
+} from '../../ports/repositories/login-attempt.repository.js';
 import {
   PASSWORD_RESET_REPOSITORY,
   type PasswordResetRepository,
-} from '../../repositories/password-reset.repository.js';
+} from '../../ports/repositories/password-reset.repository.js';
 import {
   REFRESH_TOKEN_REPOSITORY,
   type RefreshTokenRepository,
-} from '../../repositories/refresh-token.repository.js';
+} from '../../ports/repositories/refresh-token.repository.js';
 import {
   USER_REPOSITORY,
   type UserRepository,
-} from '../../repositories/user.repository.js';
+} from '../../ports/repositories/user.repository.js';
 import { ResetPasswordCommand } from './reset-password.command.js';
 
 @CommandHandler(ResetPasswordCommand)

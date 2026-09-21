@@ -8,8 +8,8 @@ import {
 import type {
   EmailVerification,
   EmailVerificationRepository,
-} from '../../repositories/email-verification.repository.js';
-import type { TokenService } from '../../services/token.service.js';
+} from '../../ports/repositories/email-verification.repository.js';
+import type { TokenService } from '../../ports/services/token.service.js';
 import { VerifyEmailCodeCommand } from './verify-email-code.command.js';
 import { VerifyEmailCodeHandler } from './verify-email-code.handler.js';
 

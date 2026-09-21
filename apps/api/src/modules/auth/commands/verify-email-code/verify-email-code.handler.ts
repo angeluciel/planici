@@ -4,11 +4,11 @@ import { Inject } from '@nestjs/common';
 import {
   EMAIL_VERIFICATION_REPOSITORY,
   type EmailVerificationRepository,
-} from '../../repositories/email-verification.repository.js';
+} from '../../ports/repositories/email-verification.repository.js';
 import {
   TOKEN_SERVICE,
   type TokenService,
-} from '../../services/token.service.js';
+} from '../../ports/services/token.service.js';
 import { authConfig } from '@config/namespaces/auth.config.js';
 import type { ConfigType } from '@nestjs/config';
 import { EmailVerifiedResponse } from '@planici/schemas';

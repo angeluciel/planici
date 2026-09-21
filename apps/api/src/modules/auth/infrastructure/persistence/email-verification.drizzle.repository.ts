@@ -6,7 +6,7 @@ import { emailVerifications } from '@src/database/schema/email-verifications.js'
 import type {
   EmailVerification,
   EmailVerificationRepository,
-} from '../../application/repositories/email-verification.repository.js';
+} from '../../ports/repositories/email-verification.repository.js';
 
 @Injectable()
 export class DrizzleEmailVerificationRepository implements EmailVerificationRepository {

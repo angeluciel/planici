@@ -12,7 +12,7 @@ import type {
   CreateUserData,
   GoogleIdentityData,
   UserRepository,
-} from '../../application/repositories/user.repository.js';
+} from '../../ports/repositories/user.repository.js';
 import {
   EmailTakenError,
   SlugTakenError,

@@ -3,7 +3,7 @@ import { LogoutCommand } from './logout.command.js';
 import {
   REFRESH_TOKEN_REPOSITORY,
   type RefreshTokenRepository,
-} from '../../repositories/refresh-token.repository.js';
+} from '../../ports/repositories/refresh-token.repository.js';
 import { hashSecret } from '@shared/crypto/hash.js';
 import { Inject } from '@nestjs/common';
 

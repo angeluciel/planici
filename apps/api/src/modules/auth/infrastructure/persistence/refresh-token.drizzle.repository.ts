@@ -7,7 +7,7 @@ import type {
   RefreshTokenRepository,
   RevokeReason,
   StoredRefreshToken,
-} from '../../application/repositories/refresh-token.repository.js';
+} from '../../ports/repositories/refresh-token.repository.js';
 import { refreshTokens } from '@src/database/schema/index.js';
 
 @Injectable()

@@ -3,12 +3,12 @@ import { RequestPasswordResetCommand } from './request-password-reset.command.js
 import {
   USER_REPOSITORY,
   type UserRepository,
-} from '../../repositories/user.repository.js';
+} from '../../ports/repositories/user.repository.js';
 import { Inject } from '@nestjs/common';
 import {
   PASSWORD_RESET_REPOSITORY,
   type PasswordResetRepository,
-} from '../../repositories/password-reset.repository.js';
+} from '../../ports/repositories/password-reset.repository.js';
 import { authConfig } from '@config/namespaces/auth.config.js';
 import { TokenGenerator } from '@shared/crypto/token.generator.js';
 import type { ConfigType } from '@nestjs/config';

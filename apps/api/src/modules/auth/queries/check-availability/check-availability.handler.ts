@@ -6,7 +6,7 @@ import { Slug } from '@modules/auth/domain/value-objects/slug.vo.js';
 import {
   USER_REPOSITORY,
   type UserRepository,
-} from '../../repositories/user.repository.js';
+} from '../../ports/repositories/user.repository.js';
 import { CheckAvailabilityQuery } from './check-availability.query.js';
 
 /**
