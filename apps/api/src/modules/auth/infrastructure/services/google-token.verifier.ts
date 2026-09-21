@@ -5,7 +5,7 @@ import { authConfig } from '@config/namespaces/auth.config.js';
 import type {
   GoogleAccount,
   GoogleVerifier,
-} from '../../application/services/google-verifier.js';
+} from '../../ports/services/google-verifier.js';
 import {
   GoogleInvalidTokenError,
   GoogleUnavailableError,

@@ -1,5 +1,5 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { EmailCodeRequestedEvent } from '../../domain/events/auth.events.js';
+import { EmailCodeRequestedEvent } from '../domain/events/auth.events.js';
 import { Inject, Logger } from '@nestjs/common';
 import { type Mailer, MAILER } from '@modules/mail/mail.service.js';
 import { verificationCodeEmail } from '@modules/mail/template/auth.template.js';

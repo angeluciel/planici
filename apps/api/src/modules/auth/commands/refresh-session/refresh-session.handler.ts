@@ -9,12 +9,12 @@ import {
 import {
   REFRESH_TOKEN_REPOSITORY,
   type RefreshTokenRepository,
-} from '../../repositories/refresh-token.repository.js';
+} from '../../ports/repositories/refresh-token.repository.js';
 import {
   USER_REPOSITORY,
   type UserRepository,
-} from '../../repositories/user.repository.js';
-import { SessionFactory } from '../../services/section.factory.js';
+} from '../../ports/repositories/user.repository.js';
+import { SessionFactory } from '../../ports/services/session.factory.js';
 import { RefreshSessionCommand } from './refresh-session.command.js';
 
 @CommandHandler(RefreshSessionCommand)

@@ -6,7 +6,7 @@ import { loginAttempts } from '@src/database/schema/login-attempts.js';
 import type {
   LoginAttemptRepository,
   LoginAttemptState,
-} from '../../application/repositories/login-attempt.repository.js';
+} from '../../ports/repositories/login-attempt.repository.js';
 
 @Injectable()
 export class DrizzleLoginAttemptRepository implements LoginAttemptRepository {

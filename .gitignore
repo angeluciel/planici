@@ -18,6 +18,7 @@ next-env.d.ts
 .env.local
 .env.*.local
 .env.sonar
+.env.test
 
 # Editor
 .vscode/*

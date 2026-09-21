@@ -13,16 +13,16 @@ import { Email } from '@modules/auth/domain/value-objects/email.vo.js';
 import {
   LOGIN_ATTEMPT_REPOSITORY,
   type LoginAttemptRepository,
-} from '../../repositories/login-attempt.repository.js';
+} from '../../ports/repositories/login-attempt.repository.js';
 import {
   USER_REPOSITORY,
   type UserRepository,
-} from './../../repositories/user.repository.js';
+} from '../../ports/repositories/user.repository.js';
 import {
   GOOGLE_VERIFIER,
   type GoogleVerifier,
-} from './../../services/google-verifier.js';
-import { SessionFactory } from '../../services/section.factory.js';
+} from '../../ports/services/google-verifier.js';
+import { SessionFactory } from '../../ports/services/session.factory.js';
 import { LoginCommand } from './login.command.js';
 
 @CommandHandler(LoginCommand)
