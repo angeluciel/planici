@@ -9,14 +9,8 @@ export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export const CreateUser = z.object({
 	email: EmailSchema,
-	name: z
-		.string({ error: "name.required" })
-		.min(1, { error: "name.required" })
-		.transform((val) => val.trim()),
-	surname: z
-		.string({ error: "surname.required" })
-		.min(1, { error: "surname.required" })
-		.transform((val) => val.trim()),
+	name: z.string({ error: "name.required" }).trim().min(1, { error: "name.required" }),
+	surname: z.string({ error: "surname.required" }).trim().min(1, { error: "surname.required" }),
 	password: z
 		.string({ error: "password.required" })
 		.min(PASSWORD_MIN_LENGTH, { error: "password.min" })

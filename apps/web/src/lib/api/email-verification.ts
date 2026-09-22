@@ -1,29 +1,41 @@
-import { EMAIL_CODE_LENGTH } from "@planici/schemas";
+import {
+	type EmailVerifiedResponse,
+	EmailVerifiedResponseSchema,
+	RequestEmailCodeSchema,
+	VerifyEmailCodeSchema,
+} from "@planici/schemas";
+import { type ApiFailure, apiFailure, authClient } from "./client";
 
-export type VerificationResult = { ok: true } | { ok: false; error: string };
+export type VerificationResult = { ok: true } | ApiFailure;
+export type VerifyEmailResult =
+	| ({ ok: true } & EmailVerifiedResponse)
+	| ApiFailure;
 
-/**
- *  TODO: point at `apps/api` POST /auth/email/code
- * */
 export async function requestEmailCode(
 	email: string,
 ): Promise<VerificationResult> {
-	console.info("requestEmailCode", { email, EMAIL_CODE_LENGTH });
-	return { ok: true };
+	try {
+		const body = RequestEmailCodeSchema.parse({ email });
+		await authClient.post("/email/code", body);
+		return { ok: true };
+	} catch (error) {
+		return apiFailure(error);
+	}
 }
-
-/**
- * TODO: point at `apps/api` POST /auth/email/verify
- * */
 
 export async function verifyEmailCode(
 	email: string,
 	code: string,
-): Promise<VerificationResult> {
-	console.info("verifyEmailCode", {
-		email,
-		code: "[redacted]",
-		lenghth: code.length,
-	});
-	return { ok: true };
+): Promise<VerifyEmailResult> {
+	try {
+		const body = VerifyEmailCodeSchema.parse({ email, code });
+		const response = await authClient.post<unknown>("/email/verify", body);
+		const proof = EmailVerifiedResponseSchema.safeParse(response.data);
+
+		return proof.success
+			? { ok: true, ...proof.data }
+			: { ok: false, error: "unexpected" };
+	} catch (error) {
+		return apiFailure(error);
+	}
 }
