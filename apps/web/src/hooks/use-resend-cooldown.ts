@@ -20,7 +20,7 @@ export function useResendCooldown(seconds: number = RESENT_COOLDOWN_SECONDS) {
 		(from: number) => {
 			stop();
 
-			if (from <= 0) {
+			if (!Number.isFinite(from) || from <= 0) {
 				setSecondsLeft(0);
 				return;
 			}
@@ -43,6 +43,13 @@ export function useResendCooldown(seconds: number = RESENT_COOLDOWN_SECONDS) {
 
 	const start = useCallback(() => run(seconds), [run, seconds]);
 
+	const startUntil = useCallback(
+		(isoDate: string) => {
+			run(Math.max(0, Math.ceil((Date.parse(isoDate) - Date.now()) / 1000)));
+		},
+		[run],
+	);
+
 	const startFrom = useCallback(
 		(isoDate: string | null) => {
 			if (!isoDate) {
@@ -61,5 +68,11 @@ export function useResendCooldown(seconds: number = RESENT_COOLDOWN_SECONDS) {
 
 	useEffect(() => stop, [stop]);
 
-	return { secondsLeft, isCoolingDown: secondsLeft > 0, start, startFrom };
+	return {
+		secondsLeft,
+		isCoolingDown: secondsLeft > 0,
+		start,
+		startFrom,
+		startUntil,
+	};
 }

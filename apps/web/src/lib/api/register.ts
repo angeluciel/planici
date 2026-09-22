@@ -1,76 +1,91 @@
-import type {
-	GoogleProfile,
-	RegisterData,
-	RegisterProvider,
-} from "@/types/register";
+import {
+	type AuthUser,
+	AuthUserSchema,
+	AvailabilityQuerySchema,
+	AvailabilityResponseSchema,
+	type RegisterRequestInput,
+	RegisterRequestSchema,
+} from "@planici/schemas";
+import { z } from "zod";
+import type { RegisterData } from "@/types/register";
+import { hasEmailProof, hasGoogleCredential } from "../register-flow";
+import { type ApiFailure, apiFailure, authClient } from "./client";
 
-export type RegisterResult =
-	| { ok: true }
-	| { ok: false; error: string; field?: keyof RegisterData };
-
-/**
- * What the backend will need in order to satisfy RNF-12: the account fields
- * plus a traceable consent record.
- * */
-
-export type RegisterPayload = {
-	email: string;
-
-	password?: string;
-	provider: RegisterProvider;
-
-	emailConfirmed: boolean;
-	name: string;
-	surname: string;
-	slug: string;
-	consent: {
-		acceptedTerms: true;
-		marketingOptIn: boolean;
-		termsVersion: string;
-		acceptedAt: string;
-	};
-};
+export type RegisterPayload = RegisterRequestInput;
+export type RegisterResult = { ok: true; user: AuthUser } | ApiFailure;
+const RegisteredSchema = z.object({
+	ok: z.literal(true),
+	user: AuthUserSchema,
+});
 
 export function toRegisterPayload(data: RegisterData): RegisterPayload {
-	return {
+	const common = {
 		email: data.email,
-		password: data.provider === "email" ? data.password : undefined,
-		provider: data.provider,
-		emailConfirmed: data.confirmedEmail,
 		name: data.name,
 		surname: data.surname,
 		slug: data.slug,
 		consent: {
-			acceptedTerms: true,
+			acceptedTerms: data.acceptedTerms,
 			marketingOptIn: data.marketingOptIn,
 			termsVersion: data.termsVersion,
-			acceptedAt: data.acceptedTermsAt ?? new Date().toISOString(),
+			acceptedAt: data.acceptedTermsAt ?? "",
 		},
 	};
-}
 
-/** TODO: POINT AT `apps/api` POST /auth/register
- * A validação do backend deve mapear os erros para as keys do i18n
- * tipo `email.taken`
- *
- * Sucesso = api manda o email de verificação
- * TODO: fazer tela de verificacao de email
- */
+	return RegisterRequestSchema.parse(
+		data.provider === "email"
+			? {
+					...common,
+					provider: "email",
+					password: data.password,
+					emailVerificationToken: data.emailVerificationToken ?? "",
+				}
+			: {
+					...common,
+					provider: "google",
+					idToken: data.idToken ?? "",
+				},
+	);
+}
 
 export async function registerUser(
 	data: RegisterData,
 ): Promise<RegisterResult> {
-	const payload = toRegisterPayload(data);
+	if (data.provider === "email" && !hasEmailProof(data)) {
+		return {
+			ok: false,
+			error: "verification.expired",
+			field: "emailVerificationToken",
+		};
+	}
 
-	console.info("registeruser payload", { ...payload, password: "[redacted]" });
-	return { ok: true };
+	if (data.provider === "google" && !hasGoogleCredential(data)) {
+		return { ok: false, error: "google.expired", field: "idToken" };
+	}
+	try {
+		const payload = toRegisterPayload(data);
+		const response = await authClient.post<unknown>("/register", payload);
+		const registered = RegisteredSchema.safeParse(response.data);
+		return registered.success
+			? registered.data
+			: { ok: false, error: "unexpected" };
+	} catch (error) {
+		return apiFailure(error);
+	}
 }
 
-export type GoogleSignInResult =
-	| { ok: true; profile: GoogleProfile }
-	| { ok: false; error: string };
-
-export async function signInWithGoogle(): Promise<RegisterResult> {
-	console.info("signInWithGoogle: not wired yet :P");
-	return { ok: false, error: "unexpected" };
+export async function checkAvailability(query: {
+	email?: string;
+	slug?: string;
+}): Promise<{ ok: true; available: boolean } | ApiFailure> {
+	try {
+		const params = AvailabilityQuerySchema.parse(query);
+		const response = await authClient.get<unknown>("/availability", { params });
+		const result = AvailabilityResponseSchema.safeParse(response.data);
+		return result.success
+			? { ok: true, ...result.data }
+			: { ok: false, error: "unexpected" };
+	} catch (error) {
+		return apiFailure(error);
+	}
 }

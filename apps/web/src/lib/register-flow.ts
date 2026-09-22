@@ -21,18 +21,57 @@ type StepMeta = {
 
 const isGoogle = (data: RegisterData) => data.provider === "google";
 
+const normalizeEmail = (email: string) => email.trim().toLowerCase();
+
+export function hasEmailProof(data: RegisterData, now = Date.now()): boolean {
+	return (
+		data.provider === "email" &&
+		Boolean(
+			data.emailVerificationToken &&
+				data.emailVerificationExpiresAt &&
+				data.verifiedEmail === normalizeEmail(data.email) &&
+				Date.parse(data.emailVerificationExpiresAt) > now,
+		)
+	);
+}
+
+export function hasGoogleCredential(
+	data: RegisterData,
+	now = Date.now(),
+): boolean {
+	return (
+		isGoogle(data) &&
+		Boolean(
+			data.idToken &&
+				data.idTokenExpiresAt &&
+				data.verifiedEmail === normalizeEmail(data.email) &&
+				Date.parse(data.idTokenExpiresAt) > now,
+		)
+	);
+}
+
+export const CLEARED_PROOF = {
+	confirmedEmail: false,
+	verifiedEmail: null,
+	emailVerificationToken: null,
+	emailVerificationExpiresAt: null,
+	idToken: null,
+	idTokenExpiresAt: null,
+} as const;
+
 export const STEP_META: Record<RegisterStep, StepMeta> = {
 	account: {
 		translationKey: "first",
 		inStepper: true,
 		isSkipped: () => false,
-		isComplete: (data) => AccountStepSchema.safeParse(data).success,
+		isComplete: (data) =>
+			AccountStepSchema.safeParse(data).success &&
+			(!isGoogle(data) || hasGoogleCredential(data)),
 	},
 	verify: {
 		translationKey: "verify",
 		inStepper: false,
-		isSkipped: (data) =>
-			isGoogle(data) || data.confirmedEmail || data.skippedEmailVerification,
+		isSkipped: (data) => isGoogle(data) || hasEmailProof(data),
 		isComplete: () => false,
 	},
 	password: {
@@ -45,7 +84,10 @@ export const STEP_META: Record<RegisterStep, StepMeta> = {
 		translationKey: "third",
 		inStepper: true,
 		isSkipped: () => false,
-		isComplete: (data) => TermsStepSchema.safeParse(data).success,
+		isComplete: (data) =>
+			TermsStepSchema.safeParse(data).success &&
+			data.termsVersion === TERMS_VERSION &&
+			Boolean(data.acceptedTermsAt),
 	},
 	profile: {
 		translationKey: "fourth",
@@ -137,13 +179,16 @@ export function stampStep(
 	if (
 		slug === "account" &&
 		values.provider !== "google" &&
-		values.email !== previous.email
+		(normalizeEmail(values.email ?? previous.email) !==
+			normalizeEmail(previous.email) ||
+			previous.provider !== "email")
 	) {
 		return {
 			...values,
-			confirmedEmail: false,
-			skippedEmailVerification: false,
+			...CLEARED_PROOF,
+			provider: "email",
 			codeRequestedAt: null,
+			codeResendAt: null,
 		};
 	}
 
@@ -154,12 +199,18 @@ export function applyGoogleProfile(
 	profile: GoogleProfile,
 ): Partial<RegisterData> {
 	return {
+		...CLEARED_PROOF,
 		provider: "google",
-		email: profile.email,
+		email: normalizeEmail(profile.email),
+		verifiedEmail: normalizeEmail(profile.email),
 		name: profile.name,
 		surname: profile.surname,
 		confirmedEmail: true,
-		skippedEmailVerification: false,
+		idToken: profile.idToken,
+		idTokenExpiresAt: profile.expiresAt,
+		password: "",
+		confirmPassword: "",
 		codeRequestedAt: null,
+		codeResendAt: null,
 	};
 }

@@ -74,7 +74,14 @@
 		"google": {
 			"unavailable": "Google sign-in is unavailable right now.",
 			"cancelled": "Google sign-in was cancelled.",
-			"invalid": "We couldn't validate your Google account."
+			"invalid": "We couldn't validate your Google account.",
+			"expired": "Your Google sign-in expired. Continue with Google again."
+		},
+		"network": {
+			"unavailable": "Could not reach the server. Check your connection and try again."
+		},
+		"verification": {
+			"expired": "Your email verification expired. Verify your email again to continue."
 		}
 	},
 	"auth": {
@@ -104,8 +111,8 @@
 			},
 			"success": {
 				"title": "Account created!",
-				"subtitle": "We sent a confirmation email to {email}. Confirm your email to start using Planici.",
-				"cta": "Go to login"
+				"subtitle": "Your account is ready. Welcome to Planici!",
+				"cta": "Open dashboard"
 			},
 			"steps": {
 				"first": {
@@ -130,9 +137,8 @@
 					"resend-question": "Didn't get it?",
 					"resend": "Send another code",
 					"resend-wait": "Wait {seconds}s",
-					"skip-question": "Can't find the code?",
-					"skip": "Skip",
-					"back-btn": "Back"
+					"back-btn": "Back",
+					"sending": "Sending your code…"
 				},
 				"second": {
 					"stepper": "Password",
@@ -182,9 +188,13 @@
 						"hint": "What you would like us to call you"
 					},
 					"next-btn": "Create account",
-					"back-btn": "Back"
+					"back-btn": "Back",
+					"submitting": "Creating your account…"
 				}
-			}
+			},
+			"loading": "Loading your registration…",
+			"checking": "Checking…",
+			"retry": "Try again"
 		}
 	},
 	"consent": {
@@ -275,5 +285,11 @@
 			},
 			"slogan": "Because managing your plans should feel this easy."
 		}
+	},
+	"dashboard": {
+		"title": "Welcome, {name}!",
+		"description": "You are signed in to Planici.",
+		"sign-out": "Sign out",
+		"signing-out": "Signing out…"
 	}
 }
