@@ -74,6 +74,7 @@ export async function registerUser(
 	}
 }
 
+// TODO: https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html#account-creation
 export async function checkAvailability(query: {
 	email?: string;
 	slug?: string;
