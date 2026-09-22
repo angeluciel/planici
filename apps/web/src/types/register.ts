@@ -13,6 +13,8 @@ export type GoogleProfile = {
 	email: string;
 	name: string;
 	surname: string;
+	idToken: string;
+	expiresAt: string;
 };
 
 export type RegisterData = {
@@ -26,8 +28,13 @@ export type RegisterData = {
 	provider: RegisterProvider;
 
 	confirmedEmail: boolean;
-	skippedEmailVerification: boolean;
+	verifiedEmail: string | null;
+	emailVerificationToken: string | null;
+	emailVerificationExpiresAt: string | null;
+	idToken: string | null;
+	idTokenExpiresAt: string | null;
 	codeRequestedAt: string | null;
+	codeResendAt: string | null;
 
 	acceptedTerms: boolean;
 	marketingOptIn: boolean;
@@ -44,8 +51,13 @@ export const EMPTY_REGISTER_DATA: RegisterData = {
 	slug: "",
 	provider: "email",
 	confirmedEmail: false,
-	skippedEmailVerification: false,
+	verifiedEmail: null,
+	emailVerificationToken: null,
+	emailVerificationExpiresAt: null,
+	idToken: null,
+	idTokenExpiresAt: null,
 	codeRequestedAt: null,
+	codeResendAt: null,
 	acceptedTerms: false,
 	marketingOptIn: false,
 	termsVersion: "",
@@ -59,6 +71,7 @@ export type StepProps = {
 	isFirst: boolean;
 	isLast: boolean;
 	isSubmitting: boolean;
+	serverError?: { error: string; field?: string } | null;
 };
 
 export type StepDefinition = {
@@ -69,7 +82,6 @@ export type StepDefinition = {
 
 export type VerifyStepProps = StepProps & {
 	onResend: () => void;
-	onSkip: () => void;
 	isSending: boolean;
 	sendError: string | null;
 };

@@ -1,6 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+	restoreRegisterDraft,
+	serializeRegisterDraft,
+} from "@/lib/register-draft";
 import { EMPTY_REGISTER_DATA, type RegisterData } from "@/types/register";
 
 const DRAFT_KEY = "planici_register_draft";
@@ -11,39 +15,31 @@ const DRAFT_KEY = "planici_register_draft";
  * redirected to the password step
  * */
 
-type RegisterDraft = Omit<RegisterData, "password" | "confirmPassword">;
-
-function readDraft(): RegisterDraft | null {
-	try {
-		const raw = window.sessionStorage.getItem(DRAFT_KEY);
-		if (!raw) return null;
-
-		const parsed: unknown = JSON.parse(raw);
-		if (typeof parsed !== "object" || parsed === null) return null;
-
-		return parsed as RegisterDraft;
-	} catch {
-		return null;
-	}
-}
-
-/**
- *  Keeps the in-progress sign-up across reloads via `sessionStorage`
- * */
-
 export function useRegisterDraft() {
-	const [data, setData] = useState<RegisterData>(EMPTY_REGISTER_DATA);
+	const [data, setData] = useState<RegisterData>({ ...EMPTY_REGISTER_DATA });
 	const [restored, setRestored] = useState(false);
-
 	const dataRef = useRef(data);
 
 	useEffect(() => {
-		const draft = readDraft();
+		let raw: string | null = null;
 
-		if (draft) {
-			const restoredData = { ...EMPTY_REGISTER_DATA, ...draft };
-			dataRef.current = restoredData;
-			setData(restoredData);
+		try {
+			raw = window.sessionStorage.getItem(DRAFT_KEY);
+		} catch {
+			// whatever
+		}
+
+		const restoredData = restoreRegisterDraft(raw);
+		dataRef.current = restoredData;
+		setData(restoredData);
+
+		try {
+			window.sessionStorage.setItem(
+				DRAFT_KEY,
+				serializeRegisterDraft(restoredData),
+			);
+		} catch {
+			// whatever
 		}
 		setRestored(true);
 	}, []);
@@ -53,15 +49,15 @@ export function useRegisterDraft() {
 		dataRef.current = next;
 		setData(next);
 
-		const { password: _password, confirmPassword: _confirm, ...draft } = next;
-
 		try {
-			window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+			window.sessionStorage.setItem(DRAFT_KEY, serializeRegisterDraft(next));
 		} catch {
 			// whatever
 		}
 		return next;
 	}, []);
+
+	const getData = useCallback(() => dataRef.current, []);
 
 	const clear = useCallback(() => {
 		try {
@@ -69,7 +65,9 @@ export function useRegisterDraft() {
 		} catch {
 			// whatever
 		}
+		dataRef.current = { ...EMPTY_REGISTER_DATA };
+		setData(dataRef.current);
 	}, []);
 
-	return { data, update, clear, restored };
+	return { data, update, getData, clear, restored };
 }

@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { CookieSettingsLink } from "@/components/consent/cookie-settings-link";
 import Header from "@/components/header";
-import RegisterFlow from "./_components/RegisterFlow";
+import RegisterFlow from "./_components/register-flow";
 
 export default async function RegisterPage() {
 	const t = await getTranslations("common");

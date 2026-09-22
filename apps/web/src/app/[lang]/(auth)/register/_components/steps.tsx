@@ -9,7 +9,7 @@ import {
 } from "@planici/schemas";
 import { Eye, EyeClosed } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
 	type FieldPath,
 	type FieldValues,
@@ -18,14 +18,19 @@ import {
 	useForm,
 } from "react-hook-form";
 import type z from "zod";
+import { Alert } from "@/components/alert";
 import { Button } from "@/components/button";
 import { Checkbox } from "@/components/checkbox";
 import { type FieldStatus, Input } from "@/components/input";
 import { PasswordCriteria } from "@/components/password-criteria";
 import { Link } from "@/i18n/navigation";
-import { signInWithGoogle } from "@/lib/api/register";
+import { GOOGLE_CLIENT_ID, type GoogleIdTokenResult } from "@/lib/api/google";
+import { checkAvailability } from "@/lib/api/register";
 import { useFieldError } from "@/lib/form";
+import { googleProfile } from "@/lib/google-profile";
+import { applyGoogleProfile } from "@/lib/register-flow";
 import type { StepProps } from "@/types/register";
+import { GoogleRegisterButton } from "./google-register-button";
 
 function BackButton({
 	label,
@@ -43,9 +48,6 @@ function BackButton({
 	);
 }
 
-export const LINK_CLASS =
-	"text-text-link hover:text-text-link-pressed visited:text-text-link-visited hover:visited:text-text-link-visited-pressed";
-
 function getFieldStatus<T extends FieldValues>(
 	name: FieldPath<T>,
 	getFieldState: UseFormGetFieldState<T>,
@@ -58,37 +60,119 @@ function getFieldStatus<T extends FieldValues>(
 	return "default";
 }
 
-function AccountStep({ defaultValues, onNext }: Readonly<StepProps>) {
+function AccountStep({
+	defaultValues,
+	onNext,
+	serverError,
+}: Readonly<StepProps>) {
 	const t = useTranslations();
 	const fieldError = useFieldError();
+	const [failure, setFailure] = useState<string | null>(null);
+	const [checking, setChecking] = useState(false);
+	const busy = useRef(false);
+	const mounted = useRef(false);
 
-	const { getFieldState, formState, register, handleSubmit } = useForm({
+	useEffect(() => {
+		mounted.current = true;
+		return () => {
+			mounted.current = false;
+		};
+	}, []);
+
+	const {
+		getFieldState,
+		formState,
+		register,
+		handleSubmit,
+		setError,
+		setValue,
+	} = useForm({
 		resolver: zodResolver(AccountStepSchema),
 		defaultValues: { email: defaultValues.email ?? "" },
 		mode: "onBlur",
 	});
-	const { errors } = formState;
-	const { error, isDirty, invalid } = getFieldState("email", formState);
 
-	let status: FieldStatus = "default";
-	if (error) {
-		status = "error";
-	} else if (isDirty && !invalid) {
-		status = "success";
+	useEffect(() => {
+		if (
+			serverError?.field === "email" ||
+			serverError?.error === "email.taken"
+		) {
+			setError(
+				"email",
+				{ type: "server", message: serverError.error },
+				{ shouldFocus: true },
+			);
+		}
+	}, [serverError, setError]);
+	const { errors } = formState;
+	const status = getFieldStatus("email", getFieldState, formState);
+
+	async function available(email: string) {
+		const result = await checkAvailability({ email });
+		if (!mounted.current) return false;
+		if (!result.ok) {
+			setFailure(result.error);
+			return false;
+		}
+		if (!result.available) {
+			setError(
+				"email",
+				{ type: "server", message: "email.taken" },
+				{ shouldFocus: true },
+			);
+			return false;
+		}
+		return true;
+	}
+
+	async function continueEmail(values: { email: string }) {
+		if (busy.current) return;
+		busy.current = true;
+		setChecking(true);
+		setFailure(null);
+		try {
+			if (await available(values.email))
+				onNext({ email: values.email, provider: "email" });
+		} finally {
+			busy.current = false;
+			if (mounted.current) setChecking(false);
+		}
+	}
+
+	async function continueGoogle(result: GoogleIdTokenResult) {
+		if (busy.current) return;
+		if (!result.ok) {
+			setFailure(result.error);
+			return;
+		}
+		const profile = googleProfile(result.idToken, GOOGLE_CLIENT_ID);
+		if (!profile) {
+			setFailure("google.invalid");
+			return;
+		}
+		busy.current = true;
+		setChecking(true);
+		setFailure(null);
+		setValue("email", profile.email);
+		try {
+			if (await available(profile.email)) onNext(applyGoogleProfile(profile));
+		} finally {
+			busy.current = false;
+			if (mounted.current) setChecking(false);
+		}
 	}
 
 	return (
 		<form
-			onSubmit={handleSubmit(onNext)}
+			onSubmit={handleSubmit(continueEmail)}
 			className="flex flex-col gap-4 items-center w-full"
+			aria-busy={checking}
 		>
-			<button
-				type="button"
-				onClick={() => void signInWithGoogle()}
-				className="w-full px-4 h-10 gap-2 border-2 border-border font-body-sm font-medium rounded-md"
-			>
-				{t("auth.register.steps.first.google-btn")}
-			</button>
+			<GoogleRegisterButton
+				onCredential={(result) => void continueGoogle(result)}
+				disabled={checking}
+			/>
+			{failure && <Alert>{fieldError(failure)}</Alert>}
 			<div className="flex gap-2 items-center text-text-bold w-full">
 				<div className="h-px w-full bg-background-accent-gray-subtle" />
 				{t("auth.register.steps.first.divider")}
@@ -97,20 +181,27 @@ function AccountStep({ defaultValues, onNext }: Readonly<StepProps>) {
 			<Input
 				label={t("common.inputs.email.label")}
 				type="email"
+				autoComplete="email"
 				placeholder={t("common.inputs.email.placeholder")}
 				{...register("email")}
 				status={status}
 				help={fieldError(errors.email?.message)}
+				disabled={checking}
 			/>
 			<div className="flex flex-col gap-8 items-center w-full">
 				<Button
-					text={t("auth.register.steps.first.next-btn")}
+					text={
+						checking
+							? t("auth.register.checking")
+							: t("auth.register.steps.first.next-btn")
+					}
 					variant="primary"
 					type="submit"
+					disabled={checking}
 				/>
 				<span className="text-sm">
 					{t("auth.register.steps.first.link")}{" "}
-					<Link className={LINK_CLASS} href={"/login"}>
+					<Link className={`link-colors`} href={"/login"}>
 						{t("auth.register.steps.first.sign-in")}
 					</Link>
 					.
@@ -231,12 +322,12 @@ function TermsStep({ defaultValues, onNext, onBack }: Readonly<StepProps>) {
 					help={fieldError(errors.acceptedTerms?.message)}
 					label={t.rich("accept-label", {
 						terms: (chunks) => (
-							<Link href="/terms" className={LINK_CLASS}>
+							<Link href="/terms" className={`link-colors`}>
 								{chunks}
 							</Link>
 						),
 						privacy: (chunks) => (
-							<Link href="/privacy" className={LINK_CLASS}>
+							<Link href="/privacy" className={`link-colors`}>
 								{chunks}
 							</Link>
 						),
@@ -263,21 +354,40 @@ function ProfileStep({
 	onNext,
 	onBack,
 	isSubmitting,
+	serverError,
 }: Readonly<StepProps>) {
 	const t = useTranslations("auth.register.steps.fourth");
 	const fieldError = useFieldError();
 
 	type FormValues = z.infer<typeof ProfileStepSchema>;
 
-	const { getFieldState, formState, register, handleSubmit } = useForm({
-		resolver: zodResolver(ProfileStepSchema),
-		defaultValues: {
-			name: defaultValues.name,
-			surname: defaultValues.surname,
-			slug: defaultValues.slug,
-		},
-		mode: "onBlur",
-	});
+	const { getFieldState, formState, register, handleSubmit, setError } =
+		useForm({
+			resolver: zodResolver(ProfileStepSchema),
+			defaultValues: {
+				name: defaultValues.name,
+				surname: defaultValues.surname,
+				slug: defaultValues.slug,
+			},
+			mode: "onBlur",
+		});
+
+	useEffect(() => {
+		const field =
+			serverError?.field ??
+			(serverError?.error === "slug.taken" ? "slug" : undefined);
+
+		if (
+			serverError &&
+			(field === "name" || field === "surname" || field === "slug")
+		) {
+			setError(
+				field,
+				{ type: "server", message: serverError.error },
+				{ shouldFocus: true },
+			);
+		}
+	}, [serverError, setError]);
 
 	const { errors } = formState;
 
@@ -291,6 +401,7 @@ function ProfileStep({
 		>
 			<Input
 				label={t("name-input.title")}
+				disabled={isSubmitting}
 				autoComplete="given-name"
 				help={fieldError(errors.name?.message) ?? t("name-input.hint")}
 				placeholder={t("name-input.placeholder")}
@@ -299,6 +410,7 @@ function ProfileStep({
 			/>
 			<Input
 				label={t("surname-input.title")}
+				disabled={isSubmitting}
 				autoComplete="family-name"
 				help={fieldError(errors.surname?.message) ?? t("surname-input.hint")}
 				placeholder={t("surname-input.placeholder")}
@@ -307,6 +419,7 @@ function ProfileStep({
 			/>
 			<Input
 				label={t("nick-input.title")}
+				disabled={isSubmitting}
 				autoComplete="nickname"
 				placeholder={t("nick-input.placeholder")}
 				help={fieldError(errors.slug?.message) ?? t("nick-input.hint")}
@@ -314,7 +427,12 @@ function ProfileStep({
 				{...register("slug")}
 			/>
 			<div className="flex w-full flex-col gap-1">
-				<Button text={t("next-btn")} type="submit" variant="primary" />
+				<Button
+					text={isSubmitting ? t("submitting") : t("next-btn")}
+					type="submit"
+					variant="primary"
+					disabled={isSubmitting}
+				/>
 				<BackButton
 					label={t("back-btn")}
 					onBack={onBack}

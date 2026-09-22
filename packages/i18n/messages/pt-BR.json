@@ -74,7 +74,14 @@
 		"google": {
 			"unavailable": "O login com Google está indisponível no momento.",
 			"cancelled": "O login com Google foi cancelado.",
-			"invalid": "Não conseguimos validar sua conta Google."
+			"invalid": "Não conseguimos validar sua conta Google.",
+			"expired": "Seu login com Google expirou. Continue com Google novamente."
+		},
+		"network": {
+			"unavailable": "Não foi possível conectar ao servidor. Confira sua conexão e tente novamente."
+		},
+		"verification": {
+			"expired": "A verificação do seu e-mail expirou. Verifique novamente para continuar."
 		}
 	},
 	"auth": {
@@ -104,8 +111,8 @@
 			},
 			"success": {
 				"title": "Conta criada!",
-				"subtitle": "Enviamos um e-mail de confirmação para {email}. Confirme para começar a usar o Planici.",
-				"cta": "Ir para o login"
+				"subtitle": "Sua conta está pronta. Boas-vindas ao Planici!",
+				"cta": "Abrir painel"
 			},
 			"steps": {
 				"first": {
@@ -130,9 +137,8 @@
 					"resend-question": "Não recebeu?",
 					"resend": "Enviar outro código",
 					"resend-wait": "Aguarde {seconds}s",
-					"skip-question": "Não consegue achar o código?",
-					"skip": "Pular",
-					"back-btn": "Voltar"
+					"back-btn": "Voltar",
+					"sending": "Enviando seu código…"
 				},
 				"second": {
 					"stepper": "Senha",
@@ -182,9 +188,13 @@
 						"hint": "Como prefere que a gente te chame"
 					},
 					"next-btn": "Criar conta",
-					"back-btn": "Voltar"
+					"back-btn": "Voltar",
+					"submitting": "Criando sua conta…"
 				}
-			}
+			},
+			"loading": "Carregando seu cadastro…",
+			"checking": "Verificando…",
+			"retry": "Tentar novamente"
 		}
 	},
 	"consent": {
@@ -275,5 +285,11 @@
 			},
 			"slogan": "Planejar deveria ser simples assim."
 		}
+	},
+	"dashboard": {
+		"title": "Boas-vindas, {name}!",
+		"description": "Você está conectado ao Planici.",
+		"sign-out": "Sair",
+		"signing-out": "Saindo…"
 	}
 }
