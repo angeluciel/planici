@@ -3,6 +3,7 @@ import {
 	VerifyEmailCodeSchema,
 } from "@planici/schemas";
 import { NextResponse } from "next/server";
+import { api, parseUpstream, readBody, route } from "@/app/api/_lib/http";
 
 export const POST = route(async (request) => {
 	const body = await readBody(request, VerifyEmailCodeSchema);
