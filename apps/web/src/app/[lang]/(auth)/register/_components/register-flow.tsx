@@ -201,7 +201,7 @@ export default function RegisterFlow() {
 				completedRef.current = true;
 				setCompleted(true);
 				clear();
-				router.replace("/dashboard");
+				router.replace("/new");
 				router.refresh();
 				return;
 			}
