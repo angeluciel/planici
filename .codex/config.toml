@@ -1,0 +1,10 @@
+# Project-scoped Codex config (applies when the project is trusted).
+[agents]
+max_threads = 6   # Parallel wave size; our widest wave is 3
+max_depth = 1     # only the main session spawns the agents; domain agents use NEEDS blocks instead
+
+[mcp_servers.linear]
+url = "https://mcp.linear.app/mcp"
+
+[mcp_servers.figma]
+url = "https://mcp.figma.com/mcp

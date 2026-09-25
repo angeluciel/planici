@@ -49,3 +49,9 @@ pnpm-debug.log*
 .scannerwork/*
 .sonarlint/
 .sonarlint/*
+
+# --- AI AGENTS ---
+.ai/work/*
+!.ai/work/.gitkeep
+.claude/settings.local.json
+.claude/agent-memory-local/

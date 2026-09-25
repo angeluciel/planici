@@ -1,0 +1,39 @@
+{
+	"$schema": "https://json.schemastore.org/claude-code-settings.json",
+	"env": {
+		"CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "2"
+	},
+	"permissions": {
+		"allow": [
+			"Bash(pnpm lint)",
+			"Bash(pnpm typecheck)",
+			"Bash(pnpm test)",
+			"Bash(pnpm --filter *)",
+			"Bash(git diff *)",
+			"Bash(git status)",
+			"Bash(git log *)",
+			"Bash(scripts/api/*)"
+		],
+		"deny": ["Read(./.env)", "Read(./.env.*)", "Read(./apps/*/.env)", "Read(./apps/*/.env.*)", "Bash(git push *)"]
+	},
+	"enabledMcpjsonServers": ["linear", "figma", "sonarqube", "postgres"],
+	"hooks": {
+		"PreToolUse": [
+			{
+				"matcher": "Edit|Write|MultiEdit",
+				"hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-paths.sh" }]
+			}
+		],
+		"PostToolUse": [
+			{
+				"matcher": "Edit|Write|MultiEdit",
+				"hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/format-changed.sh" }]
+			}
+		],
+		"SessionStart": [
+			{
+				"hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/ai/stale-cards.sh --quit-if-none" }]
+			}
+		]
+	}
+}

@@ -3,6 +3,8 @@ export * from './enums.js';
 export * from './login-attempts.js';
 export * from './password-reset-tokens.js';
 export * from './refresh-tokens.js';
+export * from './rls-probe.js';
+export * from './rls.js';
 export * from './tenant-memberships.js';
 export * from './tenants.js';
 export * from './user-consents.js';

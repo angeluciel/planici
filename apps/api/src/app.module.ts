@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@config/config.module.js';
 import { createObserveModule } from '@nestjs/observe';
 import { DatabaseModule } from './database/database.module.js';
+import { TenantUnitOfWorkModule } from '@shared/database/tenant-unit-of-work.module.js';
 import { MailModule } from '@modules/mail/mail.module.js';
 import { AuthModule } from '@modules/auth/auth.module.js';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -15,6 +16,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
   imports: [
     ConfigModule,
     DatabaseModule,
+    TenantUnitOfWorkModule,
     MailModule,
     AuthModule,
     // per-IP route limit
