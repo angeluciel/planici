@@ -4,7 +4,7 @@ sources:
   - apps/api/src/database/**
   - apps/api/drizzle/**
   - docs/schema.dbml
-verified_at: 9fc266b
+verified_at: 28e5aec
 ---
 # Database (Postgres + Drizzle) — context card
 
@@ -43,7 +43,17 @@ Every tenant-scoped table:
 ```
 `tenantIsolationPolicy` (in `rls.ts`) applies `USING/WITH CHECK tenant_id = nullif(current_setting('app.current_tenant', true), '')::uuid` — fails closed (0 rows) when the session var is unset **or** was reset to `''` (Postgres resets a previously-set custom GUC to `''`, not NULL, on commit/rollback of a reused pooled connection — the bare cast without `nullif` errors instead of returning 0 rows in that case; see `.ai/work/JOA-19/answers.md` #5). `.enableRLS()` emits `ENABLE ROW LEVEL SECURITY` via drizzle-kit; drizzle-kit does **not** emit `FORCE ROW LEVEL SECURITY` — hand-append `ALTER TABLE "<table>" FORCE ROW LEVEL SECURITY;` to the generated migration `.sql` every time (see `0001_rls_probe.sql`). Without FORCE, the table owner/migration role bypasses RLS silently.
 API side sets the session var per-transaction via `select set_config('app.current_tenant', $1, true)` (see `.ai/work/JOA-19/db.md`).
-**Known gap (unresolved as of JOA-19):** app runtime role == migration/owner role today (single `DATABASE_URL`); in Testcontainers e2e that role is a real Postgres superuser, which bypasses RLS regardless of FORCE. Needs a platform-engineer-provisioned non-superuser app role before RLS is actually enforced end-to-end — see `.ai/work/JOA-19/answers.md` #2.
+
+### DB role model (JOA-19)
+Two roles, two env vars — never merge them:
+| Role | Env var | Used by | Privileges |
+|---|---|---|---|
+| owner/migration role | `DATABASE_URL` | drizzle-kit migrations only | table owner; **bypasses RLS** (owner always does, even with FORCE) |
+| `planici_app` (runtime role) | `DATABASE_URL_APP` | app's runtime pool (queries) | `SELECT/INSERT/UPDATE/DELETE` + sequence `USAGE` only; `NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE`; owns no tables → subject to `FORCE ROW LEVEL SECURITY` |
+`env.schema.ts`: `DATABASE_URL_APP` optional in dev (falls back to `DATABASE_URL`), **required in production** (fail-closed superRefine, `apps/api/src/config/env.schema.ts:101`).
+Provisioning runbook (Neon `CREATE ROLE planici_app ...` + grants): `.ai/work/JOA-19/platform.md`.
+**Resolved (JOA-19, 2026-09-25):** owner ran the full `platform.md` runbook in Neon (role creation, grants, default privileges, verification) and set `DATABASE_URL` + `DATABASE_URL_APP`; `planici_app` is provisioned and RLS is enforced end-to-end in production. N8/AC6 are closed — see `.ai/work/JOA-19/answers.md` #7. Note: deploy is moving to ECS Fargate (answers #10); per that plan only the migration task receives `DATABASE_URL` (JOA-43).
+**Versioned script (JOA-39):** `apps/api/src/database/bootstrap/app-role.sql` is the same runbook as an idempotent, parameterized `.sql` file — NOT a drizzle-kit migration (outside `apps/api/drizzle/`, drizzle-kit never tracks it). Run with `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -v app_role=<name> -v app_password=<pw> -f apps/api/src/database/bootstrap/app-role.sql`, as the owner/migration role, once per database/branch (local compose migrate service, each Neon branch). Safe to run repeatedly (verified twice against a throwaway `postgres:17` container: role create-or-alter, grants, and `ALTER DEFAULT PRIVILEGES FOR ROLE CURRENT_USER` all idempotent; `rolsuper`/`rolbypassrls` confirmed `f`, 0 owned tables, DML works on both pre-existing and post-bootstrap tables). See `.ai/work/JOA-39/db.md`.
 
 ## Gotchas
 - No `db:generate` / `db:migrate` scripts in apps/api/package.json yet (use `pnpm --filter api exec drizzle-kit …`).

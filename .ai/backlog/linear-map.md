@@ -31,3 +31,11 @@ Not created: ID-TMP-02 (dropped, RBAC is post-MVP), ID-TMP-11 (client history, r
 ## Pending
 - Agenda + Public booking issues are outlines: acceptance criteria and size labels still to be added (spec-analyst detailing pass).
 - Web parts wait for Figma frames in file rWWne0gLS6YsVEuz4c7Amg; re-run design-analyst to update figma-map.md and the issues' Figma refs.
+
+## Added 2026-09-25
+| — | JOA-39 | Deploy (ECS) | Production-like local stack: api image + throwaway Postgres in compose | related: JOA-19 |
+| A | JOA-40 | Deploy (ECS) | Startup guard: detect ECS as a production runtime (+ JOA-19 nits) | — |
+| C | JOA-41 | Deploy (ECS) | Update RFC: backend deploy Lambda → ECS Fargate | — |
+| B1 | JOA-42 | Deploy (ECS) | Build and push api image to ECR from CI | JOA-39 |
+| B3 | JOA-43 | Deploy (ECS) | ECS secrets and pre-deploy migration task | JOA-42 |
+| B2 | JOA-44 | Deploy (ECS) | ECS Fargate service with load balancer and HTTPS | JOA-42, JOA-43 |

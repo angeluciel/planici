@@ -48,3 +48,61 @@ describe('env.schema — DATABASE_URL_APP fail-closed (JOA-19 AC6 follow-up)', (
     expect(env.DATABASE_URL_APP).toBeUndefined();
   });
 });
+
+describe('env.schema — NODE_ENV fail-closed (JOA-19 review N1)', () => {
+  it('rejects boot when NODE_ENV is missing', () => {
+    expect(() => validateEnv(baseEnv())).toThrow(/NODE_ENV/);
+  });
+
+  it('accepts NODE_ENV=prod and normalizes it to production', () => {
+    const env = validateEnv(
+      baseEnv({
+        NODE_ENV: 'prod',
+        DATABASE_URL_APP: 'postgres://app:app@localhost:5432/planici',
+      }),
+    );
+
+    expect(env.NODE_ENV).toBe('production');
+  });
+
+  it('accepts NODE_ENV=production as-is', () => {
+    const env = validateEnv(
+      baseEnv({
+        NODE_ENV: 'production',
+        DATABASE_URL_APP: 'postgres://app:app@localhost:5432/planici',
+      }),
+    );
+
+    expect(env.NODE_ENV).toBe('production');
+  });
+
+  it('rejects an invalid NODE_ENV value', () => {
+    expect(() => validateEnv(baseEnv({ NODE_ENV: 'staging' }))).toThrow(
+      /NODE_ENV/,
+    );
+  });
+
+  it('rejects AWS_LAMBDA_FUNCTION_NAME set with NODE_ENV=development', () => {
+    expect(() =>
+      validateEnv(
+        baseEnv({
+          NODE_ENV: 'development',
+          AWS_LAMBDA_FUNCTION_NAME: 'planici-api',
+        }),
+      ),
+    ).toThrow(/AWS_LAMBDA_FUNCTION_NAME is set/);
+  });
+
+  it('accepts AWS_LAMBDA_FUNCTION_NAME set with NODE_ENV=prod (normalized to production)', () => {
+    const env = validateEnv(
+      baseEnv({
+        NODE_ENV: 'prod',
+        AWS_LAMBDA_FUNCTION_NAME: 'planici-api',
+        DATABASE_URL_APP: 'postgres://app:app@localhost:5432/planici',
+      }),
+    );
+
+    expect(env.NODE_ENV).toBe('production');
+    expect(env.AWS_LAMBDA_FUNCTION_NAME).toBe('planici-api');
+  });
+});

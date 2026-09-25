@@ -42,5 +42,7 @@ If the answer changes a contract or schema, re-run the dependent wave-3 agent.
 quality-gate FAIL → send each blocking issue to the owner named in review.md → re-run quality-gate. Stop after 2 loops and ask the human.
 
 ## 5. Close
-Summarize in ≤ 15 lines (what shipped, tests, open questions), comment it on the Linear issue, propose a branch name
-`feat/$TICKET-<slug>` and a conventional commit message. Don't push without being asked.
+Summarize in ≤ 15 lines (what shipped, tests, open questions) and comment it on the Linear issue.
+Then present a **commit plan**: branch name `feat/$TICKET-<slug>`, the exact files to stage (exclude unrelated
+changes) and a conventional commit message. Never commit, push or switch branches yourself; the owner approves or
+runs it. Commit messages and PR bodies never contain `Co-Authored-By` or any AI attribution (AGENTS.md "Commits").

@@ -1,0 +1,19 @@
+# Keep the build context small — `apps/api/Dockerfile` (and any other
+# Dockerfile in this repo) installs dependencies fresh inside the image via
+# pnpm; none of this needs to be sent to the daemon.
+**/node_modules
+**/.turbo
+**/dist
+**/coverage
+**/.next
+.git
+.github
+.vscode
+.claude
+.agents
+.ai
+**/*.log
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.*.example

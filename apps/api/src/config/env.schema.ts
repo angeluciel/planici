@@ -7,11 +7,36 @@ const duration = z
 /**
  * the one place process.env is read. */
 
+/**
+ * JOA-19 review N1: NODE_ENV has no silent default. Missing NODE_ENV fails
+ * boot. `prod` is accepted and normalized to `production`; anything else is
+ * rejected. This closes the "prod forgot to set NODE_ENV" fail-open hole,
+ * since the production superRefine below (DATABASE_URL_APP required) only
+ * fires when NODE_ENV strictly equals 'production'.
+ */
+const nodeEnv = z
+  .string({ error: 'NODE_ENV is required' })
+  .min(1, 'NODE_ENV is required')
+  .transform((value, ctx) => {
+    const normalized = value === 'prod' ? 'production' : value;
+    if (
+      normalized !== 'development' &&
+      normalized !== 'test' &&
+      normalized !== 'production'
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          "NODE_ENV must be 'development', 'test' or 'production' (or 'prod', normalized to 'production')",
+      });
+      return z.NEVER;
+    }
+    return normalized as 'development' | 'test' | 'production';
+  });
+
 export const envSchema = z
   .object({
-    NODE_ENV: z
-      .enum(['development', 'test', 'production'])
-      .default('development'),
+    NODE_ENV: nodeEnv,
     PORT: z.coerce.number().int().positive().default(3333),
     CORS_ORIGIN: z.string().min(1).default('http://localhost:3000'),
     WEB_APP_URL: z.url().default('http://localhost:3000'),
@@ -61,6 +86,13 @@ export const envSchema = z
 
     OBSERVE_APP_KEY: z.string().min(1),
     OBSERVE_APP_SECRET: z.string().min(1),
+
+    /**
+     * Set by the Lambda runtime itself (never by us) whenever the process is
+     * an AWS Lambda function. Used only as a deployed-runtime guard (see the
+     * superRefine below) — not a general "are we serverless" flag.
+     */
+    AWS_LAMBDA_FUNCTION_NAME: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     // JOA-19 AC6, fail closed: in production the app must connect with the
@@ -72,6 +104,20 @@ export const envSchema = z
         path: ['DATABASE_URL_APP'],
         message:
           'DATABASE_URL_APP is required in production (fail closed — DATABASE_URL fallback bypasses RLS, JOA-19 AC6)',
+      });
+    }
+
+    // JOA-19 review N1: AWS_LAMBDA_FUNCTION_NAME is set by the Lambda
+    // runtime whenever this process is a deployed Lambda function. If it's
+    // present, NODE_ENV must resolve to production — covers "prod set to
+    // development/test" (and, combined with NODE_ENV having no default
+    // above, "prod forgot to set NODE_ENV" too).
+    if (data.AWS_LAMBDA_FUNCTION_NAME && data.NODE_ENV !== 'production') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['NODE_ENV'],
+        message:
+          'NODE_ENV must resolve to production when running on AWS Lambda (AWS_LAMBDA_FUNCTION_NAME is set)',
       });
     }
   });

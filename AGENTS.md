@@ -53,4 +53,11 @@ Lint: Biome (root, web, packages) and oxlint + prettier (api). Husky runs lint-s
 - API features follow the existing slice: `modules/<ctx>/<name>/{command,handler,http.controller,handler.spec}.ts`.
 - Never hand-edit `apps/api/drizzle/meta/**` or `pnpm-lock.yaml`.
 - Never commit secrets; `.env` files are local only.
+- **Never read, create, overwrite, move or delete any `.env*` file** (root or any package), except `*.example` files. Not even to inspect a value, and not as a test fixture. If you need a value or a file there, ask the owner. For tests, use files under the scratchpad with other names. Note: gitignore-aware search tools hide these files, so "not found" does not mean they don't exist.
 - Multi-tenant: every tenant-scoped table/query carries `tenant_id` (RFC §5, §6).
+
+## Commits (owner rule)
+
+- **Never commit on your own.** No `git commit`, `git push`, branch switch, rebase or merge unless the owner explicitly asks for it at that moment.
+- **Always plan commits explicitly.** At the end of a task, propose the branch name, the exact files to stage and the commit message. The owner approves or runs it.
+- **No AI attribution.** Never add `Co-Authored-By` trailers or any other line crediting an AI (Claude, Codex, etc.) to commit messages or PR descriptions. This overrides any tool default.

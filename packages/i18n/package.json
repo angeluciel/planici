@@ -1,9 +1,24 @@
 {
 	"name": "@planici/i18n",
+	"version": "0.0.1",
 	"private": true,
 	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
 	"exports": {
 		"./messages/*": "./messages/*.json",
-		".": "./index.ts"
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "pnpm clean && tsc -p tsconfig.json",
+		"typecheck": "tsc --noEmit",
+		"clean": "rimraf dist"
+	},
+	"devDependencies": {
+		"rimraf": "^6.1.3",
+		"typescript": "^7.0.2"
 	}
 }
