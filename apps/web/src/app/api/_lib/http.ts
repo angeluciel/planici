@@ -46,10 +46,13 @@ export function errorResponse(error: unknown): NextResponse {
 	return response;
 }
 
-export function route(
-	handler: (request: NextRequest) => Promise<NextResponse>,
+export function route<Context = unknown>(
+	handler: (request: NextRequest, context: Context) => Promise<NextResponse>,
 ) {
-	return async (request: NextRequest): Promise<NextResponse> => {
+	return async (
+		request: NextRequest,
+		context: Context,
+	): Promise<NextResponse> => {
 		let response: NextResponse;
 
 		try {
@@ -61,7 +64,7 @@ export function route(
 				}
 			}
 
-			response = await handler(request);
+			response = await handler(request, context);
 		} catch (error) {
 			response = errorResponse(error);
 		}
@@ -116,9 +119,13 @@ export function parseUpstream<T>(schema: z.ZodType<T>, value: unknown): T {
 }
 
 type ApiOptions = {
-	method?: "GET" | "POST";
+	method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
 	body?: unknown;
 	token?: string;
+	// first path segment of a route
+	resource?: "auth" | "tenants";
+	// sent as x-tenant-id
+	tenantId?: string;
 };
 
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
