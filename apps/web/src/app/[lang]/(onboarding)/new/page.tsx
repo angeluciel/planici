@@ -1,3 +1,3 @@
 export default function NewTenant() {
-	return <div></div>;
+	return <div>a</div>;
 }
