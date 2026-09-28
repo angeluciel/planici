@@ -7,6 +7,8 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
+    "clean": "rimraf dist *.tsbuildinfo",
+    "prebuild": "rimraf dist",
     "build": "nest build",
     "deploy": "nest deploy",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

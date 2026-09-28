@@ -8,6 +8,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { HealthController } from './health/health.controller.js';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
+import { TenantsModule } from './modules/tenants/tenants.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -17,6 +18,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     DatabaseModule,
     MailModule,
     AuthModule,
+    TenantsModule,
     // per-IP route limit
     ThrottlerModule.forRoot({
       throttlers: [{ name: 'default', ttl: 60_000, limit: 60 }],
