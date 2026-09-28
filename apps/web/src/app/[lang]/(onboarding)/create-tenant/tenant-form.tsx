@@ -49,9 +49,9 @@ function NamingStep({ onNext }: { onNext: () => void }) {
 						<div className="flex min-w-35 gap-2 p-1">
 							<UserIcon className="text-icon" />
 							<input
-								className="placeholder:text-text-primary font-body-sm font-medium"
-								disabled={!personalizing}
-								placeholder="pacientes"
+								className="text-text-primary font-body-sm font-medium"
+								readOnly={!personalizing}
+								defaultValue={"clientes"}
 							/>
 						</div>
 					</div>
