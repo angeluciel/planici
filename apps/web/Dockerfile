@@ -1,14 +1,32 @@
 FROM ghcr.io/pnpm/pnpm:12 AS base
-RUN pnpm runtime setnode 22 -g
+RUN pnpm runtime set node 26.5 -g
+WORKDIR /repo
 
 FROM base AS build
-COPY . /usr/src/app
-WORKDIR /usr/src/app
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm ci
-RUN pnpm run -r build
-RUN pnpm deploy --filter=planici --prod /prod/planici
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm fetch
 
-FROM base AS planici
-COPY --from=build /prod/planici /prod/planici
-WORKDIR /prod/planici
-CMD ["pnpm", "-w", "start"]
+COPY . .
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+  pnpm ci --offline
+
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN pnpm --filter=web... run build
+
+FROM node:26.5-slim
+ENV NODE_ENV=production \
+  NEXT_TELEMETRY_DISABLED=1 \
+  PORT=3000 \
+  HOSTNAME=0.0.0.0
+WORKDIR /app
+
+COPY --from=build --chown=node:node /repo/apps/web/.next/standalone ./
+COPY --from=build --chown=node:node /repo/apps/web/.next/static ./apps/web/.next/static
+COPY --from=build --chown=node:node /repo/apps/web/public ./apps/web/public
+
+USER node
+EXPOSE 3000
+CMD ["node", "apps/web/server.js"]
