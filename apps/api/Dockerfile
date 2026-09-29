@@ -7,7 +7,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm fetch
 
 COPY . .
-RUN --mount=type=cache,id=pnpm,target=/pnpm/stoer \
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
   pnpm ci --offline
 
 RUN pnpm --filter=api... run build
