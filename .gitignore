@@ -49,3 +49,6 @@ pnpm-debug.log*
 .scannerwork/*
 .sonarlint/
 .sonarlint/*
+
+# NGINX
+docker/proxy/certs/
