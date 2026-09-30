@@ -27,7 +27,7 @@ export interface RefreshTokenRepository {
 
   findByTokenHash(tokenHash: string): Promise<StoredRefreshToken | null>;
 
-  revoke(id: string, reason: RevokeReason): Promise<void>;
+  revoke(id: string, reason: RevokeReason): Promise<boolean>;
   /** Reuse of a rotated token means the family leaked: drop all of it. */
   revokeFamily(familyId: string, reason: RevokeReason): Promise<void>;
   /** Password change and account-wide logout */

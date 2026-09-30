@@ -54,7 +54,7 @@ describe('RefreshSessionHandler', () => {
     refreshTokens = {
       store: vi.fn(),
       findByTokenHash: vi.fn(),
-      revoke: vi.fn(),
+      revoke: vi.fn().mockResolvedValue(true),
       revokeFamily: vi.fn(),
       revokeAllForUser: vi.fn(),
     };
