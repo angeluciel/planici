@@ -1,20 +1,15 @@
 import {
 	AvailabilityResponseSchema,
-	CreateTenantRequestSchema,
 	type Tenant,
 	TenantListResponseSchema,
 	TenantResponseSchema,
 	TenantSlugAvailabilityQuerySchema,
 	UpdateTenantRequestSchema,
 } from "@planici/schemas";
-import axios from "axios";
 import type { z } from "zod";
-import { type ApiFailure, apiFailure } from "./client";
+import { type ApiFailure, apiFailure, createSessionClient } from "./client";
 
-export const tenantClient = axios.create({
-	baseURL: "/api/tenants",
-	timeout: 15_000,
-});
+export const tenantClient = createSessionClient("/api/tenants");
 
 export type TenantResult = { ok: true; tenant: Tenant } | ApiFailure;
 export type TenantListResult = { ok: true; tenants: Tenant[] } | ApiFailure;
@@ -39,19 +34,6 @@ export async function listTenants(): Promise<TenantListResult> {
 		return list
 			? { ok: true, tenants: list.tenants }
 			: { ok: false, error: "unexpected" };
-	} catch (error) {
-		return apiFailure(error);
-	}
-}
-
-export async function createTenant(input: {
-	name: string;
-	slug: string;
-}): Promise<TenantResult> {
-	try {
-		const body = CreateTenantRequestSchema.parse(input);
-		const response = await tenantClient.post<unknown>("", body);
-		return asTenant(response.data);
 	} catch (error) {
 		return apiFailure(error);
 	}

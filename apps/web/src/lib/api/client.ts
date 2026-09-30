@@ -1,4 +1,5 @@
-import axios from "axios";
+import "client-only";
+import axios, { type InternalAxiosRequestConfig } from "axios";
 import { z } from "zod";
 
 // request do navegador vai pro next, sessão e url da api fica no servidor
@@ -6,6 +7,63 @@ export const authClient = axios.create({
 	baseURL: "/api/auth",
 	timeout: 15_000,
 });
+
+type SessionRequest = InternalAxiosRequestConfig & {
+	_sessionRetried?: boolean;
+	_refreshVersion?: number;
+};
+
+let refreshPromise: Promise<void> | null = null;
+let refreshVersion = 0;
+
+function refreshSession(): Promise<void> {
+	refreshPromise ??= authClient
+		.post("/refresh")
+		.then(() => {
+			refreshVersion += 1;
+		})
+		.finally(() => {
+			refreshPromise = null;
+		});
+	return refreshPromise;
+}
+
+export function createSessionClient(baseURL: string) {
+	const client = axios.create({
+		baseURL,
+		timeout: 15_000,
+	});
+
+	client.interceptors.request.use((config) => {
+		(config as SessionRequest)._refreshVersion = refreshVersion;
+		return config;
+	});
+
+	client.interceptors.response.use(
+		(response) => response,
+		async (error: unknown) => {
+			if (!axios.isAxiosError(error)) throw error;
+
+			const config = error.config as SessionRequest | undefined;
+
+			if (!config || error.response?.status !== 401 || config._sessionRetried) {
+				throw error;
+			}
+
+			config._sessionRetried = true;
+
+			if (config._refreshVersion === refreshVersion) {
+				await refreshSession();
+			}
+
+			return client.request(config);
+		},
+	);
+
+	return client;
+}
+
+export const sessionClient = createSessionClient("/api/auth");
 
 export type ApiFailure = {
 	ok: false;

@@ -127,24 +127,16 @@ export async function proxy(request: NextRequest) {
 			(prefix) => rest === prefix || rest.startsWith(`${prefix}/`),
 		);
 
-	const tokenCookie = request.cookies.get("token");
-	let session: JwtPayload | null = null;
+	const token = request.cookies.get("token")?.value;
+	const session = token ? await verifyJwt(token) : null;
 
-	if (tokenCookie?.value) {
-		session = await verifyJwt(tokenCookie.value);
+	const hasRefreshToken = Boolean(request.cookies.get("refreshToken")?.value);
 
-		if (!session) {
-			const res = NextResponse.redirect(
-				new URL(REDIRECT_WHEN_NOT_AUTHENTICATED, request.url),
-			);
-			res.cookies.delete("token");
-			return withTrace(res);
-		}
-	}
+	const canAttemptSession = Boolean(session) || hasRefreshToken;
 
 	// routing logic
 	if (rest === "/") {
-		const dest = session
+		const dest = canAttemptSession
 			? REDIRECT_WHEN_AUTHENTICATED
 			: REDIRECT_WHEN_NOT_AUTHENTICATED;
 		return withTrace(
@@ -152,7 +144,7 @@ export async function proxy(request: NextRequest) {
 		);
 	}
 
-	if (isProtected && !session) {
+	if (isProtected && !canAttemptSession) {
 		const url = new URL(
 			withLocale(locale, REDIRECT_WHEN_NOT_AUTHENTICATED),
 			request.url,
