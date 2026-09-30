@@ -132,7 +132,13 @@ const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
 
 export async function api(
 	path: string,
-	{ method = "POST", body, token }: ApiOptions = {},
+	{
+		method = "POST",
+		body,
+		token,
+		resource = "auth",
+		tenantId,
+	}: ApiOptions = {},
 ): Promise<unknown> {
 	const base = requiredEnv("API_URL").replace(/\/+$/, "");
 	const headers: RawAxiosRequestHeaders = {
@@ -142,11 +148,15 @@ export async function api(
 
 	if (token) headers.Authorization = `Bearer ${token}`;
 
+	if (tenantId) {
+		headers["X-Tenant-Id"] = tenantId;
+	}
+
 	let response: AxiosResponse<string>;
 
 	try {
 		response = await axios.request<string>({
-			url: `${base}/auth${path}`,
+			url: `${base}/${resource}/${path}`,
 			method,
 			headers,
 			data: body,

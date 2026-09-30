@@ -51,6 +51,13 @@ export class RefreshSessionHandler implements ICommandHandler<RefreshSessionComm
     if (!user) throw new InvalidTokenError();
     user.assertCanAuthenticate();
 
+    const consumed = await this.refreshTokens.revoke(stored.id, 'rotated');
+
+    if (!consumed) {
+      await this.refreshTokens.revokeFamily(stored.familyId, 'reuse-detected');
+      throw new InvalidTokenError();
+    }
+
     await this.refreshTokens.revoke(stored.id, 'rotated');
     return this.sessions.issue(user, command.context, stored.familyId);
   }

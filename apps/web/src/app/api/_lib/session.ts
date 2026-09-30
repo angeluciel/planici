@@ -72,7 +72,12 @@ export function sessionResponse(
 }
 
 export function clearSession(response: NextResponse): NextResponse {
-	for (const name of [ACCESS_COOKIE, REFRESH_COOKIE, REMEMBER_COOKIE]) {
+	for (const name of [
+		ACCESS_COOKIE,
+		REFRESH_COOKIE,
+		REMEMBER_COOKIE,
+		TENANT_COOKIE,
+	]) {
 		response.cookies.set(name, "", {
 			...cookieOptions(),
 			maxAge: 0,
