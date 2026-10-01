@@ -201,7 +201,7 @@ export default function RegisterFlow() {
 				completedRef.current = true;
 				setCompleted(true);
 				clear();
-				router.replace("/new");
+				router.replace("/create-tenant");
 				router.refresh();
 				return;
 			}
