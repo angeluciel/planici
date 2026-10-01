@@ -18,10 +18,10 @@ const publicRoutes = [
 	{ path: "/privacy", whenAuthenticated: "allow" },
 ] as const;
 
-const PROTECTED_PREFIXES = ["/dashboard", "/profile"] as const;
+const PROTECTED_PREFIXES = ["/orgs", "/create-tenant"] as const;
 
 const REDIRECT_WHEN_NOT_AUTHENTICATED = "/login";
-const REDIRECT_WHEN_AUTHENTICATED = "/dashboard";
+const REDIRECT_WHEN_AUTHENTICATED = "/orgs";
 
 function fromBase64Url(value: string): Uint8Array<ArrayBuffer> {
 	const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
@@ -149,14 +149,22 @@ export async function proxy(request: NextRequest) {
 			withLocale(locale, REDIRECT_WHEN_NOT_AUTHENTICATED),
 			request.url,
 		);
-		url.searchParams.set("next", rest);
+		const next = `${rest}${request.nextUrl.search}`;
+		url.searchParams.set("next", next);
 		return withTrace(NextResponse.redirect(url));
 	}
 
 	if (publicRoute?.whenAuthenticated === "redirect" && session) {
+		const next = request.nextUrl.searchParams.get("next");
+
+		const destination =
+			next?.startsWith("/") && !next.startsWith("//")
+				? next
+				: REDIRECT_WHEN_AUTHENTICATED;
+
 		return withTrace(
 			NextResponse.redirect(
-				new URL(withLocale(locale, REDIRECT_WHEN_AUTHENTICATED), request.url),
+				new URL(withLocale(locale, destination), request.url),
 			),
 		);
 	}
