@@ -17,7 +17,23 @@
 			}
 		}
 	},
+	"tenants": {
+		"create": {
+			"title": "Bem-vindo(a) ao Planici",
+			"description": "Vamos iniciar sua organização",
+			"name": "O nome da sua organização",
+			"submit": "Criar organização",
+			"submitting": "Criando organização..."
+		}
+	},
 	"validation": {
+		"tenantName": {
+			"required": "Informe o nome da sua organização.",
+			"max": "O nome da organização deve ter no máximo 80 caracteres."
+		},
+		"tenantSlug": {
+			"taken": "Não foi possível reservar o endereço da organização. Tente novamente."
+		},
 		"email": {
 			"required": "Informe seu e-mail.",
 			"invalid": "E-mail inválido.",
