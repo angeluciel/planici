@@ -1,5 +1,7 @@
 import {
 	AvailabilityResponseSchema,
+	CreateTenantRequestSchema,
+	TENANT_SLUG_MAX_LENGTH,
 	type Tenant,
 	TenantListResponseSchema,
 	TenantResponseSchema,
@@ -25,6 +27,40 @@ function parsed<T>(schema: z.ZodType<T>, data: unknown): T | null {
 function asTenant(data: unknown): TenantResult {
 	const tenant = parsed(TenantResponseSchema, data);
 	return tenant ? { ok: true, tenant } : { ok: false, error: "unexpected" };
+}
+
+export async function createTenant(name: string): Promise<TenantResult> {
+	try {
+		const slug =
+			name
+				.normalize("NFKD")
+				.replace(/[\u0300-\u036f]/g, "")
+				.toLowerCase()
+				.replace(/[^a-z0-9]+/g, "-")
+				.replace(/^-+|-+$/g, "")
+				.slice(0, TENANT_SLUG_MAX_LENGTH)
+				.replace(/-+$/g, "") || "organizacao";
+		const body = CreateTenantRequestSchema.parse({ name, slug });
+
+		try {
+			const response = await tenantClient.post<unknown>("", body);
+			return asTenant(response.data);
+		} catch (error) {
+			if (apiFailure(error).error !== "tenantSlug.taken") throw error;
+		}
+
+		const suffix = crypto.randomUUID().slice(0, 8);
+		const prefix = slug
+			.slice(0, TENANT_SLUG_MAX_LENGTH - suffix.length - 1)
+			.replace(/-+$/g, "");
+		const response = await tenantClient.post<unknown>("", {
+			...body,
+			slug: `${prefix}-${suffix}`,
+		});
+		return asTenant(response.data);
+	} catch (error) {
+		return apiFailure(error);
+	}
 }
 
 export async function listTenants(): Promise<TenantListResult> {

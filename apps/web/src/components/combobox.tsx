@@ -13,10 +13,10 @@ const comboboxVariants = tv({
 			"group-focus-within/field:text-icon-selected",
 			"data-[popup-open]:rotate-180",
 		],
-		positioner: "z-50 outline-none",
+		positioner: "z-[999] outline-none absolute!",
 		popup: [
 			"w-[var(--anchor-width)] max-h-[min(var(--available-height),20rem)]",
-			"overflow-y-auto rounded-md border-2 border-border-input bg-surface-base p-1 shadow-md",
+			"overflow-y-auto rounded-md border-2 border-border-input bg-surface relative p-1 shadow-md z-[999]",
 			"origin-[var(--transform-origin)] transition-[opacity,transform] duration-100 ease-out",
 			"data-[starting-style]:opacity-0 data-[starting-style]:scale-95",
 			"data-[ending-style]:opacity-0 data-[ending-style]:scale-95",
