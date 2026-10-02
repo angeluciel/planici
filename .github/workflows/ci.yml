@@ -77,8 +77,11 @@ jobs:
       
       - name: Build API schemas
         run: pnpm --filter @planici/schemas build
+
+      - name: Build i18n why not
+        run: pnpm --filter @planici/i18n build
       
-      - name: BUild Transactional schemas
+      - name: Build Transactional schemas
         run: pnpm --filter @planici/emails build
 
       - name: Run API E2E Tests
