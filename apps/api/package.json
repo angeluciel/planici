@@ -7,7 +7,9 @@
   "license": "UNLICENSED",
   "type": "module",
   "main": "dist/index.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "clean": "rimraf dist *.tsbuildinfo",
     "prebuild": "rimraf dist",
@@ -47,7 +49,8 @@
     "pg": "^8.23.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "zod-openapi": "^6.0.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^12.0.0",
@@ -71,7 +74,6 @@
     "typescript": "^6.0.3",
     "unplugin-swc": "^1.5.11",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.1.11",
-    "zod-openapi": "^6.0.2"
+    "vitest": "^4.1.11"
   }
 }
