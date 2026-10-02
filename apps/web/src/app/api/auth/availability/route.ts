@@ -19,6 +19,14 @@ export const GET = route(async (request) => {
 
 	const search = new URLSearchParams(param);
 
+	if (query.email !== undefined) {
+		search.set("email", query.email);
+	}
+
+	if (query.slug !== undefined) {
+		search.set("slug", query.slug);
+	}
+
 	const result = await api(`/availability?${search}`, {
 		method: "GET",
 	});
