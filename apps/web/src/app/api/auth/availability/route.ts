@@ -11,13 +11,15 @@ export const GET = route(async (request) => {
 		Object.fromEntries(request.nextUrl.searchParams),
 	);
 
-	const param = query.email ?? query.slug;
+	const search = new URLSearchParams();
 
-	if (param === undefined) {
-		throw new Error("Either email or slug are required.");
+	if (query.email !== undefined) {
+		search.set("email", query.email);
 	}
 
-	const search = new URLSearchParams(param);
+	if (query.slug !== undefined) {
+		search.set("slug", query.slug);
+	}
 
 	const result = await api(`/availability?${search}`, {
 		method: "GET",

@@ -1,12 +1,14 @@
 import { SessionResponseSchema } from "@planici/schemas";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { ApiError, parseUpstream } from "./http";
 
 export const ACCESS_COOKIE = "token";
 export const REFRESH_COOKIE = "refreshToken";
 export const REMEMBER_COOKIE = "rememberMe";
 
-function cookieOptions() {
+export const TENANT_COOKIE = "tenantId";
+
+export function cookieOptions() {
 	return {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === "production",
@@ -70,7 +72,12 @@ export function sessionResponse(
 }
 
 export function clearSession(response: NextResponse): NextResponse {
-	for (const name of [ACCESS_COOKIE, REFRESH_COOKIE, REMEMBER_COOKIE]) {
+	for (const name of [
+		ACCESS_COOKIE,
+		REFRESH_COOKIE,
+		REMEMBER_COOKIE,
+		TENANT_COOKIE,
+	]) {
 		response.cookies.set(name, "", {
 			...cookieOptions(),
 			maxAge: 0,
@@ -78,4 +85,13 @@ export function clearSession(response: NextResponse): NextResponse {
 	}
 
 	return response;
+}
+
+export function accessToken(request: NextRequest): string {
+	const token = request.cookies.get(ACCESS_COOKIE)?.value;
+
+	if (!token) {
+		throw new ApiError(401, { error: "session.expired" });
+	}
+	return token;
 }

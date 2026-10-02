@@ -1,4 +1,3 @@
-import { sql } from 'drizzle-orm';
 import {
   index,
   pgTable,
@@ -11,22 +10,19 @@ import { recordStatus } from './enums.js';
 import { tenants } from './tenants.js';
 import { users } from './users.js';
 
-/**
- * Link between a user and a workspace. In the MVP there is exactly one, with
- * `role = 'owner'`; the roles/permissions tables arrive with RF-05/RF-06.
- */
 export const tenantMemberships = pgTable(
   'tenant_memberships',
   {
-    id: uuid('id')
-      .primaryKey()
-      .default(sql`gen_random_uuid()`),
+    id: text('id').primaryKey(),
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    tenantId: uuid('tenant_id')
+    tenantId: text('tenant_id')
       .notNull()
-      .references(() => tenants.id, { onDelete: 'cascade' }),
+      .references(() => tenants.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
 
     role: text('role').notNull().default('owner'),
     status: recordStatus('status').notNull().default('active'),

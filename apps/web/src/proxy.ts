@@ -18,10 +18,10 @@ const publicRoutes = [
 	{ path: "/privacy", whenAuthenticated: "allow" },
 ] as const;
 
-const PROTECTED_PREFIXES = ["/dashboard", "/profile"] as const;
+const PROTECTED_PREFIXES = ["/orgs", "/create-tenant"] as const;
 
 const REDIRECT_WHEN_NOT_AUTHENTICATED = "/login";
-const REDIRECT_WHEN_AUTHENTICATED = "/dashboard";
+const REDIRECT_WHEN_AUTHENTICATED = "/orgs";
 
 function fromBase64Url(value: string): Uint8Array<ArrayBuffer> {
 	const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
@@ -127,24 +127,16 @@ export async function proxy(request: NextRequest) {
 			(prefix) => rest === prefix || rest.startsWith(`${prefix}/`),
 		);
 
-	const tokenCookie = request.cookies.get("token");
-	let session: JwtPayload | null = null;
+	const token = request.cookies.get("token")?.value;
+	const session = token ? await verifyJwt(token) : null;
 
-	if (tokenCookie?.value) {
-		session = await verifyJwt(tokenCookie.value);
+	const hasRefreshToken = Boolean(request.cookies.get("refreshToken")?.value);
 
-		if (!session) {
-			const res = NextResponse.redirect(
-				new URL(REDIRECT_WHEN_NOT_AUTHENTICATED, request.url),
-			);
-			res.cookies.delete("token");
-			return withTrace(res);
-		}
-	}
+	const canAttemptSession = Boolean(session) || hasRefreshToken;
 
 	// routing logic
 	if (rest === "/") {
-		const dest = session
+		const dest = canAttemptSession
 			? REDIRECT_WHEN_AUTHENTICATED
 			: REDIRECT_WHEN_NOT_AUTHENTICATED;
 		return withTrace(
@@ -152,19 +144,27 @@ export async function proxy(request: NextRequest) {
 		);
 	}
 
-	if (isProtected && !session) {
+	if (isProtected && !canAttemptSession) {
 		const url = new URL(
 			withLocale(locale, REDIRECT_WHEN_NOT_AUTHENTICATED),
 			request.url,
 		);
-		url.searchParams.set("next", rest);
+		const next = `${rest}${request.nextUrl.search}`;
+		url.searchParams.set("next", next);
 		return withTrace(NextResponse.redirect(url));
 	}
 
 	if (publicRoute?.whenAuthenticated === "redirect" && session) {
+		const next = request.nextUrl.searchParams.get("next");
+
+		const destination =
+			next?.startsWith("/") && !next.startsWith("//")
+				? next
+				: REDIRECT_WHEN_AUTHENTICATED;
+
 		return withTrace(
 			NextResponse.redirect(
-				new URL(withLocale(locale, REDIRECT_WHEN_AUTHENTICATED), request.url),
+				new URL(withLocale(locale, destination), request.url),
 			),
 		);
 	}

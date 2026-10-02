@@ -17,7 +17,23 @@
 			}
 		}
 	},
+	"tenants": {
+		"create": {
+			"title": "Welcome to Planici",
+			"description": "Let's set up your organization",
+			"name": "Your organization's name",
+			"submit": "Create organization",
+			"submitting": "Creating organization..."
+		}
+	},
 	"validation": {
+		"tenantName": {
+			"required": "Enter your organization's name.",
+			"max": "The organization name must be at most 80 characters long."
+		},
+		"tenantSlug": {
+			"taken": "We couldn't reserve an address for your organization. Try again."
+		},
 		"email": {
 			"required": "Enter your email address.",
 			"invalid": "Invalid email address.",

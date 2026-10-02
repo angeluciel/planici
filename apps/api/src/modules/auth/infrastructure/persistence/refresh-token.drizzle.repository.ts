@@ -47,11 +47,16 @@ export class DrizzleRefreshTokenRepository implements RefreshTokenRepository {
     return row ?? null;
   }
 
-  async revoke(id: string, reason: RevokeReason): Promise<void> {
-    await this.db
+  async revoke(id: string, reason: RevokeReason): Promise<boolean> {
+    const rows = await this.db
       .update(refreshTokens)
       .set({ revokedAt: new Date(), revokedReason: reason })
-      .where(and(eq(refreshTokens.id, id), isNull(refreshTokens.revokedAt)));
+      .where(and(eq(refreshTokens.id, id), isNull(refreshTokens.revokedAt)))
+      .returning({
+        id: refreshTokens.id,
+      });
+
+    return rows.length === 1;
   }
 
   async revokeFamily(familyId: string, reason: RevokeReason): Promise<void> {
