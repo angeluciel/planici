@@ -4,7 +4,7 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { z } from 'zod';
+import { TenantIdSchema } from '@planici/schemas';
 import type { AuthenticatedUser } from '@modules/auth/http/current-user.decorator.js';
 import {
   TenantNotFoundError,
@@ -17,8 +17,6 @@ import {
 import type { TenantRequest } from './current-tenant.decorator.js';
 
 export const TENANT_HEADER = 'x-tenant-id';
-
-const TenantIdSchema = z.uuid();
 
 /**
  * Resolves the workspace a request acts on and checks the caller belongs to

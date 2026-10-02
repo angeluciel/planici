@@ -156,7 +156,7 @@ export async function api(
 
 	try {
 		response = await axios.request<string>({
-			url: `${base}/${resource}/${path}`,
+			url: `${base}/${resource}${path}`,
 			method,
 			headers,
 			data: body,

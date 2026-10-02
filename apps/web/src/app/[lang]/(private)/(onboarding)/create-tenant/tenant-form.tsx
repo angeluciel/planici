@@ -190,7 +190,7 @@ export function TenantForm() {
 			return;
 		}
 
-		router.replace(`/orgs/${encodeURIComponent(result.tenant.slug)}/clients`);
+		router.replace(`/orgs/${result.tenant.id}/clients`);
 		router.refresh();
 	}
 

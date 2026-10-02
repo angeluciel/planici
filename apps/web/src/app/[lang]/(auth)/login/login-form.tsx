@@ -19,7 +19,7 @@ import { useFieldError } from "@/lib/form";
 import { cn } from "@/lib/utils";
 import { EMPTY_LOGIN_DATA } from "@/types/login";
 
-const DEFAULT_REDIRECT = "/dashboard";
+const DEFAULT_REDIRECT = "/orgs";
 
 type LoginFormValues = z.infer<typeof EmailLoginSchema>;
 

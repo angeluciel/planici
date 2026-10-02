@@ -1,9 +1,7 @@
+import { TenantIdSchema } from "@planici/schemas";
 import type { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 import { ApiError } from "./http";
 import { cookieOptions, REMEMBER_COOKIE, TENANT_COOKIE } from "./session";
-
-const TenantIdSchema = z.uuid();
 
 export function activeTenantId(request: NextRequest): string | null {
 	const value = request.cookies.get(TENANT_COOKIE)?.value;
