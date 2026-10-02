@@ -11,13 +11,7 @@ export const GET = route(async (request) => {
 		Object.fromEntries(request.nextUrl.searchParams),
 	);
 
-	const param = query.email ?? query.slug;
-
-	if (param === undefined) {
-		throw new Error("Either email or slug are required.");
-	}
-
-	const search = new URLSearchParams(param);
+	const search = new URLSearchParams();
 
 	if (query.email !== undefined) {
 		search.set("email", query.email);
