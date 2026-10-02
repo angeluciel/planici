@@ -4,6 +4,18 @@ import { SLUG_PATTERN } from "../auth/register.js";
 export const TENANT_NAME_MAX_LENGTH = 80;
 export const TENANT_SLUG_MAX_LENGTH = 48;
 
+// `<slug>-<nanoid suffix>`, e.g. studio-ana-4f9k2m7x1q; the API generates it on insert
+export const TENANT_ID_SUFFIX_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
+export const TENANT_ID_SUFFIX_LENGTH = 10;
+export const TENANT_ID_MAX_LENGTH = TENANT_SLUG_MAX_LENGTH + 1 + TENANT_ID_SUFFIX_LENGTH;
+export const TENANT_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*-[0-9a-z]{10}$/;
+
+// /tenants/:tenantId, X-Tenant-Id, PUT /tenants/active
+export const TenantIdSchema = z
+	.string({ error: "tenant.not-found" })
+	.max(TENANT_ID_MAX_LENGTH, { error: "tenant.not-found" })
+	.regex(TENANT_ID_PATTERN, { error: "tenant.not-found" });
+
 export const TenantNameSchema = z
 	.string({ error: "tenantName.required" })
 	.trim()

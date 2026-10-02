@@ -1,11 +1,12 @@
 import { z } from "zod";
+import { TenantIdSchema } from "./requests.js";
 
 export const TENANT_STATUSES = ["active", "suspended", "deleted"] as const;
 export const TENANT_PLANS = ["free", "pro", "enterprise"] as const;
 export const TENANT_ROLES = ["owner"] as const;
 
 export const TenantSchema = z.object({
-	id: z.uuid(),
+	id: TenantIdSchema,
 	name: z.string(),
 	slug: z.string(),
 	status: z.enum(TENANT_STATUSES),
