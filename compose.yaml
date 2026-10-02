@@ -21,9 +21,15 @@ services:
       dockerfile: ./apps/web/Dockerfile
     restart: unless-stopped
 
+    env-file:
+      - ./apps/web/.env
+
     depends_on: [api]
     environment:
+      NODE_ENV: production
+      PORT: "3000"
       API_INTERNAL_URL: http://api:5000
+      WEB_APP_URL: https://joaoizidoro.com
     networks: [planici_network]
   
   proxy:

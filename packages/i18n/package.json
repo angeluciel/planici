@@ -4,6 +4,22 @@
 	"type": "module",
 	"exports": {
 		"./messages/*": "./messages/*.json",
-		".": "./index.ts"
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist",
+		"messages"
+	],
+	"scripts": {
+		"build": "tsc -p tsconfig.build.json",
+		"dev": "tsc -p tsconfig.build.json --watch",
+		"clean": "rimraf dist"
+	},
+	"devDependencies": {
+		"rimraf": "^6.1.3",
+		"typescript": "^7.0.2"
 	}
 }
