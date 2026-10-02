@@ -1,4 +1,4 @@
-import { TenantResponseSchema } from "@planici/schemas";
+import { TenantIdSchema, TenantResponseSchema } from "@planici/schemas";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
@@ -17,7 +17,7 @@ import {
 } from "../../_lib/tenant";
 
 const SelectTenantSchema = z.object({
-	tenantId: z.uuid({ error: "tenant.not-found" }),
+	tenantId: TenantIdSchema,
 });
 
 function isStale(error: unknown): boolean {

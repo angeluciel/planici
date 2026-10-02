@@ -1,3 +1,4 @@
+import { TENANT_ID_PATTERN } from '@planici/schemas';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { codeFrom, createTestApp, TestContext } from '../setup/test-app.js';
@@ -71,6 +72,8 @@ describe('create tenant', () => {
       plan: 'free',
       role: 'owner',
     });
+    expect(response.body.id).toMatch(TENANT_ID_PATTERN);
+    expect(response.body.id).toMatch(/^studio-ana-/);
 
     const { rows } = await ctx.pool.query(
       'select role from tenant_memberships where tenant_id = $1',
@@ -162,6 +165,16 @@ describe('list, read and rename', () => {
       .set('Authorization', `Bearer ${bia}`)
       .send({ name: 'Hijacked' })
       .expect(404);
+  });
+
+  it('treats an id that is not a tenant id as not found', async () => {
+    const token = await signUp('ana@planici.co', 'ana');
+
+    const response = await api()
+      .get('/v1/tenants/0f8c4b1e-6a47-4c4f-9a39-3f1f2b2f5a10')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(404);
+    expect(response.body).toEqual({ error: 'tenant.not-found' });
   });
 
   it('renames the workspace', async () => {

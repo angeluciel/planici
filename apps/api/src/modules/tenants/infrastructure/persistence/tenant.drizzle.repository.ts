@@ -8,6 +8,7 @@ import type {
   TenantRepository,
 } from '../../ports/repositories/tenant.repository.js';
 import { TenantSlugTakenError } from '../../domain/errors/tenant.errors.js';
+import { createDefaultId, createTenantId } from '../../domain/tenant-id.js';
 import type { Membership, Tenant } from '../../domain/tenant.entity.js';
 import { toDomain, toMembership } from './tenant.mapper.js';
 
@@ -73,12 +74,17 @@ export class DrizzleTenantRepository implements TenantRepository {
       return await this.db.transaction(async (tx) => {
         const [row] = await tx
           .insert(tenants)
-          .values({ name: data.name, slug: data.slug })
+          .values({
+            id: createTenantId(data.slug),
+            name: data.name,
+            slug: data.slug,
+          })
           .returning();
 
         if (!row) throw new Error('insert into tenants returned no row');
 
         await tx.insert(tenantMemberships).values({
+          id: createDefaultId('membership'),
           tenantId: row.id,
           userId: ownerId,
           role: 'owner',

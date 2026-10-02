@@ -10,7 +10,7 @@ import { CreateTenantHandler } from './create-tenant.handler.js';
 const createdAt = new Date('2026-09-01T12:00:00.000Z');
 
 const tenant = Tenant.fromProps({
-  id: '0f8c4b1e-6a47-4c4f-9a39-3f1f2b2f5a10',
+  id: 'studio-ana-4f9k2m7x1q',
   name: 'Studio Ana',
   slug: 'studio-ana',
   status: 'active',
