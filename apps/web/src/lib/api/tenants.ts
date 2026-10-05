@@ -19,6 +19,14 @@ export type SlugAvailabilityResult =
 	| { ok: true; available: boolean }
 	| ApiFailure;
 
+function trimDashes(value: string): string {
+	let start = 0;
+	let end = value.length;
+	while (start < end && value[start] === "-") start++;
+	while (end > start && value[end - 1] === "-") end--;
+	return value.slice(start, end);
+}
+
 function parsed<T>(schema: z.ZodType<T>, data: unknown): T | null {
 	const result = schema.safeParse(data);
 	return result.success ? result.data : null;
@@ -32,14 +40,16 @@ function asTenant(data: unknown): TenantResult {
 export async function createTenant(name: string): Promise<TenantResult> {
 	try {
 		const slug =
-			name
-				.normalize("NFKD")
-				.replace(/[\u0300-\u036f]/g, "")
-				.toLowerCase()
-				.replace(/[^a-z0-9]+/g, "-")
-				.replace(/^-+|-+$/g, "")
-				.slice(0, TENANT_SLUG_MAX_LENGTH)
-				.replace(/-+$/g, "") || "organizacao";
+			trimDashes(
+				trimDashes(
+					name
+						.normalize("NFKD")
+						.replace(/[\u0300-\u036f]/g, "")
+						.toLowerCase()
+						.replace(/[^a-z0-9]+/g, "-"),
+				).slice(0, TENANT_SLUG_MAX_LENGTH),
+			) || "organizacao";
+
 		const body = CreateTenantRequestSchema.parse({ name, slug });
 
 		try {
@@ -50,9 +60,9 @@ export async function createTenant(name: string): Promise<TenantResult> {
 		}
 
 		const suffix = crypto.randomUUID().slice(0, 8);
-		const prefix = slug
-			.slice(0, TENANT_SLUG_MAX_LENGTH - suffix.length - 1)
-			.replace(/-+$/g, "");
+		const prefix = trimDashes(
+			slug.slice(0, TENANT_SLUG_MAX_LENGTH - suffix.length - 1),
+		);
 		const response = await tenantClient.post<unknown>("", {
 			...body,
 			slug: `${prefix}-${suffix}`,
