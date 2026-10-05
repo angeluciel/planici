@@ -130,6 +130,54 @@ type ApiOptions = {
 
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
 
+const TIMEOUT_CODES = new Set(["ECONNABORTED", "ETIMEDOUT"]);
+
+function buildHeaders(
+	body: unknown,
+	token?: string,
+	tenantId?: string,
+): RawAxiosRequestHeaders {
+	const headers: RawAxiosRequestHeaders = {
+		Accept: "application/json",
+		"Content-Type": body === undefined ? null : "application/json",
+	};
+
+	if (token) headers.Authorization = `Bearer ${token}`;
+	if (tenantId) headers["X-Tenant-Id"] = tenantId;
+
+	return headers;
+}
+
+function parseJsonBody(text: string): unknown {
+	if (!text) return null;
+
+	try {
+		return JSON.parse(text);
+	} catch {
+		return null;
+	}
+}
+
+function toTransportError(error: unknown): ApiError {
+	const timedOut =
+		axios.isAxiosError(error) && TIMEOUT_CODES.has(error.code ?? "");
+
+	return new ApiError(timedOut ? 504 : 502);
+}
+
+function toHttpError(response: AxiosResponse<string>, data: unknown): ApiError {
+	const parsed = ErrorBodySchema.safeParse(data);
+	const fallback = {
+		error: response.status === 429 ? "code.rate-limited" : "unexpected",
+	};
+
+	return new ApiError(
+		response.status,
+		parsed.success ? parsed.data : fallback,
+		(response.headers["retry-after"] as string | undefined) ?? null,
+	);
+}
+
 export async function api(
 	path: string,
 	{
@@ -141,16 +189,6 @@ export async function api(
 	}: ApiOptions = {},
 ): Promise<unknown> {
 	const base = requiredEnv("API_URL").replace(/\/+$/, "");
-	const headers: RawAxiosRequestHeaders = {
-		Accept: "application/json",
-		"Content-Type": body === undefined ? null : "application/json",
-	};
-
-	if (token) headers.Authorization = `Bearer ${token}`;
-
-	if (tenantId) {
-		headers["X-Tenant-Id"] = tenantId;
-	}
 
 	let response: AxiosResponse<string>;
 
@@ -158,7 +196,7 @@ export async function api(
 		response = await axios.request<string>({
 			url: `${base}/${resource}${path}`,
 			method,
-			headers,
+			headers: buildHeaders(body, token, tenantId),
 			data: body,
 			timeout: 10_000,
 			maxRedirects: 0,
@@ -166,36 +204,15 @@ export async function api(
 			transformResponse: [],
 		});
 	} catch (error) {
-		const timedOut =
-			axios.isAxiosError(error) &&
-			["ECONNABORTED", "ETIMEDOUT"].includes(error.code ?? "");
-
-		throw new ApiError(timedOut ? 504 : 502);
+		throw toTransportError(error);
 	}
 
 	if (REDIRECT_STATUSES.has(response.status)) throw new ApiError(502);
 
-	const text = response.data;
-	let data: unknown = null;
-
-	try {
-		data = text ? JSON.parse(text) : null;
-	} catch {
-		// A non-JSON error body must not reach the browser.
-	}
+	const data = parseJsonBody(response.data);
 
 	if (response.status < 200 || response.status > 299) {
-		const parsed = ErrorBodySchema.safeParse(data);
-
-		throw new ApiError(
-			response.status,
-			parsed.success
-				? parsed.data
-				: {
-						error: response.status === 429 ? "code.rate-limited" : "unexpected",
-					},
-			(response.headers["retry-after"] as string | undefined) ?? null,
-		);
+		throw toHttpError(response, data);
 	}
 
 	return data;

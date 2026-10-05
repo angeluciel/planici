@@ -21,10 +21,6 @@ const SIGNED_OUT = new Set([
 
 type GateState = "loading" | "ready" | "missing" | { error: string };
 
-/**
- * Makes the tenant in the URL the active one (cookie read by /api routes as
- * X-Tenant-Id) before rendering anything that fetches tenant data.
- */
 export function TenantGate({
 	tenantId,
 	children,
@@ -42,14 +38,19 @@ export function TenantGate({
 		let cancelled = false;
 		setState("loading");
 
-		selectTenant(tenantId).then((result) => {
-			if (cancelled) return;
+		selectTenant(tenantId)
+			.then((result) => {
+				if (cancelled) return;
 
-			if (result.ok) setState("ready");
-			else if (MISSING.has(result.error)) setState("missing");
-			else if (SIGNED_OUT.has(result.error)) toLogin();
-			else setState({ error: result.error });
-		});
+				if (result.ok) setState("ready");
+				else if (MISSING.has(result.error)) setState("missing");
+				else if (SIGNED_OUT.has(result.error)) toLogin();
+				else setState({ error: result.error });
+			})
+			.catch(() => {
+				if (cancelled) return;
+				setState({ error: "network.unavailable" });
+			});
 
 		return () => {
 			cancelled = true;
