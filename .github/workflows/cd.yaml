@@ -1,0 +1,103 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  ECS_CLUSTER: planici-1
+  ECS_SERVICE: planici-service
+  ECS_TASK_DEFINITION_FAMILY: planici
+
+  # API
+  API_ECR_REPOSITORY: planici-api
+  API_CONTAINER_NAME: api
+  API_DOCKERFILE: apps/api/Dockerfile
+
+  # WEB
+  WEB_ECR_REPOSITORY: planici-web
+  WEB_CONTAINER_NAME: web
+  WEB_DOCKERFILE: apps/web/Dockerfile
+
+jobs:
+  deploy:
+    name: Build and deploy to ECS
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@b7a1386e5b2f3979f342e9f94f8ea7f23083c85f
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Log in to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd
+
+      - name: Build API image
+        id: build-api
+        env:
+          REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+        run: |
+          IMAGE_URI="$REGISTRY/$API_ECR_REPOSITORY:${{ github.sha }}"
+          docker build -f "$API_DOCKERFILE" -t "$IMAGE_URI" .
+          echo "image=$IMAGE_URI" >> "$GITHUB_OUTPUT"
+        
+      - name: Build web image
+        id: build-web
+        env:
+          REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+        run: |
+          IMAGE_URI="$REGISTRY/$WEB_ECR_REPOSITORY:${{ github.sha }}"
+          docker build -f "$WEB_DOCKERFILE" -t "$IMAGE_URI"
+          echo "image=$IMAGE_URI" >> "$GITHUB_OUTPUT"
+
+      - name: Push API image to ECR
+        run: docker push "${{ steps.build-api.outputs.image }}"
+      
+      - name: Push WEB image to ECR
+        run: docker push "${{ steps.build-web.outputs.image }}"
+
+      - name: Download current task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition "$ECS_TASK_DEFINITION_FAMILY" \
+            --query taskDefinition > task-definition.json
+      
+      - name: Render task definition with new API image
+        id: render-api
+        uses: aws-actions/amazon-ecs-render-task-definition@cbed19f1b86bbb18f59cfffde7107b93cc9b75da
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ env.API_CONTAINER_NAME }}
+          image: ${{ steps.build-api.outputs.image }}
+      
+      - name: Render task definition with new WEB image
+        id: render-web
+        uses: aws-actions/amazon-ecs-render-task-definition@cbed19f1b86bbb18f59cfffde7107b93cc9b75da
+        with:
+          task-definition: ${{ steps.render-api.outputs.task-definition }}
+          container-name: ${{ env.WEB_CONTAINER_NAME }}
+          image: ${{ steps.build-web.outputs.image }}
+
+      - name: Deploy to ECS and wait for stability
+        uses: aws-actions/amazon-ecs-deploy-task-definition@7b5ba17dae98c8fd463ddf2cef977d3be43322c5
+        with:
+          task-definition: ${{ steps.render-web.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE }}
+          wait-for-service-stability: true
