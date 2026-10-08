@@ -48,7 +48,7 @@ export const envSchema = z.object({
 
   MAIL_DRIVER: z.enum(['console', 'ses']).default('console'),
   SES_FROM_EMAIL: z.email().default('no-reply@joaoizidoro.com'),
-  AWS_REGION: z.string().default('us-east-1'),
+  AWS_REGION: z.string().default('us-east-2'),
 
   OBSERVE_APP_KEY: z.string().min(1),
   OBSERVE_APP_SECRET: z.string().min(1),
