@@ -13,18 +13,18 @@ permissions:
   contents: read
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: us-east-2
   ECS_CLUSTER: planici-1
   ECS_SERVICE: planici-service
   ECS_TASK_DEFINITION_FAMILY: planici
 
   # API
-  API_ECR_REPOSITORY: planici-api
+  API_ECR_REPOSITORY: joaoizidoro/planici-api
   API_CONTAINER_NAME: api
   API_DOCKERFILE: apps/api/Dockerfile
 
   # WEB
-  WEB_ECR_REPOSITORY: planici-web
+  WEB_ECR_REPOSITORY: joaoizidoro/planici-web
   WEB_CONTAINER_NAME: web
   WEB_DOCKERFILE: apps/web/Dockerfile
 
@@ -63,7 +63,7 @@ jobs:
           REGISTRY: ${{ steps.ecr-login.outputs.registry }}
         run: |
           IMAGE_URI="$REGISTRY/$WEB_ECR_REPOSITORY:${{ github.sha }}"
-          docker build -f "$WEB_DOCKERFILE" -t "$IMAGE_URI"
+          docker build -f "$WEB_DOCKERFILE" -t "$IMAGE_URI" .
           echo "image=$IMAGE_URI" >> "$GITHUB_OUTPUT"
 
       - name: Push API image to ECR

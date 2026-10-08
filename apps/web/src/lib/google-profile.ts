@@ -17,7 +17,7 @@ export function googleProfile(
 	try {
 		const parts = idToken.split(".");
 		if (parts.length !== 3) return null;
-		const base64 = parts[1].replaceAll(/-/, "+").replaceAll(/_/, "/");
+		const base64 = parts[1].replaceAll("-", "+").replaceAll("_", "/");
 		const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
 		const claims = ClaimsSchema.parse(
 			JSON.parse(new TextDecoder().decode(bytes)),

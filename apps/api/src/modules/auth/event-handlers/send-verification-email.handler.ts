@@ -22,7 +22,7 @@ export class SendVerificationEmailHandler implements IEventHandler<EmailCodeRequ
       );
     } catch (error) {
       this.logger.error(
-        `Failed to send verification coe to ${event.email}`,
+        `Failed to send verification code to ${event.email}`,
         error instanceof Error ? error.stack : error,
       );
     }
