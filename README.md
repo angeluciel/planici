@@ -9,7 +9,7 @@
 ![Github open pull requests](https://img.shields.io/github/issues-pr/angeluciel/planici?style=for-the-badge)
 
 ![Planici](/docs/assets/hero.png)
-
+ 
 <p align="center">
   <b align="center">
     GESTÃO DE AGENDAS E NEGÓCIOS PARA PROFISSIONAIS INDEPENDENTES
