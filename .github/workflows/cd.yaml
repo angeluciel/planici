@@ -16,7 +16,7 @@ env:
   AWS_REGION: us-east-2
   ECS_CLUSTER: planici-1
   ECS_SERVICE: planici-service
-  ECS_TASK_DEFINITION_FAMILY: planici
+  ECS_TASK_DEFINITION_FAMILY: planici-task
 
   # API
   API_ECR_REPOSITORY: joaoizidoro/planici-api
@@ -61,9 +61,12 @@ jobs:
         id: build-web
         env:
           REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
         run: |
           IMAGE_URI="$REGISTRY/$WEB_ECR_REPOSITORY:${{ github.sha }}"
-          docker build -f "$WEB_DOCKERFILE" -t "$IMAGE_URI" .
+          docker build -f "$WEB_DOCKERFILE" \
+            --build-arg NEXT_PUBLIC_GOOGLE_CLIENT_ID="$NEXT_PUBLIC_GOOGLE_CLIENT_ID" \
+            -t "$IMAGE_URI" .
           echo "image=$IMAGE_URI" >> "$GITHUB_OUTPUT"
 
       - name: Push API image to ECR
