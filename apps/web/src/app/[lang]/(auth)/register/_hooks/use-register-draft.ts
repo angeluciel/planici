@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	restoreRegisterDraft,
 	serializeRegisterDraft,
-} from "@/lib/register-draft";
+} from "@/app/[lang]/(auth)/register/_lib/register-draft";
 import { EMPTY_REGISTER_DATA, type RegisterData } from "@/types/register";
 
 const DRAFT_KEY = "planici_register_draft";

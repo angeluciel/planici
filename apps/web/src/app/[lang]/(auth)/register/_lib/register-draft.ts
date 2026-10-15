@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { EMPTY_REGISTER_DATA, type RegisterData } from "@/types/register";
-import { TERMS_VERSION } from "./legal";
+import { TERMS_VERSION } from "../../../../../lib/legal";
 
 export const DRAFT_KEY = "planici_register_draft";
 

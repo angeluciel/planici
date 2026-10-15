@@ -8,15 +8,18 @@ export const buttonVariants = tv({
 			"text-center font-body-sm font-medium cursor-pointer",
 		],
 		leading: "",
+		label: "",
 		trailing: "",
 	},
 	variants: {
 		size: {
 			md: {
 				root: "justify-center h-9",
+				label: "text-center",
 			},
 			lg: {
 				root: "justify-between h-full min-h-12 py-2",
+				label: "flex-1 text-left",
 			},
 		},
 		variant: {
@@ -37,9 +40,13 @@ export const buttonVariants = tv({
 				trailing: "",
 			},
 			subtle: {
-				root: "",
-				leading: "",
-				trailing: "",
+				root: "hover:bg-surface-hovered active:bg-surface-pressed group",
+				label:
+					"text-text-secondary group-hover:text-text-primary group-active:text-text-bold",
+				leading:
+					"text-icon-subtle group-hover:text-icon group-active:text-icon",
+				trailing:
+					"text-icon-subtle group-hover:text-icon group-active:text-icon",
 			},
 			warning: {
 				root: "",
@@ -89,7 +96,7 @@ export function Button({
 			{...props}
 		>
 			{LeadingIcon && <LeadingIcon className={s.leading()} />}
-			{text}
+			<span className={s.label()}>{text}</span>
 			{TrailingIcon && <TrailingIcon className={s.trailing()} />}
 		</button>
 	);

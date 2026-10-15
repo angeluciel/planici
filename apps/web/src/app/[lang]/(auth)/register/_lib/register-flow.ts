@@ -10,7 +10,7 @@ import {
 	type RegisterData,
 	type RegisterStep,
 } from "@/types/register";
-import { TERMS_VERSION } from "./legal";
+import { TERMS_VERSION } from "../../../../../lib/legal";
 
 type StepMeta = {
 	translationKey: string;

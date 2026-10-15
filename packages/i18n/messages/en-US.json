@@ -307,5 +307,11 @@
 		"description": "You are signed in to Planici.",
 		"sign-out": "Sign out",
 		"signing-out": "Signing out…"
+	},
+	"not-found": {
+		"h2": "Page not found",
+		"content": "The page you're looking for is gone :(",
+		"button": "Back",
+		"profile": "Go to profile"
 	}
 }

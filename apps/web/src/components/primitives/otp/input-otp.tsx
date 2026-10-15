@@ -1,8 +1,8 @@
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Fragment, useId } from "react";
 import { tv } from "tailwind-variants";
-import type { FieldStatus } from "./input";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/otp-primitive";
+import type { FieldStatus } from "../../ui/input";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "./otp-primitive";
 
 export const otpVariants = tv({
 	slots: {

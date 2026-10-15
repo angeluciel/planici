@@ -1,17 +1,20 @@
-import { TenantIdSchema } from "@planici/schemas";
-import { notFound } from "next/navigation";
-import { TenantGate } from "./tenant-gate";
+// No "use client"
+import AppShell from "../_components/shell";
 
-export default async function Layout({
+export default async function RootLayout({
 	children,
 	params,
 }: Readonly<{
 	children: React.ReactNode;
-	params: Promise<{ tenant: string }>;
+	params: Promise<{ lang: string }>;
 }>) {
-	const { tenant } = await params;
+	const { lang } = await params;
 
-	if (!TenantIdSchema.safeParse(tenant).success) notFound();
-
-	return <TenantGate tenantId={tenant}>{children}</TenantGate>;
+	return (
+		<div lang={lang}>
+			<div>
+				<AppShell>{children}</AppShell>
+			</div>
+		</div>
+	);
 }

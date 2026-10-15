@@ -9,7 +9,7 @@ import {
 	type ConsentChoices,
 	OPTIONAL_CATEGORIES,
 } from "@/lib/consent";
-import { Button } from "../button";
+import { Button } from "../ui/button";
 import { useConsent } from "./consent-provider";
 
 function CookieTable({ category }: Readonly<{ category: ConsentCategory }>) {
