@@ -307,5 +307,11 @@
 		"description": "Você está conectado ao Planici.",
 		"sign-out": "Sair",
 		"signing-out": "Saindo…"
+	},
+	"not-found": {
+		"h2": "Página não encontrada",
+		"content": "A página que você procura foi roubada :O",
+		"button": "Voltar",
+		"profile": "Ir ao perfil"
 	}
 }

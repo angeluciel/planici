@@ -4,14 +4,8 @@ import { maskEmail } from "@planici/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Alert } from "@/components/alert";
-import { Logo } from "@/components/logo";
-import { RegisterStepper } from "@/components/register-stepper";
-import { useRegisterDraft } from "@/hooks/use-register-draft";
-import type { ApiFailure } from "@/lib/api/client";
-import { requestEmailCode } from "@/lib/api/email-verification";
-import { registerUser } from "@/lib/api/register";
-import { useFieldError } from "@/lib/form";
+import { RegisterStepper } from "@/app/[lang]/(auth)/register/_components/register-stepper";
+import { useRegisterDraft } from "@/app/[lang]/(auth)/register/_hooks/use-register-draft";
 import {
 	CLEARED_PROOF,
 	nextStep,
@@ -21,10 +15,21 @@ import {
 	stampStep,
 	stepperPosition,
 	stepperSteps,
-} from "@/lib/register-flow";
+} from "@/app/[lang]/(auth)/register/_lib/register-flow";
+import { Logo } from "@/components/logo";
+import { Alert } from "@/components/ui/alert";
+import type { ApiFailure } from "@/lib/api/client";
+import { requestEmailCode } from "@/lib/api/email-verification";
+import { registerUser } from "@/lib/api/register";
+import { useFieldError } from "@/lib/form";
 import type { RegisterData, RegisterStep } from "@/types/register";
-import { AccountStep, PasswordStep, ProfileStep, TermsStep } from "./steps";
-import { VerifyEmailStep } from "./verify-email-step";
+import {
+	AccountStep,
+	PasswordStep,
+	ProfileStep,
+	TermsStep,
+} from "./steps/steps";
+import { VerifyEmailStep } from "./steps/verify-email-step";
 
 const STEP_COMPONENTS = {
 	account: AccountStep,

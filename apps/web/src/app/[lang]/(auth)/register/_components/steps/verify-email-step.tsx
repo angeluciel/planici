@@ -3,8 +3,8 @@
 import { EMAIL_CODE_LENGTH, VerifyEmailStepSchema } from "@planici/schemas";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
-import type { FieldStatus } from "@/components/input";
-import { OtpInput } from "@/components/input-otp";
+import { OtpInput } from "@/components/primitives/otp/input-otp";
+import type { FieldStatus } from "@/components/ui/input";
 import { useResendCooldown } from "@/hooks/use-resend-cooldown";
 import { verifyEmailCode } from "@/lib/api/email-verification";
 import { useFieldError } from "@/lib/form";

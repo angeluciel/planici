@@ -8,7 +8,7 @@ import {
 	StepperItem,
 	StepperSeparator,
 	type StepState,
-} from "./ui/stepper";
+} from "../../../../../components/primitives/stepper";
 
 interface Step {
 	name: string;

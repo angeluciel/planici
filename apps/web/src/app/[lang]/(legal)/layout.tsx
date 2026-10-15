@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import Header from "@/app/[lang]/(auth)/_components/auth-header";
 import { CookieSettingsLink } from "@/components/consent/cookie-settings-link";
-import Header from "@/components/header";
 
 export default async function LegalLayout({
 	children,

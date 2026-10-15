@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { Button } from "../button";
+import { Button } from "../ui/button";
 import { useConsent } from "./consent-provider";
 import { PreferencesDialog } from "./preferences-dialog";
 

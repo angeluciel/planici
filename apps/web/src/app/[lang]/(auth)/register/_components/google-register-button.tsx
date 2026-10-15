@@ -1,6 +1,6 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
-import { Alert } from "@/components/alert";
+import { Alert } from "@/components/ui/alert";
 import {
 	type GoogleIdTokenResult,
 	isGoogleConfigured,

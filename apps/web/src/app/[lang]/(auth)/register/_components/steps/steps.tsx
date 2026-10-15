@@ -18,19 +18,19 @@ import {
 	useForm,
 } from "react-hook-form";
 import type z from "zod";
-import { Alert } from "@/components/alert";
-import { Button } from "@/components/button";
-import { Checkbox } from "@/components/checkbox";
-import { type FieldStatus, Input } from "@/components/input";
-import { PasswordCriteria } from "@/components/password-criteria";
+import { PasswordCriteria } from "@/app/[lang]/(auth)/register/_components/password-criteria";
+import { applyGoogleProfile } from "@/app/[lang]/(auth)/register/_lib/register-flow";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { type FieldStatus, Input } from "@/components/ui/input";
 import { Link } from "@/i18n/navigation";
 import { GOOGLE_CLIENT_ID, type GoogleIdTokenResult } from "@/lib/api/google";
 import { checkAvailability } from "@/lib/api/register";
 import { useFieldError } from "@/lib/form";
 import { googleProfile } from "@/lib/google-profile";
-import { applyGoogleProfile } from "@/lib/register-flow";
 import type { StepProps } from "@/types/register";
-import { GoogleRegisterButton } from "./google-register-button";
+import { GoogleRegisterButton } from "../google-register-button";
 
 function BackButton({
 	label,
