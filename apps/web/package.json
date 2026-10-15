@@ -16,6 +16,7 @@
 		"@hookform/resolvers": "^5.9.0",
 		"@planici/i18n": "workspace:*",
 		"@planici/schemas": "workspace:*",
+		"@planici/utils": "workspace:*",
 		"axios": "^1.20.0",
 		"clsx": "^2.1.1",
 		"input-otp": "^1.5.0",
@@ -32,7 +33,7 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@repo/biome-config": "workspace:^",
+		"@planici/biome-config": "workspace:^",
 		"@tailwindcss/postcss": "^4",
 		"@testing-library/dom": "^10.4.2",
 		"@testing-library/react": "^16.3.3",

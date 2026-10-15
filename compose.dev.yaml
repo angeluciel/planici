@@ -1,0 +1,26 @@
+name: planici-dev
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: planici
+      POSTGRES_PASSWORD: planici
+      POSTGRES_DB: planici_dev
+    ports:
+      - "127.0.0.1:5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD
+        - pg_isready
+        - -h
+        - 127.0.0.1
+        - -U
+        - planici
+        - -d
+        - planici_dev
+      interval: 2s
+      timeout: 3s
+      retries: 30

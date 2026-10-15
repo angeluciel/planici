@@ -1,13 +1,9 @@
-/**
- *  joao.silva@gmail.com -> j**@**.com
- * */
-
 export function maskEmail(email: string): string {
 	const at = email.lastIndexOf("@");
 	if (at < 1) return "***";
 
 	const local = email.slice(0, at);
-	const domain = email.slice(at);
+	const domain = email.slice(at + 1);
 	const dot = domain.lastIndexOf(".");
 	const tld = dot === -1 ? "" : domain.slice(dot);
 

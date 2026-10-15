@@ -1,5 +1,6 @@
 "use client";
 
+import { maskEmail } from "@planici/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -11,7 +12,6 @@ import type { ApiFailure } from "@/lib/api/client";
 import { requestEmailCode } from "@/lib/api/email-verification";
 import { registerUser } from "@/lib/api/register";
 import { useFieldError } from "@/lib/form";
-import { maskEmail } from "@/lib/mask";
 import {
 	CLEARED_PROOF,
 	nextStep,
