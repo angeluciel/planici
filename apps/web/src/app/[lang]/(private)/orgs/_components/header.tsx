@@ -1,4 +1,4 @@
-import { PlusIcon, SearchIcon } from "lucide-react";
+import { MenuIcon, PlusIcon, SearchIcon } from "lucide-react";
 
 type HeaderProps = {
 	isSidebarOpen: boolean;
@@ -10,17 +10,19 @@ export default function Header({
 	onOpenSidebar,
 }: Readonly<HeaderProps>) {
 	return (
-		<header className="flex w-full justify-between px-4 pt-2 pb-3border-b border-border">
+		<header className="flex w-full items-center justify-between border-b border-border px-4 pt-2 pb-3">
 			{/* left */}
 			<div className="flex gap-3 w-full">
 				<button
 					type="button"
 					aria-expanded={isSidebarOpen}
-					aria-controls="sidebar"
+					aria-controls="mobile-sidebar"
+					aria-label="Abrir menu principal"
+					aria-haspopup="dialog"
 					onClick={onOpenSidebar}
-					className="size-12 rounded-lg bg-blanket flex items-center justify-center md:hidden"
+					className="size-12 rounded-lg text-icon hover:bg-surface-hovered flex items-center justify-center focus-visible:outline-2 focus-visible:outline-border-focused md:hidden"
 				>
-					LB
+					<MenuIcon aria-hidden="true" />
 				</button>
 			</div>
 
@@ -29,12 +31,14 @@ export default function Header({
 				<button
 					type="button"
 					className="px-3 py-1.5 w-full text-icon rounded-sm hover:bg-surface-raised-hovered active:bg-surface-raised-pressed"
+					aria-label="Pesquisar"
 				>
 					<SearchIcon />
 				</button>
 				<button
 					type="button"
 					className="px-3 py-1.5 w-full text-icon rounded-sm hover:bg-surface-raised-hovered active:bg-surface-raised-pressed"
+					aria-label="Adicionar"
 				>
 					<PlusIcon />
 				</button>
