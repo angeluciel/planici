@@ -18,6 +18,34 @@
 		}
 	},
 	"tenants": {
+		"workspace": {
+			"title": "Your workspace",
+			"description": "Choose an option in the menu to manage this workspace.",
+			"clients": "View clients"
+		},
+		"list": {
+			"title": "Your workspaces",
+			"description": "Choose a workspace to continue.",
+			"create": "Create workspace",
+			"switch": "Switch workspace",
+			"loading": "Loading your workspaces...",
+			"retry": "Try again",
+			"open": "Open workspace",
+			"opening": "Opening...",
+			"openWorkspace": "Open {name}",
+			"emptyTitle": "You don't have a workspace yet",
+			"emptyDescription": "Create your first workspace to start organizing your business.",
+			"statuses": {
+				"active": "Active",
+				"suspended": "Suspended",
+				"deleted": "Unavailable"
+			},
+			"plans": {
+				"free": "Free",
+				"pro": "Pro",
+				"enterprise": "Enterprise"
+			}
+		},
 		"create": {
 			"title": "Welcome to Planici",
 			"description": "Let's set up your organization",
@@ -27,6 +55,12 @@
 		}
 	},
 	"validation": {
+		"tenant": {
+			"required": "Choose a workspace to continue.",
+			"not-found": "This workspace is no longer available to your account. Refresh the list and choose another.",
+			"forbidden": "You don't have permission to access this workspace.",
+			"inactive": "This workspace is suspended and cannot be opened right now."
+		},
 		"tenantName": {
 			"required": "Enter your organization's name.",
 			"max": "The organization name must be at most 80 characters long."

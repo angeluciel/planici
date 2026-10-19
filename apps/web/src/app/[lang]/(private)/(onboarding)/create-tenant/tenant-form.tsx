@@ -48,7 +48,7 @@ export function TenantForm() {
 			return;
 		}
 
-		router.replace(`/orgs/${result.tenant.id}/clients`);
+		router.replace(`/orgs/${result.tenant.id}`);
 		router.refresh();
 	}
 

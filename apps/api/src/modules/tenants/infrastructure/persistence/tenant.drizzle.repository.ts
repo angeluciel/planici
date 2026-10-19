@@ -51,7 +51,7 @@ export class DrizzleTenantRepository implements TenantRepository {
           ne(tenants.status, 'deleted'),
         ),
       )
-      .orderBy(asc(tenants.createdAt));
+      .orderBy(asc(tenants.createdAt), asc(tenants.id));
 
     return rows.map((row) => toMembership(row.tenant, row.role));
   }

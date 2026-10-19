@@ -18,6 +18,34 @@
 		}
 	},
 	"tenants": {
+		"workspace": {
+			"title": "Sua organização",
+			"description": "Escolha uma opção no menu para gerenciar esta organização.",
+			"clients": "Ver clientes"
+		},
+		"list": {
+			"title": "Suas organizações",
+			"description": "Escolha uma organização para continuar.",
+			"create": "Criar organização",
+			"switch": "Trocar organização",
+			"loading": "Carregando suas organizações...",
+			"retry": "Tentar novamente",
+			"open": "Abrir organização",
+			"opening": "Abrindo...",
+			"openWorkspace": "Abrir {name}",
+			"emptyTitle": "Você ainda não tem uma organização",
+			"emptyDescription": "Crie sua primeira organização para começar a organizar seu negócio.",
+			"statuses": {
+				"active": "Ativa",
+				"suspended": "Suspensa",
+				"deleted": "Indisponível"
+			},
+			"plans": {
+				"free": "Gratuito",
+				"pro": "Pro",
+				"enterprise": "Enterprise"
+			}
+		},
 		"create": {
 			"title": "Bem-vindo(a) ao Planici",
 			"description": "Vamos iniciar sua organização",
@@ -27,6 +55,12 @@
 		}
 	},
 	"validation": {
+		"tenant": {
+			"required": "Escolha uma organização para continuar.",
+			"not-found": "Esta organização não está mais disponível para sua conta. Atualize a lista e escolha outra.",
+			"forbidden": "Você não tem permissão para acessar esta organização.",
+			"inactive": "Esta organização está suspensa e não pode ser aberta no momento."
+		},
 		"tenantName": {
 			"required": "Informe o nome da sua organização.",
 			"max": "O nome da organização deve ter no máximo 80 caracteres."
