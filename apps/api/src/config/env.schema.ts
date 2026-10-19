@@ -55,7 +55,7 @@ export const envSchema = z
     OBSERVE_APP_SECRET: z.string().min(1),
   })
   .superRefine((env, ctx) => {
-    if (env.NODE_ENV === 'production' && env.MAIL_DRIVER === 'ses') {
+    if (env.NODE_ENV === 'production' && env.MAIL_DRIVER !== 'ses') {
       ctx.addIssue({
         code: 'custom',
         path: ['MAIL_DRIVER'],
