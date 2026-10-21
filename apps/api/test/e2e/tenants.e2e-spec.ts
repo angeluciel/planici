@@ -119,7 +119,7 @@ describe('create tenant', () => {
 
 describe('list, read and rename', () => {
   it('requires authentication to list workspaces', async () => {
-    await api().get('/v1/tenants').expect(401);
+    await Promise.resolve(api().get('/v1/tenants').expect(401));
   });
 
   it('lists every workspace for the caller without an active tenant header', async () => {
@@ -144,9 +144,15 @@ describe('list, read and rename', () => {
       .expect('Cache-Control', 'private, no-store')
       .expect(200);
 
+    const byId = (a: string, b: string): number => {
+      if (a < b) return -1;
+      if (a > b) return 1;
+      return 0;
+    };
+
     expect(
       response.body.tenants.map((tenant: { id: string }) => tenant.id),
-    ).toEqual([first.body.id, second.body.id].sort());
+    ).toEqual([first.body.id, second.body.id].sort(byId));
   });
 
   it('excludes deleted tenants and inactive memberships, but shows suspended tenants', async () => {
