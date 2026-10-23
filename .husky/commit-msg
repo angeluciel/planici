@@ -1,3 +1,4 @@
+#!/bin/sh
 if grep -Eiq 'co-authored[[:space:]-]+by' "$1"; then
   echo "Commit rejected: co-author attribution is not allowed." >&2
   exit 1
