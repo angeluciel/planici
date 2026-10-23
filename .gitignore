@@ -56,3 +56,7 @@ pnpm-debug.log*
 !.ai/work/.gitkeep
 .claude/settings.local.json
 .claude/agent-memory-local/
+
+# Docker
+docker/proxy/certs/**
+docker/proxy/certs
