@@ -58,5 +58,5 @@ pnpm-debug.log*
 .claude/agent-memory-local/
 
 # Docker
-docker/proxy/certs/**
-docker/proxy/certs
+docker/proxy/certs/*
+docker/proxy/certs/
