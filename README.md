@@ -52,13 +52,7 @@ pnpm build
 
 ## Contribuindo para o projeto
 
-Para contribuir com o Planici, siga estas etapas:
-
-1. Fork este repositório
-2. Crie uma branch `git switch -c <nome-da-branch>` seguindo as regras de nome de branches do repositório.
-3. Faça sas alterações e confirme: `git commit -m 'sua mensagem'`
-4. Envie para a branch original: `git push origin dev`
-5. Crie a pull request
+Consulte [CONTRIBUTING](CONTRIBUTING.md) para preparar o ambiente, executar as verificações e abrir um pull request. As contribuições devem ser enviadas por pull request para `dev`; não faça pushes para `dev` ou `main`.
 
 <br/><br/>
 
