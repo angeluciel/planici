@@ -1,4 +1,6 @@
-# Planici v1
+# Planici
+
+Gestão de agenda e negócios para profissionais independentes.
 
 [![CI](https://img.shields.io/github/actions/workflow/status/angeluciel/planici/ci.yml?style=for-the-badge)](https://github.com/angeluciel/planici/actions)
 [![License](https://img.shields.io/github/license/angeluciel/planici?style=for-the-badge)](LICENSE)
@@ -10,83 +12,68 @@
 
 ![Planici](/docs/assets/hero.png)
  
-<p align="center">
-  <b align="center">
-    GESTÃO DE AGENDAS E NEGÓCIOS PARA PROFISSIONAIS INDEPENDENTES
-    <br /> <br />
-    <a href="https://www.figma.com/design/rWWne0gLS6YsVEuz4c7Amg/Planici?node-id=0-1&t=J5LLtwXO2fQxcF8H-1"><strong>Figma</strong></a> ·
-    <a href="#pré-requisitos"><strong>Como Usar</strong></a>
-    <br />
-  </b>
-</p>
-    
-> Planici é um sistema de gestão de negócios intuitivo e personalizado, projetado para profissionais autônomos e microempreendedores que necessitam gerenciar compromissos, clientes, pagamentos e acompanhamento financeiro em um único lugar
+O Planici ajuda profissionais autônomos e microempreendedores a organizar compromissos, clientes, serviços e finanças em um só lugar.
 
-### Ajustes e melhorias
+[Protótipo no Figma](https://www.figma.com/design/rWWne0gLS6YsVEuz4c7Amg/Planici?node-id=0-1&t=J5LLtwXO2fQxcF8H-1) · [RFC do projeto](docs/RFC.md)
 
-- [X] Melhorar linting time (alterado para oxlint e biome)
-- [x] Testar Biome
 
-## Pré-Requisitos
+## Funcionalidades
 
-Antes de começar, verifique se você atende os seguintes requisitos:
+- **Agenda:** Visualizações de dia, semana e mês; criação e gerenciamento de compromissos.
+- **Clientes:** Cadastro, perfis e histórico de serviços e compromissos.
+- **Serviços:** Configuração de tipos de serviço, duração e preços.
+- **Financeiro:** Acompanhamento de pagamentos, receitas e despesas.
 
-- Você instalou a versão LTS de `nodejs`.
-- Você leu o [Documento de RFC](docs/RFC.md).
+> Consulte o [RFC](docs/RFC.md) para conhecer o escopo e as decisões do projeto.
 
-## Instalando o Planici
+## Tecnologias
 
-Para instalar o Planici, siga estas etapas:
+- **Monorepo:** pnpm workspaces e Turborepo
+- **Web:** Nextjs e React
+- **API:** NestJS
+- **Banco de dados:** PostgreSQL
 
+## Requisitos
+
+- Node.js `26.5.0`
+- pnpm `12.3.4`
+
+As versões também estão especificadas em `.nvmrc`, `mise.toml` e `package.json`.
+
+## Desenvolvimento
+
+Clone o repositório e instale as dependências:
 ```bash
+git clone https://github.com/angeluciel/planici.git
+cd planici
 pnpm install
 ```
 
-## Rodando o Planici
-
-Para usar o Planici, siga estas etapas:
+Para iniciar a aplicação localmente, configure as variáveis de ambiente e o banco de dados conforme as instruções em [CONTRIBUTING](CONTRIBUTING.md). Depois, inicie a web e a API em terminais separados:
 
 ```bash
+pnpm dev:web
+pnpm --filter api start:dev
+```
+
+> [!WARNING]
+> Os pacotes compartilhados precisam ser buildados antes de iniciar as aplicações. Consulte o guida de contribuição para ver a sequência completa.
+
+## Verificações
+
+Execute na raiz do repositório:
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test
 pnpm build
 ```
 
-## Contribuindo para o projeto
+## Contribuindo
 
-Consulte [CONTRIBUTING](CONTRIBUTING.md) para preparar o ambiente, executar as verificações e abrir um pull request. As contribuições devem ser enviadas por pull request para `dev`; não faça pushes para `dev` ou `main`.
+Leia [CONTRIBUTING](CONTRIBUTING.md) para preparar o ambiente, validar alterações e abrir um pull request. As contribuições devem ser enviadas para abranch `dev` por pull request.
 
-<br/><br/>
+## Licença
 
-> [!TIP]
-> Apresentação do Projeto
-
-# Visão
-
-Planici foi desenvolvido para profissionais que desejam gerenciar sua agenda, clientes e finanças sem pagar preço altos por softwares corporativos ou sacrificar personalização para seu modelo de negócio único.
-
-# Principais Funcionalidades
-
-## Agendamento Inteligente
-
-- **Visualização em Calendário:** Gestão visual de agenda com visualizações de dia, semana e mês.
-- **Gerenciamento de Compromissos:** Criar, reagendar e cancelar compromissos sem dificuldades.
-- **Mapeamento de Serviços para Clientes:** Vincular procedimentos/Serviços específicos aos registros de clientes.
-- **Notificações e lembretes**: Mantenha-se atualizado sobre compromissos próximos.
-
-## Gestão de Clientes
-
-- **Banco de Dados Unificado de Clientes:** Armazenar informacoes de clientes, dados de contato e historico de servicos
-- **Perfis de Clientes:** Acompanhar historico de compromissos, preferencias e anotacoes
-- **Registros de Servicos:** Associar servicos especificos a cada cliente
-
-## Acompanhamento Financeiro
-
-- **Gestao de Pagamentos:** Registrar e acompanhar pagamentos integrados aos compromissos
-- **Registro de Receitas e Despesas:** Monitorar receita e custos do negocio
-- **Painel Financeiro:** Visao geral rapida do desempenho do negocio
-- **Geracao de Faturas:** Criar faturas profissionais para clientes
-
-## Personalização
-
-- **Marca Customizada:** Adaptar o sistema para corresponder a identidade do seu negocio
-- **Personalizacao de Servicos:** Definir seus proprios tipos de servicos, duracao e precos
-- **Configuracao de Fluxo de Trabalho:** Adaptar o sistema ao seu processo de negocio especifico
+Consulte o arquivo [LICENSE](LICENSE).
