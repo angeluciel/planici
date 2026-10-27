@@ -1,66 +1,3 @@
-# Planici - agent guide
-
-Scheduling & business management for independent professionals. Turborepo + pnpm monorepo.
-Product docs are in Portuguese; code, commits and agent files are in English.
-
-This is the shared project contract for Claude Code and Codex. Keep tool-specific instructions in their entry files; `CLAUDE.md` imports this file as `@AGENTS.md`.
-Keep this guide concise. Detailed procedures belong in skills and project docs.
-
-## Sources of truth
-
-- **Scope and behavior:** explicit owner-approved decisions and approved feature specs.
-  Until a capability has a spec, use its owner-approved Linear acceptance criteria and
-  relevant RFC sections to draft one. A ticket's existence is not approval of a spec.
-- **Evidence:** stakeholder statements and operational examples inform requirements.
-  Cite their source. Evidence contradicting an approved requirement triggers a proposed
-  correction, not an agent's unilateral change to scope.
-- **Architecture:** accepted architecture decision records (ADRs), shared contracts,
-  and the documented architecture. Code shows what exists, not necessarily what is intended.
-- **Context cards:** navigation and summaries, never a replacement for authoritative sources.
-
-An explicitly approved revision supersedes the older decision it names. Otherwise,
-if a ticket, spec, RFC, design, schema or implementation disagrees, identify the conflict
-and ask the owner to resolve it. Do not silently choose, invent requirements, or treat
-an unapproved proposal as a decision. Continue work unaffected by the conflict.
-
-## Map (who owns what)
-
-| Path                                                | Domain                | Owner agent                | Context card                  |
-|-----------------------------------------------------|-----------------------|----------------------------|-------------------------------|
-| `docs/RFC-segmented/**`, `docs/schema.dbml`, Linear | Requirements analysis | `spec-analyst` (read-only) | `.ai/context/requirements.md` |
-| Feature specs, traceability, open questions and ADR drafts | Specification/process docs | Orchestrator or one explicitly assigned documentation writer | `.ai/context/requirements.md` |
-| Figma, `apps/web/src/styles/tokens/**` | Design system | `design-analyst` | `.ai/context/design-system.md` |
-| `packages/schemas/**` | API contracts (Zod), shared by web + api | `contracts-owner` | `.ai/context/contracts.md` |
-| `apps/api/src/database/**`, `apps/api/drizzle/**` | Postgres / Drizzle | `data-steward` | `.ai/context/db-schema.md` |
-| `apps/api/src/**` (rest), `packages/transactional/**` | NestJS API (CQRS + ports/adapters) | `api-engineer` | `.ai/context/api-architecture.md` |
-| `apps/web/**`, `packages/i18n/**` | Next.js 16 / React 19 app | `web-engineer` | `.ai/context/web-architecture.md` |
-| `docker/**`, `**/Dockerfile`, `compose*.y*ml`, `.github/**`, `turbo.json`, `sonar-project.properties` | Platform / CI | `platform-engineer` | `.ai/context/ci-infra.md` |
-| any diff | Review & quality gate | `quality-gate` (read-only) | — |
-
-The most specific path owns the file: design tokens belong to design, API database paths belong to data, and Dockerfiles belong to platform. Analysis does not grant write access to the RFC, schema or Linear; changes there require an explicit assignment.
-
-## Context and ownership rules
-
-1. **Cards before sources.** Read the relevant context card before exploring a domain.
-2. **Stay within the assigned domain.** For another domain, use its card. If the card
-   is missing, stale or insufficient, return a `NEEDS` block using `.ai/README.md`.
-   State the owner, missing fact or artifact, and blocked acceptance criterion.
-   If that format is unavailable, report those fields plainly. The orchestrator routes it.
-3. **One writer per path.** Only the assigned owner edits a path. Serialize changes
-   to shared documents and contracts. Reviewers return findings; writers apply fixes.
-4. **Small-task exception.** For a small single-domain task, the main session may
-   assume that domain's role, read its card and agent instructions, and edit its files.
-   This does not permit unrelated cross-domain edits or bypass spec requirements.
-5. **Return summaries, not dumps.** Handoffs and task reports stay within 40 lines:
-   criteria covered, changes, files touched, checks, and open questions. Keep detailed
-   evidence in task artifacts and link it. Requested document contents are not handoffs.
-6. **Per-task handoffs** go to `.ai/work/<TICKET-ID>/` (gitignored). Without a ticket,
-   use a descriptive task slug. Durable decisions belong in specs, ADRs and cards.
-
-## Spec-driven development
-
-Follow **EVIDENCE -> SPEC -> PLAN -> IMPLEMENT -> VERIFY** for new capabilities and changes to observable behavior, including small single-domain changes.
-
 # Planici — agent guide
 
 Scheduling & business management for independent professionals. Turborepo + pnpm monorepo.
@@ -96,8 +33,8 @@ an unapproved proposal as a decision. Continue work unaffected by the conflict.
 | Figma, `apps/web/src/styles/tokens/**` | Design system | `design-analyst` | `.ai/context/design-system.md` |
 | `packages/schemas/**` | API contracts (Zod), shared by web + api | `contracts-owner` | `.ai/context/contracts.md` |
 | `apps/api/src/database/**`, `apps/api/drizzle/**` | Postgres / Drizzle | `data-steward` | `.ai/context/db-schema.md` |
-| `apps/api/src/**` (rest), `packages/transactional/**` | NestJS API (CQRS + ports/adapters) | `api-engineer` | `.ai/context/api-architecture.md` |
-| `apps/web/**`, `packages/i18n/**` | Next.js 16 / React 19 app | `web-engineer` | `.ai/context/web-architecture.md` |
+| `apps/api/src/**` (rest), `packages/transactional/**` | NestJS API (CQRS + ports/adapters) | `api-implementer` | `.ai/context/api-architecture.md` |
+| `apps/web/**`, `packages/i18n/**` | Next.js 16 / React 19 app | `web-implementer` | `.ai/context/web-architecture.md` |
 | `docker/**`, `**/Dockerfile`, `compose*.y*ml`, `.github/**`, `turbo.json`, `sonar-project.properties` | Platform / CI | `platform-engineer` | `.ai/context/ci-infra.md` |
 | any diff | Review & quality gate | `quality-gate` (read-only) | — |
 
