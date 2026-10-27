@@ -1,5 +1,5 @@
 ---
-description: Draft a new SIGI specification from the RFC and existing docs
+description: Draft a new Planici specification from the RFC and existing docs
 argument-hint: <slug or short description of the new capability>
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
