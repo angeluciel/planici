@@ -1,26 +1,106 @@
 {
 	"$schema": "https://json.schemastore.org/claude-code-settings.json",
-	"permissions": {
-		"deny": [
-			"Read(*.env)",
-			"Read(*/.env.*)",
-			"Bash(git push origin dev:*)",
-			"Bash(git push origin main:*)",
-			"Bash(git push --force:*)",
-			"Bash(git push -f:*)",
-			"Bash(rm:*)",
-			"Bash(curl:*)"
-		],
-		"defaultMode": "default"
-	},
 	"env": {
-		"NODE_ENV": "development",
 		"CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "1"
+	},
+	"permissions": {
+		"allow": [
+			"Bash(pnpm lint:*)",
+			"Bash(pnpm typecheck:*)",
+			"Bash(pnpm test:*)",
+			"Bash(pnpm build:*)",
+			"Bash(pnpm --filter:*)",
+			"Bash(pnpm exec biome:*)",
+			"Bash(git status:*)",
+			"Bash(git diff:*)",
+			"Bash(git log:*)",
+			"Bash(git show:*)",
+			"Bash(git blame:*)",
+			"Bash(git rev-parse:*)",
+			"Bash(rg:*)",
+			"Bash(.claude/bin/task-lock.sh:*)"
+		],
+		"ask": [
+			"Bash(pnpm add:*)",
+			"Bash(pnpm remove:*)",
+			"Bash(pnpm install:*)",
+			"Bash(pnpm dlx:*)",
+			"Bash(npx:*)",
+			"Bash(docker:*)",
+			"Bash(gh:*)"
+		],
+		"deny": [
+			"Read(**/.env)",
+			"Edit(**/.env)",
+			"Bash(git commit:*)",
+			"Bash(git push:*)",
+			"Bash(git switch:*)",
+			"Bash(git checkout:*)",
+			"Bash(git rebase:*)",
+			"Bash(git merge:*)",
+			"Bash(git reset:*)",
+			"Bash(git clean:*)",
+			"Bash(rm -rf:*)",
+			"Bash(curl:*)",
+			"Bash(wget:*)"
+		]
+	},
+	"enabledMcpjsonServers": ["linear", "figma", "postgres", "sonarqube"],
+	"extraKnownMarketplaces": {
+		"claude-plugins-official": {
+			"source": { "source": "github", "repo": "anthropics/claude-plugins-official" }
+		}
+	},
+	"enabledPlugins": {
+		"typescript-lsp@claude-plugins-official": true,
+		"context7@claude-plugins-official": true,
+		"pr-review-toolkit@claude-plugins-official": true,
+		"security-guidance@claude-plugins-official": true,
+		"hookify@claude-plugins-official": true,
+		"claude-md-management@claude-plugins-official": true,
+		"playwright@claude-plugins-official": true,
+		"skill-creator@claude-plugins-official": true
 	},
 	"hooks": {
 		"SessionStart": [
 			{
-				"hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/ai/stale-cards.sh --quiet-if-none" }]
+				"hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/anchor.sh --session" }]
+			}
+		],
+		"UserPromptSubmit": [
+			{
+				"hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/anchor.sh" }]
+			}
+		],
+		"PreToolUse": [
+			{
+				"matcher": "Read|Edit|Write|MultiEdit|NotebookEdit",
+				"hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-paths.sh" }]
+			},
+			{
+				"matcher": "Edit|Write|MultiEdit|NotebookEdit",
+				"hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/scope-lock.sh" }]
+			},
+			{
+				"matcher": "Bash",
+				"hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-bash.sh" }]
+			}
+		],
+		"PostToolUse": [
+			{
+				"matcher": "Edit|Write|MultiEdit",
+				"hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/format-changed.sh" }]
+			}
+		],
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "prompt",
+						"timeout": 30,
+						"prompt": "You audit the last turn of a coding agent working in the Planici repo. Event and transcript: $ARGUMENTS\n\nIf the turn only answered a question or discussed (no files edited, no claim that work is complete), return {\"ok\": true}.\n\nOtherwise return {\"ok\": false, \"reason\": \"<what to do next>\"} if the transcript shows any of:\n1. A claim that something works, passes, builds or is fixed, with no lint/typecheck/test command output from this turn backing it.\n2. Edits that add behavior, endpoints, fields, dependencies or refactors that the user's request or the active task's acceptance criteria do not ask for.\n3. Acceptance criteria in a spec changed without the owner approving that change in this conversation.\n4. A git commit, push, branch switch, rebase or merge run or attempted without the owner asking for it in this conversation.\n5. A final message that omits the commit plan after finishing implementation work.\n\nIf a condition can never be met in this environment (for example Docker is unavailable for e2e tests and the agent already reported that as unrun), return {\"ok\": false, \"impossible\": true, \"reason\": \"...\"}. Judge only from evidence in the transcript. Reply with JSON only."
+					}
+				]
 			}
 		]
 	}

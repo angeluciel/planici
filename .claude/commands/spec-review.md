@@ -1,26 +1,17 @@
 ---
-description: Review a spec for completeness before approving it
-argument-hint: SPEC-XXXX
-allowed-tools: Read, Grep, Glob
+description: Independent readiness review of a spec (or its plan) before the owner approves it
+argument-hint: SPEC-XXXX [plan]
+allowed-tools: Read, Glob, Grep, Agent
 ---
 
-Review $ARGUMENTS for readiness to move from Draft to Approved.
+Review $ARGUMENTS.
 
-Check and report on each:
+Delegate to the `spec-reviewer` subagent. Brief it with the spec ID and whether to review the spec
+or its Implementation plan (`plan` argument). Do not review it yourself first, and do not pass your opinion
+of the spec into the brief: the point is a reader with fresh context.
 
-1. **Frontmatter** - id, status, version, owner, satisfies, depends_on, milestone.
-2. **Criteria quality** - every AC has an ID, is Given/When/Then, is atomic, and
-   is observable from outside the system. List any that are vague.
-3. **Negative coverage** - for every happy path, is there a matching failure,
-   permission-denial and validation criterion? Name the gaps.
-4. **Rule consistency** - does any AC contradict an RN in
-   `docs/requirements/business-rules.md`?
-5. **Dependencies** - are all `depends_on` specs at Approved or later?
-6. **Audit** - does every mutation name the `HISTORICO_MOVIMENTACAO` row it writes?
-7. **Permissions** - is the matrix complete for all three profiles?
-8. **Errors** - does every error have a code and a pt-BR message that tells the
-   user what to do next?
-9. **Open questions** - are any of them blocking for the criteria listed?
+Relay its verdict unchanged. If it lists required changes, offer to apply them; do not apply them unasked.
 
-Verdict: APPROVE, or a numbered list of what must change. Be specific; "add more
-detail" is not actionable feedback.
+Never change `status` or `plan_status` to `Approved` yourself. Only the owner approves, by saying so
+explicitly. When they do, set the field, bump `version`, and add a changelog line
+`<version> — approved by <owner>, <date>`.
