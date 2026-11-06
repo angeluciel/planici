@@ -16,7 +16,7 @@ Planici-specific overrides go in a skill of our own.
 | Licence | MIT, Copyright (c) 2026 Emil Kowalski — reproduced below |
 | Author | Emil Kowalski — https://emilkowal.ski, https://animations.dev |
 
-Copied from upstream: `emil-design-eng`, `animate`, `animate-expo`, `animation-vocabulary`,
+Copied from upstream: `emil-design-eng`, `animate`, `animation-vocabulary`,
 `find-animation-opportunities`, `improve-animations`, `review-animations`.
 
 Upstream lays each skill out as `skills/<name>/`. Emil Kowalski wrote these skills himself and
