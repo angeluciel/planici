@@ -12,6 +12,8 @@ Close the active task.
    - **ACs**: each in-scope AC → tests → actual result. Separate passing, failing, missing, skipped and unrun.
    - **Checks**: the commands you ran and their results.
    - **Review**: the latest reviewer verdict and any unresolved items.
+   - **Scope**: if a task is locked, the output of `.claude/bin/task-lock.sh check`. It lists files changed outside
+     the plan's scope, including Bash writes the edit hook never sees (`drizzle-kit generate`, `lint:fix`).
    - **Follow-ups**: things noticed and deliberately not done.
 4. If every in-scope AC passes, update the spec's changelog with what was implemented. Set
    `status: Implemented` only if all of the spec's ACs are verified **and** the owner has said they accept the

@@ -5,6 +5,7 @@
 #   task-lock.sh start SPEC-XXXX [AC-XXXX-NN ...]   checks preconditions, writes .claude/state/task.json
 #   task-lock.sh add '<glob>'                        widen scope (owner-approved only)
 #   task-lock.sh status
+#   task-lock.sh check                               list files changed since the lock that are outside its scope
 #   task-lock.sh clear
 #
 # Preconditions for start (from the spec's frontmatter):
@@ -84,11 +85,38 @@ add)
 status)
 	if [ -f "$lock" ]; then cat "$lock"; else echo "no task locked"; fi
 	;;
+check)
+	# The scope-lock hook only sees file tools. This catches writes made through Bash (drizzle-kit, lint:fix).
+	[ -f "$lock" ] || fail "no task is locked"
+	base=$(jq -r .baseCommit "$lock")
+	spec_rel=$(jq -r .specFile "$lock")
+	globs=()
+	while IFS= read -r glob; do globs+=("$glob"); done < <(jq -r '.paths[]' "$lock")
+	out=()
+	while IFS= read -r f; do
+		[ "$f" = "$spec_rel" ] && continue
+		in_scope=
+		for glob in "${globs[@]}"; do
+			# shellcheck disable=SC2053 # unquoted on purpose: glob match, and * crosses "/"
+			if [[ "$f" == $glob ]]; then
+				in_scope=1
+				break
+			fi
+		done
+		[ -n "$in_scope" ] || out+=("$f")
+	done < <(cd "$root" && { git diff --name-only "$base"; git ls-files --others --exclude-standard; } | sort -u)
+	if [ ${#out[@]} -gt 0 ]; then
+		echo "task-lock: changed outside scope since $base:" >&2
+		printf '  %s\n' "${out[@]}" >&2
+		exit 1
+	fi
+	echo "all changes since $base are in scope"
+	;;
 clear)
 	rm -f "$lock"
 	echo "task lock cleared"
 	;;
 *)
-	fail "usage: task-lock.sh start|add|status|clear"
+	fail "usage: task-lock.sh start|add|status|check|clear"
 	;;
 esac

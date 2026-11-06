@@ -25,6 +25,10 @@ esac
 [ "$tool" = "Read" ] && exit 0
 
 case "$file" in
+	*.claude/state/*)
+		echo "Blocked: .claude/state is written only by .claude/bin/task-lock.sh. If the scope must change, report it as a proposed plan change; the owner extends it." >&2
+		exit 2
+		;;
 	*apps/api/drizzle/meta/*)
 		echo "Blocked: apps/api/drizzle/meta is generated. Change the schema and run drizzle-kit generate (skill drizzle-migration)." >&2
 		exit 2
