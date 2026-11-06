@@ -58,6 +58,7 @@ docker/proxy/certs/
 !.ai/work/.gitkeep
 .claude/settings.local.json
 .claude/agent-memory-local/
+.claude/state
 
 # Docker
 docker/proxy/certs/*
