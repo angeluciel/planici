@@ -22,7 +22,7 @@ git_re='(^|[;&|({[:space:]])git([[:space:]]+-[cC][[:space:]]+[^[:space:]]+)*[[:s
 if grep -Eq "${git_re}(commit|push|switch|checkout|rebase|merge|reset|clean|cherry-pick|revert|am|tag)([[:space:]]|$)" <<<"$cmd"; then
 	block "commits, pushes, branch changes and history rewrites are the owner's job. Finish with a commit plan (branch, files to stage, message) instead."
 fi
-if grep -Eq "${git_re}(stash[[:space:]]+(drop|clear)|branch[[:space:]]+-[dD])" <<<"$cmd"; then
+if grep -Eq "${git_re}(restore([[:space:]]|$)|stash[[:space:]]+(drop|clear)|branch[[:space:]]+-[dD])" <<<"$cmd"; then
 	block "this discards work. Ask the owner first."
 fi
 if grep -Eq -- '--no-verify|HUSKY=0|core\.hooksPath' <<<"$cmd"; then

@@ -2,7 +2,7 @@
 # PreToolUse (Edit|Write|MultiEdit|NotebookEdit)
 # While .claude/state/task.json exists, only paths matching its globs may be edited.
 # Files outside the project (scratchpad, /tmp) are never restricted.
-# Always allowed: the active spec file (changelog / plan status) and .claude/state/.
+# Always allowed: the active spec file (changelog / plan status).
 
 lock="$CLAUDE_PROJECT_DIR/.claude/state/task.json"
 [ -f "$lock" ] || exit 0
@@ -22,9 +22,6 @@ case "$file" in
 	*) rel=${file#./} ;;
 esac
 
-case "$rel" in
-	.claude/state/*) exit 0 ;;
-esac
 [ "$rel" = "$(jq -r '.specFile // empty' "$lock")" ] && exit 0
 
 while IFS= read -r glob; do
