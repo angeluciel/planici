@@ -74,7 +74,7 @@ Cada uma é composta por módulos com responsabilidades bem delimitadas.
  
 A interface web do Planici é construída em Next.js com abordagem mobile-first. É dividida em três zonas funcionais:
  
-**Área autenticada**: acessível apenas ao profissional logado. No MVP, concentra os módulos de agenda, clientes, serviços e visão financeira básica (planos e formulários personalizados são Pós-MVP). Todas as operações nessa zona exigem um token JWT válido e vínculo com um tenant ativo.
+**Área autenticada**: acessível apenas ao profissional logado. No MVP, concentra os módulos de agenda, clientes, serviços, formulários personalizados e visão financeira básica (planos são Pós-MVP). Todas as operações nessa zona exigem um token JWT válido e vínculo com um tenant ativo.
  
 **Fluxo de onboarding**: cobre o registro de conta, login (e-mail/senha e OAuth), recuperação de senha e criação ou seleção de tenant (a personalização de labels é Pós-MVP). É o caminho obrigatório antes de qualquer acesso à área autenticada.
  
@@ -94,7 +94,7 @@ Para que o RLS funcione com a API stateless e pool de conexões, o `tenant_id` a
 
 A proteção contra overbooking (RN-10, Fluxo 1) não depende apenas da validação na camada de aplicação, pois duas requisições simultâneas — por exemplo, uma do link público e outra do profissional — poderiam passar pela checagem antes de qualquer gravação. A garantia é dada no nível do banco: uma constraint de exclusão por range de tempo por profissional (`EXCLUDE USING gist` sobre `tstzrange` de início/fim, combinada ao `profissional_id` via extensão `btree_gist`) impede a persistência de dois agendamentos sobrepostos para o mesmo profissional. Em alternativa ou complemento, a criação ocorre em transação que aplica `SELECT ... FOR UPDATE` sobre as linhas de disponibilidade/agendamentos do intervalo, serializando concorrentes. A violação da constraint é tratada como conflito de horário e retornada ao solicitante.
  
-**Domain module**: agrupa os cadastros centrais do negócio no MVP: clientes e serviços/procedimentos. Cada entidade segue regras de inativação ao invés de exclusão quando possui histórico vinculado. (Planos/pacotes e formulários personalizados serão incorporados a este módulo na fase Pós-MVP.)
+**Domain module**: agrupa os cadastros centrais do negócio no MVP: clientes, serviços/procedimentos e formulários personalizados. Cada entidade segue regras de inativação ao invés de exclusão quando possui histórico vinculado. (Planos/pacotes serão incorporados a este módulo na fase Pós-MVP.)
  
 **Finance module**: registra e edita pagamentos por atendimento e calcula o resumo de receitas por período. Considera apenas pagamentos com status "pago" na agregação de receita. (Comparativo entre períodos, ranking de procedimentos e exportação de relatórios são Pós-MVP.)
  

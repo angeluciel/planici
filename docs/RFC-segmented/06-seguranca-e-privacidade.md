@@ -1,7 +1,7 @@
 # 6. Segurança e Privacidade
 
 > [!NOTE]
-> A segurança do Planici é um requisito essencial, pois o sistema armazena informações de profissionais autônomos, clientes, agenda, serviços, pagamentos e configurações do espaço de trabalho (e, no Pós-MVP, planos e formulários personalizados). Como o sistema opera em modelo multi-tenant, a principal preocupação de segurança é garantir que cada profissional ou empresa acesse somente os dados do seu próprio tenant.
+> A segurança do Planici é um requisito essencial, pois o sistema armazena informações de profissionais autônomos, clientes, agenda, serviços, pagamentos, formulários personalizados e configurações do espaço de trabalho (e, no Pós-MVP, planos). Como o sistema opera em modelo multi-tenant, a principal preocupação de segurança é garantir que cada profissional ou empresa acesse somente os dados do seu próprio tenant.
 
 As medidas de segurança do sistema serão organizadas em cinco frentes principais:
 
@@ -104,7 +104,8 @@ Algumas informações exigem cuidado especial, como:
 - tokens de recuperação de senha;
 - dados pessoais de clientes;
 - observações em campos livres;
-- **[Pós-MVP]** credenciais de integração com WhatsApp e respostas de formulários personalizados.
+- respostas de formulários personalizados;
+- **[Pós-MVP]** credenciais de integração com WhatsApp.
 
 Credenciais de integração, quando existirem (Pós-MVP), não devem ser exibidas integralmente após o cadastro e devem ser criptografadas em repouso ou armazenadas em serviço seguro de secrets. Tokens temporários, como recuperação de senha ou verificação de e-mail, devem possuir expiração e não devem ser reutilizáveis após o uso.
 
@@ -208,7 +209,8 @@ O sistema poderá coletar e armazenar os seguintes dados:
 - telefone;
 - observações;
 - histórico de atendimentos;
-- **[Pós-MVP]** preferências de notificação, respostas de formulários personalizados e arquivos ou imagens anexadas.
+- respostas de formulários personalizados;
+- **[Pós-MVP]** preferências de notificação e arquivos ou imagens anexadas.
 
 #### Dados de agenda e atendimento
 
@@ -240,6 +242,7 @@ Os dados serão tratados para permitir que o profissional utilize as funcionalid
 - criação e acompanhamento de agendamentos;
 - controle de pagamentos;
 - visão financeira básica;
+- criação de formulários personalizados e registro de suas respostas;
 - **[Pós-MVP]** envio de notificações de confirmação, lembrete, cancelamento ou remarcação; planos/pacotes; relatórios avançados; personalização da experiência da aplicação.
 
 O Planici não deverá utilizar os dados para finalidades incompatíveis com o funcionamento do sistema sem base legal adequada (art. 7 da LGPD).
@@ -283,11 +286,12 @@ Como o Planici se destina, entre outros, a terapeutas, nutricionistas, psicólog
 
 Por isso, o sistema deverá:
 
-- **reconhecer expressamente** que campos livres e observações (e, no Pós-MVP, respostas de formulários personalizados) podem conter dados sensíveis de saúde;
+- **reconhecer expressamente** que campos livres, observações e respostas de formulários personalizados podem conter dados sensíveis de saúde;
 - coletar **consentimento específico e destacado** (art. 11, I) do titular para o tratamento desses dados, quando aplicável, separado do aceite geral dos Termos/Política;
-- aplicar **criptografia em repouso obrigatória** às observações que possam conter dados sensíveis (e às respostas de formulários, quando existirem);
+- em formulários de cliente, exigir que o profissional, na qualidade de controlador, ateste uma vez por cliente e antes da primeira submissão que obteve esse consentimento, registrando autor, data e versão do texto, já que o titular não acessa o Planici;
+- aplicar **criptografia em repouso obrigatória** às observações que possam conter dados sensíveis e às respostas de formulários;
 - evitar solicitar dados sensíveis por padrão e indicar que campos livres devem ser usados apenas quando necessário;
-- **[Pós-MVP]** permitir que o profissional defina quais informações serão coletadas nos formulários e proteger as respostas com as mesmas regras de autenticação, autorização e isolamento por tenant;
+- permitir que o profissional defina quais informações serão coletadas nos formulários e proteger as respostas com as mesmas regras de autenticação, autorização e isolamento por tenant;
 - elaborar **Relatório de Impacto à Proteção de Dados Pessoais (RIPD/DPIA, art. 38)** antes do tratamento em larga escala de dados sensíveis;
 - deixar claro que o Planici não substitui prontuários eletrônicos, sistemas médicos regulamentados ou documentos clínicos oficiais.
 

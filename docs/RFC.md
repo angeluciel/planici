@@ -270,7 +270,7 @@ O nicho principal é no modelo de negócio individual, e não venda de produtos,
 > [!IMPORTANT]
 > **Nota de escopo — entrega acadêmica vs. produto comercial**
 >
-> O Portfólio II entregará um MVP acadêmico funcional focado no fluxo essencial de gestão de agenda, clientes, serviços, pagamentos manuais e visão financeira básica. Funcionalidades comerciais mais amplas, como planos pagos, múltiplos usuários, integrações com WhatsApp, formulários avançados, automações e arquitetura distribuída, são tratadas como evolução futura e não compõem o escopo obrigatório da entrega acadêmica. A visão de produto descrita nesta seção (versão gratuita/paga, personalização completa de tema) é direcionamento comercial futuro, não compromisso do MVP.
+> O Portfólio II entregará um MVP acadêmico funcional focado no fluxo essencial de gestão de agenda, clientes, serviços, pagamentos manuais e visão financeira básica. Funcionalidades comerciais mais amplas, como planos pagos, múltiplos usuários, integrações com WhatsApp, anexos em formulários, automações e arquitetura distribuída, são tratadas como evolução futura e não compõem o escopo obrigatório da entrega acadêmica. A visão de produto descrita nesta seção (versão gratuita/paga, personalização completa de tema) é direcionamento comercial futuro, não compromisso do MVP.
 
 <!-- #endregion-->
 
@@ -322,7 +322,7 @@ Desenvolver uma solução de software que oferece á profissionais autônomos de
 - Aplicar TDD nos fluxos críticos, com cobertura mínima de 75% no backend e 25% no frontend, análise estática contínua via SonarCloud e deploy público documentado.
 - Entregar uma aplicação responsiva e de alta usabilidade, com tempo de carregamento das páginas principais inferior a 2 segundos em conexão 4G e fluxos essenciais concluídos em menos de 5 cliques.
 
-> **Evolução futura (fora do MVP):** notificações automáticas por e-mail/WhatsApp, formulários personalizados, personalização de labels por ocupação profissional, planos/pacotes de serviços, comparativos e rankings financeiros, exportação de relatórios, multiusuário por tenant e arquitetura distribuída serão avaliados em fases posteriores, caso a necessidade seja validada. Ver [Tabela MVP × Pós-MVP](#27-tabela-mvp--pós-mvp).
+> **Evolução futura (fora do MVP):** notificações automáticas por e-mail/WhatsApp, anexos em formulários personalizados, personalização de labels por ocupação profissional, planos/pacotes de serviços, comparativos e rankings financeiros, exportação de relatórios, multiusuário por tenant e arquitetura distribuída serão avaliados em fases posteriores, caso a necessidade seja validada. Ver [Tabela MVP × Pós-MVP](#27-tabela-mvp--pós-mvp).
  
 
 
@@ -454,13 +454,13 @@ Desenvolver uma solução de software que oferece á profissionais autônomos de
 ### 2.2.9. Formulários personalizados
 | Código | Caso de uso                                     | Ator principal | Requisitos relacionados | Fase    |
 | ------ | ----------------------------------------------- | -------------- | ----------------------- | ------- |
-| UC-42  | Criar modelo de formulário                      | Profissional   | RF-37                   | Pós-MVP |
-| UC-43  | Adicionar e ordenar campos do formulário        | Profissional   | RF-38                   | Pós-MVP |
-| UC-44  | Editar modelo de formulário                     | Profissional   | RF-39                   | Pós-MVP |
-| UC-45  | Excluir modelo de formulário                    | Profissional   | RF-39                   | Pós-MVP |
-| UC-46  | Aplicar formulário a cliente, serviço ou plano  | Profissional   | RF-40                   | Pós-MVP |
-| UC-47  | Editar respostas de formulário aplicado         | Profissional   | RF-41                   | Pós-MVP |
-| UC-48  | Visualizar formulários aplicados a uma entidade | Profissional   | RF-42                   | Pós-MVP |
+| UC-42  | Criar modelo de formulário                      | Profissional   | RF-37                   | MVP     |
+| UC-43  | Adicionar e ordenar campos do formulário        | Profissional   | RF-38                   | MVP     |
+| UC-44  | Editar modelo de formulário                     | Profissional   | RF-39                   | MVP     |
+| UC-45  | Excluir modelo de formulário                    | Profissional   | RF-39                   | MVP     |
+| UC-46  | Preencher formulário de cliente ou serviço      | Profissional   | RF-40                   | MVP     |
+| UC-47  | Editar submissão de formulário                  | Profissional   | RF-41                   | MVP     |
+| UC-48  | Visualizar submissões de uma entidade           | Profissional   | RF-42                   | MVP     |
 
 ### 2.2.10. Configuração do espaço de trabalho
 | Código | Caso de uso                      | Ator principal | Requisitos relacionados | Fase    |
@@ -538,12 +538,12 @@ Desenvolver uma solução de software que oferece á profissionais autônomos de
   </tr>
   <tr>
     <td>RF-07</td>
-    <td><strong>Criar cliente</strong><br>O profissional pode cadastrar um cliente com nome, telefone, e-mail e observações (campos fixos mínimos no MVP; formulários personalizados são Pós-MVP).</td>
+    <td><strong>Criar cliente</strong><br>O profissional pode cadastrar um cliente com nome, telefone, e-mail e observações (campos fixos mínimos; dados adicionais são coletados por formulários personalizados, RF-37 a RF-42).</td>
     <td>MVP</td>
   </tr>
   <tr>
     <td>RF-08</td>
-    <td><strong>Editar, inativar e excluir cliente</strong><br>O profissional pode atualizar os dados de um cliente. A exclusão definitiva só é permitida para clientes <strong>sem</strong> histórico vinculado (atendimentos e pagamentos; planos e formulários quando essas funcionalidades Pós-MVP existirem). Clientes <strong>com</strong> histórico vinculado não são removidos fisicamente: a operação resulta em inativação (soft delete), preservando o histórico para consultas, relatórios e controle financeiro. Conforme RN-05 e RN-24.</td>
+    <td><strong>Editar, inativar e excluir cliente</strong><br>O profissional pode atualizar os dados de um cliente. A exclusão definitiva só é permitida para clientes <strong>sem</strong> histórico vinculado (atendimentos, pagamentos e submissões de formulário; planos quando essa funcionalidade Pós-MVP existir). Clientes <strong>com</strong> histórico vinculado não são removidos fisicamente: a operação resulta em inativação (soft delete), preservando o histórico para consultas, relatórios e controle financeiro. Conforme RN-05 e RN-24.</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -574,7 +574,7 @@ Desenvolver uma solução de software que oferece á profissionais autônomos de
   </tr>
   <tr>
     <td>RF-12</td>
-    <td><strong>Editar, inativar e excluir procedimento</strong><br>O profissional pode atualizar um procedimento do catálogo. A exclusão definitiva só é permitida para procedimentos <strong>sem</strong> vínculo a agendamentos, planos ou histórico financeiro. Procedimentos <strong>com</strong> esse vínculo não são removidos fisicamente: a operação resulta em inativação (soft delete), impedindo novos usos e preservando o histórico. Conforme RN-06 e RN-24.</td>
+    <td><strong>Editar, inativar e excluir procedimento</strong><br>O profissional pode atualizar um procedimento do catálogo. A exclusão definitiva só é permitida para procedimentos <strong>sem</strong> vínculo a agendamentos, planos, submissões de formulário ou histórico financeiro. Procedimentos <strong>com</strong> esse vínculo não são removidos fisicamente: a operação resulta em inativação (soft delete), impedindo novos usos e preservando o histórico. Conforme RN-06 e RN-24.</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -765,33 +765,33 @@ Desenvolver uma solução de software que oferece á profissionais autônomos de
   </tr>
   <tr>
     <td>RF-37</td>
-    <td><strong>Criar modelo de formulário</strong><br>O profissional cria um modelo de formulário com nome, descrição e tipo de entidade-alvo sugerida (cliente, serviço ou plano).</td>
-    <td>Pós-MVP</td>
+    <td><strong>Criar modelo de formulário</strong><br>O profissional cria um modelo de formulário com nome, descrição e tipo obrigatório (cliente ou serviço). O tipo é persistido e determina em quais fichas o modelo é oferecido. O tipo plano será adicionado quando planos (RF-14 a RF-17) existirem.</td>
+    <td>MVP</td>
   </tr>
   <tr>
     <td>RF-38</td>
-    <td><strong>Adicionar e ordenar campos</strong><br>O profissional adiciona campos ao formulário (texto, número, data, seleção, imagem, arquivo, etc.), define rótulo, obrigatoriedade e ordem de exibição.</td>
-    <td>Pós-MVP</td>
+    <td><strong>Adicionar e ordenar campos</strong><br>O profissional adiciona campos ao formulário (texto, número, data, seleção, etc.), define rótulo, obrigatoriedade e ordem de exibição. Campos de imagem e arquivo são Pós-MVP.</td>
+    <td>MVP</td>
   </tr>
   <tr>
     <td>RF-39</td>
-    <td><strong>Editar e excluir modelo de formulário</strong><br>O profissional pode atualizar ou remover um modelo de formulário e seus campos.</td>
-    <td>Pós-MVP</td>
+    <td><strong>Editar e excluir modelo de formulário</strong><br>O profissional pode atualizar ou remover um modelo de formulário e seus campos. Cada alteração de campos gera uma nova versão do modelo. Modelos com submissões são arquivados em vez de removidos (RN-21).</td>
+    <td>MVP</td>
   </tr>
   <tr>
     <td>RF-40</td>
-    <td><strong>Aplicar formulário a uma entidade</strong><br>O profissional aplica um modelo de formulário a um cliente, serviço ou plano específico e preenche as respostas.</td>
-    <td>Pós-MVP</td>
+    <td><strong>Preencher formulário de uma entidade</strong><br>Na ficha de um cliente ou serviço, o profissional escolhe um modelo do mesmo tipo e preenche uma nova submissão, ou cria um novo modelo com o tipo já preenchido. A mesma entidade pode ter várias submissões datadas do mesmo modelo. Submissões em planos são Pós-MVP.</td>
+    <td>MVP</td>
   </tr>
   <tr>
     <td>RF-41</td>
-    <td><strong>Editar respostas de formulário aplicado</strong><br>O profissional pode atualizar as respostas de um formulário já aplicado a uma entidade.</td>
-    <td>Pós-MVP</td>
+    <td><strong>Editar submissão de formulário</strong><br>O profissional pode atualizar as respostas de uma submissão existente, que permanece vinculada à versão do modelo em que foi preenchida.</td>
+    <td>MVP</td>
   </tr>
   <tr>
     <td>RF-42</td>
-    <td><strong>Visualizar formulários de uma entidade</strong><br>Na ficha de um cliente, serviço ou plano, o profissional visualiza todos os formulários aplicados e suas respostas.</td>
-    <td>Pós-MVP</td>
+    <td><strong>Visualizar submissões de uma entidade</strong><br>Na ficha de um cliente ou serviço, o profissional visualiza todas as submissões e suas respostas.</td>
+    <td>MVP</td>
   </tr>
 </table>
 
@@ -1121,7 +1121,7 @@ Não deve ser permitido cadastrar dois clientes com o mesmo e-mail dentro do mes
 
 ### RN-05: Exclusão de clientes
 
-Clientes que possuam histórico de atendimentos ou pagamentos (e, quando as funcionalidades Pós-MVP existirem, planos ou formulários aplicados) não devem ser removidos definitivamente do sistema.
+Clientes que possuam histórico de atendimentos, pagamentos ou submissões de formulário (e, quando a funcionalidade Pós-MVP existir, planos) não devem ser removidos definitivamente do sistema.
 
 Nesses casos, o cliente deve ser apenas inativado, preservando o histórico necessário para consultas futuras, relatórios e controle financeiro.
 
@@ -1135,7 +1135,7 @@ Um procedimento deve possuir, no mínimo, nome, duração estimada e valor padr�
 
 O valor padrão de um procedimento não pode ser negativo.
 
-Procedimentos vinculados a agendamentos, planos ou histórico financeiro não devem ser excluídos definitivamente; devem ser inativados.
+Procedimentos vinculados a agendamentos, planos, submissões de formulário ou histórico financeiro não devem ser excluídos definitivamente; devem ser inativados.
 
 ---
 
@@ -1281,25 +1281,27 @@ Credenciais de integração, quando utilizadas, devem ser armazenadas de forma s
 
 ---
 
-### RN-20: Formulários personalizados [Pós-MVP]
+### RN-20: Formulários personalizados
 
 Todo modelo de formulário deve pertencer a um tenant.
 
-Um modelo de formulário deve possuir nome e uma entidade-alvo sugerida, como cliente, serviço ou plano.
+Um modelo de formulário deve possuir nome e um tipo obrigatório, cliente ou serviço. O tipo determina em quais fichas o modelo é oferecido.
 
-Campos obrigatórios definidos em um formulário devem ser preenchidos antes que o formulário aplicado seja salvo.
+Campos obrigatórios definidos em um formulário devem ser preenchidos antes que a submissão seja salva.
 
 A ordem dos campos definida pelo profissional deve ser preservada na exibição do formulário.
 
 ---
 
-### RN-21: Aplicação de formulários [Pós-MVP]
+### RN-21: Submissões de formulário
 
-Um formulário personalizado pode ser aplicado a uma entidade compatível, como cliente, serviço ou plano.
+Uma submissão é uma cópia preenchida de um modelo de formulário, vinculada a uma entidade do mesmo tipo do modelo (cliente ou serviço). Uma entidade pode ter várias submissões datadas do mesmo modelo.
 
-As respostas preenchidas devem permanecer vinculadas à entidade em que o formulário foi aplicado.
+Somente o profissional preenche submissões; clientes não acessam formulários.
 
-Alterações futuras no modelo do formulário não devem apagar automaticamente respostas já registradas.
+As respostas preenchidas devem permanecer vinculadas à entidade da submissão.
+
+Alterações futuras no modelo do formulário não devem apagar nem alterar submissões já registradas: cada alteração de campos gera uma nova versão do modelo, e a submissão permanece vinculada à versão em que foi preenchida.
 
 ---
 
@@ -1391,7 +1393,7 @@ O sistema não se integra a prontuários eletrônicos, sistemas do CFM, TISS ou 
 O sistema não oferece email marketing, campanhas promocionais, cupons de desconto, automações de vendas ou ferramentas de CRM voltadas a captação de novos clientes.
 
 > [!NOTE]
-> Os itens desta seção **não serão implementados** em nenhuma fase. Funcionalidades planejadas mas adiadas (notificações, formulários personalizados, planos etc.) não são "fora de escopo": estão classificadas como Pós-MVP na [Tabela MVP × Pós-MVP](#27-tabela-mvp--pós-mvp).
+> Os itens desta seção **não serão implementados** em nenhuma fase. Funcionalidades planejadas mas adiadas (notificações, anexos em formulários, planos etc.) não são "fora de escopo": estão classificadas como Pós-MVP na [Tabela MVP × Pós-MVP](#27-tabela-mvp--pós-mvp).
 
 <!-- #endregion -->
 
@@ -1412,7 +1414,7 @@ Fonte canônica da fase de cada área do produto. Em caso de divergência entre 
 | Pagamentos | Registro manual de pagamento e status | Integração com gateways, cobrança online, conciliação automática |
 | Financeiro | Resumo básico por período | Exportações avançadas, comparativos, rankings e dashboards completos |
 | Notificações | Feedbacks internos simples da aplicação; e-mail transacional de conta via AWS SES (verificação de e-mail e recuperação de senha) | Notificações automáticas de agendamento por e-mail, WhatsApp, templates e webhooks |
-| Formulários | Campos fixos mínimos | Formulários personalizados completos com anexos |
+| Formulários | Formulários personalizados de clientes e serviços: modelos versionados, campos sem anexos e submissões preenchidas pelo profissional | Campos de imagem e arquivo, formulários em planos |
 | Personalização | — | Ocupação profissional e labels customizadas |
 | Arquitetura | NestJS modular, Next.js, PostgreSQL e RLS; AWS S3 para foto de perfil | RabbitMQ, arquitetura distribuída, microservices, workers complexos, CQRS/event-driven |
 | Qualidade | TDD, 75% backend, 25% frontend, SonarCloud e CI/CD | Observabilidade avançada e quality gates mais rigorosos |
@@ -1432,7 +1434,8 @@ Ligação entre problema, requisito, fluxo, tela, regra de negócio, KPI e teste
 | Profissional precisa organizar serviços ofertados | RF-11–RF-13 | Criar serviço (UC-12) | Tela de serviços (pendente) | RN-06 | Serviço criado sem auxílio em < 2 min | Critério 3.3.2 + teste de integração de serviços |
 | Profissional precisa controlar horários disponíveis | RF-18–RF-22, RF-25 | Configurar agenda e agendar (UC-21–UC-26, UC-30) | Tela de agenda (pendente) | RN-09, RN-10, RN-12 | Agendamento em < 5 min e < 5 cliques | Critério 3.3.3 + testes de concorrência de conflito |
 | Cliente precisa solicitar horário sem conta | RF-23, RF-24 | Link público (UC-27–UC-29) | Tela pública de agendamento (pendente) | RN-11 | Solicitação concluída sem instruções | Critério 3.3.4 + teste E2E do link público |
-| Profissional precisa controlar recebimentos | RF-26–RF-29 | Registrar pagamento e consultar financeiro (UC-31–UC-34) | Tela de pagamento/financeiro (pendente) | RN-13, RN-14, RN-15 | Consulta financeira compreendida na validação | Critério 3.3.5 + teste de integração de pagamentos |
+| Profissional precisa controlar recebimentos
+| Profissional precisa registrar dados específicos do seu atendimento | RF-37–RF-42 | Criar modelo e preencher formulário (UC-42–UC-48) | Telas de formulários (pendente) | RN-20, RN-21 | A definir | Critérios de aceite das specs de formulários + teste de integração de isolamento entre tenants | | RF-26–RF-29 | Registrar pagamento e consultar financeiro (UC-31–UC-34) | Tela de pagamento/financeiro (pendente) | RN-13, RN-14, RN-15 | Consulta financeira compreendida na validação | Critério 3.3.5 + teste de integração de pagamentos |
 
 <!-- #endregion -->
 
@@ -1858,9 +1861,9 @@ Após concluir o setup do negócio, o usuário acessa a área principal do siste
 - **Agenda:** visualizar e editar agendamentos, consultar horários, procedimentos e localização;
 - **Clientes:** buscar clientes, visualizar registros e criar novos cadastros;
 - **Procedimentos/Consultas:** visualizar serviços cadastrados, adicionar novos procedimentos, excluir ou expandir categorias;
-- **Formulários (Pós-MVP):** visualizar formulários cadastrados e criar novos modelos.
+- **Formulários:** visualizar formulários cadastrados e criar novos modelos.
 
-**Requisitos relacionados:** RF-07 a RF-13, RF-18 a RF-29 (MVP); RF-37 a RF-42 (Pós-MVP).
+**Requisitos relacionados:** RF-07 a RF-13, RF-18 a RF-29, RF-37 a RF-42 (MVP).
 
 ---
 
@@ -1877,6 +1880,8 @@ Após concluir o setup do negócio, o usuário acessa a área principal do siste
 | Link público | Sim | Sim | vazio/erro/confirmação | Pendente (mockup) |
 | Pagamento manual | Sim | Sim | erro/sucesso | Pendente (mockup) |
 | Financeiro básico | Sim | Sim | vazio/loading | Pendente (mockup) |
+| Modelos de formulário | Sim | Sim | vazio/erro/sucesso | Pendente (mockup) |
+| Preenchimento de formulário | Sim | Sim | vazio/erro/sucesso | Pendente (mockup) |
 
 > [!WARNING]
 > **Tarefas pendentes de UX (não inventar evidências):**
@@ -1992,7 +1997,7 @@ Cada uma é composta por módulos com responsabilidades bem delimitadas.
  
 A interface web do Planici é construída em Next.js com abordagem mobile-first. É dividida em três zonas funcionais:
  
-**Área autenticada**: acessível apenas ao profissional logado. No MVP, concentra os módulos de agenda, clientes, serviços e visão financeira básica (planos e formulários personalizados são Pós-MVP). Todas as operações nessa zona exigem um token JWT válido e vínculo com um tenant ativo.
+**Área autenticada**: acessível apenas ao profissional logado. No MVP, concentra os módulos de agenda, clientes, serviços, formulários personalizados e visão financeira básica (planos são Pós-MVP). Todas as operações nessa zona exigem um token JWT válido e vínculo com um tenant ativo.
  
 **Fluxo de onboarding**: cobre o registro de conta, login (e-mail/senha e OAuth), recuperação de senha e criação ou seleção de tenant (a personalização de labels é Pós-MVP). É o caminho obrigatório antes de qualquer acesso à área autenticada.
  
@@ -2012,7 +2017,7 @@ Para que o RLS funcione com a API stateless e pool de conexões, o `tenant_id` a
 
 A proteção contra overbooking (RN-10, Fluxo 1) não depende apenas da validação na camada de aplicação, pois duas requisições simultâneas — por exemplo, uma do link público e outra do profissional — poderiam passar pela checagem antes de qualquer gravação. A garantia é dada no nível do banco: uma constraint de exclusão por range de tempo por profissional (`EXCLUDE USING gist` sobre `tstzrange` de início/fim, combinada ao `profissional_id` via extensão `btree_gist`) impede a persistência de dois agendamentos sobrepostos para o mesmo profissional. Em alternativa ou complemento, a criação ocorre em transação que aplica `SELECT ... FOR UPDATE` sobre as linhas de disponibilidade/agendamentos do intervalo, serializando concorrentes. A violação da constraint é tratada como conflito de horário e retornada ao solicitante.
  
-**Domain module**: agrupa os cadastros centrais do negócio no MVP: clientes e serviços/procedimentos. Cada entidade segue regras de inativação ao invés de exclusão quando possui histórico vinculado. (Planos/pacotes e formulários personalizados serão incorporados a este módulo na fase Pós-MVP.)
+**Domain module**: agrupa os cadastros centrais do negócio no MVP: clientes, serviços/procedimentos e formulários personalizados. Cada entidade segue regras de inativação ao invés de exclusão quando possui histórico vinculado. (Planos/pacotes serão incorporados a este módulo na fase Pós-MVP.)
  
 **Finance module**: registra e edita pagamentos por atendimento e calcula o resumo de receitas por período. Considera apenas pagamentos com status "pago" na agregação de receita. (Comparativo entre períodos, ranking de procedimentos e exportação de relatórios são Pós-MVP.)
  
@@ -2133,7 +2138,7 @@ NODE_ENV=production
 # 6. Segurança e Privacidade
 
 > [!NOTE]
-> A segurança do Planici é um requisito essencial, pois o sistema armazena informações de profissionais autônomos, clientes, agenda, serviços, pagamentos e configurações do espaço de trabalho (e, no Pós-MVP, planos e formulários personalizados). Como o sistema opera em modelo multi-tenant, a principal preocupação de segurança é garantir que cada profissional ou empresa acesse somente os dados do seu próprio tenant.
+> A segurança do Planici é um requisito essencial, pois o sistema armazena informações de profissionais autônomos, clientes, agenda, serviços, pagamentos, formulários personalizados e configurações do espaço de trabalho (e, no Pós-MVP, planos). Como o sistema opera em modelo multi-tenant, a principal preocupação de segurança é garantir que cada profissional ou empresa acesse somente os dados do seu próprio tenant.
 
 As medidas de segurança do sistema serão organizadas em cinco frentes principais:
 
@@ -2236,7 +2241,8 @@ Algumas informações exigem cuidado especial, como:
 - tokens de recuperação de senha;
 - dados pessoais de clientes;
 - observações em campos livres;
-- **[Pós-MVP]** credenciais de integração com WhatsApp e respostas de formulários personalizados.
+- respostas de formulários personalizados;
+- **[Pós-MVP]** credenciais de integração com WhatsApp.
 
 Credenciais de integração, quando existirem (Pós-MVP), não devem ser exibidas integralmente após o cadastro e devem ser criptografadas em repouso ou armazenadas em serviço seguro de secrets. Tokens temporários, como recuperação de senha ou verificação de e-mail, devem possuir expiração e não devem ser reutilizáveis após o uso.
 
@@ -2340,7 +2346,8 @@ O sistema poderá coletar e armazenar os seguintes dados:
 - telefone;
 - observações;
 - histórico de atendimentos;
-- **[Pós-MVP]** preferências de notificação, respostas de formulários personalizados e arquivos ou imagens anexadas.
+- respostas de formulários personalizados;
+- **[Pós-MVP]** preferências de notificação e arquivos ou imagens anexadas.
 
 #### Dados de agenda e atendimento
 
@@ -2372,6 +2379,7 @@ Os dados serão tratados para permitir que o profissional utilize as funcionalid
 - criação e acompanhamento de agendamentos;
 - controle de pagamentos;
 - visão financeira básica;
+- criação de formulários personalizados e registro de suas respostas;
 - **[Pós-MVP]** envio de notificações de confirmação, lembrete, cancelamento ou remarcação; planos/pacotes; relatórios avançados; personalização da experiência da aplicação.
 
 O Planici não deverá utilizar os dados para finalidades incompatíveis com o funcionamento do sistema sem base legal adequada (art. 7 da LGPD).
@@ -2415,11 +2423,12 @@ Como o Planici se destina, entre outros, a terapeutas, nutricionistas, psicólog
 
 Por isso, o sistema deverá:
 
-- **reconhecer expressamente** que campos livres e observações (e, no Pós-MVP, respostas de formulários personalizados) podem conter dados sensíveis de saúde;
+- **reconhecer expressamente** que campos livres, observações e respostas de formulários personalizados podem conter dados sensíveis de saúde;
 - coletar **consentimento específico e destacado** (art. 11, I) do titular para o tratamento desses dados, quando aplicável, separado do aceite geral dos Termos/Política;
-- aplicar **criptografia em repouso obrigatória** às observações que possam conter dados sensíveis (e às respostas de formulários, quando existirem);
+- em formulários de cliente, exigir que o profissional, na qualidade de controlador, ateste uma vez por cliente e antes da primeira submissão que obteve esse consentimento, registrando autor, data e versão do texto, já que o titular não acessa o Planici;
+- aplicar **criptografia em repouso obrigatória** às observações que possam conter dados sensíveis e às respostas de formulários;
 - evitar solicitar dados sensíveis por padrão e indicar que campos livres devem ser usados apenas quando necessário;
-- **[Pós-MVP]** permitir que o profissional defina quais informações serão coletadas nos formulários e proteger as respostas com as mesmas regras de autenticação, autorização e isolamento por tenant;
+- permitir que o profissional defina quais informações serão coletadas nos formulários e proteger as respostas com as mesmas regras de autenticação, autorização e isolamento por tenant;
 - elaborar **Relatório de Impacto à Proteção de Dados Pessoais (RIPD/DPIA, art. 38)** antes do tratamento em larga escala de dados sensíveis;
 - deixar claro que o Planici não substitui prontuários eletrônicos, sistemas médicos regulamentados ou documentos clínicos oficiais.
 
@@ -2542,7 +2551,7 @@ O Planici adotará medidas de privacidade desde a concepção do sistema:
 # 7. Planejamento do Projeto
 
 > [!NOTE]
-> O cronograma entrega um **MVP enxuto e validável** (autenticação + tenant + clientes + serviços + agenda + link público + pagamentos manuais + financeiro básico). Funcionalidades Pós-MVP (notificações, formulários personalizados, planos, multiusuário) não possuem marco de entrega. Os testes são distribuídos ao longo dos marcos com **TDD nos fluxos críticos**: o gate de testes obrigatório no CI/CD e o quality gate do SonarCloud (RNF-20) vigoram desde M1, mantendo a cobertura mínima de 75% no backend e 25% no frontend (RNF-19). Entregáveis de segurança, acessibilidade e LGPD são embutidos por marco, em vez de revisados apenas no encerramento.
+> O cronograma entrega um **MVP enxuto e validável** (autenticação + tenant + clientes + serviços + agenda + link público + pagamentos manuais + financeiro básico + formulários personalizados). Funcionalidades Pós-MVP (notificações, anexos em formulários, planos, multiusuário) não possuem marco de entrega. Os testes são distribuídos ao longo dos marcos com **TDD nos fluxos críticos**: o gate de testes obrigatório no CI/CD e o quality gate do SonarCloud (RNF-20) vigoram desde M1, mantendo a cobertura mínima de 75% no backend e 25% no frontend (RNF-19). Entregáveis de segurança, acessibilidade e LGPD são embutidos por marco, em vez de revisados apenas no encerramento.
 
 | Marco | Descrição | Prazo |
 |---|---|---|
@@ -2552,6 +2561,7 @@ O Planici adotará medidas de privacidade desde a concepção do sistema:
 | M4 | **Agenda e agendamento manual.** Configuração de disponibilidade (fixa e livre), criação manual de agendamento, edição, cancelamento, bloqueio de horários e visualização diária/semanal. Detecção de conflito/overbooking garantida no banco (constraint `EXCLUDE USING gist` / `SELECT ... FOR UPDATE`). Critério de aceite 3.3.3; testes de concorrência do overbooking (RNF-19). | Semanas 8 e 9 |
 | M5 | **Link público simples.** Página pública de agendamento (cliente externo solicita horário sem conta) e fluxo de confirmação/recusa pelo profissional. Entregáveis de segurança/LGPD: controles anti-abuso (rate limit por slug/janela, slug não enumerável, expiração de pendentes), aviso de privacidade e ciência do cliente final. Critério de aceite 3.3.4; testes do fluxo público. | Semana 10 |
 | M6 | **Pagamento manual e financeiro básico.** Registro de pagamento por atendimento, status de pagamento e resumo de receitas por período. Critério de aceite 3.3.5; módulo crítico com TDD e cobertura mínima (RNF-19); auditoria de operações financeiras. | Semana 11 |
+| M6b | **Formulários personalizados.** Modelos versionados por tipo (cliente ou serviço), campos sem anexos, submissões datadas na ficha do cliente e do serviço, atestado de consentimento por cliente e criptografia das respostas. Depende de M3. RLS validado nas novas tabelas; testes de isolamento entre tenants. | A definir (desloca M7 a M9) |
 | M7 | **UX, acessibilidade e mockups finais.** Revisão de responsividade mobile + desktop/web, estados vazios/erro/loading/confirmação, verificação WCAG 2.1 AA dos fluxos principais (RNF-18) e atualização das evidências visuais no RFC (tabela de cobertura de telas da seção 4.2). | Semana 12 |
 | M8 | **Validação com usuários.** Testes com 3 a 5 profissionais autônomos executando o fluxo central completo (seção 2.9); preenchimento da tabela de evidências e priorização dos ajustes gerados. | Semana 13 |
 | M9 | **Hardening e entrega final.** Teste E2E do fluxo principal, revisão de segurança e validação final de isolamento por tenant, ajustes decorrentes da validação, revisão da documentação e diagramas, deploy público final (`https://planici.co`) e validação pós-MVP com a usuária principal. Checklist final de consistência. | Semana 14 |
