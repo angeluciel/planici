@@ -188,7 +188,7 @@ O nicho principal é no modelo de negócio individual, e não venda de produtos,
 > [!IMPORTANT]
 > **Nota de escopo — entrega acadêmica vs. produto comercial**
 >
-> O Portfólio II entregará um MVP acadêmico funcional focado no fluxo essencial de gestão de agenda, clientes, serviços, pagamentos manuais e visão financeira básica. Funcionalidades comerciais mais amplas, como planos pagos, múltiplos usuários, integrações com WhatsApp, formulários avançados, automações e arquitetura distribuída, são tratadas como evolução futura e não compõem o escopo obrigatório da entrega acadêmica. A visão de produto descrita nesta seção (versão gratuita/paga, personalização completa de tema) é direcionamento comercial futuro, não compromisso do MVP.
+> O Portfólio II entregará um MVP acadêmico funcional focado no fluxo essencial de gestão de agenda, clientes, serviços, pagamentos manuais e visão financeira básica. Funcionalidades comerciais mais amplas, como planos pagos, múltiplos usuários, integrações com WhatsApp, anexos em formulários, automações e arquitetura distribuída, são tratadas como evolução futura e não compõem o escopo obrigatório da entrega acadêmica. A visão de produto descrita nesta seção (versão gratuita/paga, personalização completa de tema) é direcionamento comercial futuro, não compromisso do MVP.
 
 <!-- #endregion-->
 
@@ -240,7 +240,7 @@ Oferecer aos profissionais autônomos de serviços personalizados uma ferramenta
 - Aplicar TDD nos fluxos críticos, com cobertura mínima de 75% no backend e 25% no frontend, análise estática contínua via SonarCloud e deploy público documentado.
 - Entregar uma aplicação responsiva e de alta usabilidade, com tempo de carregamento das páginas principais inferior a 2 segundos em conexão 4G e fluxos essenciais concluídos em menos de 5 cliques.
 
-> **Evolução futura (fora do MVP):** notificações automáticas por e-mail/WhatsApp, formulários personalizados, personalização de labels por ocupação profissional, planos/pacotes de serviços, comparativos e rankings financeiros, exportação de relatórios, multiusuário por tenant e arquitetura distribuída serão avaliados em fases posteriores, caso a necessidade seja validada. Ver [Tabela MVP × Pós-MVP](#27-tabela-mvp--pós-mvp).
+> **Evolução futura (fora do MVP):** notificações automáticas por e-mail/WhatsApp, anexos em formulários personalizados, personalização de labels por ocupação profissional, planos/pacotes de serviços, comparativos e rankings financeiros, exportação de relatórios, multiusuário por tenant e arquitetura distribuída serão avaliados em fases posteriores, caso a necessidade seja validada. Ver [Tabela MVP × Pós-MVP](#27-tabela-mvp--pós-mvp).
  
 
 
