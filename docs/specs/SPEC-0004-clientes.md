@@ -3,8 +3,8 @@ id: SPEC-0004
 title: Cadastro de clientes
 status: Draft # Draft | Review | Approved | Implemented | Superseded
 plan_status: Draft # Draft | Approved
-version: 0.2
-owner: TBD
+version: 0.7
+owner: Joao Izidoro
 satisfies: [RF-07, RF-08, RF-09, RN-02, RN-04, RN-05, RN-24, RN-25]
 depends_on: [SPEC-0001, SPEC-0002, SPEC-0003]
 phase: MVP
@@ -54,8 +54,8 @@ information that professional needs (RFC §1, problem statement; §2.2.2, UC-07�
   characters. (RF-09)
 - **R10.** The list is sorted by name (ignoring case and accents), then by creation order. (`assumption`)
 - **R11.** Every tenant has a client template named "Cliente" containing only the client system
-  fields, from the moment the tenant exists. It is an ordinary template: editable, archivable, deletable while
-  unused. Existing tenants get it too. (owner decision, forms-overview.md D-6)
+  fields, from the moment the tenant exists. It is an ordinary template: editable, archivable and deletable under
+  the same rules as any other template (SPEC-0001 R8). Existing tenants get it too. (owner decision, forms-overview.md D-6)
 
 ## 4. Behavior
 
@@ -90,6 +90,9 @@ in the template's position and with its labels.
    with the hint "Clientes com histórico não podem ser excluídos".
 2. The dialog asks the professional to type the client's name. On confirm, the client and all its values are
    removed permanently and the professional returns to `/clients` with the toast "Cliente excluído".
+3. Clients are also deleted, without their own dialog, when the professional deletes their template and chooses
+   "Sim, excluir tudo" (SPEC-0001 §4.6). That option is offered only when no client of the template has linked
+   history (R7). If any of them has, the template can only be archived, and no client is deleted (SPEC-0001 R8).
 
 ## 5. Permissions and tenant isolation
 
@@ -110,7 +113,7 @@ Value errors for custom fields are in SPEC-0003 §6.
 | Situation | Status | `error` key | `field` |
 | --- | --- | --- | --- |
 | Name missing or blank | 422 | `clientName.required` | `name` |
-| Name over 120 characters | 422 | `clientName.too-long` | `name` |
+| Name over 120 characters | 422 | `clientName.max` | `name` |
 | E-mail missing or blank | 422 | `email.required` (existing) | `email` |
 | E-mail invalid | 422 | `email.invalid` (existing) | `email` |
 | Phone required by template and missing | 422 | `phone.required` | `phone` |
@@ -119,7 +122,7 @@ Value errors for custom fields are in SPEC-0003 §6.
 | Client unknown or in another tenant | 404 | `client.not-found` | — |
 | Delete with linked history | 409 | `client.has-history` | — |
 | Inactivate an inactive / reactivate an active client | 409 | `client.status-unchanged` | — |
-| Search query of 1 character | 422 | `clientSearch.too-short` | `q` |
+| Search query of 1 character | 422 | `clientSearch.min` | `q` |
 | `limit` outside 1–100 or not an integer | 422 | `limit.invalid` | `limit` |
 | Cursor malformed, or issued for other filters | 422 | `cursor.invalid` | `after` |
 
@@ -127,7 +130,7 @@ Value errors for custom fields are in SPEC-0003 §6.
 
 New, non-breaking. Consumers: `apps/web`.
 
-- **Client** (response): `id`, `form` (`{ id, name, version, status }`), `name`, `email`, `phone` (string | null),
+- **Client** (response): `id`, `form` (`{ id, name, version, latestVersion, status }`), `name`, `email`, `phone` (string | null),
   `values`, `missingRequired`, `status` (`active | inactive`), `hasHistory` (bool), `createdAt`, `updatedAt`.
 - **ClientSummary** (list item): `id`, `name`, `email`, `phone`, `formId`, `formName`, `status`.
 - **List**: query `q?`, `status?` (`active` default, `inactive`, `all`), `limit?`, `after?` (`api-convention.md`, Pagination;
@@ -162,12 +165,13 @@ New, non-breaking. Consumers: `apps/web`.
 
 | # | Question | Proposed answer | Blocks |
 | --- | --- | --- | --- |
+| 7 | Should `/clients` search also match the phone number (digits only, e.g. "98765")? Telefone was made a locked field so clients are easier to find by it (D-14), but RF-09 searches only name and e-mail. | Yes: match the normalised digits, from 4 digits. Amend RF-09. | R9 |
 | 1 | Does e-mail uniqueness count inactive clients (R5)? | Yes; the error copy suggests checking "Inativos". | R5 |
 | 2 | ~~Default "Cliente" template.~~ | **Decided (D-6):** yes. | — |
 | 3 | Contract `inactive` vs `record_status` `suspended`. | Add `inactive` to the client status in data modelling; `suspended` is a tenant concept. | modelling |
 | 4 | ~~Pagination.~~ | **Decided (D-9):** `limit` + `after` (`api-convention.md`). | — |
 | 5 | RF-08 says deleting a client with history "results in inactivation". Here the UI offers "Inativar" instead and the API returns 409. Acceptable? | Yes: same outcome for the user, no silent change of meaning. | R7 |
-| 6 | E-mail required (RN-04) vs. clients without e-mail. | See SPEC-0002 Q-3. | R3 |
+| 6 | E-mail required (RN-04) vs. clients without e-mail. | See SPEC-0001 §9 Q12 (decided: keep it required, per RN-04). | R3 |
 
 ## 10. Acceptance criteria
 
@@ -367,3 +371,8 @@ Written by `/plan` after the spec is Approved. Empty until then.
 | --- | --- | --- |
 | 0.1 | 2026-11-09 | Draft |
 | 0.2 | 2026-11-09 | Owner answers D-6, D-9 recorded; AC-0004-01 agreed; AC-0004-21 to -23 (pagination) added |
+| 0.3 | 2026-11-09 | `form` in the response gains `latestVersion` (template versioning, SPEC-0001 v0.3) |
+| 0.4 | 2026-11-09 | Owner Joao Izidoro set. Clients can be deleted together with their template (SPEC-0001 D-13); Q7 (search by phone) added |
+| 0.5 | 2026-11-09 | Aligned with SPEC-0001 v0.5 (owner decision on SPEC-0001 Q7): deleting a template with its clients is offered only when none has linked history (§4.5); R11 says the default "Cliente" template follows SPEC-0001 R8 |
+| 0.6 | 2026-11-09 | Owner decision (SPEC-0001 review round 2): length keys use `.max` / `.min` (`clientName.max`, `clientSearch.min`) |
+| 0.7 | 2026-11-09 | §9 Q6 points to SPEC-0001 §9 Q12, where the e-mail question moved |

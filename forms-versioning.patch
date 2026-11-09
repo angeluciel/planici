@@ -1,0 +1,1429 @@
+diff --git a/docs/RFC-segmented/02-engenharia-de-requisitos.md b/docs/RFC-segmented/02-engenharia-de-requisitos.md
+--- a/docs/RFC-segmented/02-engenharia-de-requisitos.md
++++ b/docs/RFC-segmented/02-engenharia-de-requisitos.md
+@@ -110,9 +110,9 @@
+ | UC-43  | Adicionar e ordenar campos do formulário        | Profissional   | RF-38                   | MVP     |
+ | UC-44  | Editar modelo de formulário                     | Profissional   | RF-39                   | MVP     |
+ | UC-45  | Excluir modelo de formulário                    | Profissional   | RF-39                   | MVP     |
+-| UC-46  | Preencher formulário de cliente ou serviço      | Profissional   | RF-40                   | MVP     |
+-| UC-47  | Editar submissão de formulário                  | Profissional   | RF-41                   | MVP     |
+-| UC-48  | Visualizar submissões de uma entidade           | Profissional   | RF-42                   | MVP     |
++| UC-46  | Cadastrar cliente ou serviço a partir de modelo | Profissional   | RF-40                   | MVP     |
++| UC-47  | Editar cadastro feito a partir de modelo        | Profissional   | RF-41                   | MVP     |
++| UC-48  | Visualizar cadastro e versão do modelo          | Profissional   | RF-42                   | MVP     |
+ 
+ ### 2.2.10. Configuração do espaço de trabalho
+ | Código | Caso de uso                      | Ator principal | Requisitos relacionados | Fase    |
+@@ -195,7 +195,7 @@
+   </tr>
+   <tr>
+     <td>RF-08</td>
+-    <td><strong>Editar, inativar e excluir cliente</strong><br>O profissional pode atualizar os dados de um cliente. A exclusão definitiva só é permitida para clientes <strong>sem</strong> histórico vinculado (atendimentos, pagamentos e submissões de formulário; planos quando essa funcionalidade Pós-MVP existir). Clientes <strong>com</strong> histórico vinculado não são removidos fisicamente: a operação resulta em inativação (soft delete), preservando o histórico para consultas, relatórios e controle financeiro. Conforme RN-05 e RN-24.</td>
++    <td><strong>Editar, inativar e excluir cliente</strong><br>O profissional pode atualizar os dados de um cliente. A exclusão definitiva só é permitida para clientes <strong>sem</strong> histórico vinculado (atendimentos e pagamentos; planos quando essa funcionalidade Pós-MVP existir). Clientes <strong>com</strong> histórico vinculado não são removidos fisicamente: a operação resulta em inativação (soft delete), preservando o histórico para consultas, relatórios e controle financeiro. Conforme RN-05 e RN-24.</td>
+     <td>MVP</td>
+   </tr>
+   <tr>
+@@ -226,7 +226,7 @@
+   </tr>
+   <tr>
+     <td>RF-12</td>
+-    <td><strong>Editar, inativar e excluir procedimento</strong><br>O profissional pode atualizar um procedimento do catálogo. A exclusão definitiva só é permitida para procedimentos <strong>sem</strong> vínculo a agendamentos, planos, submissões de formulário ou histórico financeiro. Procedimentos <strong>com</strong> esse vínculo não são removidos fisicamente: a operação resulta em inativação (soft delete), impedindo novos usos e preservando o histórico. Conforme RN-06 e RN-24.</td>
++    <td><strong>Editar, inativar e excluir procedimento</strong><br>O profissional pode atualizar um procedimento do catálogo. A exclusão definitiva só é permitida para procedimentos <strong>sem</strong> vínculo a agendamentos, planos ou histórico financeiro. Procedimentos <strong>com</strong> esse vínculo não são removidos fisicamente: a operação resulta em inativação (soft delete), impedindo novos usos e preservando o histórico. Conforme RN-06 e RN-24.</td>
+     <td>MVP</td>
+   </tr>
+   <tr>
+@@ -427,22 +427,22 @@
+   </tr>
+   <tr>
+     <td>RF-39</td>
+-    <td><strong>Editar e excluir modelo de formulário</strong><br>O profissional pode atualizar ou remover um modelo de formulário e seus campos. Cada alteração de campos gera uma nova versão do modelo. Modelos com submissões são arquivados em vez de removidos (RN-21).</td>
++    <td><strong>Editar e excluir modelo de formulário</strong><br>O profissional pode atualizar ou remover um modelo de formulário e seus campos. Alterações de estrutura (campos adicionados ou removidos, tipo, obrigatoriedade, opções de seleção e ordem) publicam uma nova versão do modelo. Nome, descrição, rótulos, textos de ajuda, nomes de opções e a marcação de dado protegido são compartilhados por todas as versões e não geram versão. Modelos com cadastros vinculados são arquivados em vez de removidos (RN-21).</td>
+     <td>MVP</td>
+   </tr>
+   <tr>
+     <td>RF-40</td>
+-    <td><strong>Preencher formulário de uma entidade</strong><br>Na ficha de um cliente ou serviço, o profissional escolhe um modelo do mesmo tipo e preenche uma nova submissão, ou cria um novo modelo com o tipo já preenchido. A mesma entidade pode ter várias submissões datadas do mesmo modelo. Submissões em planos são Pós-MVP.</td>
++    <td><strong>Cadastrar a partir de um modelo</strong><br>Ao criar um cliente ou serviço, o profissional escolhe um modelo ativo do mesmo tipo, ou cria um novo modelo com o tipo já preenchido, e preenche seus campos. O cadastro fica vinculado à versão publicada mais recente do modelo no momento da criação. Cada cliente ou serviço é criado a partir de um único modelo. Cadastros em planos são Pós-MVP.</td>
+     <td>MVP</td>
+   </tr>
+   <tr>
+     <td>RF-41</td>
+-    <td><strong>Editar submissão de formulário</strong><br>O profissional pode atualizar as respostas de uma submissão existente, que permanece vinculada à versão do modelo em que foi preenchida.</td>
++    <td><strong>Editar cadastro feito a partir de modelo</strong><br>O profissional pode atualizar os dados de um cliente ou serviço. Os dados são exibidos e validados conforme a versão do modelo à qual o cadastro está vinculado.</td>
+     <td>MVP</td>
+   </tr>
+   <tr>
+     <td>RF-42</td>
+-    <td><strong>Visualizar submissões de uma entidade</strong><br>Na ficha de um cliente ou serviço, o profissional visualiza todas as submissões e suas respostas.</td>
++    <td><strong>Visualizar cadastro</strong><br>Na ficha de um cliente ou serviço, o profissional visualiza os dados preenchidos conforme a versão do modelo vinculada, com o nome e a versão do modelo.</td>
+     <td>MVP</td>
+   </tr>
+ </table>
+@@ -773,7 +773,7 @@
+ 
+ ### RN-05: Exclusão de clientes
+ 
+-Clientes que possuam histórico de atendimentos, pagamentos ou submissões de formulário (e, quando a funcionalidade Pós-MVP existir, planos) não devem ser removidos definitivamente do sistema.
++Clientes que possuam histórico de atendimentos ou pagamentos (e, quando a funcionalidade Pós-MVP existir, planos) não devem ser removidos definitivamente do sistema.
+ 
+ Nesses casos, o cliente deve ser apenas inativado, preservando o histórico necessário para consultas futuras, relatórios e controle financeiro.
+ 
+@@ -787,7 +787,7 @@
+ 
+ O valor padrão de um procedimento não pode ser negativo.
+ 
+-Procedimentos vinculados a agendamentos, planos, submissões de formulário ou histórico financeiro não devem ser excluídos definitivamente; devem ser inativados.
++Procedimentos vinculados a agendamentos, planos ou histórico financeiro não devem ser excluídos definitivamente; devem ser inativados.
+ 
+ ---
+ 
+@@ -939,21 +939,25 @@
+ 
+ Um modelo de formulário deve possuir nome e um tipo obrigatório, cliente ou serviço. O tipo determina em quais fichas o modelo é oferecido.
+ 
+-Campos obrigatórios definidos em um formulário devem ser preenchidos antes que a submissão seja salva.
++Campos obrigatórios definidos em um formulário devem ser preenchidos antes que o cadastro seja salvo.
+ 
+ A ordem dos campos definida pelo profissional deve ser preservada na exibição do formulário.
+ 
+ ---
+ 
+-### RN-21: Submissões de formulário
++### RN-21: Versões de modelo e cadastros
+ 
+-Uma submissão é uma cópia preenchida de um modelo de formulário, vinculada a uma entidade do mesmo tipo do modelo (cliente ou serviço). Uma entidade pode ter várias submissões datadas do mesmo modelo.
++Um cadastro (cliente ou serviço) é criado a partir de um modelo do mesmo tipo e fica vinculado a uma versão publicada desse modelo. Cada cadastro está vinculado a exatamente um modelo.
+ 
+-Somente o profissional preenche submissões; clientes não acessam formulários.
++Somente o profissional preenche cadastros; clientes não acessam formulários.
+ 
+-As respostas preenchidas devem permanecer vinculadas à entidade da submissão.
++Salvar um modelo novo publica a versão 1. Aplicar uma alteração de estrutura publica a versão seguinte. Versões publicadas são imutáveis e mantidas enquanto o modelo existir.
+ 
+-Alterações futuras no modelo do formulário não devem apagar nem alterar submissões já registradas: cada alteração de campos gera uma nova versão do modelo, e a submissão permanece vinculada à versão em que foi preenchida.
++Cadastros novos usam a versão publicada mais recente. Cadastros existentes são exibidos e validados conforme a versão a que estão vinculados.
++
++Ao publicar uma versão de um modelo que já tem cadastros, o profissional escolhe entre manter os cadastros nas versões em que estão ou atualizar todos para a nova versão. A atualização é explícita e ocorre por completo ou não ocorre. Respostas de campos removidos só são excluídas após confirmação com digitação do nome do modelo (RN-25). Cadastros atualizados que não tenham valor para um novo campo obrigatório ficam com preenchimento pendente até o próximo salvamento.
++
++Fora dessa escolha explícita, alterações futuras no modelo do formulário não devem apagar nem alterar cadastros já registrados.
+ 
+ ---
+ 
+@@ -1066,7 +1070,7 @@
+ | Pagamentos | Registro manual de pagamento e status | Integração com gateways, cobrança online, conciliação automática |
+ | Financeiro | Resumo básico por período | Exportações avançadas, comparativos, rankings e dashboards completos |
+ | Notificações | Feedbacks internos simples da aplicação; e-mail transacional de conta via AWS SES (verificação de e-mail e recuperação de senha) | Notificações automáticas de agendamento por e-mail, WhatsApp, templates e webhooks |
+-| Formulários | Formulários personalizados de clientes e serviços: modelos versionados, campos sem anexos e submissões preenchidas pelo profissional | Campos de imagem e arquivo, formulários em planos |
++| Formulários | Formulários personalizados de clientes e serviços: modelos versionados, campos sem anexos e cadastros de clientes e serviços preenchidos pelo profissional | Campos de imagem e arquivo, formulários em planos |
+ | Personalização | — | Ocupação profissional e labels customizadas |
+ | Arquitetura | NestJS modular, Next.js, PostgreSQL e RLS; AWS S3 para foto de perfil | RabbitMQ, arquitetura distribuída, microservices, workers complexos, CQRS/event-driven |
+ | Qualidade | TDD, 75% backend, 25% frontend, SonarCloud e CI/CD | Observabilidade avançada e quality gates mais rigorosos |
+diff --git a/docs/RFC-segmented/06-seguranca-e-privacidade.md b/docs/RFC-segmented/06-seguranca-e-privacidade.md
+--- a/docs/RFC-segmented/06-seguranca-e-privacidade.md
++++ b/docs/RFC-segmented/06-seguranca-e-privacidade.md
+@@ -288,7 +288,7 @@
+ 
+ - **reconhecer expressamente** que campos livres, observações e respostas de formulários personalizados podem conter dados sensíveis de saúde;
+ - coletar **consentimento específico e destacado** (art. 11, I) do titular para o tratamento desses dados, quando aplicável, separado do aceite geral dos Termos/Política;
+-- em formulários de cliente, exigir que o profissional, na qualidade de controlador, ateste uma vez por cliente e antes da primeira submissão que obteve esse consentimento, registrando autor, data e versão do texto, já que o titular não acessa o Planici;
++- em formulários de cliente, exigir que o profissional, na qualidade de controlador, ateste uma vez por cliente, ao salvar o cadastro pela primeira vez, que obteve esse consentimento, registrando autor, data e versão do texto, já que o titular não acessa o Planici;
+ - aplicar **criptografia em repouso obrigatória** às observações que possam conter dados sensíveis e às respostas de formulários;
+ - evitar solicitar dados sensíveis por padrão e indicar que campos livres devem ser usados apenas quando necessário;
+ - permitir que o profissional defina quais informações serão coletadas nos formulários e proteger as respostas com as mesmas regras de autenticação, autorização e isolamento por tenant;
+diff --git a/docs/RFC-segmented/07-planejamento-do-projeto.md b/docs/RFC-segmented/07-planejamento-do-projeto.md
+--- a/docs/RFC-segmented/07-planejamento-do-projeto.md
++++ b/docs/RFC-segmented/07-planejamento-do-projeto.md
+@@ -11,7 +11,7 @@
+ | M4 | **Agenda e agendamento manual.** Configuração de disponibilidade (fixa e livre), criação manual de agendamento, edição, cancelamento, bloqueio de horários e visualização diária/semanal. Detecção de conflito/overbooking garantida no banco (constraint `EXCLUDE USING gist` / `SELECT ... FOR UPDATE`). Critério de aceite 3.3.3; testes de concorrência do overbooking (RNF-19). | Semanas 8 e 9 |
+ | M5 | **Link público simples.** Página pública de agendamento (cliente externo solicita horário sem conta) e fluxo de confirmação/recusa pelo profissional. Entregáveis de segurança/LGPD: controles anti-abuso (rate limit por slug/janela, slug não enumerável, expiração de pendentes), aviso de privacidade e ciência do cliente final. Critério de aceite 3.3.4; testes do fluxo público. | Semana 10 |
+ | M6 | **Pagamento manual e financeiro básico.** Registro de pagamento por atendimento, status de pagamento e resumo de receitas por período. Critério de aceite 3.3.5; módulo crítico com TDD e cobertura mínima (RNF-19); auditoria de operações financeiras. | Semana 11 |
+-| M6b | **Formulários personalizados.** Modelos versionados por tipo (cliente ou serviço), campos sem anexos, submissões datadas na ficha do cliente e do serviço, atestado de consentimento por cliente e criptografia das respostas. Depende de M3. RLS validado nas novas tabelas; testes de isolamento entre tenants. | A definir (desloca M7 a M9) |
++| M6b | **Formulários personalizados.** Modelos versionados por tipo (cliente ou serviço), campos sem anexos, cadastros de clientes e serviços vinculados à versão do modelo, atestado de consentimento por cliente e criptografia das respostas. Depende de M3. RLS validado nas novas tabelas; testes de isolamento entre tenants. | A definir (desloca M7 a M9) |
+ | M7 | **UX, acessibilidade e mockups finais.** Revisão de responsividade mobile + desktop/web, estados vazios/erro/loading/confirmação, verificação WCAG 2.1 AA dos fluxos principais (RNF-18) e atualização das evidências visuais no RFC (tabela de cobertura de telas da seção 4.2). | Semana 12 |
+ | M8 | **Validação com usuários.** Testes com 3 a 5 profissionais autônomos executando o fluxo central completo (seção 2.9); preenchimento da tabela de evidências e priorização dos ajustes gerados. | Semana 13 |
+ | M9 | **Hardening e entrega final.** Teste E2E do fluxo principal, revisão de segurança e validação final de isolamento por tenant, ajustes decorrentes da validação, revisão da documentação e diagramas, deploy público final (`https://planici.co`) e validação pós-MVP com a usuária principal. Checklist final de consistência. | Semana 14 |
+diff --git a/docs/RFC.md b/docs/RFC.md
+--- a/docs/RFC.md
++++ b/docs/RFC.md
+@@ -458,9 +458,9 @@
+ | UC-43  | Adicionar e ordenar campos do formulário        | Profissional   | RF-38                   | MVP     |
+ | UC-44  | Editar modelo de formulário                     | Profissional   | RF-39                   | MVP     |
+ | UC-45  | Excluir modelo de formulário                    | Profissional   | RF-39                   | MVP     |
+-| UC-46  | Preencher formulário de cliente ou serviço      | Profissional   | RF-40                   | MVP     |
+-| UC-47  | Editar submissão de formulário                  | Profissional   | RF-41                   | MVP     |
+-| UC-48  | Visualizar submissões de uma entidade           | Profissional   | RF-42                   | MVP     |
++| UC-46  | Cadastrar cliente ou serviço a partir de modelo | Profissional   | RF-40                   | MVP     |
++| UC-47  | Editar cadastro feito a partir de modelo        | Profissional   | RF-41                   | MVP     |
++| UC-48  | Visualizar cadastro e versão do modelo          | Profissional   | RF-42                   | MVP     |
+ 
+ ### 2.2.10. Configuração do espaço de trabalho
+ | Código | Caso de uso                      | Ator principal | Requisitos relacionados | Fase    |
+@@ -543,7 +543,7 @@
+   </tr>
+   <tr>
+     <td>RF-08</td>
+-    <td><strong>Editar, inativar e excluir cliente</strong><br>O profissional pode atualizar os dados de um cliente. A exclusão definitiva só é permitida para clientes <strong>sem</strong> histórico vinculado (atendimentos, pagamentos e submissões de formulário; planos quando essa funcionalidade Pós-MVP existir). Clientes <strong>com</strong> histórico vinculado não são removidos fisicamente: a operação resulta em inativação (soft delete), preservando o histórico para consultas, relatórios e controle financeiro. Conforme RN-05 e RN-24.</td>
++    <td><strong>Editar, inativar e excluir cliente</strong><br>O profissional pode atualizar os dados de um cliente. A exclusão definitiva só é permitida para clientes <strong>sem</strong> histórico vinculado (atendimentos e pagamentos; planos quando essa funcionalidade Pós-MVP existir). Clientes <strong>com</strong> histórico vinculado não são removidos fisicamente: a operação resulta em inativação (soft delete), preservando o histórico para consultas, relatórios e controle financeiro. Conforme RN-05 e RN-24.</td>
+     <td>MVP</td>
+   </tr>
+   <tr>
+@@ -574,7 +574,7 @@
+   </tr>
+   <tr>
+     <td>RF-12</td>
+-    <td><strong>Editar, inativar e excluir procedimento</strong><br>O profissional pode atualizar um procedimento do catálogo. A exclusão definitiva só é permitida para procedimentos <strong>sem</strong> vínculo a agendamentos, planos, submissões de formulário ou histórico financeiro. Procedimentos <strong>com</strong> esse vínculo não são removidos fisicamente: a operação resulta em inativação (soft delete), impedindo novos usos e preservando o histórico. Conforme RN-06 e RN-24.</td>
++    <td><strong>Editar, inativar e excluir procedimento</strong><br>O profissional pode atualizar um procedimento do catálogo. A exclusão definitiva só é permitida para procedimentos <strong>sem</strong> vínculo a agendamentos, planos ou histórico financeiro. Procedimentos <strong>com</strong> esse vínculo não são removidos fisicamente: a operação resulta em inativação (soft delete), impedindo novos usos e preservando o histórico. Conforme RN-06 e RN-24.</td>
+     <td>MVP</td>
+   </tr>
+   <tr>
+@@ -775,22 +775,22 @@
+   </tr>
+   <tr>
+     <td>RF-39</td>
+-    <td><strong>Editar e excluir modelo de formulário</strong><br>O profissional pode atualizar ou remover um modelo de formulário e seus campos. Cada alteração de campos gera uma nova versão do modelo. Modelos com submissões são arquivados em vez de removidos (RN-21).</td>
++    <td><strong>Editar e excluir modelo de formulário</strong><br>O profissional pode atualizar ou remover um modelo de formulário e seus campos. Alterações de estrutura (campos adicionados ou removidos, tipo, obrigatoriedade, opções de seleção e ordem) publicam uma nova versão do modelo. Nome, descrição, rótulos, textos de ajuda, nomes de opções e a marcação de dado protegido são compartilhados por todas as versões e não geram versão. Modelos com cadastros vinculados são arquivados em vez de removidos (RN-21).</td>
+     <td>MVP</td>
+   </tr>
+   <tr>
+     <td>RF-40</td>
+-    <td><strong>Preencher formulário de uma entidade</strong><br>Na ficha de um cliente ou serviço, o profissional escolhe um modelo do mesmo tipo e preenche uma nova submissão, ou cria um novo modelo com o tipo já preenchido. A mesma entidade pode ter várias submissões datadas do mesmo modelo. Submissões em planos são Pós-MVP.</td>
++    <td><strong>Cadastrar a partir de um modelo</strong><br>Ao criar um cliente ou serviço, o profissional escolhe um modelo ativo do mesmo tipo, ou cria um novo modelo com o tipo já preenchido, e preenche seus campos. O cadastro fica vinculado à versão publicada mais recente do modelo no momento da criação. Cada cliente ou serviço é criado a partir de um único modelo. Cadastros em planos são Pós-MVP.</td>
+     <td>MVP</td>
+   </tr>
+   <tr>
+     <td>RF-41</td>
+-    <td><strong>Editar submissão de formulário</strong><br>O profissional pode atualizar as respostas de uma submissão existente, que permanece vinculada à versão do modelo em que foi preenchida.</td>
++    <td><strong>Editar cadastro feito a partir de modelo</strong><br>O profissional pode atualizar os dados de um cliente ou serviço. Os dados são exibidos e validados conforme a versão do modelo à qual o cadastro está vinculado.</td>
+     <td>MVP</td>
+   </tr>
+   <tr>
+     <td>RF-42</td>
+-    <td><strong>Visualizar submissões de uma entidade</strong><br>Na ficha de um cliente ou serviço, o profissional visualiza todas as submissões e suas respostas.</td>
++    <td><strong>Visualizar cadastro</strong><br>Na ficha de um cliente ou serviço, o profissional visualiza os dados preenchidos conforme a versão do modelo vinculada, com o nome e a versão do modelo.</td>
+     <td>MVP</td>
+   </tr>
+ </table>
+@@ -1121,7 +1121,7 @@
+ 
+ ### RN-05: Exclusão de clientes
+ 
+-Clientes que possuam histórico de atendimentos, pagamentos ou submissões de formulário (e, quando a funcionalidade Pós-MVP existir, planos) não devem ser removidos definitivamente do sistema.
++Clientes que possuam histórico de atendimentos ou pagamentos (e, quando a funcionalidade Pós-MVP existir, planos) não devem ser removidos definitivamente do sistema.
+ 
+ Nesses casos, o cliente deve ser apenas inativado, preservando o histórico necessário para consultas futuras, relatórios e controle financeiro.
+ 
+@@ -1135,7 +1135,7 @@
+ 
+ O valor padrão de um procedimento não pode ser negativo.
+ 
+-Procedimentos vinculados a agendamentos, planos, submissões de formulário ou histórico financeiro não devem ser excluídos definitivamente; devem ser inativados.
++Procedimentos vinculados a agendamentos, planos ou histórico financeiro não devem ser excluídos definitivamente; devem ser inativados.
+ 
+ ---
+ 
+@@ -1287,21 +1287,25 @@
+ 
+ Um modelo de formulário deve possuir nome e um tipo obrigatório, cliente ou serviço. O tipo determina em quais fichas o modelo é oferecido.
+ 
+-Campos obrigatórios definidos em um formulário devem ser preenchidos antes que a submissão seja salva.
++Campos obrigatórios definidos em um formulário devem ser preenchidos antes que o cadastro seja salvo.
+ 
+ A ordem dos campos definida pelo profissional deve ser preservada na exibição do formulário.
+ 
+ ---
+ 
+-### RN-21: Submissões de formulário
++### RN-21: Versões de modelo e cadastros
+ 
+-Uma submissão é uma cópia preenchida de um modelo de formulário, vinculada a uma entidade do mesmo tipo do modelo (cliente ou serviço). Uma entidade pode ter várias submissões datadas do mesmo modelo.
++Um cadastro (cliente ou serviço) é criado a partir de um modelo do mesmo tipo e fica vinculado a uma versão publicada desse modelo. Cada cadastro está vinculado a exatamente um modelo.
+ 
+-Somente o profissional preenche submissões; clientes não acessam formulários.
++Somente o profissional preenche cadastros; clientes não acessam formulários.
+ 
+-As respostas preenchidas devem permanecer vinculadas à entidade da submissão.
++Salvar um modelo novo publica a versão 1. Aplicar uma alteração de estrutura publica a versão seguinte. Versões publicadas são imutáveis e mantidas enquanto o modelo existir.
+ 
+-Alterações futuras no modelo do formulário não devem apagar nem alterar submissões já registradas: cada alteração de campos gera uma nova versão do modelo, e a submissão permanece vinculada à versão em que foi preenchida.
++Cadastros novos usam a versão publicada mais recente. Cadastros existentes são exibidos e validados conforme a versão a que estão vinculados.
++
++Ao publicar uma versão de um modelo que já tem cadastros, o profissional escolhe entre manter os cadastros nas versões em que estão ou atualizar todos para a nova versão. A atualização é explícita e ocorre por completo ou não ocorre. Respostas de campos removidos só são excluídas após confirmação com digitação do nome do modelo (RN-25). Cadastros atualizados que não tenham valor para um novo campo obrigatório ficam com preenchimento pendente até o próximo salvamento.
++
++Fora dessa escolha explícita, alterações futuras no modelo do formulário não devem apagar nem alterar cadastros já registrados.
+ 
+ ---
+ 
+@@ -1414,7 +1418,7 @@
+ | Pagamentos | Registro manual de pagamento e status | Integração com gateways, cobrança online, conciliação automática |
+ | Financeiro | Resumo básico por período | Exportações avançadas, comparativos, rankings e dashboards completos |
+ | Notificações | Feedbacks internos simples da aplicação; e-mail transacional de conta via AWS SES (verificação de e-mail e recuperação de senha) | Notificações automáticas de agendamento por e-mail, WhatsApp, templates e webhooks |
+-| Formulários | Formulários personalizados de clientes e serviços: modelos versionados, campos sem anexos e submissões preenchidas pelo profissional | Campos de imagem e arquivo, formulários em planos |
++| Formulários | Formulários personalizados de clientes e serviços: modelos versionados, campos sem anexos e cadastros de clientes e serviços preenchidos pelo profissional | Campos de imagem e arquivo, formulários em planos |
+ | Personalização | — | Ocupação profissional e labels customizadas |
+ | Arquitetura | NestJS modular, Next.js, PostgreSQL e RLS; AWS S3 para foto de perfil | RabbitMQ, arquitetura distribuída, microservices, workers complexos, CQRS/event-driven |
+ | Qualidade | TDD, 75% backend, 25% frontend, SonarCloud e CI/CD | Observabilidade avançada e quality gates mais rigorosos |
+@@ -2425,7 +2429,7 @@
+ 
+ - **reconhecer expressamente** que campos livres, observações e respostas de formulários personalizados podem conter dados sensíveis de saúde;
+ - coletar **consentimento específico e destacado** (art. 11, I) do titular para o tratamento desses dados, quando aplicável, separado do aceite geral dos Termos/Política;
+-- em formulários de cliente, exigir que o profissional, na qualidade de controlador, ateste uma vez por cliente e antes da primeira submissão que obteve esse consentimento, registrando autor, data e versão do texto, já que o titular não acessa o Planici;
++- em formulários de cliente, exigir que o profissional, na qualidade de controlador, ateste uma vez por cliente, ao salvar o cadastro pela primeira vez, que obteve esse consentimento, registrando autor, data e versão do texto, já que o titular não acessa o Planici;
+ - aplicar **criptografia em repouso obrigatória** às observações que possam conter dados sensíveis e às respostas de formulários;
+ - evitar solicitar dados sensíveis por padrão e indicar que campos livres devem ser usados apenas quando necessário;
+ - permitir que o profissional defina quais informações serão coletadas nos formulários e proteger as respostas com as mesmas regras de autenticação, autorização e isolamento por tenant;
+@@ -2561,7 +2565,7 @@
+ | M4 | **Agenda e agendamento manual.** Configuração de disponibilidade (fixa e livre), criação manual de agendamento, edição, cancelamento, bloqueio de horários e visualização diária/semanal. Detecção de conflito/overbooking garantida no banco (constraint `EXCLUDE USING gist` / `SELECT ... FOR UPDATE`). Critério de aceite 3.3.3; testes de concorrência do overbooking (RNF-19). | Semanas 8 e 9 |
+ | M5 | **Link público simples.** Página pública de agendamento (cliente externo solicita horário sem conta) e fluxo de confirmação/recusa pelo profissional. Entregáveis de segurança/LGPD: controles anti-abuso (rate limit por slug/janela, slug não enumerável, expiração de pendentes), aviso de privacidade e ciência do cliente final. Critério de aceite 3.3.4; testes do fluxo público. | Semana 10 |
+ | M6 | **Pagamento manual e financeiro básico.** Registro de pagamento por atendimento, status de pagamento e resumo de receitas por período. Critério de aceite 3.3.5; módulo crítico com TDD e cobertura mínima (RNF-19); auditoria de operações financeiras. | Semana 11 |
+-| M6b | **Formulários personalizados.** Modelos versionados por tipo (cliente ou serviço), campos sem anexos, submissões datadas na ficha do cliente e do serviço, atestado de consentimento por cliente e criptografia das respostas. Depende de M3. RLS validado nas novas tabelas; testes de isolamento entre tenants. | A definir (desloca M7 a M9) |
++| M6b | **Formulários personalizados.** Modelos versionados por tipo (cliente ou serviço), campos sem anexos, cadastros de clientes e serviços vinculados à versão do modelo, atestado de consentimento por cliente e criptografia das respostas. Depende de M3. RLS validado nas novas tabelas; testes de isolamento entre tenants. | A definir (desloca M7 a M9) |
+ | M7 | **UX, acessibilidade e mockups finais.** Revisão de responsividade mobile + desktop/web, estados vazios/erro/loading/confirmação, verificação WCAG 2.1 AA dos fluxos principais (RNF-18) e atualização das evidências visuais no RFC (tabela de cobertura de telas da seção 4.2). | Semana 12 |
+ | M8 | **Validação com usuários.** Testes com 3 a 5 profissionais autônomos executando o fluxo central completo (seção 2.9); preenchimento da tabela de evidências e priorização dos ajustes gerados. | Semana 13 |
+ | M9 | **Hardening e entrega final.** Teste E2E do fluxo principal, revisão de segurança e validação final de isolamento por tenant, ajustes decorrentes da validação, revisão da documentação e diagramas, deploy público final (`https://planici.co`) e validação pós-MVP com a usuária principal. Checklist final de consistência. | Semana 14 |
+diff --git a/docs/architecture/api-convention.md b/docs/architecture/api-convention.md
+--- a/docs/architecture/api-convention.md
++++ b/docs/architecture/api-convention.md
+@@ -94,9 +94,9 @@
+ 
+ ## Lists, filtering, sorting
+ 
+-There is no established pagination contract. `GET /tenants` returns all of the
+-caller's active memberships as `{ "tenants": [...] }`, ordered by tenant
+-`createdAt`, then `id`, ascending.
++Collections that stay small return the whole list in a named array, without
++pagination. `GET /tenants` returns all of the caller's active memberships as
++`{ "tenants": [...] }`, ordered by tenant `createdAt`, then `id`, ascending.
+ 
+ Deleted tenants and inactive memberships are excluded. Suspended tenants remain
+ visible in this list, even though they cannot be operated on. The response uses
+@@ -104,7 +104,7 @@
+ 
+ Availability uses explicit query parameters, such as
+ `GET /tenants/availability?slug=studio-ana`. Do not assume `page`, `size`, `sort`,
+-a generic filter language, or a pagination envelope exists.
++or a generic filter language exists.
+ 
+ ### Pagination
+ 
+@@ -112,7 +112,7 @@
+ use cursor pagination with `limit` and `after`:
+ - `limit`: optional integer, 1-100, default 50. Anything else returns `422 { "error": "limit.invalid", "field": "limit" }`.
+ - `after`: optional opaque cursor from a previous response's `nextCursor`. Omit for the first page.
+-- Response: the named array plus `nextCursor` (string, or `null` on the last page). Example: `{ "clients": [...], "nextCursor": "eyJr..."}`. These i no total count, no page number and no other envelope.
++- Response: the named array plus `nextCursor` (string, or `null` on the last page). Example: `{ "clients": [...], "nextCursor": "eyJr..."}`. There is no total count, no page number and no other envelope.
+ - Each endpoint documents one fixed, stable sort that always ends with `id` as a tie-breaker, so pages never repeat or skip items.
+ - The cursor is bound to the filters it was issued with. Sending it with a different filter (for example a new q), or sending a malformed or tampered cursor, returns `422 { "error": "cursor.invalid", "field": "after" }`. Clients restart from the first page when filters change.
+ - Clients must treat the cursor as opaque and never build or parse it.
+@@ -155,12 +155,11 @@
+   not a UUID validator. Treat the ID as an identifier, not a slug to reconstruct.
+ - Public tenant timestamps are ISO-8601 UTC strings from `toISOString()`.
+   Nullable timestamps remain `null`; do not replace them with empty strings.
+-- No monetary JSON representation is established by the current API contracts.
+ 
+ ## Money
+ 
+-- Amounts are JSON integers in the currency's minor unit (centavos for BRL): `9999` means R$ 99.99. Never use floats or decimal strings.
+-- Name the field with a `Cents` suffix (`priceCents`) and send the ISO 4217 code bseide it (`"currency": "BRL"`). The MVP accepts only `BRL`.
++- Amounts are JSON integers in the currency's minor unit (centavos for BRL): `9999` means R$ 99,99. Never use floats or decimal strings.
++- Name the field with a `Cents` suffix (`priceCents`) and send the ISO 4217 code beside it (`"currency": "BRL"`). The MVP accepts only `BRL`.
+ - Formatting for display (`R$ 99,99`) happens in the frontend.
+ 
+ ## Rate limits and tracing
+diff --git a/docs/specs/SPEC-0001-modelos-de-formulario.md b/docs/specs/SPEC-0001-modelos-de-formulario.md
+--- a/docs/specs/SPEC-0001-modelos-de-formulario.md
++++ b/docs/specs/SPEC-0001-modelos-de-formulario.md
+@@ -3,11 +3,11 @@
+ title: Modelos de formulário
+ status: Draft # Draft | Review | Approved | Implemented | Superseded
+ plan_status: Draft # Draft | Approved
+-version: 0.2
++version: 0.3
+ owner: TBD
+-satisfies: [RF-37, RF-39, RN-02, RN-20, RN-24, RN-25]
++satisfies: [RF-37, RF-39, RF-40, RN-01, RN-02, RN-20, RN-21, RN-24, RN-25]
+ depends_on: []
+-phase: MVP # owner decision D-5; RFC still says Pós-MVP
++phase: MVP
+ ticket: -
+ ---
+ 
+@@ -17,8 +17,9 @@
+ 
+ The professional defines **form templates** that describe what is recorded about each client or each service.
+ A template holds no data. It is the blueprint used later to create clients (SPEC-0004) and services (SPEC-0005).
+-This addresses RFC §2.2.9 (UC-42, UC-44, UC-45) and RF-07's need for personalised client data. It is pulled
+-forward from post-MVP because custom forms are the product's main focus (forms-overview.md D-5).
++Templates are **versioned**: changing a template's structure publishes a new version, and every record stays
++linked to the version it was created or last migrated with. This addresses RFC §2.2.9 (UC-42, UC-44, UC-45),
++RF-39 and RN-21.
+ 
+ ## 2. Scope
+ 
+@@ -27,6 +28,8 @@
+ - Creating a template from `/forms`, and from the "Criar novo modelo" shortcut on `/clients` and `/services`.
+ - Template attributes: type, name, description, status.
+ - Saving the template together with its fields (field rules live in SPEC-0002).
++- Publishing versions: what publishes a version, what does not, and the **Apply** dialog that decides what happens
++  to existing records ("Manter existentes" / "Atualizar todos").
+ - Editing name and description; archiving, unarchiving and deleting a template.
+ - Protection against two tabs overwriting each other.
+ 
+@@ -35,7 +38,10 @@
+ - Creating and editing clients or services from a template: SPEC-0003, SPEC-0004, SPEC-0005.
+ - `plan` templates: post-MVP, with the plans module (RF-14).
+ - Duplicating a template, template library or occupation-based suggestions (RN-23): post-MVP.
+-- Attaching extra forms to an existing client: post-MVP (forms-overview.md D-4, C-4).
++- Attaching extra forms to an existing client: post-MVP (forms-overview.md D-4).
++- Browsing or restoring older versions in the editor, and moving a single record to the latest version:
++  post-MVP. In the MVP only "Atualizar todos" moves records between versions.
++- Server-side drafts: the draft lives only in the open editor (forms-overview.md D-10).
+ 
+ ## 3. Domain rules
+ 
+@@ -53,11 +59,29 @@
+ - **R8.** A template can be deleted only while no client or service was created from it. Otherwise it can only be
+   archived. (RN-24)
+ - **R9.** Deleting a template needs typed confirmation of its name. Archiving needs a confirmation dialog. (RN-25)
+-- **R10.** Saving a template is all-or-nothing: name, description and every field change are stored together,
+-  or nothing is. (`assumption`)
+-- **R11.** A save based on an outdated copy of the template is rejected. It never silently overwrites newer
+-  changes. (`assumption`)
+-- **R12.** A template has at most 100 fields, system fields included. (`assumption`, abuse limit)
++- **R10.** Saving is all-or-nothing: metadata changes, the published version and any migration are stored
++  together, or nothing is. (RN-21, `assumption`)
++- **R11.** Every save states the template **revision** it was based on. A save based on an outdated revision is
++  rejected and never silently overwrites newer changes. The revision goes up on every stored change (metadata,
++  publication, archive, unarchive). It is not the published version number. (forms-overview.md D-10)
++- **R12.** A version has at most 100 fields, system fields included. (`assumption`, abuse limit)
++- **R13.** Saving a new template publishes **version 1**. (RF-39, RN-21)
++- **R14.** Changes are either **schema** changes or **metadata** changes (SPEC-0002 §3.5). Applying schema changes
++  publishes the next version. Metadata changes (template name, description, field labels, help text, protected
++  flag, option labels) apply to every version at once and publish nothing. A save without schema changes
++  publishes no version. (RF-39, D-10)
++- **R15.** Published versions are immutable and retained for as long as the template exists. (RN-21)
++- **R16.** New records use the latest published version at the moment they are created. Existing records are
++  displayed and validated against the version they are linked to (SPEC-0003). (RF-40, RN-21)
++- **R17.** When schema changes are applied while the template has records, the professional must choose:
++  - **Manter existentes**: publishes the new version; every existing record stays linked to its version.
++  - **Atualizar todos**: publishes the new version and migrates **every** record of the template, on any older
++    version, to it (SPEC-0003 R13). Publication and migration succeed or fail together (R10).
++
++  With zero records, the professional only confirms the publication. (RN-21, D-10)
++- **R18.** If "Atualizar todos" would delete answers (answers to fields or `select` options absent from the new
++  version), the dialog says how many records lose answers, and the professional must type the template name to
++  confirm. The server rejects the migration without that confirmation. (RN-25, D-10)
+ 
+ ## 4. Behavior
+ 
+@@ -74,8 +98,8 @@
+    (empty). Choosing a type inserts that type's system fields (SPEC-0002 §3.2) in their default order.
+ 3. Changing the type before the first save replaces the system fields. Custom fields already added are kept.
+ 4. The professional adds and arranges fields (SPEC-0002) and presses **[Salvar]**.
+-5. The system validates everything and stores the template with its fields (R10). It shows "Modelo salvo" and
+-   stays on the editor, now at `/forms/:id`.
++5. The system validates everything and publishes version 1 (R13). It shows "Modelo publicado" and stays on the
++   editor, now at `/forms/:id`, with the badge "Versão 1".
+ 6. Leaving the editor with unsaved changes asks for confirmation ("Descartar alterações?").
+ 
+ ### 4.3 Create a template from `/clients` or `/services` (shortcut)
+@@ -89,12 +113,36 @@
+ The same applies to `/services` with type `service`.
+ 
+ ### 4.4 Edit a template
+-1. The professional opens a template from `/forms`.
+-2. Name, description and fields are editable. Type is shown read-only.
+-3. **[Salvar]** behaves as in 4.2 step 5. If the template changed elsewhere since it was opened (another tab), the
+-   save is rejected (R11) and the editor shows "Este modelo foi alterado em outra janela. Recarregue para ver a
+-   versão atual." The local edits stay on screen until the professional reloads.
+-4. Saving changes never alters values already stored in records (RN-21; details in SPEC-0002 §4.5).
++1. The professional opens a template from `/forms`. The editor shows the latest version's fields, the badge
++   "Versão N", and "X cadastros nesta versão · Y em versões anteriores".
++2. Name, description and fields are editable. Type is shown read-only. Edits stay in the editor (the draft) until
++   saved.
++3. On **[Salvar]**:
++   - **Only metadata changed** (R14): the changes are stored, the version stays the same, and the toast says
++     "Alterações salvas".
++   - **Schema changed, template has no records**: a dialog asks "Publicar versão N+1?" On [Publicar], the version
++     is published and the toast says "Versão N+1 publicada".
++   - **Schema changed, template has records**: the **Apply** dialog (4.7) opens.
++4. If the template changed elsewhere since it was opened (another tab), the save is rejected (R11) and the editor
++   shows "Este modelo foi alterado em outra janela. Recarregue para ver a versão atual." The local edits stay on
++   screen until the professional reloads.
++
++### 4.7 Apply dialog
++1. The dialog title is "Aplicar alterações". It summarises the schema changes ("2 campos adicionados, 1 removido")
++   and how many records each choice affects.
++2. It offers two options, none preselected:
++   - **"Manter existentes"**: "Os N cadastros atuais continuam na versão em que estão. Novos cadastros usarão a
++     versão N+1."
++   - **"Atualizar todos"**: "Todos os N cadastros passam para a versão N+1."
++3. If "Atualizar todos" is selected and some records would lose answers (R18), the dialog adds: "M cadastros têm
++   respostas em campos removidos. Essas respostas serão excluídas." and a text input "Digite o nome do modelo para
++   confirmar". [Aplicar] stays disabled until the name matches exactly.
++4. If "Atualizar todos" is selected and the new version adds required fields, the dialog adds: "K cadastros
++   ficarão com preenchimento pendente." (SPEC-0003 R6)
++5. On [Aplicar], the system publishes and, for "Atualizar todos", migrates. While it runs, the dialog shows
++   "Aplicando…" and cannot be closed. On success the toast says "Versão N+1 publicada". On failure nothing is
++   published, no record changes, and the dialog says "Não foi possível aplicar as alterações. Nada foi alterado."
++6. [Cancelar] closes the dialog and keeps the draft in the editor.
+ 
+ ### 4.5 Archive and unarchive
+ 1. From the editor or the list, the professional chooses **"Arquivar"** and confirms (R9).
+@@ -107,7 +155,7 @@
+ 1. **"Excluir"** is offered only when the template has no records (R8). Otherwise the menu shows only
+    "Arquivar", with the hint "Modelos com cadastros não podem ser excluídos".
+ 2. The professional types the template name to enable the button (R9) and confirms.
+-3. The template and its fields are removed permanently.
++3. The template, all its versions and their fields are removed permanently.
+ 
+ ## 5. Permissions and tenant isolation
+ 
+@@ -138,7 +186,12 @@
+ | Type missing or not `client`/`service` | 422 | `formType.invalid` | `type` |
+ | Type sent on update | 422 | `formType.immutable` | `type` |
+ | More than 100 fields | 422 | `formFields.too-many` | `fields` |
+-| Saved from an outdated version | 409 | `form.version-conflict` | — |
++| Revision missing on update | 422 | `formRevision.required` | `revision` |
++| Saved from an outdated revision | 409 | `form.revision-conflict` | `revision` |
++| Schema changed while records exist, and no migration mode | 422 | `migration.mode-required` | `migration.mode` |
++| Migration mode not `keep` / `update_all` | 422 | `migration.mode-invalid` | `migration.mode` |
++| "Atualizar todos" deletes answers and the typed name is missing or wrong | 422 | `migration.confirmation-required` | `migration.confirmName` |
++| Publication or migration fails unexpectedly; nothing is stored (R10) | 500 | `unexpected` (existing) | — |
+ | Template id unknown or in another tenant | 404 | `form.not-found` | — |
+ | Delete while records exist | 409 | `form.in-use` | — |
+ | Archive an archived / unarchive an active template | 409 | `form.status-unchanged` | — |
+@@ -150,14 +203,20 @@
+ New, non-breaking. Consumers: `apps/web` (BFF and pages).
+ 
+ - **FormTemplate** (single read, create and update responses): `id` (uuid), `type` (`client | service`),
+-  `name` (string), `description` (string | null), `status` (`active | archived`), `version` (int),
+-  `recordCount` (int), `fields` (Field[] in display order, SPEC-0002 §7), `createdAt`, `updatedAt` (ISO-8601 UTC).
+-- **FormTemplateSummary** (list item): `id`, `type`, `name`, `description`, `status`, `fieldCount`,
++  `name` (string), `description` (string | null), `status` (`active | archived`), `version` (int, latest
++  published), `revision` (int, R11), `recordCount` (int), `recordsOnOlderVersions` (int), `fields` (Field[] of
++  the latest version in display order, SPEC-0002 §7), `createdAt`, `updatedAt` (ISO-8601 UTC).
++- **FormTemplateSummary** (list item): `id`, `type`, `name`, `description`, `status`, `version`, `fieldCount`,
+   `recordCount`, `updatedAt`.
+ - **List**: `{ forms: FormTemplateSummary[] }`, optional query `type`, `includeArchived` (boolean, default false).
+   There is no pagination: templates per tenant are expected in the tens (cursor pagination applies to records only).
+ - **Create request**: `type`, `name`, `description?`, `fields` (FieldInput[], SPEC-0002 §7).
+-- **Update request**: `version` (required), `name?`, `description?`, `fields?` (full replacement list).
++- **Update request**: `revision` (required), `name?`, `description?`, `fields?` (full list of the next version),
++  `migration?` (`{ mode: "keep" | "update_all", confirmName?: string }`, required when R17 applies).
++- **Change preview** (for the Apply dialog): request `revision`, `fields`. Response `schemaChanged` (bool),
++  `nextVersion` (int), `recordCount`, `recordsLosingAnswers`, `recordsGainingRequiredFields`, and a summary of added,
++  removed and changed fields. It stores nothing.
++- **Version read** (for records on older versions, SPEC-0003): `{ version, fields }` for one published version.
+ - **Archive / unarchive**: no body, return FormTemplate.
+ - **Delete**: no body, 204.
+ 
+@@ -176,9 +235,18 @@
+ | Editor | not found | "Modelo não encontrado." + back to `/forms` | `forms.editor.notFound` |
+ | Editor | unsaved changes | [Salvar] enabled, leave prompt active | `forms.editor.unsaved` |
+ | Editor | saving | [Salvar] disabled with spinner, inputs read-only | `forms.editor.saving` |
+-| Editor | saved | Toast "Modelo salvo" | `forms.editor.saved` |
++| Editor | published v1 | Toast "Modelo publicado" + badge "Versão 1" | `forms.editor.published` |
++| Editor | metadata saved | Toast "Alterações salvas" | `forms.editor.saved` |
++| Editor | version badge and record counts | "Versão N" · "X cadastros nesta versão · Y em versões anteriores" | `forms.editor.version`, `forms.editor.recordCounts` |
++| Publish dialog | no records | "Publicar versão N+1?" | `forms.publish.confirm` |
++| Apply dialog | choose | Two options, none preselected; [Aplicar] disabled until one is chosen | `forms.apply.title`, `forms.apply.keep`, `forms.apply.updateAll` |
++| Apply dialog | answers will be deleted | Warning + typed name enables [Aplicar] | `forms.apply.answersDeleted`, `forms.apply.typeName` |
++| Apply dialog | pending required fields | "K cadastros ficarão com preenchimento pendente." | `forms.apply.pendingRequired` |
++| Apply dialog | applying | "Aplicando…", cannot be closed | `forms.apply.applying` |
++| Apply dialog | failed | "Não foi possível aplicar as alterações. Nada foi alterado." | `forms.apply.failed` |
++| Toast | version published | "Versão N publicada" | `forms.toast.versionPublished` |
+ | Editor | validation error | Inline message under the field, focus moves to the first error | `validation.*` |
+-| Editor | version conflict | Banner (4.4 step 3) with [Recarregar] | `forms.editor.conflict` |
++| Editor | revision conflict | Banner (4.4 step 4) with [Recarregar] | `forms.editor.conflict` |
+ | Editor | no type chosen | Field list hidden, "Escolha o tipo para começar" | `forms.editor.chooseType` |
+ | Editor | archived | Banner "Modelo arquivado" + [Desarquivar]; still editable | `forms.editor.archived` |
+ | Archive dialog | confirm | "Arquivar modelo? Cadastros existentes não são afetados." | `forms.archive.confirm` |
+@@ -189,11 +257,12 @@
+ 
+ | # | Question | Proposed answer | Blocks |
+ | --- | --- | --- | --- |
+-| 1 | RFC conflict C-3 (binding type). C-1 is decided (D-5). | Amend the RFC. | Approval |
++| 1 | ~~RFC conflicts C-1, C-3.~~ | **Resolved:** the RFC marks forms MVP and the type binding (RF-37, RN-20). | — |
+ | 2 | Should names be unique per tenant (R4), per type, or not at all? | Per tenant, across types. Simpler copy, no near-duplicates. | R4, AC-0001-05 |
+ | 3 | Should an archived template's records still be editable (R7)? | Yes. Archiving only stops new records. | R7 |
+ | 4 | ~~Default templates per tenant.~~ | **Decided (D-6):** yes, "Cliente" and "Serviço". | — |
+ | 5 | Delete and archive endpoint convention (no DELETE convention exists). | `DELETE /forms/:id`; `POST /forms/:id/archive` and `/unarchive`. | `/plan` |
++| 6 | Should a single record be movable to the latest version on its own ("Atualizar este cadastro")? | Not in the MVP. Only "Atualizar todos" moves records. | scope |
+ 
+ ## 10. Acceptance criteria
+ 
+@@ -205,7 +274,7 @@
+ AC-0001-01
+ Given an owner of tenant "studio-ana" on the template editor
+ When  they choose type "client", name "Anamnese inicial", and press Salvar
+-Then  the response is 201 with type "client", status "active", version 1
++Then  the response is 201 with type "client", status "active", version 1, revision 1
+ And   its fields are exactly the client system fields in default order (SPEC-0002 §3.2)
+ ```
+ 
+@@ -240,17 +309,17 @@
+ 
+ ```
+ AC-0001-07
+-Given a client template at version 3
++Given a client template at revision 3
+ When  its owner sends an update containing "type": "service"
+ Then  the response is 422 with { "error": "formType.immutable", "field": "type" }
+-And   the template is still type "client" at version 3
++And   the template is still type "client" at revision 3
+ ```
+ 
+ ```
+ AC-0001-08
+-Given a template at version 3, opened in two tabs
+-When  tab A saves (version becomes 4) and then tab B saves with version 3
+-Then  tab B receives 409 with { "error": "form.version-conflict" }
++Given a template at revision 3, opened in two tabs
++When  tab A saves (revision becomes 4) and then tab B saves with revision 3
++Then  tab B receives 409 with { "error": "form.revision-conflict", "field": "revision" }
+ And   the stored template matches tab A's save
+ And   tab B shows the conflict banner with copy key forms.editor.conflict
+ ```
+@@ -343,6 +412,89 @@
+ Then  the response is 422 with { "error": "formFields.too-many", "field": "fields" }
+ ```
+ 
++```
++AC-0001-20
++Given a client template at version 2 with 5 clients
++When  its owner renames the template, relabels a field and turns its protected flag on, and saves
++Then  the response is 200 with version 2 and the revision increased by 1
++And   no Apply dialog was shown
++And   all 5 clients still report form version 2
++```
++
++```
++AC-0001-21
++Given a client template at version 1 with no clients
++When  its owner adds a custom field and saves
++Then  the dialog with copy key forms.publish.confirm is shown, without migration options
++And   after [Publicar] the response is 200 with version 2
++```
++
++```
++AC-0001-22
++Given a client template at version 1 with 3 clients
++When  its owner adds a custom field and the update request has no migration
++Then  the response is 422 with { "error": "migration.mode-required", "field": "migration.mode" }
++And   the template is still at version 1
++```
++
++```
++AC-0001-23
++Given a client template at version 1 with 3 clients
++When  its owner adds field "Objetivo" and applies with "Manter existentes"
++Then  the response is 200 with version 2
++And   the 3 clients still report form version 1 and show no "Objetivo" field
++And   a client created afterwards reports form version 2 and shows "Objetivo"
++```
++
++```
++AC-0001-24
++Given a client template at version 3, with 2 clients on version 1 and 1 client on version 3
++When  its owner adds field "Objetivo" and applies with "Atualizar todos"
++Then  the response is 200 with version 4
++And   all 3 clients report form version 4
++```
++
++```
++AC-0001-25
++Given a client template at version 1 named "Ficha", with 4 clients of which 2 have an answer for field "Hobby"
++When  its owner removes "Hobby" and chooses "Atualizar todos"
++Then  the Apply dialog says 2 records will lose answers (forms.apply.answersDeleted)
++And   [Aplicar] stays disabled until "Ficha" is typed exactly
++```
++
++```
++AC-0001-26
++Given the situation of AC-0001-25
++When  the update request has migration { "mode": "update_all" } without confirmName
++Then  the response is 422 with { "error": "migration.confirmation-required", "field": "migration.confirmName" }
++And   the template is still at version 1 and both "Hobby" answers still exist
++```
++
++```
++AC-0001-27
++Given the situation of AC-0001-25
++When  the update request has migration { "mode": "update_all", "confirmName": "Ficha" }
++Then  the response is 200 with version 2
++And   all 4 clients report form version 2 and none has a "Hobby" answer
++```
++
++```
++AC-0001-28
++Given a client template at version 1 with 3 clients
++And   migrating one of the clients fails during "Atualizar todos"
++When  its owner applies a schema change with "Atualizar todos"
++Then  the response is 500 with { "error": "unexpected" }
++And   the template is still at version 1 and all 3 clients still report form version 1
++And   the dialog shows copy key forms.apply.failed and the draft is still in the editor
++```
++
++```
++AC-0001-29
++Given a client template whose version 1 had field "Hobby", now at version 2 without it, applied with "Manter existentes"
++When  its owner reads version 1 of the template
++Then  the response contains version 1 with field "Hobby", unchanged
++```
++
+ ### Provisional criteria
+ 
+ These depend on open questions that are not answered yet. They are **not agreed behavior** and must not be turned into tests until the owner answers. On an answer, each one is confirmed, rewritten, or withdrawn (withdrawn IDs are not reused).
+@@ -370,3 +522,4 @@
+ | --- | --- | --- |
+ | 0.1 | 2026-11-09 | Draft |
+ | 0.2 | 2026-11-09 | Owner answers D-5, D-6 recorded |
++| 0.3 | 2026-11-09 | Template versioning (owner, D-10): publishing, schema vs metadata, Apply dialog, revision for concurrency; AC-0001-01, -07, -08 updated; AC-0001-20 to -29 added; RFC traces fixed |
+diff --git a/docs/specs/SPEC-0002-campos-de-formulario.md b/docs/specs/SPEC-0002-campos-de-formulario.md
+--- a/docs/specs/SPEC-0002-campos-de-formulario.md
++++ b/docs/specs/SPEC-0002-campos-de-formulario.md
+@@ -3,11 +3,11 @@
+ title: Campos do modelo de formulário
+ status: Draft # Draft | Review | Approved | Implemented | Superseded
+ plan_status: Draft # Draft | Approved
+-version: 0.2
++version: 0.3
+ owner: TBD
+ satisfies: [RF-38, RF-39, RN-20, RN-21]
+ depends_on: [SPEC-0001]
+-phase: MVP # owner decision D-5; RFC still says Pós-MVP
++phase: MVP
+ ticket: -
+ ---
+ 
+@@ -26,8 +26,9 @@
+ - MVP field-type catalog and the attributes of a field.
+ - System fields per template type: which exist and what can change about them.
+ - The protected-data switch and when it auto-locks.
+-- Adding, reordering, removing, archiving and restoring fields.
+-- What may change on a field that already has values in records.
++- Adding, reordering and removing fields.
++- Which field changes are **schema** changes (they publish a template version, SPEC-0001 R14) and which are
++  **metadata** (they apply to every version at once).
+ 
+ **Out of scope**
+ - Validation of typed values and how records display them: SPEC-0003.
+@@ -98,16 +99,32 @@
+   "no". (`assumption`)
+ - **R9.** Display order is the order the professional arranged, and it is kept exactly (RN-20). Moving one
+   field changes no other field's relative order.
+-- **R10.** Removing a custom field that has **no values** in any record deletes it. Removing one that **has values**
+-  archives it: it leaves the template and new records, and its values are kept (RN-21, RN-24).
+-- **R11.** An archived field can be restored. It returns at the end of the template with its values intact.
+-  Restoring fails if an active field now has the same label (R2). (`assumption`)
+-- **R12.** Once a field has a value in any record, its type cannot change. Label, help text, required,
+-  protected (within R5–R6) and options remain editable. (RN-21)
+-- **R13.** Removing a `select` option that records use keeps those values. They display as the old label marked
+-  "(removida)". Renaming an option renames it everywhere it is shown. (RN-21)
+-- **R14.** Making a field required does not change existing records. The requirement applies the next time each
+-  record is saved (SPEC-0003 R6). (RN-20, RN-21)
++- **R10.** Removing a custom field removes it from the **next version** only. Older versions keep it, and records
++  on them keep their answers. Whether those records follow the new version is decided in the Apply dialog
++  (SPEC-0001 R17–R18). (RN-21, RN-24)
++- **R11.** A removed field cannot be restored. Adding a field with the same label later creates a new field with a
++  new identity. (D-10)
++- **R12.** A published field's type is fixed. Choosing another type for it in the editor replaces it with a **new
++  field** (new identity) in the next version, and the old field is removed from that version as in R10. Answers are
++  never converted between types. (D-10)
++- **R13.** Adding or removing a `select` option is a schema change. Renaming an option is metadata: the new label
++  shows in every version and record. (D-10)
++- **R14.** Making a field required, or adding a required field, is a schema change. Records that stay on older
++  versions are not affected. Records migrated by "Atualizar todos" are migrated without the value and flagged as
++  pending; the requirement applies at their next save (SPEC-0003 R6). (RN-20, D-10)
++
++### 3.5 Schema and metadata
++
++| Schema: publishes a new version | Metadata: applies to every version, publishes nothing |
++| --- | --- |
++| Adding or removing a field | Template name and description (SPEC-0001) |
++| Field type (R12: a new type is a new field) | Field label and help text |
++| Required on or off | "Dado protegido" on or off (R5–R7 still apply) |
++| Adding or removing a `select` option | Renaming a `select` option |
++| Field order | |
++
++Protection is metadata on purpose: whether a value is hidden must never depend on which version a record is on.
++(owner decision, forms-overview.md D-10)
+ 
+ ### 3.4 Protected-terms list — proposed, pending §9 Q4
+ 
+@@ -142,8 +159,8 @@
+    campo sempre é protegido".
+ 2. Choosing `select` opens the options editor with two empty options.
+ 3. Choosing `yes_no` turns "Obrigatório" off and disables it (R8).
+-4. Fields with values show the type dropdown disabled with the hint "Campos com respostas não podem mudar de tipo"
+-   (R12).
++4. Changing the type of a field that is already published shows the warning "Alterar o tipo cria um novo campo. As
++   respostas atuais não são convertidas." (R12)
+ 
+ ### 4.3 Protected switch and label check
+ 1. As the professional types a label for a "label check" type, the editor re-evaluates R6 on each change.
+@@ -156,13 +173,12 @@
+ 2. System fields move like any other field.
+ 3. The new order is stored on **[Salvar]** (R9).
+ 
+-### 4.5 Remove, archive and restore
++### 4.5 Remove
+ 1. **"Remover"** is not offered on system fields (R3).
+-2. For a custom field without values, the row disappears; it is deleted on save.
+-3. For a custom field with values, a dialog says "Este campo tem respostas em N cadastros. Ele será arquivado e as
+-   respostas continuarão visíveis nesses cadastros." On confirm, the row moves to a collapsed
+-   **"Campos arquivados"** section at the bottom of the editor. It is archived on save.
+-4. In "Campos arquivados", **[Restaurar]** moves the field back to the end of the active list (R11).
++2. For a custom field without answers, the row disappears from the draft.
++3. For a custom field with answers, the editor first says "Este campo tem respostas em N cadastros. Ele sairá da
++   próxima versão; o que acontece com as respostas é decidido ao aplicar as alterações." On confirm, the row
++   disappears from the draft. The Apply dialog decides the rest (SPEC-0001 §4.7).
+ 
+ ## 5. Permissions and tenant isolation
+ 
+@@ -180,7 +196,7 @@
+ | Label over 80 characters | 422 | `fieldLabel.too-long` | `fields.<i>.label` |
+ | Label repeats another active field | 422 | `fieldLabel.duplicate` | `fields.<i>.label` |
+ | Unknown type, or a system-only type on a custom field | 422 | `fieldType.invalid` | `fields.<i>.type` |
+-| Type changed on a field that has values | 409 | `fieldType.locked` | `fields.<i>.type` |
++| Existing field id sent with a different type (R12: send a new field instead) | 422 | `fieldType.immutable` | `fields.<i>.type` |
+ | Unprotected while type or label requires protection | 422 | `fieldSensitive.locked` | `fields.<i>.sensitive` |
+ | Required changed where it is fixed (system field, `yes_no`) | 422 | `fieldRequired.locked` | `fields.<i>.required` |
+ | Help text over 200 characters | 422 | `fieldHelpText.too-long` | `fields.<i>.helpText` |
+@@ -189,8 +205,7 @@
+ | Option label blank / too long / duplicate | 422 | `fieldOptionLabel.required` / `.too-long` / `.duplicate` | `fields.<i>.options.<j>.label` |
+ | A system field of the type is missing | 422 | `systemField.missing` | `fields` |
+ | A system field's type changed, or a system key is repeated or invented | 422 | `systemField.locked` | `fields.<i>` |
+-| Field id not in this template | 422 | `field.unknown` | `fields.<i>.id` |
+-| Restoring a field whose label is now taken | 422 | `fieldLabel.duplicate` | `fields.<i>.label` |
++| Field id not in this template's latest version (unknown, removed earlier, or another template's) | 422 | `field.unknown` | `fields.<i>.id` |
+ 
+ ## 7. Contract impact
+ 
+@@ -199,11 +214,14 @@
+ - **Field** (response): `id` (uuid), `label`, `type` (§3.1 keys plus `duration`, `money`), `required` (bool),
+   `sensitive` (bool), `sensitiveLock` (`type | label | null`), `requiredLock` (bool), `helpText` (string | null),
+   `options` (`{ id, label }[] | null`), `systemKey` (string | null), `valueCount` (int: records with a value).
+-- **FormTemplate** gains `archivedFields: Field[]`. `fields` holds active fields only, in display order.
++- **FormTemplate**: `fields` holds the latest version's fields, in display order. A published version read
++  (SPEC-0001 §7) returns the same Field shape for that version, with current metadata (labels, help text,
++  protection, option labels).
+ - **FieldInput** (request): `id?` (omit for new fields), `label`, `type`, `required`, `sensitive`, `helpText?`,
+   `options?` (`{ id?, label }[]`), `systemKey?` (only to identify system fields on create).
+-- **Semantics of `fields` on update:** a full list in display order. Ids that are present and active are updated.
+-  Present ids that are archived are restored. Active ids that are absent are removed or archived (R10).
++- **Semantics of `fields` on update:** the full field list of the next version, in display order. Present ids are
++  kept, with their metadata updated. Absent ids are removed from the next version (R10). Entries without an id are
++  new fields. Whether a version is published follows §3.5.
+ - The protected-terms list (§3.4) is shared by web and api from one source, so the editor and the server agree.
+ 
+ ## 8. UI states
+@@ -214,11 +232,10 @@
+ | Field row | system field | "Sistema" badge; no Remover; type and fixed switches disabled | `forms.fields.systemBadge` |
+ | Field row | protected locked by type | Switch ON + disabled + tooltip | `forms.fields.sensitiveLockedType` |
+ | Field row | protected locked by label | Switch ON + disabled + tooltip | `forms.fields.sensitiveLockedLabel` |
+-| Field row | type locked (has values) | Type dropdown disabled + hint | `forms.fields.typeLocked` |
++| Field row | type changed on a published field | Warning (4.2 step 4) | `forms.fields.typeChangeWarning` |
+ | Field row | validation error | Inline under the input, row highlighted | `validation.*` |
+ | Field row | dragging | Placeholder gap, others shift | — |
+-| Remove dialog | field has values | Archive explanation (4.5 step 3) | `forms.fields.archiveConfirm` |
+-| Archived section | collapsed / expanded | "Campos arquivados (N)" | `forms.fields.archivedTitle` |
++| Remove dialog | field has answers | Explanation (4.5 step 3) | `forms.fields.removeWithAnswers` |
+ | Options editor | fewer than 2 options | [Salvar] shows `fieldOptions.required` inline | `validation.fieldOptions.required` |
+ | Field list | 100 fields | [Novo campo] disabled + hint | `forms.fields.limitReached` |
+ 
+@@ -230,9 +247,9 @@
+ | 2 | ~~Field-type catalog.~~ | **Decided (D-8):** as proposed, without `first_name`. | — |
+ | 3 | RN-04 makes client e-mail required, but some clients have none (children, elderly). Keep it? | Keep, per RFC. Revisit with the main user. | §3.2 |
+ | 4 | Is the protected-terms list (§3.4) acceptable? Who maintains it? | Accept it as the initial list, changed only through this spec. | R6 |
+-| 5 | Should turning protection OFF be blocked once values exist? | No. It only changes display. | R12 |
++| 5 | Should turning protection OFF be blocked once values exist? | No. It only changes display, in every version. | §3.5 |
+ | 6 | Is `yes_no` never-required (R8) acceptable? | Yes. | R8 |
+-| 7 | Should a deleted field (no values) be recoverable? | No. Only archived fields are. | R10 |
++| 7 | ~~Should a removed field be recoverable?~~ | **Decided (D-10):** no; older versions keep it. | — |
+ | 8 | The decision covered Name and E-mail as client system fields. Should Telefone be one too? RF-07 lists it as a fixed field, and later notifications (RF-33–RF-35) need it. | Yes, optional by default. | §3.2, AC-0002-01 |
+ 
+ ## 10. Acceptance criteria
+@@ -307,40 +324,35 @@
+ 
+ ```
+ AC-0002-15
+-Given a custom field "Profissão" that no record has a value for
+-When  its owner removes it and saves
+-Then  it appears in neither fields nor archivedFields
++Given a client template at version 1 with custom field "Profissão" and no clients
++When  its owner removes "Profissão" and publishes
++Then  the template is at version 2 and its fields do not include "Profissão"
++And   reading version 1 still returns "Profissão" 
+ ```
+ 
+ ```
+ AC-0002-16
+-Given a custom field "Profissão" with values in 3 clients
+-When  its owner removes it and saves
+-Then  it appears in archivedFields with valueCount 3, not in fields
+-And   the 3 clients still return their "Profissão" values (SPEC-0003)
++Given a client template at version 1 with field "Profissão" answered in 3 clients
++When  its owner removes "Profissão" and applies with "Manter existentes"
++Then  the latest version's fields do not include "Profissão"
++And   the 3 clients stay on version 1 and still return their "Profissão" answers (SPEC-0003)
+ ```
+ 
+-```
+-AC-0002-17
+-Given an archived field "Profissão" and no active field with that label
+-When  its owner restores it and saves
+-Then  it is the last item of fields, with its original id and valueCount
+-```
++**AC-0002-17**: withdrawn in this version. Archived fields and restoring them were replaced by template versions (v0.3, D-10).
+ 
+ ```
+ AC-0002-18
+-Given a "text" field with a value in one client
+-When  its owner saves it with type "number"
+-Then  the response is 409 with { "error": "fieldType.locked", "field": "fields.3.type" }
+-And   the editor had shown the type dropdown disabled with copy key forms.fields.typeLocked
++Given a published "text" field with id T
++When  its owner saves the template with field id T and type "number"
++Then  the response is 422 with { "error": "fieldType.immutable", "field": "fields.3.type" }
+ ```
+ 
+ ```
+ AC-0002-19
+-Given a "select" field with options "Manhã", "Tarde" and a client whose value is "Tarde"
+-When  its owner removes the option "Tarde" and saves
+-Then  the response is 200
+-And   that client's value displays as "Tarde (removida)"
++Given a published "select" field with options "Manhã", "Tarde" and a client on that version whose value is "Tarde"
++When  its owner removes the option "Tarde" and applies with "Manter existentes"
++Then  the latest version offers only "Manhã"
++And   that client stays on its version and still shows "Tarde" 
+ ```
+ 
+ ```
+@@ -358,6 +370,39 @@
+ Then  "Mover para cima" and "Mover para baixo" are available and "Remover" is not
+ ```
+ 
++```
++AC-0002-22
++Given a published "text" field "Peso" with id T, answered in 2 clients
++When  its owner changes its type to "number" in the editor
++Then  the editor shows the warning with copy key forms.fields.typeChangeWarning
++And   after applying with "Manter existentes", the latest version has a "number" field "Peso" whose id is not T
++And   the 2 clients stay on the older version with their "text" answers
++```
++
++```
++AC-0002-23
++Given a client template at version 2, with a client on version 1 that has field "Diagnóstico" (id D) unprotected
++When  its owner turns "Dado protegido" on for "Diagnóstico" and saves
++Then  the template is still at version 2
++And   the client on version 1 shows "Diagnóstico" masked (SPEC-0003 R9)
++```
++
++```
++AC-0002-24
++Given a published "select" field with option "Tarde" and a client on an older version whose value is "Tarde"
++When  its owner renames the option to "Período da tarde" and saves
++Then  no version is published
++And   that client shows "Período da tarde"
++```
++
++```
++AC-0002-25
++Given a client template at version 1 with fields A, B, C
++When  its owner moves C before A and publishes
++Then  the template is at version 2 with order C, A, B
++And   reading version 1 still returns order A, B, C
++```
++
+ ### Provisional criteria
+ 
+ These depend on open questions that are not answered yet. They are **not agreed behavior** and must not be turned into tests until the owner answers. On an answer, each one is confirmed, rewritten, or withdrawn (withdrawn IDs are not reused).
+@@ -424,3 +469,4 @@
+ | --- | --- | --- |
+ | 0.1 | 2026-11-09 | Draft |
+ | 0.2 | 2026-11-09 | Owner answers D-7, D-8 recorded; `first_name` removed; AC-0002-07 agreed |
++| 0.3 | 2026-11-09 | Template versioning (owner, D-10): archive/restore replaced by versions; schema vs metadata (§3.5); type change creates a new field; AC-0002-15, -16, -18, -19 rewritten; AC-0002-17 withdrawn; AC-0002-22 to -25 added |
+diff --git a/docs/specs/SPEC-0003-preenchimento-de-cadastro.md b/docs/specs/SPEC-0003-preenchimento-de-cadastro.md
+--- a/docs/specs/SPEC-0003-preenchimento-de-cadastro.md
++++ b/docs/specs/SPEC-0003-preenchimento-de-cadastro.md
+@@ -3,11 +3,11 @@
+ title: Preenchimento de cadastro a partir de modelo
+ status: Draft # Draft | Review | Approved | Implemented | Superseded
+ plan_status: Draft # Draft | Approved
+-version: 0.2
++version: 0.3
+ owner: TBD
+ satisfies: [RF-40, RF-41, RF-42, RN-02, RN-20, RN-21]
+ depends_on: [SPEC-0001, SPEC-0002]
+-phase: MVP # owner decision D-5; RFC still says Pós-MVP (C-4 open)
++phase: MVP
+ ticket: -
+ ---
+ 
+@@ -26,33 +26,39 @@
+ - Rendering a template as a fill-in page for a new record, and as view and edit pages for an existing one.
+ - Validation rules for each field type of SPEC-0002 §3.1.
+ - Display of protected values.
+-- Records whose template changed (fields added, archived, made required, relabelled, reordered).
++- Which template version a record is linked to, and how it is displayed and validated against it.
++- What "Atualizar todos" does to a record (migration).
++- Metadata changes (labels, help text, protection, option labels) shown on records of every version.
+ 
+ **Out of scope**
+ - Client-specific rules (e-mail uniqueness, lists, inactivation): SPEC-0004.
+ - Service-specific rules (duration, price, lists, inactivation): SPEC-0005.
+ - Changing a record's template: post-MVP (D-4).
++- Moving a single record to the latest version on its own: post-MVP (SPEC-0001 Q6).
+ - Searching, filtering or exporting by custom-field values: post-MVP.
+ - Drafts and autosave of a half-filled record: post-MVP.
+ 
+ ## 3. Domain rules
+ 
+ - **R1.** A record is created from exactly one **active** template whose type matches the record (a client from a
+-  `client` template). It stays bound to that template. (D-4, SPEC-0001 R7)
+-- **R2.** The fill-in page shows the template's active fields in template order, with current label and help text,
+-  and marks required ones. (RN-20)
++  `client` template). It stays bound to that template, and is linked to the template's **latest published
++  version** at the moment it is created. (D-4, RF-40, RN-21, SPEC-0001 R7, R16)
++- **R2.** Pages show the fields of the record's **linked version**, in that version's order, with the current
++  label and help text (metadata applies to every version, SPEC-0002 §3.5), and mark required ones. (RN-20, RN-21)
+ - **R3.** Each field holds at most one value. A blank value (empty, or whitespace only) means "no value" and is not
+   stored. (`assumption`)
+ - **R4.** Values are validated by field type (§3.1). System-field values are also validated by SPEC-0004 or
+   SPEC-0005.
+-- **R5.** Values can be submitted only for the template's **active** fields. Values of archived fields are
+-  read-only and are kept. (RN-21)
+-- **R6.** Required fields must have a value on **every** save, create or edit. Archived fields are never
+-  required. (RN-20)
+-- **R7.** Every submission states the template version it was filled against. If the template changed since then,
+-  the submission is rejected and nothing is stored. (`assumption`; makes template drift explicit)
+-- **R8.** Changes to a template never delete or rewrite stored values (RN-21). Relabelling or reordering changes
+-  only how values are shown.
++- **R5.** Values can be submitted only for fields of the record's linked version (for a new record, the latest
++  version). (RN-21)
++- **R6.** Required fields of the linked version must have a value on **every** save, create or edit. A record
++  migrated by "Atualizar todos" to a version with new required fields is migrated without those values and shows
++  them as pending; they are required at its next save. (RN-20, D-10)
++- **R7.** Every save states the template version the page was showing. A new record is rejected if a newer
++  version was published since the page opened. An edit is rejected if the record was migrated since the page
++  opened. Nothing is stored in either case. (`assumption`; makes template drift explicit)
++- **R8.** Template changes never delete or rewrite stored values, except an explicit "Atualizar todos" migration
++  (R13). Metadata changes only change how values are shown. (RN-21)
+ - **R9.** Protected values are hidden by default on the record's view page and revealed per field on request.
+   They are shown in plain text on the edit page. They never appear in record lists, search or logs.
+   (forms-overview.md D-3; RFC §6)
+@@ -61,6 +67,10 @@
+ - **R11.** Custom-field values are encrypted at rest. (RFC §6, "Dados Sensíveis (art. 11)"; forms-overview.md
+   Q-F)
+ - **R12.** A record and its values belong to one tenant. Another tenant's record behaves as not found. (RN-02)
++- **R13.** Migrating a record ("Atualizar todos", SPEC-0001 R17) links it to the new version. Answers to fields
++  that exist in both versions are kept unchanged. Answers to fields, or `select` options, that are not in the new
++  version are deleted, which the professional confirmed by typing the template name (SPEC-0001 R18). New fields
++  start empty. (RN-21, RN-25, D-10)
+ 
+ ### 3.1 Value rules per type
+ 
+@@ -89,7 +99,8 @@
+ 1. The professional picks a template in the **[Novo]** dropdown of `/clients` or `/services` (SPEC-0004/0005), or
+    arrives from the template editor shortcut (SPEC-0001 §4.3).
+ 2. The system opens the fill-in page (`/clients/new?form=:id`), titled "Novo cliente", with the subtitle
+-   "Modelo: <template name>". Fields appear in template order (R2). Required ones are marked with "*". Help text
++   "Modelo: <template name>". The page uses the template's latest version (R1). Fields appear in that version's
++   order (R2). Required ones are marked with "*". Help text
+    appears under the input.
+ 3. The professional fills in the fields and presses **[Salvar]**.
+ 4. The page validates every field with the §3.1 rules and shows **all** errors at once, focusing the first.
+@@ -98,25 +109,27 @@
+ 6. **[Cancelar]** returns to the list. If anything was typed, it asks "Descartar cadastro?" first.
+ 
+ ### 4.2 View a record
+-1. The view page lists active fields in template order as label and value. Fields with no value show "—".
++1. The view page lists the fields of the record's linked version, in that version's order, as label and value.
++   Fields with no value show "—".
+ 2. Protected values show as "••••••" with a **"Mostrar"** control per field. Revealing lasts until the page is
+    left (R9).
+-3. If the record has values for archived fields, they appear at the end in a read-only section **"Campos
+-   removidos do modelo"**, under the field's last label. R9 still applies there.
+-4. The template name is shown and links to the template editor.
++3. The template name and "Versão N" are shown, and the name links to the template editor. If the record is on an
++   older version than the latest, the page also says "Este cadastro usa uma versão anterior do modelo".
+ 
+ ### 4.3 Edit a record
+ 1. **[Editar]** opens the fill-in page pre-filled with current values. Protected values are shown in plain text.
+-2. Saving follows 4.1 steps 3–5 (toast "Alterações salvas"). Required fields must be filled even if they were
+-   added to the template after the record was created (R6).
+-3. If an active required field has no value, the view page shows "Preenchimento pendente" next to it, so the
+-   professional is not surprised at the next save.
+-
+-### 4.4 Template changed while filling (R7)
+-1. The professional is filling a record and the template is saved elsewhere (another tab).
+-2. On **[Salvar]**, the system rejects the submission and stores nothing.
+-3. The page reloads the template and keeps every typed value whose field still exists, removes values of fields
+-   that are gone, and shows "O modelo foi atualizado. Revise os campos e salve novamente."
++2. The edit page shows the fields of the record's linked version, not the latest one (R2). Saving follows 4.1
++   steps 3–5 (toast "Alterações salvas"). Pending required fields from a migration must be filled (R6).
++3. If a required field of the linked version has no value, the view page shows "Preenchimento pendente" next to
++   it, so the professional is not surprised at the next save.
++
++### 4.4 New version published while filling (R7)
++1. The professional is filling in a new record, or editing one, and in another tab a new version is published (or
++   "Atualizar todos" migrates the record being edited).
++2. On **[Salvar]**, the system rejects the save and stores nothing.
++3. The page reloads with the version the record now uses (the latest one, for a new record). It keeps every typed
++   value whose field still exists, drops values of fields that are gone, and shows "O modelo foi atualizado.
++   Revise os campos e salve novamente." Metadata-only changes never cause this.
+ 
+ ## 5. Permissions and tenant isolation
+ 
+@@ -137,9 +150,9 @@
+ | Template id unknown, of another tenant, or malformed | 422 | `formId.invalid` | `formId` |
+ | Template type does not match (service template for a client) | 422 | `formType.mismatch` | `formId` |
+ | Template is archived (create only) | 409 | `form.archived` | `formId` |
+-| Template version is stale (R7) | 409 | `record.form-changed` | `formVersion` |
++| Version shown on the page is no longer the record's (R7) | 409 | `record.form-changed` | `formVersion` |
+ | Required field without value | 422 | `value.required` | `values.<fieldId>` |
+-| Value for a field that is unknown or archived | 422 | `value.unknown-field` | `values.<fieldId>` |
++| Value for a field that is not in the record's version | 422 | `value.unknown-field` | `values.<fieldId>` |
+ | Value of the wrong JSON type | 422 | `value.invalid` | `values.<fieldId>` |
+ | Text over its limit | 422 | `value.too-long` | `values.<fieldId>` (or `.street`, `.city`...) |
+ | Type rule failed | 422 | `number.invalid`, `date.invalid`, `option.invalid`, `email.invalid`, `phone.invalid`, `cpf.invalid` | `values.<fieldId>` |
+@@ -157,11 +170,12 @@
+   (string); `address` → `{ cep, street, number, complement | null, district, city, state }`.
+ - **Record request (create)**: `formId`, `formVersion`, the system-field attributes of the type (SPEC-0004/0005),
+   and `values`: object keyed by custom field id.
+-- **Record request (update)**: `formVersion`, system-field attributes, `values` as the **full** set of active
+-  custom values (absent keys are cleared).
+-- **Record response**: `id`, `form` (`{ id, name, version, status }`), system-field attributes, `values` (active
+-  and archived custom fields, keyed by field id), `missingRequired` (field ids, per 4.3 step 3), `status`,
+-  `createdAt`, `updatedAt`.
++- **Record request (update)**: `formVersion`, system-field attributes, `values` as the **full** set of custom
++  values of the linked version (absent keys are cleared).
++- **Record response**: `id`, `form` (`{ id, name, version, latestVersion, status }`, where `version` is the linked
++  version), system-field attributes, `values` (custom fields of the linked version, keyed by field id),
++  `missingRequired` (field ids, per 4.3 step 3), `status`, `createdAt`, `updatedAt`.
++- Pages render a record with its linked version's fields, from the version read in SPEC-0001 §7.
+ - The value rules of §3.1 live once in the shared contracts and are used by the web fill-in page and the API.
+ 
+ ## 8. UI states
+@@ -179,16 +193,17 @@
+ | View | not found | "Cadastro não encontrado." | `records.view.notFound` |
+ | View | empty value | "—" | — |
+ | View | protected value hidden / shown | "••••••" + "Mostrar" / value + "Ocultar" | `records.view.reveal`, `records.view.hide` |
+-| View | archived-field values | Section "Campos removidos do modelo" | `records.view.archivedFields` |
++| View | older version | "Este cadastro usa uma versão anterior do modelo" | `records.view.olderVersion` |
++| View | version badge | "Modelo: <name> · Versão N" | `records.view.version` |
+ | View | required field missing | "Preenchimento pendente" badge | `records.view.missingRequired` |
+ 
+ ## 9. Open questions
+ 
+ | # | Question | Proposed answer | Blocks |
+ | --- | --- | --- | --- |
+-| 1 | Should a field made required later block **every** edit of older records until filled (R6), or only apply to new records? | Every save, as RN-20 states, with the "Preenchimento pendente" hint. | R6 |
++| 1 | ~~Required fields added later.~~ | **Decided (D-10):** records on older versions are unaffected; migrated records are flagged pending and required at their next save. | — |
+ | 2 | Should a protected value come from the API only on explicit reveal, so reveals can be audited (RFC §6 audit logs)? | Not in the MVP: the detail response includes it and the UI masks it. Revisit with collaborators (RF-05), when audits matter. | R9, contract |
+-| 3 | Should values of archived fields be clearable by the professional? | No in the MVP. They go when the record is deleted. | R5 |
++| 3 | ~~Clearing values of archived fields.~~ | **Superseded (v0.3):** fields are no longer archived; older versions keep them (D-10). | — |
+ | 4 | International phone numbers? | No in the MVP; Brazilian only. | §3.1 |
+ | 5 | Rejecting a stale template version (R7) vs. validating against the current template. | Reject. It is rare (single user, two tabs) and predictable. | R7 |
+ 
+@@ -268,7 +283,7 @@
+ 
+ ```
+ AC-0003-10
+-Given template "Ficha" with archived field "Hobby" whose id is H
++Given template "Ficha" whose latest version does not contain field "Hobby" (id H) any more
+ When  the owner creates a client including a value for H
+ Then  the response is 422 with { "error": "value.unknown-field", "field": "values.H" }
+ ```
+@@ -298,16 +313,17 @@
+ ```
+ AC-0003-15
+ Given a client with value "Engenheira" for field "Profissão"
+-When  the owner renames the field to "Ocupação" and moves it first among custom fields
+-Then  the client's view page shows "Ocupação: Engenheira" in the new position
++When  the owner relabels the field to "Ocupação"
++Then  the template's version does not change
++And   the client's view page shows "Ocupação: Engenheira"
+ ```
+ 
+ ```
+ AC-0003-16
+-Given a client with value "Corrida" for field "Hobby"
+-When  the owner archives "Hobby" in the template
+-Then  the client's view page shows "Hobby: Corrida" under "Campos removidos do modelo"
+-And   the edit page does not offer an input for "Hobby"
++Given a client on version 1 of "Ficha" with value "Corrida" for field "Hobby"
++When  the owner removes "Hobby" and applies with "Manter existentes"
++Then  the client's view and edit pages still show "Hobby" with "Corrida"
++And   the fill-in page for a new client does not offer "Hobby"
+ ```
+ 
+ ```
+@@ -348,6 +364,46 @@
+ Then  the response is 404 with { "error": "client.not-found" }
+ ```
+ 
++```
++AC-0003-17
++Given a client migrated by "Atualizar todos" to a version where field "Profissão" (id P) is required, without a value for P
++When  the owner edits only the client's phone and saves without "Profissão"
++Then  the response is 422 with { "error": "value.required", "field": "values.P" }
++And   before editing, the view page showed "Preenchimento pendente" next to "Profissão"
++```
++
++```
++AC-0003-23
++Given "Ficha" at version 3
++When  the owner creates a client from it
++Then  the response reports form version 3 and latestVersion 3
++```
++
++```
++AC-0003-24
++Given a client on version 1 of "Ficha", with answers for "Profissão" and "Objetivo"
++And   version 2 keeps "Profissão" and removes "Objetivo"
++When  the owner applies version 2 with "Atualizar todos" and confirms the template name
++Then  the client reports form version 2, keeps its "Profissão" answer and has no "Objetivo" answer
++```
++
++```
++AC-0003-25
++Given a client on version 1 of "Ficha" while the latest version is 2
++When  the owner opens the client's view page
++Then  it shows the fields of version 1 and the notice with copy key records.view.olderVersion
++And   saving an edit validates against version 1, not version 2
++```
++
++```
++AC-0003-26
++Given the owner opened the edit page of a client on version 1
++And   "Atualizar todos" then migrated that client to version 2
++When  the owner saves the edit with formVersion 1
++Then  the response is 409 with { "error": "record.form-changed", "field": "formVersion" }
++And   the client is unchanged by that save
++```
++
+ ### Provisional criteria
+ 
+ These depend on open questions that are not answered yet. They are **not agreed behavior** and must not be turned into tests until the owner answers. On an answer, each one is confirmed, rewritten, or withdrawn (withdrawn IDs are not reused).
+@@ -356,21 +412,11 @@
+ 
+ ```
+ AC-0003-14
+-Given the owner opened the fill-in page for "Ficha" at version 2
+-And   the template was then saved at version 3
++Given the owner opened the fill-in page for "Ficha" while its latest version was 2
++And   version 3 was then published
+ When  the owner submits the record with formVersion 2
+ Then  the response is 409 with { "error": "record.form-changed", "field": "formVersion" }
+-And   the page reloads "Ficha", keeps typed values of fields that still exist and shows copy key records.form.formChanged
+-```
+-
+-**AC-0003-17**: depends on §9 Q1 (required on every save).
+-
+-```
+-AC-0003-17
+-Given a client created before field "Profissão" (id P) became required
+-When  the owner edits only the client's phone and saves without "Profissão"
+-Then  the response is 422 with { "error": "value.required", "field": "values.P" }
+-And   before editing, the view page showed "Preenchimento pendente" next to "Profissão"
++And   the page reloads "Ficha" at version 3, keeps typed values of fields that still exist and shows copy key records.form.formChanged
+ ```
+ 
+ ## 11. Implementation plan
+@@ -387,3 +433,4 @@
+ | --- | --- | --- |
+ | 0.1 | 2026-11-09 | Draft |
+ | 0.2 | 2026-11-09 | Owner answer D-8 recorded; `first_name` removed; AC-0003-04, -05, -07 agreed |
++| 0.3 | 2026-11-09 | Template versioning (owner, D-10): records linked to a version; migration rules (R13); archived-field display removed; AC-0003-10, -14, -15, -16 rewritten; AC-0003-17 rewritten and agreed; AC-0003-23 to -26 added |
+diff --git a/docs/specs/SPEC-0004-clientes.md b/docs/specs/SPEC-0004-clientes.md
+--- a/docs/specs/SPEC-0004-clientes.md
++++ b/docs/specs/SPEC-0004-clientes.md
+@@ -3,7 +3,7 @@
+ title: Cadastro de clientes
+ status: Draft # Draft | Review | Approved | Implemented | Superseded
+ plan_status: Draft # Draft | Approved
+-version: 0.2
++version: 0.3
+ owner: TBD
+ satisfies: [RF-07, RF-08, RF-09, RN-02, RN-04, RN-05, RN-24, RN-25]
+ depends_on: [SPEC-0001, SPEC-0002, SPEC-0003]
+@@ -127,7 +127,7 @@
+ 
+ New, non-breaking. Consumers: `apps/web`.
+ 
+-- **Client** (response): `id`, `form` (`{ id, name, version, status }`), `name`, `email`, `phone` (string | null),
++- **Client** (response): `id`, `form` (`{ id, name, version, latestVersion, status }`), `name`, `email`, `phone` (string | null),
+   `values`, `missingRequired`, `status` (`active | inactive`), `hasHistory` (bool), `createdAt`, `updatedAt`.
+ - **ClientSummary** (list item): `id`, `name`, `email`, `phone`, `formId`, `formName`, `status`.
+ - **List**: query `q?`, `status?` (`active` default, `inactive`, `all`), `limit?`, `after?` (`api-convention.md`, Pagination;
+@@ -367,3 +367,4 @@
+ | --- | --- | --- |
+ | 0.1 | 2026-11-09 | Draft |
+ | 0.2 | 2026-11-09 | Owner answers D-6, D-9 recorded; AC-0004-01 agreed; AC-0004-21 to -23 (pagination) added |
++| 0.3 | 2026-11-09 | `form` in the response gains `latestVersion` (template versioning, SPEC-0001 v0.3) |
+diff --git a/docs/specs/SPEC-0005-servicos.md b/docs/specs/SPEC-0005-servicos.md
+--- a/docs/specs/SPEC-0005-servicos.md
++++ b/docs/specs/SPEC-0005-servicos.md
+@@ -3,7 +3,7 @@
+ title: Cadastro de serviços
+ status: Draft # Draft | Review | Approved | Implemented | Superseded
+ plan_status: Draft # Draft | Approved
+-version: 0.2
++version: 0.3
+ owner: TBD
+ satisfies: [RF-11, RF-12, RF-13, RN-02, RN-06, RN-22, RN-24, RN-25]
+ depends_on: [SPEC-0001, SPEC-0002, SPEC-0003]
+@@ -107,7 +107,7 @@
+ 
+ New, non-breaking. Consumers: `apps/web`; later the scheduling module.
+ 
+-- **Service** (response): `id`, `form` (`{ id, name, version, status }`), `name`, `durationMinutes` (int),
++- **Service** (response): `id`, `form` (`{ id, name, version, latestVersion, status }`), `name`, `durationMinutes` (int),
+   `priceCents` (int, centavos), `currency` (`"BRL"`), `values`, `missingRequired`, `status` (`active | inactive`),
+   `inUse` (bool), `createdAt`, `updatedAt`.
+ - **ServiceSummary** (list item): `id`, `name`, `durationMinutes`, `priceCents`, `currency`, `formId`,
+@@ -323,3 +323,4 @@
+ | --- | --- | --- |
+ | 0.1 | 2026-11-09 | Draft |
+ | 0.2 | 2026-11-09 | Owner answers D-6, D-9 recorded; `priceCents` restored; AC-0005-01 agreed; AC-0005-19 (pagination) added |
++| 0.3 | 2026-11-09 | `form` in the response gains `latestVersion` (template versioning, SPEC-0001 v0.3) |
+diff --git a/docs/specs/forms-overview.md b/docs/specs/forms-overview.md
+new file mode 100644
+--- /dev/null
++++ b/docs/specs/forms-overview.md
+@@ -0,0 +1,131 @@
++# Custom forms, clients and services: overview
++
++> Not a spec. This page maps the specs below, fixes the vocabulary, records the decisions already
++> taken, and lists the conflicts with the RFC that the owner must resolve. Specs are normative; this page is not.
++
++| Spec | Capability | Depends on |
++| --- | --- | --- |
++| [SPEC-0001](SPEC-0001-modelos-de-formulario.md) | Form templates: create, list, edit, archive, delete | — |
++| [SPEC-0002](SPEC-0002-campos-de-formulario.md) | Template fields: types, required, sensitive data, order, removal | SPEC-0001 |
++| [SPEC-0003](SPEC-0003-preenchimento-de-cadastro.md) | Filling a record from a template: validation, display, template changes | SPEC-0001, SPEC-0002 |
++| [SPEC-0004](SPEC-0004-clientes.md) | Clients (`/clients`) | SPEC-0003 |
++| [SPEC-0005](SPEC-0005-servicos.md) | Services (`/services`) | SPEC-0003 |
++
++Suggested build order: 0001 + 0002 together (one editor screen), then 0003, then 0004 and 0005 in parallel.
++
++## 1. Vocabulary
++
++| pt-BR (UI) | English (code) | Meaning |
++| --- | --- | --- |
++| Modelo de formulário | form template (`form`) | The template. Holds no client or service data. |
++| Tipo do modelo | form type | What the template creates: `client` or `service` (MVP); `plan` post-MVP. Fixed at creation. |
++| Campo | field (`form field`) | One question in a template. One field holds exactly one value per record. |
++| Campo do sistema | system field | A field every template of a type carries, which the rest of the product depends on (e.g. a client's e-mail). It can be renamed and moved, but not removed. |
++| Campo personalizado | custom field | Any field the professional added. |
++| Versão do modelo | template version | A published, immutable snapshot of a template's structure (SPEC-0001 R13–R15). |
++| Submissão | submission | Only the set of answers sent when the professional presses [Salvar]. It is not stored as its own thing: a submission creates or updates a record. |
++| Cadastro | record | What the original draft called a "form instance": one client or one service, created from one template. The UI never says "instância"; it says "cliente" or "serviço". |
++| Valor / resposta | field value | What was typed into one field of one record. |
++| Dado protegido | sensitive field | A field whose values are hidden by default and kept out of lists, search and logs. See SPEC-0002 §3 (name decided, D-5). |
++
++**What "protected" does in the MVP.** Its visible effect is small: values are masked on the record's view page
++until revealed, and they never appear in lists or search. Its real value is that it marks the data that later
++features must treat carefully (custom-field search, export, sharing, collaborator permissions, audit of reveals).
++
++**Rename "form instance" to "record" (cadastro).** For a client, the record *is* the client, so the user never
++needs a third word. "Cadastro" is the everyday pt-BR word for it ("cadastro de cliente").
++
++## 2. Conceptual model
++
++```
++Tenant 1──* Form template (type: client | service, name, description, status, revision)
++                 1──* Template version (number; immutable once published)
++                          1──* Version field (field, position, required, options)  ← schema
++                 1──* Field (identity, type, label, help text, protected)           ← metadata shared by all versions
++
++Tenant 1──* Client  ──* 1 Template version (of a client template)    one template per client, fixed
++Tenant 1──* Service ──* 1 Template version (of a service template)   one template per service, fixed
++
++Client / Service 1──* Field value  ──* 1 Field              at most one value per (record, field)
++```
++
++- System-field values (client name, e-mail, phone; service name, duration, price) belong to the client or
++  service itself, because scheduling, search, finance and uniqueness rules read them.
++- Custom-field values belong to the record and point at the template field they answer.
++- A record is linked to one template version. It moves to another version only through "Atualizar todos".
++
++## 3. Decisions already taken (owner, 2026-11-09)
++
++| # | Decision |
++| --- | --- |
++| D-1 | Forms move into the MVP, because clients and services are created from them. The RFC is not edited yet (see §4). |
++| D-2 | Each type has system fields that are locked into every template of that type. Their values are real attributes of the client or service. |
++| D-3 | For text-like fields, the sensitive-data check runs on the field **label** (templates hold no data). Personal-data field types are always sensitive. |
++| D-4 | A client or service is created from exactly one template and stays bound to it. Attaching extra forms later (an anamnesis, say) is post-MVP. |
++| D-5 | Custom forms are the product's main focus and are MVP regardless of the RFC (resolves C-1). The RFC text still needs amending. |
++| D-6 | Every tenant starts with a default "Cliente" and a default "Serviço" template (resolves Q-C). |
++| D-7 | The switch is called **"Dado protegido"** (resolves Q-A). |
++| D-8 | The field-type catalog in SPEC-0002 §3.1 is accepted as proposed, without "first name" (resolves Q-B, C-6). |
++| D-9 | Money is an integer in centavos (`9999` = R$ 99,99), and lists use `limit` + `after` cursor pagination. Both now live in `docs/architecture/api-convention.md` (resolves Q-D, Q-E). |
++| D-10 | Templates are **versioned** (RF-39, RN-21). Saving a new template publishes v1; applying schema changes publishes the next version; metadata (names, labels, help text, protection, option labels) is shared by all versions and publishes nothing. When records exist, the Apply dialog offers "Manter existentes" or "Atualizar todos". Deleting answers in a migration needs the template name typed. Migrated records missing a new required field are flagged pending. The draft lives only in the editor. A separate `revision` counter protects against two tabs. |
++| D-11 | A **record** is the saved client or service. A **submission** is only the answers sent on [Salvar]. The RFC's "many dated submissions per client" is replaced by "one record per client, linked to a template version" (RFC amended in the same change). |
++
++Anything else in the specs (protected-terms list, uniqueness rules, limits, Telefone as a system field, the
++delete-vs-archive rule) is a **proposal**. Each spec's acceptance criteria that depend on a proposal are
++kept apart under "Provisional criteria" until the owner answers.
++
++## 4. Conflicts with the RFC (owner must resolve)
++
++| # | RFC says | These specs say | Proposed resolution |
++| --- | --- | --- | --- |
++| C-1 | ~~RF-37–RF-42 Pós-MVP.~~ | Forms are MVP. | **Resolved:** the RFC now marks them MVP. |
++| C-2 | RF-07: client has fixed fields (name, phone, e-mail, notes); "custom forms are post-MVP". RF-11: service has name, duration, default price. | Those become **system fields** of the template, and everything else is custom. "Observações" (notes) becomes an ordinary long-text custom field. | Amend RF-07/RF-11 to say "fixed minimum fields, extended by the template". |
++| C-3 | ~~RF-37/RN-20: target entity "sugerida".~~ | The type is binding. | **Resolved:** the RFC now makes the type mandatory and binding. |
++| C-4 | RF-40–RF-42, RN-21: many dated **submissions** per client or service, filled on its page. | One record per client or service, created from one template and linked to one version (D-4, D-11). | **Decided (D-11).** RFC amended in the same change as these specs. Extra forms per client stay post-MVP. |
++| C-7 | RF-39: "Modelos com cadastros são arquivados em vez de removidos" (the delete becomes an archive). | Delete is rejected with 409 `form.in-use` and the UI offers "Arquivar" (SPEC-0001 R8). The same pattern holds for clients and services (SPEC-0004 Q5). | Open: pick one pattern for all three. |
++| C-5 | `schema.dbml`: `forms.default_entity_type` is nullable. `form_fields.sort_order int`. `clients.custom_fields jsonb` is an "ad-hoc fallback". | The type is required. Order uses fractional keys. No ad-hoc fallback. | Update `schema.dbml` during data modelling (§6). |
++| C-6 | `field_type` enum: text, textarea, number, date, select, multiselect, checkbox, radio, image, file, url, phone, email. | MVP catalog in SPEC-0002 §3.1 (adds cpf, full name, first name, address, yes/no; defers multiselect, radio, image, file, url). | **Decided (D-8).** Update the enum during data modelling. |
++
++## 5. Cross-cutting open questions
++
++These affect more than one spec. Each spec's §9 refers back to these by ID.
++
++| # | Question | Proposed answer | Blocks |
++| --- | --- | --- | --- |
++| ~~Q-A~~ | **Decided (D-7).** "Dado sensível" has a strict LGPD meaning (art. 5 II: health, religion, ethnicity...). CPF and e-mail are *personal* data, not *sensitive* data. What should the switch be called? | UI label **"Dado protegido"**, help text: "Oculta o valor nas listas e só o mostra quando você pedir. Use para documentos, contatos e informações de saúde." | SPEC-0002 copy |
++| ~~Q-B~~ | **Decided (D-8).** Is the MVP field-type catalog (SPEC-0002 §3.1) right? Why do we need both "full name" and "first name"? | Keep the catalog. Drop "first name" unless there is a concrete use. | SPEC-0002 |
++| ~~Q-C~~ | **Decided (D-6).** Should every tenant start with one default template per type, so the first client can be created without building a template? | Yes: "Cliente" and "Serviço", with system fields only. Seed them on tenant creation and backfill existing tenants. This touches the tenants module. | SPEC-0004/0005 first-use flow |
++| ~~Q-D~~ | **Decided (D-9).** Lists had no pagination contract (`api-convention.md`). Clients can reach the thousands. | `limit` + `after` cursor, default 50, max 100 (`api-convention.md`, Pagination). | SPEC-0004/0005 lists |
++| ~~Q-E~~ | **Decided (D-9).** There was no monetary JSON representation yet (`api-convention.md`). | Integer centavos plus ISO currency: `priceCents: 15000, currency: "BRL"` (`api-convention.md`, Money). | SPEC-0005 |
++| Q-F | The RFC (§6, "Dados Sensíveis") requires encryption at rest for form answers. All answers, or only sensitive ones? | All custom-field values, as the RFC says. The sensitive flag adds hiding, not encryption. | data modelling |
++
++## 6. Notes for data modelling and `/plan` (non-normative)
++
++These are inputs for modelling the database. They are not requirements.
++
++- **Ordering (fractional indexing).** Each field gets a string position key. Moving a field writes only that
++  field's key (between its new neighbours), and other rows are untouched. Keys are unique per template and
++  compared bytewise. Caveat: if [Save] sends the whole template at once (SPEC-0001 §4), the array order already
++  carries the order and the server can regenerate the keys. Fractional keys pay off when reorders are saved one at
++  a time, or when edits from two tabs are merged. Decide in `/plan`; the spec only requires that order is
++  preserved (RN-20).
++- **Field identity is stable.** A field keeps its id for its whole life. Values point at field ids, never at
++  labels or positions, so renaming and moving fields never touches values.
++- **Versions.** A `form_versions` table (template, number, published at) plus a version-field join (version,
++  field, position, required, options) holds the schema. Field rows hold identity, type and the shared metadata
++  (label, help text, protected). Records point at a version id. "Atualizar todos" is one transaction: insert the
++  version, repoint every record, delete answers to fields not in the new version.
++- **Ordering per version.** Each version stores its own order. Since a version is published whole, array order
++  is enough to write it, so fractional keys (above) are optional.
++- **Value storage.** Two realistic options: (a) one row per (record, field) with a typed or JSON value; (b) one
++  JSON document per record keyed by field id (as `form_attachments.responses` does today). (a) makes "does
++  this field have any values?" (needed by SPEC-0002) and per-value encryption simpler. (b) is simpler to read
++  and write whole. Decide in `/plan`.
++- **System-field values** are columns on `clients` / `services` (`name`, `email`, `phone`; `name`,
++  `duration_minutes`, `price`). The template stores the system field's label, position and (for phone) required
++  flag. A `system_key` (`client.name`, `client.email`, ...) on the field row links the two.
++- **Tenant isolation.** Every new table carries `tenant_id`, including field and value tables, even though the
++  tenant could be derived through the template. This keeps RLS (RFC §6) simple and allows tenant-scoped
++  unique indexes.
++- **Optimistic concurrency.** A `revision` integer on the template, separate from the published version number,
++  supports the 409 conflict in SPEC-0001 R11.
