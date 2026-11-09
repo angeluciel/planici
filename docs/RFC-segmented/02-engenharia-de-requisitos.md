@@ -110,9 +110,9 @@
 | UC-43  | Adicionar e ordenar campos do formulário        | Profissional   | RF-38                   | MVP     |
 | UC-44  | Editar modelo de formulário                     | Profissional   | RF-39                   | MVP     |
 | UC-45  | Excluir modelo de formulário                    | Profissional   | RF-39                   | MVP     |
-| UC-46  | Preencher formulário de cliente ou serviço      | Profissional   | RF-40                   | MVP     |
-| UC-47  | Editar submissão de formulário                  | Profissional   | RF-41                   | MVP     |
-| UC-48  | Visualizar submissões de uma entidade           | Profissional   | RF-42                   | MVP     |
+| UC-46  | Cadastrar cliente ou serviço a partir de modelo | Profissional   | RF-40                   | MVP     |
+| UC-47  | Editar cadastro feito a partir de modelo        | Profissional   | RF-41                   | MVP     |
+| UC-48  | Visualizar cadastro e versão do modelo          | Profissional   | RF-42                   | MVP     |
 
 ### 2.2.10. Configuração do espaço de trabalho
 | Código | Caso de uso                      | Ator principal | Requisitos relacionados | Fase    |
@@ -190,12 +190,12 @@
   </tr>
   <tr>
     <td>RF-07</td>
-    <td><strong>Criar cliente</strong><br>O profissional pode cadastrar um cliente com nome, telefone, e-mail e observações (campos fixos mínimos; dados adicionais são coletados por formulários personalizados, RF-37 a RF-42).</td>
+    <td><strong>Criar cliente</strong><br>O profissional pode cadastrar um cliente com nome, telefone e e-mail (campos fixos mínimos; observações e demais dados são coletados por formulários personalizados, RF-37 a RF-42).</td>
     <td>MVP</td>
   </tr>
   <tr>
     <td>RF-08</td>
-    <td><strong>Editar, inativar e excluir cliente</strong><br>O profissional pode atualizar os dados de um cliente. A exclusão definitiva só é permitida para clientes <strong>sem</strong> histórico vinculado (atendimentos, pagamentos e submissões de formulário; planos quando essa funcionalidade Pós-MVP existir). Clientes <strong>com</strong> histórico vinculado não são removidos fisicamente: a operação resulta em inativação (soft delete), preservando o histórico para consultas, relatórios e controle financeiro. Conforme RN-05 e RN-24.</td>
+    <td><strong>Editar, inativar e excluir cliente</strong><br>O profissional pode atualizar os dados de um cliente. A exclusão definitiva só é permitida para clientes <strong>sem</strong> histórico vinculado (atendimentos e pagamentos; planos quando essa funcionalidade Pós-MVP existir). Clientes <strong>com</strong> histórico vinculado não são removidos fisicamente: a operação resulta em inativação (soft delete), preservando o histórico para consultas, relatórios e controle financeiro. Conforme RN-05 e RN-24.</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -226,7 +226,7 @@
   </tr>
   <tr>
     <td>RF-12</td>
-    <td><strong>Editar, inativar e excluir procedimento</strong><br>O profissional pode atualizar um procedimento do catálogo. A exclusão definitiva só é permitida para procedimentos <strong>sem</strong> vínculo a agendamentos, planos, submissões de formulário ou histórico financeiro. Procedimentos <strong>com</strong> esse vínculo não são removidos fisicamente: a operação resulta em inativação (soft delete), impedindo novos usos e preservando o histórico. Conforme RN-06 e RN-24.</td>
+    <td><strong>Editar, inativar e excluir procedimento</strong><br>O profissional pode atualizar um procedimento do catálogo. A exclusão definitiva só é permitida para procedimentos <strong>sem</strong> vínculo a agendamentos, planos ou histórico financeiro. Procedimentos <strong>com</strong> esse vínculo não são removidos fisicamente: a operação resulta em inativação (soft delete), impedindo novos usos e preservando o histórico. Conforme RN-06 e RN-24.</td>
     <td>MVP</td>
   </tr>
   <tr>
@@ -427,22 +427,22 @@
   </tr>
   <tr>
     <td>RF-39</td>
-    <td><strong>Editar e excluir modelo de formulário</strong><br>O profissional pode atualizar ou remover um modelo de formulário e seus campos. Cada alteração de campos gera uma nova versão do modelo. Modelos com submissões são arquivados em vez de removidos (RN-21).</td>
+    <td><strong>Editar e excluir modelo de formulário</strong><br>O profissional pode atualizar ou remover um modelo de formulário e seus campos. Alterações de estrutura (campos adicionados ou removidos, tipo, obrigatoriedade, opções de seleção e ordem) publicam uma nova versão do modelo. Nome, descrição, rótulos, textos de ajuda, nomes de opções e a marcação de dado protegido são compartilhados por todas as versões e não geram versão. Ao excluir um modelo com cadastros vinculados, o profissional escolhe entre excluir também esses cadastros, confirmando com a digitação do nome do modelo (RN-25), ou arquivar o modelo, que deixa de aparecer na lista de modelos por padrão. Cadastros com histórico de atendimentos ou pagamentos nunca são excluídos fisicamente (RN-05, RN-06).</td>
     <td>MVP</td>
   </tr>
   <tr>
     <td>RF-40</td>
-    <td><strong>Preencher formulário de uma entidade</strong><br>Na ficha de um cliente ou serviço, o profissional escolhe um modelo do mesmo tipo e preenche uma nova submissão, ou cria um novo modelo com o tipo já preenchido. A mesma entidade pode ter várias submissões datadas do mesmo modelo. Submissões em planos são Pós-MVP.</td>
+    <td><strong>Cadastrar a partir de um modelo</strong><br>Ao criar um cliente ou serviço, o profissional escolhe um modelo ativo do mesmo tipo, ou cria um novo modelo com o tipo já preenchido, e preenche seus campos. O cadastro fica vinculado à versão publicada mais recente do modelo no momento da criação. Cada cliente ou serviço é criado a partir de um único modelo. Cadastros em planos são Pós-MVP.</td>
     <td>MVP</td>
   </tr>
   <tr>
     <td>RF-41</td>
-    <td><strong>Editar submissão de formulário</strong><br>O profissional pode atualizar as respostas de uma submissão existente, que permanece vinculada à versão do modelo em que foi preenchida.</td>
+    <td><strong>Editar cadastro feito a partir de modelo</strong><br>O profissional pode atualizar os dados de um cliente ou serviço. Os dados são exibidos e validados conforme a versão do modelo à qual o cadastro está vinculado.</td>
     <td>MVP</td>
   </tr>
   <tr>
     <td>RF-42</td>
-    <td><strong>Visualizar submissões de uma entidade</strong><br>Na ficha de um cliente ou serviço, o profissional visualiza todas as submissões e suas respostas.</td>
+    <td><strong>Visualizar cadastro</strong><br>Na ficha de um cliente ou serviço, o profissional visualiza os dados preenchidos conforme a versão do modelo vinculada, com o nome e a versão do modelo.</td>
     <td>MVP</td>
   </tr>
 </table>
@@ -773,7 +773,7 @@ Não deve ser permitido cadastrar dois clientes com o mesmo e-mail dentro do mes
 
 ### RN-05: Exclusão de clientes
 
-Clientes que possuam histórico de atendimentos, pagamentos ou submissões de formulário (e, quando a funcionalidade Pós-MVP existir, planos) não devem ser removidos definitivamente do sistema.
+Clientes que possuam histórico de atendimentos ou pagamentos (e, quando a funcionalidade Pós-MVP existir, planos) não devem ser removidos definitivamente do sistema.
 
 Nesses casos, o cliente deve ser apenas inativado, preservando o histórico necessário para consultas futuras, relatórios e controle financeiro.
 
@@ -787,7 +787,7 @@ Um procedimento deve possuir, no mínimo, nome, duração estimada e valor padr�
 
 O valor padrão de um procedimento não pode ser negativo.
 
-Procedimentos vinculados a agendamentos, planos, submissões de formulário ou histórico financeiro não devem ser excluídos definitivamente; devem ser inativados.
+Procedimentos vinculados a agendamentos, planos ou histórico financeiro não devem ser excluídos definitivamente; devem ser inativados.
 
 ---
 
@@ -939,21 +939,25 @@ Todo modelo de formulário deve pertencer a um tenant.
 
 Um modelo de formulário deve possuir nome e um tipo obrigatório, cliente ou serviço. O tipo determina em quais fichas o modelo é oferecido.
 
-Campos obrigatórios definidos em um formulário devem ser preenchidos antes que a submissão seja salva.
+Campos obrigatórios definidos em um formulário devem ser preenchidos antes que o cadastro seja salvo.
 
 A ordem dos campos definida pelo profissional deve ser preservada na exibição do formulário.
 
 ---
 
-### RN-21: Submissões de formulário
+### RN-21: Versões de modelo e cadastros
 
-Uma submissão é uma cópia preenchida de um modelo de formulário, vinculada a uma entidade do mesmo tipo do modelo (cliente ou serviço). Uma entidade pode ter várias submissões datadas do mesmo modelo.
+Um cadastro (cliente ou serviço) é criado a partir de um modelo do mesmo tipo e fica vinculado a uma versão publicada desse modelo. Cada cadastro está vinculado a exatamente um modelo.
 
-Somente o profissional preenche submissões; clientes não acessam formulários.
+Somente o profissional preenche cadastros; clientes não acessam formulários.
 
-As respostas preenchidas devem permanecer vinculadas à entidade da submissão.
+Salvar um modelo novo publica a versão 1. Aplicar uma alteração de estrutura publica a versão seguinte. Versões publicadas são imutáveis e mantidas enquanto o modelo existir.
 
-Alterações futuras no modelo do formulário não devem apagar nem alterar submissões já registradas: cada alteração de campos gera uma nova versão do modelo, e a submissão permanece vinculada à versão em que foi preenchida.
+Cadastros novos usam a versão publicada mais recente. Cadastros existentes são exibidos e validados conforme a versão a que estão vinculados.
+
+Ao publicar uma versão de um modelo que já tem cadastros, o profissional escolhe entre manter os cadastros nas versões em que estão ou atualizar todos para a nova versão. A atualização é explícita e ocorre por completo ou não ocorre. Respostas de campos removidos só são excluídas após confirmação com digitação do nome do modelo (RN-25). Cadastros atualizados que não tenham valor para um novo campo obrigatório ficam com preenchimento pendente até o próximo salvamento.
+
+Fora dessa escolha explícita, alterações futuras no modelo do formulário não devem apagar nem alterar cadastros já registrados.
 
 ---
 
@@ -1066,7 +1070,7 @@ Fonte canônica da fase de cada área do produto. Em caso de divergência entre 
 | Pagamentos | Registro manual de pagamento e status | Integração com gateways, cobrança online, conciliação automática |
 | Financeiro | Resumo básico por período | Exportações avançadas, comparativos, rankings e dashboards completos |
 | Notificações | Feedbacks internos simples da aplicação; e-mail transacional de conta via AWS SES (verificação de e-mail e recuperação de senha) | Notificações automáticas de agendamento por e-mail, WhatsApp, templates e webhooks |
-| Formulários | Formulários personalizados de clientes e serviços: modelos versionados, campos sem anexos e submissões preenchidas pelo profissional | Campos de imagem e arquivo, formulários em planos |
+| Formulários | Formulários personalizados de clientes e serviços: modelos versionados, campos sem anexos e cadastros de clientes e serviços preenchidos pelo profissional | Campos de imagem e arquivo, formulários em planos |
 | Personalização | — | Ocupação profissional e labels customizadas |
 | Arquitetura | NestJS modular, Next.js, PostgreSQL e RLS; AWS S3 para foto de perfil | RabbitMQ, arquitetura distribuída, microservices, workers complexos, CQRS/event-driven |
 | Qualidade | TDD, 75% backend, 25% frontend, SonarCloud e CI/CD | Observabilidade avançada e quality gates mais rigorosos |
