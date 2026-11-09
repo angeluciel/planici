@@ -3,8 +3,8 @@ id: SPEC-0005
 title: Cadastro de serviços
 status: Draft # Draft | Review | Approved | Implemented | Superseded
 plan_status: Draft # Draft | Approved
-version: 0.2
-owner: TBD
+version: 0.6
+owner: Joao Izidoro
 satisfies: [RF-11, RF-12, RF-13, RN-02, RN-06, RN-22, RN-24, RN-25]
 depends_on: [SPEC-0001, SPEC-0002, SPEC-0003]
 phase: MVP
@@ -71,6 +71,9 @@ stored as minutes. Price is typed with a pt-BR mask ("150,00").
 ### 4.4 Inactivate, reactivate and delete
 Same as SPEC-0004 §4.4–§4.5, with service wording: "Inativar <name>? O serviço não poderá ser usado em novos
 agendamentos, mas o histórico é mantido." The delete hint is "Serviços já utilizados não podem ser excluídos".
+Services are also deleted when their template is deleted with "Sim, excluir tudo" (SPEC-0001 §4.6). That option is
+offered only when no service of the template has linked history (R7). If any of them has, the template can only be
+archived, and no service is deleted (SPEC-0001 R8).
 
 ## 5. Permissions and tenant isolation
 
@@ -89,7 +92,7 @@ Value errors for custom fields are in SPEC-0003 §6.
 | Situation | Status | `error` key | `field` |
 | --- | --- | --- | --- |
 | Name missing or blank | 422 | `serviceName.required` | `name` |
-| Name over 80 characters | 422 | `serviceName.too-long` | `name` |
+| Name over 80 characters | 422 | `serviceName.max` | `name` |
 | Name used by another service of the tenant | 409 | `serviceName.taken` | `name` |
 | Duration missing | 422 | `serviceDuration.required` | `durationMinutes` |
 | Duration not a whole number in 5–1,440 | 422 | `serviceDuration.invalid` | `durationMinutes` |
@@ -99,7 +102,7 @@ Value errors for custom fields are in SPEC-0003 §6.
 | Service unknown or in another tenant | 404 | `service.not-found` | — |
 | Delete while linked | 409 | `service.in-use` | — |
 | Inactivate an inactive / reactivate an active service | 409 | `service.status-unchanged` | — |
-| Search query of 1 character | 422 | `serviceSearch.too-short` | `q` |
+| Search query of 1 character | 422 | `serviceSearch.min` | `q` |
 | `limit` outside 1–100 or not an integer | 422 | `limit.invalid` | `limit` |
 | Cursor malformed, or issued for other filters | 422 | `cursor.invalid` | `after` |
 
@@ -107,7 +110,7 @@ Value errors for custom fields are in SPEC-0003 §6.
 
 New, non-breaking. Consumers: `apps/web`; later the scheduling module.
 
-- **Service** (response): `id`, `form` (`{ id, name, version, status }`), `name`, `durationMinutes` (int),
+- **Service** (response): `id`, `form` (`{ id, name, version, latestVersion, status }`), `name`, `durationMinutes` (int),
   `priceCents` (int, centavos), `currency` (`"BRL"`), `values`, `missingRequired`, `status` (`active | inactive`),
   `inUse` (bool), `createdAt`, `updatedAt`.
 - **ServiceSummary** (list item): `id`, `name`, `durationMinutes`, `priceCents`, `currency`, `formId`,
@@ -147,7 +150,7 @@ New, non-breaking. Consumers: `apps/web`; later the scheduling module.
 | 3 | Price R$ 0,00 allowed? Upper bound? | Yes; max R$ 999.999,99. | R5 |
 | 4 | ~~Money representation.~~ | **Decided (D-9):** `priceCents` + `currency` (`api-convention.md`, Money). | — |
 | 5 | ~~Default "Serviço" template.~~ | **Decided (D-6):** yes. | — |
-| 6 | Should the service "description" (in `schema.dbml`) be a system field? | No: a custom long-text field when wanted. | §3.2 of SPEC-0002 |
+| 6 | Should the service "description" (in `schema.dbml`) be a system field? | No: a custom long-text field when wanted. | §3.2 of SPEC-0001 |
 
 ## 10. Acceptance criteria
 
@@ -323,3 +326,7 @@ Written by `/plan` after the spec is Approved. Empty until then.
 | --- | --- | --- |
 | 0.1 | 2026-11-09 | Draft |
 | 0.2 | 2026-11-09 | Owner answers D-6, D-9 recorded; `priceCents` restored; AC-0005-01 agreed; AC-0005-19 (pagination) added |
+| 0.3 | 2026-11-09 | `form` in the response gains `latestVersion` (template versioning, SPEC-0001 v0.3) |
+| 0.4 | 2026-11-09 | Owner Joao Izidoro set. Services can be deleted together with their template (SPEC-0001 D-13) |
+| 0.5 | 2026-11-09 | Aligned with SPEC-0001 v0.5 (owner decision on SPEC-0001 Q7): deleting a template with its services is offered only when none has linked history (§4.4) |
+| 0.6 | 2026-11-09 | Owner decision (SPEC-0001 review round 2): length keys use `.max` / `.min` (`serviceName.max`, `serviceSearch.min`); system fields are now SPEC-0001 §3.2 |
