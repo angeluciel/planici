@@ -106,6 +106,17 @@ Availability uses explicit query parameters, such as
 `GET /tenants/availability?slug=studio-ana`. Do not assume `page`, `size`, `sort`,
 a generic filter language, or a pagination envelope exists.
 
+### Pagination
+
+Collections that can grow without bound (clients, services, appointments)
+use cursor pagination with `limit` and `after`:
+- `limit`: optional integer, 1-100, default 50. Anything else returns `422 { "error": "limit.invalid", "field": "limit" }`.
+- `after`: optional opaque cursor from a previous response's `nextCursor`. Omit for the first page.
+- Response: the named array plus `nextCursor` (string, or `null` on the last page). Example: `{ "clients": [...], "nextCursor": "eyJr..."}`. These i no total count, no page number and no other envelope.
+- Each endpoint documents one fixed, stable sort that always ends with `id` as a tie-breaker, so pages never repeat or skip items.
+- The cursor is bound to the filters it was issued with. Sending it with a different filter (for example a new q), or sending a malformed or tampered cursor, returns `422 { "error": "cursor.invalid", "field": "after" }`. Clients restart from the first page when filters change.
+- Clients must treat the cursor as opaque and never build or parse it.
+
 ## Auth
 
 `Authorization: Bearer <accessToken>`. Protected routes use `JwtAccessGuard`;
@@ -145,6 +156,12 @@ availability require authentication but do not require a selected tenant.
 - Public tenant timestamps are ISO-8601 UTC strings from `toISOString()`.
   Nullable timestamps remain `null`; do not replace them with empty strings.
 - No monetary JSON representation is established by the current API contracts.
+
+## Money
+
+- Amounts are JSON integers in the currency's minor unit (centavos for BRL): `9999` means R$ 99.99. Never use floats or decimal strings.
+- Name the field with a `Cents` suffix (`priceCents`) and send the ISO 4217 code bseide it (`"currency": "BRL"`). The MVP accepts only `BRL`.
+- Formatting for display (`R$ 99,99`) happens in the frontend.
 
 ## Rate limits and tracing
 
