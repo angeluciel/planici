@@ -1061,7 +1061,7 @@ The spec leaves these open. Each follows an existing rule where one exists.
 1. **SPEC-0001 must be `Implemented` first** (`task-lock.sh` checks `depends_on`). The earlier deadlock is resolved
    (owner, 2026-11-09): `/done` may set `Implemented` while the criteria in a plan's Deferred checks table are still
    unverified, so SPEC-0001's deferred criteria no longer block this plan. Those are AC-0001-34 and -58 under an
-   owner waiver, ten SPEC-0004 criteria and the phone count, and AC-0001-10 for SPEC-0003.
+   owner waiver, ten SPEC-0004 criteria and the phone count, and AC-0001-10 for SPEC-0003 and SPEC-0004.
 2. **The field-list interface is shared** with SPEC-0001's editor and draft hook. Cheapest check: build SPEC-0001's
    field region against the props `field-list.tsx` needs (rows, `fields.<i>` error paths, `valueCount`).
 3. **Term matching.** Whole-word matching on normalised text can surprise with multi-word terms and hyphens

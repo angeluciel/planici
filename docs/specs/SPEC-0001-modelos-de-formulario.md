@@ -1069,6 +1069,7 @@ apps/web/src/app/*/orgs/_components/shell.tsx
 apps/web/src/components/ui/dialog.tsx
 apps/web/src/components/ui/toast.tsx
 apps/web/src/components/ui/skeleton.tsx
+apps/web/src/hooks/use-leave-guard.ts
 apps/web/tests/forms*
 apps/web/tests/form-editor*
 apps/web/tests/form-dialogs*
@@ -1089,8 +1090,9 @@ every changed file; `guard-paths.sh` still blocks hand edits there. Paths with `
   duplicates, `fieldType.immutable`, `systemField.locked`) to the `FieldPolicy` module created here, and the field
   editor controls (add, type, reorder, remove, "Dado protegido"). The editor shell here renders a field list
   whose add/remove controls SPEC-0002 provides. UI tests in this plan prepare drafts that already contain fields.
-- **SPEC-0003's plan** builds the record read/write API on the record tables created here (`form_records`,
-  `form_record_values`). This plan only creates them and uses them to count, migrate and delete records, so the
+- **SPEC-0003's plan** builds the in-process record service (`RecordService`) on the record tables created here
+  (`form_records`, `form_record_values`). The record endpoints that call it belong to SPEC-0004 and SPEC-0005
+  (SPEC-0003 §2; owner, 2026-11-10, SPEC-0003 G-6). This plan only creates them and uses them to count, migrate and delete records, so the
   record criteria here can seed rows directly (§2 Dependencies).
 
 ### Contracts (`packages/schemas/src/forms/`)
@@ -1163,6 +1165,10 @@ not null` referencing `tenants(id)` with `ON DELETE CASCADE`, and an index on it
   phone; service name, duration, price) are columns on the client and service rows, added by SPEC-0004 and SPEC-0005.
 - Values are one row per (record, field), with `tenant_id` on the row, encrypted with AES-256-GCM (SPEC-0003 R11)
   by `FieldValueCipher` (`node:crypto`). Each value gets a new random 12-byte nonce.
+  - **Plaintext (owner, 2026-11-10; SPEC-0003 G-1, G-2):** the cipher takes and returns the UTF-8 JSON of the
+    normalised contract value (SPEC-0003 §7). A `select` value is its option id. A `yes_no` value is stored only
+    when it is `true`, because no value already reads as `false` (SPEC-0003 §3.1). The fixtures seed values in this
+    format, and "Atualizar todos" matches removed options on the decrypted option id.
   - **Associated data (owner, 2026-11-09):** the GCM associated data is a fixed-format string of `key_version`,
     `tenant_id`, `form_record_id` and `field_id`. A ciphertext copied to another record, field or tenant fails
     authentication instead of decrypting. Those three ids never change for a stored value ("Atualizar todos"
@@ -1243,9 +1249,12 @@ How the handlers work:
   404 if absent; 409 if `revision` is outdated; field rules (`FieldPolicy`); 409 on a name clash; diff the next
   fields against the latest version (`schema-diff.ts`, §3.3); with schema changes and records, 400 without a
   migration mode, and 400 when "Atualizar todos" would delete answers and `confirmName` does not match (R9
-  comparison). Then store metadata, publish the next version if the schema changed, and for "Atualizar todos"
-  repoint every record, delete answers to removed fields and removed options, and raise each migrated record's
-  revision (SPEC-0003 R14). Everything commits together or not at all (R10); the template revision goes up by 1.
+  comparison). Then store metadata and publish the next version if the schema changed. For "Atualizar todos", first
+  repoint every record and raise its revision (SPEC-0003 R14) in one statement that also sets `updated_at`, then
+  delete answers to removed fields and removed options (owner, 2026-11-10; SPEC-0003 G-4). In that order, a record
+  update holding its row lock makes the repoint wait, and its answers to removed fields are deleted afterwards; a
+  record update that starts later sees the new version and revision. Everything commits together or not at all
+  (R10); the template revision goes up by 1.
 - **Preview** runs the same checks and diff without writing, then counts `recordsLosingAnswers` and
   `recordsGainingRequiredFields` through `FormRecordStore`. Custom fields are counted from `form_record_values`.
   `client.phone` is the only system field that can gain "required" (SPEC-0002 R3), and records missing it are
@@ -1256,15 +1265,18 @@ How the handlers work:
   from `app.module.ts`. `DatabaseModule` is global, so the adapter needs no module import, and `FormsModule` and
   `ClientsModule` never import each other.
 - **All records at once** (owner, 2026-11-10): preview and "Atualizar todos" run one statement per step across all
-  of the template's records (count, repoint the version, delete answers to removed fields, raise revisions), never
-  one query per record. For removed `select` options, one query reads the affected values, they are decrypted in
+  of the template's records (count; repoint the version and raise revisions together; delete answers to removed
+  fields), never one query per record. For removed `select` options, one query reads the affected values, they are decrypted in
   memory, and one statement deletes the matching rows.
 - **Archive and unarchive** change the status and raise the template revision by 1 (R11), so an editor still open
   on the old revision gets 409 `form.revision-conflict` on its next save.
-- **Delete** follows the §6 order. With records and `deleteRecords: true`, it deletes the record values, records
-  and template in one transaction.
+- **Delete** reads the template row `for update` first, then follows the §6 order in the same transaction (owner,
+  2026-11-10; SPEC-0003 G-3). A record insert takes a key-share lock on the template row through its foreign key, so
+  a record created at the same time either commits before the count, which then includes it, or waits for the
+  delete and then fails its foreign-key check (SPEC-0003 handles that case). With records and
+  `deleteRecords: true`, it deletes the record values, records and template in that transaction.
 - **Counts**: `recordCount` and `recordsOnOlderVersions` come from `form_records`; `valueCount` from
-  `form_record_values`. `recordsWithHistory` comes from `RecordHistoryReader`, whose adapter returns 0 until
+  `form_record_values`, where a `yes_no` field has rows only for `true` answers (Persistence; SPEC-0003 G-2). `recordsWithHistory` comes from `RecordHistoryReader`, whose adapter returns 0 until
   scheduling and payments exist. E2e tests can pass a fake reader to `createTestApp({ recordHistory })`, which
   overrides the provider only when a fake is given, so the real adapter runs everywhere else (owner, 2026-11-10).
 
@@ -1287,9 +1299,11 @@ How the handlers work:
 - New UI primitives built on `@base-ui/react`, which is already a dependency: `components/ui/dialog.tsx` (can be
   made not dismissible while a request runs, AC-0001-56), `toast.tsx` (provider mounted in the org shell),
   `skeleton.tsx`.
-- The leave prompt (AC-0001-18): the App Router has no navigation-blocking API, so `use-form-draft` intercepts
-  in-app link clicks while the draft is dirty, shows the `forms.editor.unsaved` confirmation, and uses
-  `beforeunload` for tab close and reload.
+- The leave prompt (AC-0001-18) is a shared hook, `apps/web/src/hooks/use-leave-guard.ts` (owner, 2026-11-10;
+  SPEC-0003 G-7). The App Router has no navigation-blocking API, so while a form is dirty the hook intercepts in-app
+  link clicks, shows a confirmation whose copy key the caller passes, and uses `beforeunload` for tab close and
+  reload. `use-form-draft` uses it with `forms.editor.unsaved`; SPEC-0003's fill-in page reuses it with
+  `{entity}.form.discard`.
 - Every §8 state and copy key is implemented. Server errors show through `useFieldError`.
 
 ### Tests
@@ -1335,7 +1349,7 @@ Two checks outside the AC table (owner, 2026-11-10):
 | 07 | E-ver | `type` on update → 422 `formType.immutable`, still revision 3 |
 | 08 | E-ver, W-ed | stale revision → 409 `form.revision-conflict`; editor shows `forms.editor.conflict` |
 | 09 | E-ver | blank label at index 3 → 422 `fieldLabel.required` at `fields.3.label`, name unchanged |
-| 10 | W-ed | after saving from the `/clients` shortcut, navigates to `/clients/new?form=<id>` (that page is SPEC-0003) |
+| 10 | W-ed | after saving from the `/clients` shortcut, navigates to `/clients/new?form=<id>` (SPEC-0003's fill-in form on SPEC-0004's route) |
 | 11 | W-ed | Cancelar from the shortcut returns to `/clients`, no request sent |
 | 12 | E-life | archive → 200 `archived`; the seeded record row is unchanged. The dropdown and the client read/update are checked in SPEC-0004 |
 | 13 | E-life, U-del | delete without records → 204, then 404 |
@@ -1422,7 +1436,7 @@ its scope, and adds `<AC ids> verified with SPEC-XXXX, <date>` to this changelog
 | --- | --- | --- |
 | 34 | partly: the 409 is checked with a fake `RecordHistoryReader`; a real linked appointment is not | owner waiver (2026-11-10): the first scheduling or payments spec, tracked in forms-overview.md §7 |
 | 58 | partly: `recordsWithHistory` 1 is checked with a fake `RecordHistoryReader`; a real linked appointment is not | owner waiver (2026-11-10): the first scheduling or payments spec, tracked in forms-overview.md §7 |
-| 10 | partly: the redirect to `/clients/new?form=<id>` is checked; the new-client page is not | SPEC-0003 (it defines that page, §4.1) |
+| 10 | partly: the redirect to `/clients/new?form=<id>` is checked; the page it opens is not | SPEC-0003: the fill-in form opened with the new template's id. SPEC-0004: the `/clients/new` route and its "Criar novo modelo" entry (§4.2, §4.3). Owner, 2026-11-10 (SPEC-0003 G-5) |
 | 12 | partly: archive and the unchanged record are checked; the Novo dropdown and the client read/update are not | SPEC-0004 |
 | 14 | partly: record rows still exist; "the client still exists" through the client API is not checked | SPEC-0004 |
 | 20 | partly: records stay on version 2; "clients report form version 2" through the client API is not checked | SPEC-0004 |
