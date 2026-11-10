@@ -1053,9 +1053,11 @@ apps/api/src/database/schema/enums.ts
 apps/api/src/database/schema/forms.ts
 apps/api/src/database/schema/form-records.ts
 apps/api/src/database/schema/index.ts
-apps/api/drizzle/*.sql
+apps/api/drizzle/0002_forms_templates.sql
+apps/api/drizzle/meta/*
 apps/api/.env.example
 apps/api/test/setup/env.ts
+apps/api/test/setup/test-app.ts
 apps/api/test/utils/forms-fixtures.ts
 apps/api/test/e2e/forms*
 apps/web/src/app/api/_lib/http.ts
@@ -1068,12 +1070,13 @@ apps/web/src/components/ui/dialog.tsx
 apps/web/src/components/ui/toast.tsx
 apps/web/src/components/ui/skeleton.tsx
 apps/web/tests/forms*
-apps/web/tests/form-*
+apps/web/tests/form-editor*
+apps/web/tests/form-dialogs*
 docs/schema.dbml
 ```
 
-`drizzle-kit generate` also writes `apps/api/drizzle/meta/**`. That is generator output, never hand-edited, so it is
-not in the lock. Paths with `[lang]` and `[tenant]` are written with `*`, because the lock matches bash globs and
+`apps/api/drizzle/meta/*` is in the lock because `drizzle-kit generate` writes it and `task-lock.sh check` reports
+every changed file; `guard-paths.sh` still blocks hand edits there. Paths with `[lang]` and `[tenant]` are written with `*`, because the lock matches bash globs and
 `[...]` would be read as a character class.
 
 ### Boundary with SPEC-0002 and SPEC-0003
@@ -1098,8 +1101,10 @@ New, non-breaking. Consumers: `apps/api`, `apps/web` (BFF routes and pages).
   per type (§3.2), `FieldSchema` (response, SPEC-0002 §7), `FieldInputSchema` (request). Shape checks only:
   label trimmed 1–80 (`fieldLabel.required`, `fieldLabel.max`), help text ≤ 200 (`fieldHelpText.max`), `type` in
   the catalog (`fieldType.invalid`), options `{ id?, label }` with label 1–80 (`fieldOptionLabel.required`,
-  `.max`). Field and option ids are plain strings in the contract: whether an id exists, malformed or not, is a
-  `FieldPolicy` rule (400 `field.unknown`, 422 `fieldOptionId.unknown`), so no uuid error key is needed.
+  `.max`). Field and option ids, and `systemKey`, are plain strings in the contract: whether an id exists,
+  malformed or not, and whether a system key belongs to the template's type, are `FieldPolicy` rules (400
+  `field.unknown`, 422 `fieldOptionId.unknown`, 422 `systemField.locked`), so no uuid or system-key error key is
+  needed.
 - `text-key.ts`: `textKey(value)`, lowercase, accents stripped, whitespace trimmed and collapsed. One helper for
   `name_key` here and for label and option uniqueness in SPEC-0002.
 - `requests.ts`: `FormIdSchema` (uuid; failure maps to 404 `form.not-found`), `FormVersionParamSchema` (positive
@@ -1120,7 +1125,8 @@ New, non-breaking. Consumers: `apps/api`, `apps/web` (BFF routes and pages).
 
 ### Persistence
 
-New tables (migration `forms_templates`, generated with `drizzle-kit generate`). Every table has `tenant_id text
+New tables (migration `0002_forms_templates.sql`, generated with
+`pnpm --filter api exec drizzle-kit generate --name forms_templates`). Every table has `tenant_id text
 not null` referencing `tenants(id)` with `ON DELETE CASCADE`, and an index on it. Ids are uuid
 (`defaultRandom()`).
 
@@ -1153,6 +1159,8 @@ not null` referencing `tenants(id)` with `ON DELETE CASCADE`, and an index on it
   fixes the rule. `RESTRICT` on `form_id` means no template delete can remove records by accident: "Sim, excluir
   tudo" deletes them explicitly in the same transaction, and the cascade takes their clients or services with
   them.
+- `form_record_values` holds **custom-field values only** (SPEC-0003 R5). System-field values (client name, e-mail,
+  phone; service name, duration, price) are columns on the client and service rows, added by SPEC-0004 and SPEC-0005.
 - Values are one row per (record, field), with `tenant_id` on the row, encrypted with AES-256-GCM (SPEC-0003 R11)
   by `FieldValueCipher` (`node:crypto`). Each value gets a new random 12-byte nonce.
   - **Associated data (owner, 2026-11-09):** the GCM associated data is a fixed-format string of `key_version`,
@@ -1171,7 +1179,17 @@ not null` referencing `tenants(id)` with `ON DELETE CASCADE`, and an index on it
 - **Row-level security is deferred (owner, 2026-11-09)** to a separate platform spec covering all tables, written
   before launch (forms-overview.md C-8, against RFC §6 "Isolamento por Tenant", RNF-07 and M6b). In this plan,
   tenant isolation stays on `tenant_id` filters in every query, covered by the isolation criteria (AC-0001-15,
-  -40, -41, -42). Writes run in `TenantScope.run`, so policies can be added later without code changes.
+  -40, -41, -42).
+  - Writes run in `TenantScope.run`, which sets `app.current_tenant` for its transaction only.
+  - Reads do not (owner, 2026-11-10). Wrapping each read in a transaction costs three extra round trips for a
+    feature this plan does not ship. So enabling RLS also means wrapping the reads, as part of the platform spec.
+  - Every repository and store method takes the tenant id as an argument, so that change stays inside
+    `infrastructure/persistence/`.
+- **Tenant erasure (RNF-14; owner, 2026-11-10).** In the MVP, erasure is a manual hard delete of the tenant row,
+  handled through the DPO channel. Every table above references `tenants(id)` directly with `ON DELETE CASCADE`, so
+  that one delete removes all of the tenant's rows, even though `form_records` restricts template, version and
+  field deletes. A probe on Postgres 17 with these foreign keys confirmed it on 2026-11-10, and an E-crud test keeps
+  it true (Tests). A later table under a template or a record must keep its own direct cascade from `tenants`.
 - **Rollback.** The migration only creates tables and enums. Rolling back means a new migration that drops them,
   which loses every template, version, field, record link and stored value. That is destructive and needs the
   owner's authorization. Before any record spec ships, the loss is limited to templates.
@@ -1182,7 +1200,18 @@ not null` referencing `tenants(id)` with `ON DELETE CASCADE`, and an index on it
 
 Module layout as `auth` and `tenants`: `domain/` (`FormTemplate` aggregate, `FormName`, `schema-diff.ts`,
 `field-policy.ts`, errors), `ports/` (`FormRepository`, `FormRecordStore`, `RecordHistoryReader`,
-`FieldValueCipher`), `infrastructure/persistence/` (Drizzle repositories and mappers), `commands/`, `queries/`.
+`SystemFieldPresence`, `FieldValueCipher`), `infrastructure/persistence/` (Drizzle repositories and mappers),
+`commands/`, `queries/`. Six points that SPEC-0002's plan relies on, so that its API changes stay in `domain/`
+(points 4–6: owner, 2026-11-10):
+1. the preview handler is a query (`queries/preview-form-changes/`), because it stores nothing;
+2. handlers store and diff the field list that `FieldPolicy` returns, never the raw request list;
+3. the aggregate builds the FormTemplate and Field responses (`toPublic()`, as `Tenant` does), so the Field shape is
+   built in one place under `domain/`;
+4. create, update and preview give `FieldPolicy` the template's type, whether the request is a create or an
+   update, and, for each field of the latest version (none on create), its id, type, `systemKey`, stored
+   `required` and `sensitive`, and option ids. This plan's own checks use only part of it;
+5. `FieldInputSchema.systemKey` is a plain string (Contracts), so an unknown system key reaches `FieldPolicy`;
+6. an update without `fields` runs no field rule, and the latest version's fields stay as they are.
 Route root `forms` in `app.routes.ts`; `FormsModule` registered in `app.module.ts`. Every route uses
 `JwtAccessGuard` then `ActiveTenantGuard` (tenant from `X-Tenant-Id`), and the guard's membership supplies the
 tenant id. Path ids go through a param pipe that turns a malformed id into the 404 domain error (new
@@ -1205,9 +1234,11 @@ with a JSON body, with no `DELETE` fallback. `docs/architecture/api-convention.m
 client delete uses it too.
 
 How the handlers work:
-- **Create**: in one `TenantScope` transaction, lock the tenant row (`FOR UPDATE`) so two creates cannot both pass
-  the cap, count the tenant's templates (R19), insert the template (revision 1, version 1), its fields, options
-  and version-1 rows. `FieldPolicy` checks that the system fields of the type are present.
+- **Create**, in this order (Decision 3): contract shape (422, in the pipe); then `FieldPolicy`'s field rules,
+  including the system-field presence check; then, in one `TenantScope` transaction, lock the tenant row
+  (`FOR UPDATE`) so two creates cannot both pass the cap, count the tenant's templates (400 `form.limit-reached`,
+  R19), and insert the template (revision 1, version 1), its fields, options and version-1 rows. The name check is
+  the insert itself: a unique violation on `name_key` becomes 409 `formName.taken`.
 - **Update**: shape errors come from the contract (422). Then, in one transaction with the template row locked:
   404 if absent; 409 if `revision` is outdated; field rules (`FieldPolicy`); 409 on a name clash; diff the next
   fields against the latest version (`schema-diff.ts`, §3.3); with schema changes and records, 400 without a
@@ -1216,12 +1247,26 @@ How the handlers work:
   repoint every record, delete answers to removed fields and removed options, and raise each migrated record's
   revision (SPEC-0003 R14). Everything commits together or not at all (R10); the template revision goes up by 1.
 - **Preview** runs the same checks and diff without writing, then counts `recordsLosingAnswers` and
-  `recordsGainingRequiredFields` through `FormRecordStore`.
+  `recordsGainingRequiredFields` through `FormRecordStore`. Custom fields are counted from `form_record_values`.
+  `client.phone` is the only system field that can gain "required" (SPEC-0002 R3), and records missing it are
+  counted through `SystemFieldPresence` (owner, 2026-11-10). That port has one method, for `client.phone` only. Its
+  default adapter returns 0 until SPEC-0004 provides the real one (Deferred checks).
+- **Registering `SystemFieldPresence`** (owner, 2026-11-10): `app.module.ts` imports `FormsModule.forRoot({
+  systemFieldPresence })`. This plan passes the zero adapter. SPEC-0004's plan passes its clients adapter class
+  from `app.module.ts`. `DatabaseModule` is global, so the adapter needs no module import, and `FormsModule` and
+  `ClientsModule` never import each other.
+- **All records at once** (owner, 2026-11-10): preview and "Atualizar todos" run one statement per step across all
+  of the template's records (count, repoint the version, delete answers to removed fields, raise revisions), never
+  one query per record. For removed `select` options, one query reads the affected values, they are decrypted in
+  memory, and one statement deletes the matching rows.
+- **Archive and unarchive** change the status and raise the template revision by 1 (R11), so an editor still open
+  on the old revision gets 409 `form.revision-conflict` on its next save.
 - **Delete** follows the §6 order. With records and `deleteRecords: true`, it deletes the record values, records
   and template in one transaction.
 - **Counts**: `recordCount` and `recordsOnOlderVersions` come from `form_records`; `valueCount` from
   `form_record_values`. `recordsWithHistory` comes from `RecordHistoryReader`, whose adapter returns 0 until
-  scheduling and payments exist.
+  scheduling and payments exist. E2e tests can pass a fake reader to `createTestApp({ recordHistory })`, which
+  overrides the provider only when a fake is given, so the real adapter runs everywhere else (owner, 2026-11-10).
 
 ### Web (`apps/web`)
 
@@ -1231,6 +1276,10 @@ How the handlers work:
 - BFF routes under `src/app/api/forms/` mirror the API table. They read the active tenant cookie
   (`requireActiveTenant`) and forward it as `X-Tenant-Id`. `api()` in `_lib/http.ts` accepts the `forms`
   resource. The browser client lives in `src/lib/api/forms.ts`.
+- BFF request bodies go through `readBody(request, z.unknown())` (owner, 2026-11-10). That keeps the 415 and
+  bad-JSON checks, and the API's 422 with the full `field` path (`fields.3.label`) passes through `toHttpError`
+  unchanged. `parseInput` is not changed. Its 400 with only `path[0]` in the auth and tenants routes is a separate
+  follow-up.
 - Components in `forms/_components/`: `forms-list`, `form-editor` (header with type, name, description, version
   badge and record counts; the field list region SPEC-0002 fills), `publish-dialog`, `apply-dialog`,
   `archive-dialog`, `delete-dialog`, and `use-form-draft` (draft state with react-hook-form, dirty flag, leave
@@ -1252,16 +1301,28 @@ Files:
 - **U-diff** `apps/api/src/modules/forms/domain/schema-diff.spec.ts`; **U-name**
   `apps/api/src/modules/forms/domain/value-objects/form-name.vo.spec.ts`; **U-upd**
   `apps/api/src/modules/forms/commands/update-form/update-form.handler.spec.ts`; **U-del**
-  `apps/api/src/modules/forms/commands/delete-form/delete-form.handler.spec.ts`; **U-ciph**
-  `apps/api/src/shared/crypto/field-value.cipher.spec.ts`.
+  `apps/api/src/modules/forms/commands/delete-form/delete-form.handler.spec.ts`; **U-arch**
+  `apps/api/src/modules/forms/commands/archive-form/archive-form.handler.spec.ts` and
+  `.../unarchive-form/unarchive-form.handler.spec.ts`; **U-ciph** `apps/api/src/shared/crypto/field-value.cipher.spec.ts`.
 - **W-list** `apps/web/tests/forms-list.test.tsx`; **W-ed** `apps/web/tests/form-editor.test.tsx`; **W-dlg**
   `apps/web/tests/form-dialogs.test.tsx`.
 - Fixtures: `apps/api/test/utils/forms-fixtures.ts` seeds templates, versions, records and encrypted values
-  directly, as §2 Dependencies allows.
+  directly, as §2 Dependencies allows. `apps/api/test/setup/test-app.ts` gains an options argument,
+  `createTestApp({ recordHistory })`, that overrides `RecordHistoryReader` only when a fake is passed.
 
 Every test name starts with its AC ID, e.g. `it('AC-0001-13 deletes a template without records after the typed
 name', …)`. Where a criterion reads clients in its Then, this plan checks the stored record rows; SPEC-0004's
 plan adds the same check through the client API. Those criteria are listed under "Deferred checks".
+
+Two checks outside the AC table (owner, 2026-11-10):
+- **Tenant erasure** (E-crud, named `RNF-14 …`, because no criterion covers it): a tenant seeded with templates,
+  versions, fields, options, records and values is deleted directly in SQL. None of its rows remain in the eight
+  tables, and another tenant's rows are unchanged (Persistence, "Tenant erasure").
+- **SPEC-0002 input rules.** The requests these tests send, the payloads W-ed asserts and the fixtures already
+  follow SPEC-0002's field input rules, so they keep passing when SPEC-0002's plan enforces them:
+  - no `sensitive` on a system field, and no `systemKey` on an update;
+  - a custom field of an always-protected type (SPEC-0002 R5), or whose label contains a SPEC-0002 §3.4 term
+    ("Peso" in AC-0001-71), is sent without `sensitive` or with `sensitive: true`, and seeded with `sensitive` true.
 
 | AC | Test | What it checks here |
 | --- | --- | --- |
@@ -1284,7 +1345,7 @@ plan adds the same check through the client API. Those criteria are listed under
 | 17 | W-list | archived hidden by default; toggle shows it with "Arquivado" |
 | 18 | W-ed | dirty draft + in-app link → `forms.editor.unsaved`; "stay" keeps the draft |
 | 19 | E-crud | 101 fields → 422 `formFields.max` |
-| 20 | E-ver, U-diff | metadata-only save → 200, same version, revision + 1; seeded records still on version 2 |
+| 20 | E-ver, U-diff, W-ed | metadata-only save → 200, same version, revision + 1; seeded records still on version 2. W-ed: the save shows `forms.editor.saved` and neither the publish nor the Apply dialog |
 | 21 | E-ver, W-dlg | no records + schema change → 200 version 2; the dialog is `forms.publish.confirm` without migration options |
 | 22 | E-ver, U-upd | records + schema change without migration → 400 `migration.mode-required`, still version 1 |
 | 23 | E-ver | "Manter existentes" → version 2; records stay on version 1; `latest_version` is 2. The new-client part is checked in SPEC-0004 |
@@ -1296,9 +1357,9 @@ plan adds the same check through the client API. Those criteria are listed under
 | 29 | E-ver | version 1 still returns "Hobby" after "Manter existentes" |
 | 30 | W-dlg | 3 records, no history → `forms.delete.withRecords` with both options |
 | 31 | E-life | "Sim, excluir tudo" → 204; template 404; record rows gone. The client 404 is checked in SPEC-0004 |
-| 32 | E-life, W-dlg | "Não, arquivar o modelo" calls archive; status `archived`; records unchanged |
+| 32 | E-life, W-dlg | "Não, arquivar o modelo" calls archive; status `archived`; a list without `includeArchived` leaves it out; records unchanged |
 | 33 | E-life, U-del | `deleteRecords` + "ficha x" → 400 `deleteConfirmation.required`; nothing deleted |
-| 34 | E-life | `it.todo`: needs a record with linked history, which only scheduling or payments can create |
+| 34 | E-life | a fake `RecordHistoryReader` reports history for one record → 409 `form.records-have-history`; nothing deleted (partial, see Deferred checks) |
 | 35 | E-life | no records + "ficha x" → 400; template still readable |
 | 36 | E-ver | version 3 of a version-2 template → 404 `formVersion.not-found` |
 | 37 | E-ver, U-diff | preview counts: `schemaChanged`, `nextVersion` 2, `recordCount` 4, losing 2, gaining 4; nothing changed |
@@ -1322,7 +1383,7 @@ plan adds the same check through the client API. Those criteria are listed under
 | 55 | W-ed | unknown id → `forms.editor.notFound` with a link to `/forms` |
 | 56 | W-dlg | Escape or outside click while applying → dialog stays with `forms.apply.applying` |
 | 57 | W-dlg | `recordsWithHistory` 1 (mocked response) → `forms.delete.recordsHaveHistory` with only "Arquivar o modelo" and Cancelar |
-| 58 | E-crud | `it.todo`: `recordsWithHistory` needs linked history, which only scheduling or payments can create |
+| 58 | E-crud | a fake `RecordHistoryReader` reports 1 of 3 records → read and list return `recordCount` 3, `recordsWithHistory` 1 (partial, see Deferred checks) |
 | 59 | E-crud | `type=client` → exactly "Cliente" and "Ficha" |
 | 60 | E-crud | `type=plan` → 422 `formType.invalid` |
 | 61 | E-crud | `includeArchived=maybe` → 422 `includeArchived.invalid` |
@@ -1346,7 +1407,8 @@ plan adds the same check through the client API. Those criteria are listed under
 | 79 | W-ed | template pending → header and 3 field-row skeleton with `forms.editor.loading` |
 
 Unit specs also cover: the diff for every §3.3 row (U-diff), name keys (U-name), the update check order (U-upd),
-the delete check order (U-del), and the cipher (U-ciph): round-trip, a changed ciphertext fails, and a
+the delete check order (U-del), archive and unarchive each raising the revision by 1 (U-arch, R11), and the cipher
+(U-ciph): round-trip, a changed ciphertext fails, and a
 ciphertext decrypted with another tenant, record, field or key version fails.
 
 ### Deferred checks
@@ -1358,9 +1420,9 @@ its scope, and adds `<AC ids> verified with SPEC-XXXX, <date>` to this changelog
 
 | AC | Status after this plan | Verified by |
 | --- | --- | --- |
-| 34 | `it.todo`: needs a record with linked history | the first spec that creates history (scheduling or payments), not yet written |
-| 58 | `it.todo`: `recordsWithHistory` above 0 needs linked history | the first spec that creates history (scheduling or payments), not yet written |
-| 10 | partly: the redirect to `/clients/new?form=<id>` is checked; the new-client page is not | SPEC-0004 |
+| 34 | partly: the 409 is checked with a fake `RecordHistoryReader`; a real linked appointment is not | owner waiver (2026-11-10): the first scheduling or payments spec, tracked in forms-overview.md §7 |
+| 58 | partly: `recordsWithHistory` 1 is checked with a fake `RecordHistoryReader`; a real linked appointment is not | owner waiver (2026-11-10): the first scheduling or payments spec, tracked in forms-overview.md §7 |
+| 10 | partly: the redirect to `/clients/new?form=<id>` is checked; the new-client page is not | SPEC-0003 (it defines that page, §4.1) |
 | 12 | partly: archive and the unchanged record are checked; the Novo dropdown and the client read/update are not | SPEC-0004 |
 | 14 | partly: record rows still exist; "the client still exists" through the client API is not checked | SPEC-0004 |
 | 20 | partly: records stay on version 2; "clients report form version 2" through the client API is not checked | SPEC-0004 |
@@ -1371,39 +1433,77 @@ its scope, and adds `<AC ids> verified with SPEC-XXXX, <date>` to this changelog
 | 31 | partly: record rows are gone; reading each client → 404 `client.not-found` is not checked | SPEC-0004 |
 | 32 | partly: record rows are unchanged; the client API read is not checked | SPEC-0004 |
 | 33 | partly: record rows still exist; the client API read is not checked | SPEC-0004 |
+| — (§4.7 step 4) | partly: `client.phone` turned required counts 0 through the zero `SystemFieldPresence` adapter; custom-field counts are checked by 37 and 51 | SPEC-0004 |
 
 ### Sequence
 
+0. **Gate** (Decision 1): SPEC-0003's plan is drafted and reviewed (`/spec-review SPEC-0003 plan`) before step 2.
+   It does not need to be approved.
 1. **Contracts**: `packages/schemas/src/forms/*`, `index.ts`, i18n keys (both locales); build the package.
-2. **Persistence**: enums, `forms.ts`, `form-records.ts`, `index.ts`; generate the migration and read its SQL;
-   update `docs/schema.dbml`.
+2. **Persistence**: enums, `forms.ts`, `form-records.ts`, `index.ts`; generate `0002_forms_templates.sql` and read
+   its SQL; update `docs/schema.dbml`.
 3. **Failing tests**: the three e2e files, the unit specs and the three web test files, one test per AC as mapped
-   above (written by `test-author`); confirm each fails because the behavior is missing.
+   above (written by `test-author`); `createTestApp({ recordHistory })`; confirm each fails because the behavior
+   is missing.
 4. **API, part 1**: domain (`FormName`, `schema-diff`, `FieldPolicy`, errors), cipher and `FIELD_VALUES_KEY`
-   (`env.schema.ts`, `.env.example`, `test/setup/env.ts`), ports, repositories, `ZodParam`.
-5. **API, part 2**: create, list, read, version read; then update, preview and Apply; then archive, unarchive and
-   delete; routes and module registration.
+   (`env.schema.ts`, `.env.example`, `test/setup/env.ts`), ports with the zero `SystemFieldPresence` adapter,
+   repositories, `ZodParam`, `FormsModule.forRoot` in `app.module.ts`.
+5. **API, part 2**, three commits. Routes are added with their handlers.
+   - **5a** create, list, read, version read: AC-0001-01 to -06, -16, -19, -36, -41 to -44, -48, -52, -58 to -62,
+     -72, -73, -76.
+   - **5b** update, preview, Apply: AC-0001-07 to -09, -20 to -24, -26 to -29, -37 to -39, -45, -46, -71, -74, -75.
+     Then the one-off timing run (Decision 4): `apps/api/test/e2e/forms-apply-timing.e2e-spec.ts` with 5,000 seeded
+     records, run once with `FORMS_TIMING=1`. RNF-02 thresholds: preview under 500 ms, "Atualizar todos" under 1 s.
+     `/done` reports both numbers; a number over its threshold goes to the owner as a risk.
+   - **5c** archive, unarchive, delete: AC-0001-12 to -15, -31 to -35, -40, -47, -49, -70.
 6. **Web, part 1**: BFF routes, `lib/api/forms.ts`, dialog, toast and skeleton primitives, sidebar link.
-7. **Web, part 2**: list page, editor (new and existing), publish, Apply, archive and delete dialogs, leave guard.
+7. **Web, part 2**, three commits.
+   - **7a** list page: AC-0001-17, -52, -53, -54, -78.
+   - **7b** editor (new and existing), publish and Apply dialogs, leave guard: AC-0001-01, -08, -10, -11, -18, -20,
+     -21, -25, -28, -50, -51, -55, -56, -63 to -65, -77, -79.
+   - **7c** archive and delete dialogs, unarchive: AC-0001-30, -32, -57, -66 to -69.
 8. **Checks**: `pnpm --filter @planici/schemas build`, `pnpm lint`, `pnpm typecheck`, `pnpm --filter api test`,
-   `pnpm --filter api test:e2e`, `pnpm --filter web test`.
+   `pnpm --filter api test:e2e`, `pnpm --filter web exec vitest run`. `apps/web` has no `test` script, so
+   `pnpm --filter web test` cannot run and turbo's `pnpm test` skips the web tests.
+   - **Owner action:** add a `test` script to `apps/web/package.json` so CI runs the web tests. It also turns on CI
+     for `registration*.test.tsx` and `tenant-gate.test.tsx`, which have never run there. Run on 2026-11-10 with
+     `pnpm --filter web exec vitest run`: `tenant-gate.test.tsx` passed (4 tests), and `registration.test.tsx` and
+     `registration-state.test.ts` failed with "No test suite found", because both files are empty (0 bytes). CI
+     goes red with the script until those two files get tests or are removed.
+
+### Decisions this plan makes (owner to confirm with the plan)
+
+The spec leaves these open.
+
+1. **Step 0 gate.** SPEC-0003's plan must be drafted and reviewed, but not approved, before step 2, because the
+   record tables created here bind SPEC-0003 (Risks 1).
+2. **`textKey` collapses internal whitespace**, as well as ignoring case and accents. R4 and SPEC-0002 R2 only say
+   case and accents. Template names are already collapsed by `FormNameSchema`, so this changes nothing for names;
+   for field and option labels, "Data  de nascimento" and "Data de nascimento" are the same label.
+3. **Create check order**: contract shape → field rules → template cap → name check. SPEC-0002's plan uses the same
+   order.
+4. **Timing run outside CI.** The timing file sits with the e2e files so it can use `createTestApp` and the
+   fixtures. It runs only when `FORMS_TIMING=1` (`describe.runIf`, with its own timeout above the e2e 15 s
+   default), so CI skips it.
 
 ### Risks
 
 1. **The record storage chosen here binds SPEC-0003, -0004 and -0005** (`form_records` as the shared record, one
    encrypted row per value, the one-to-one link). The owner accepted it on 2026-11-09. Cheapest check for gaps:
-   write SPEC-0003's plan against it before step 2 starts.
+   SPEC-0003's plan, drafted and reviewed against it before step 2 (Sequence step 0, Decision 1).
 2. **`FIELD_VALUES_KEY` must exist in every environment.** The real key lives in a secret manager; I cannot create
    `.env` files or secrets, so the owner provisions it wherever the API runs. Losing the key loses every stored
    value. Rotation is post-MVP; `key_version` keeps it possible.
 3. **Removed `select` options need decryption.** Preview and "Atualizar todos" decrypt the values of affected select
-   fields. Cheapest check: an e2e run with 5,000 seeded records, timing preview and migration, in step 3.
+   fields. Cheapest check: the one-off timing run after step 5b, against RNF-02 (preview under 500 ms, "Atualizar
+   todos" under 1 s at 5,000 records). `/done` reports the numbers.
 4. **Leave prompt in the App Router.** There is no official navigation-blocking API. Cheapest check: build the
    leave guard and AC-0001-18's test first in step 7.
-5. **SPEC-0002 overlap.** The editor and `FieldPolicy` are shared. Write SPEC-0002's plan before implementing
-   this one, so both scopes and the editor's field-list interface are agreed.
+5. **SPEC-0002 overlap.** The editor and `FieldPolicy` are shared. SPEC-0002's plan is drafted. It relies on the
+   six points under API and on the create order (Decision 3). A change to either amends both plans.
 6. **No RLS until the platform spec (RNF-07, forms-overview.md C-8).** Isolation relies on `tenant_id` filters,
-   covered by AC-0001-15, -40, -41 and -42. A missed filter is not caught by the database until then.
+   covered by AC-0001-15, -40, -41 and -42. A missed filter is not caught by the database until then. Enabling
+   it needs the reads wrapped in `TenantScope.run` too (Persistence).
 7. **Deferred checks** (section above) stay open until their specs ship.
 8. **E2e needs Docker** (Testcontainers). Without it, step 8 can only run the unit and web tests, and that is
    reported.

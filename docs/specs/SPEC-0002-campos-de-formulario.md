@@ -3,7 +3,7 @@ id: SPEC-0002
 title: Campos do modelo de formulário
 status: Approved # Draft | Review | Approved | Implemented | Superseded
 plan_status: Draft # Draft | Approved
-version: 1.0
+version: 1.1
 owner: Joao Izidoro
 satisfies: [RF-38, RF-39, RN-20, RN-21]
 depends_on: [SPEC-0001]
@@ -108,7 +108,9 @@ R3 and R4 below still say what can change about system fields.
   new identity. (D-10)
 - **R12.** A published field's type is fixed. Choosing another type for it in the editor replaces it with a **new
   field** (new identity) in the next version, and the old field is removed from that version as in R10. Answers are
-  never converted between types. (D-10)
+  never converted between types. (D-10) Before the template is saved, choosing the field's original type again
+  keeps the original field: same identity, options and switches, with the current label and help text. This is not
+  a restore under R11, because the field was never removed. (owner, 2026-11-10)
 - **R13.** Adding or removing a `select` option is a schema change. Renaming an option is metadata: the new label
   shows in every version and record. (D-10)
 - **R14.** Making a field required, or adding a required field, is a schema change. Records that stay on older
@@ -161,6 +163,8 @@ accepted.
 3. Choosing `yes_no` turns "Obrigatório" off and disables it (R8).
 4. Changing the type of a field that is already published shows the warning "Alterar o tipo cria um novo campo. As
    respostas atuais não são convertidas." (R12)
+5. Choosing the field's original type again before saving brings back the original field, with its options and
+   switches (R12).
 
 ### 4.3 Protected switch and label check
 1. As the professional types a label for a "label check" type, the editor re-evaluates R6 on each change.
@@ -652,6 +656,14 @@ Then  the response is 200 with version 2
 And   "Objetivo" is still required
 ```
 
+```
+AC-0002-53
+Given a published, required "select" field "Turno" with id T and options "Manhã", "Tarde" and "Noite"
+When  its owner changes its type to "yes_no" in the editor, changes it back to "select" before saving, and presses [Salvar]
+Then  the update request sends "Turno" with id T, type "select" and required true
+And   its options are "Manhã", "Tarde" and "Noite" with their original ids
+```
+
 ### Withdrawn criteria
 
 Withdrawn IDs are never reused.
@@ -661,7 +673,9 @@ Withdrawn IDs are never reused.
 
 ## 11. Implementation plan
 
-Drafted by `/plan` on 2026-11-09. `plan_status: Draft` until the owner approves it.
+Drafted by `/plan` on 2026-11-09, checked again on 2026-11-10 against SPEC-0001's plan and the code (no forms code
+exists yet; every path below that SPEC-0001 creates is taken from its plan), and revised on 2026-11-10 after each
+plan review and the owner's decisions. `plan_status: Draft` until the owner approves it.
 
 ### Scope
 
@@ -671,12 +685,9 @@ packages/schemas/src/index.ts
 packages/i18n/messages/pt-BR.json
 packages/i18n/messages/en-US.json
 apps/api/src/modules/forms/domain/*
-apps/api/src/modules/forms/commands/create-form/*
-apps/api/src/modules/forms/commands/update-form/*
-apps/api/src/modules/forms/queries/*
-apps/api/src/modules/forms/infrastructure/persistence/*
 apps/api/src/database/schema/forms.ts
-apps/api/drizzle/*.sql
+apps/api/drizzle/0003_form_field_rules.sql
+apps/api/drizzle/meta/*
 apps/api/test/utils/forms-fixtures.ts
 apps/api/test/e2e/form-fields*
 apps/web/src/app/*/orgs/*/forms/_components/*
@@ -688,8 +699,10 @@ apps/web/tests/form-fields*
 docs/schema.dbml
 ```
 
-`drizzle-kit generate` also writes `apps/api/drizzle/meta/**`; that is generator output and is not in the lock.
-Paths with `[lang]` and `[tenant]` use `*` (the lock matches bash globs).
+`apps/api/drizzle/meta/*` is in the lock because `drizzle-kit generate` writes it and `task-lock.sh check` reports
+every changed file; `guard-paths.sh` still blocks hand edits there. Paths with `[lang]` and `[tenant]` use `*` (the
+lock matches bash globs). The API paths are `domain/` only, because of the layout SPEC-0001's plan fixes (API below,
+Risks 7).
 
 ### Starting point
 
@@ -703,6 +716,9 @@ This plan builds on SPEC-0001's plan, which must be implemented first. SPEC-0001
 - `FieldPolicy` with the system-field presence check (`systemField.missing`) and id matching (`field.unknown`),
   the schema/metadata diff that handles removed fields, new fields, reorders and option changes (R10–R14), and
   `valueCount` per field;
+- what `FieldPolicy` receives (its API section, points 4–6): the template's type, create or update, and each
+  latest-version field's id, type, `systemKey`, stored `required` and `sensitive`, and option ids; a plain-string
+  `systemKey` in `FieldInputSchema`; and no field rule when an update omits `fields`;
 - the editor shell with a field-list region and the draft hook.
 
 This plan adds the field rules, the computed locks, the database checks for protection, and the field editor
@@ -722,29 +738,32 @@ Non-breaking. No request or response shape changes; SPEC-0001's plan adds every 
   - `protectionLock(type, label)`: `"type"` for an always-protected type, `"label"` for a label-check type whose
     label matches, otherwise `null`. Callers pass custom fields only; system fields are never locked (R4).
 - i18n, both locales: the `forms.fields.*` copy below. All `validation.*` keys for §6 come from SPEC-0001's plan.
+  The spec gives pt-BR only, so every en-US string is **proposed**.
 
-| Key | pt-BR | Source |
-| --- | --- | --- |
-| `forms.fields.add` | Novo campo | §4.1 |
-| `forms.fields.onlySystem` | Adicione campos para coletar mais informações | §8 |
-| `forms.fields.systemBadge` | Sistema | §8 |
-| `forms.fields.required` | Obrigatório | §4.1 |
-| `forms.fields.sensitive` | Dado protegido | §4.1, D-7 |
-| `forms.fields.sensitiveHelp` | Oculta o valor nas listas e só o mostra quando você pedir. Use para documentos, contatos e informações de saúde. | forms-overview.md Q-A |
-| `forms.fields.sensitiveLockedType` | Este tipo de campo sempre é protegido | §4.2 |
-| `forms.fields.sensitiveLockedLabel` | Rótulo indica dado pessoal ou de saúde | §4.3 |
-| `forms.fields.typeChangeWarning` | Alterar o tipo cria um novo campo. As respostas atuais não são convertidas. | §4.2 |
-| `forms.fields.removeWithAnswers` | Este campo tem respostas em {count} cadastros. Ele sairá da próxima versão; o que acontece com as respostas é decidido ao aplicar as alterações. | §4.5 |
-| `forms.fields.moveUp` / `.moveDown` / `.remove` | Mover para cima / Mover para baixo / Remover | §4.1, §4.4 |
-| `forms.fields.types.<key>` | the "Type (UI)" names of §3.1 | §3.1 |
-| `forms.fields.limitReached` | Limite de 100 campos atingido. | **proposed**, not in the spec |
-| `forms.fields.label` / `.type` / `.helpText` / `.options` / `.addOption` | Rótulo / Tipo / Texto de ajuda / Opções / Adicionar opção | **proposed** |
-| `forms.fields.menu` / `.dragHandle` | Mais ações do campo / Arrastar para reordenar (accessible names) | **proposed** |
-| `forms.fields.removeConfirm` / `.cancel` | Remover campo / Cancelar | **proposed** |
+| Key | pt-BR | en-US | Source |
+| --- | --- | --- | --- |
+| `forms.fields.add` | Novo campo | New field | §4.1 |
+| `forms.fields.onlySystem` | Adicione campos para coletar mais informações | Add fields to collect more information | §8 |
+| `forms.fields.systemBadge` | Sistema | System | §8 |
+| `forms.fields.required` | Obrigatório | Required | §4.1 |
+| `forms.fields.sensitive` | Dado protegido | Protected data | §4.1, D-7 |
+| `forms.fields.sensitiveHelp` | Oculta o valor nas listas e só o mostra quando você pedir. Use para documentos, contatos e informações de saúde. | Hides the value in lists and only shows it when you ask. Use it for documents, contact details and health information. | forms-overview.md Q-A |
+| `forms.fields.sensitiveLockedType` | Este tipo de campo sempre é protegido | This field type is always protected | §4.2 |
+| `forms.fields.sensitiveLockedLabel` | Rótulo indica dado pessoal ou de saúde | The label points to personal or health data | §4.3 |
+| `forms.fields.typeChangeWarning` | Alterar o tipo cria um novo campo. As respostas atuais não são convertidas. | Changing the type creates a new field. Current answers are not converted. | §4.2 |
+| `forms.fields.removeWithAnswers` | Este campo tem respostas em {count} cadastros. Ele sairá da próxima versão; o que acontece com as respostas é decidido ao aplicar as alterações. | This field has answers in {count} records. It leaves the next version; what happens to the answers is decided when you apply the changes. | §4.5 |
+| `forms.fields.moveUp` / `.moveDown` / `.remove` | Mover para cima / Mover para baixo / Remover | Move up / Move down / Remove | §4.1, §4.4 |
+| `forms.fields.types.<key>` | the "Type (UI)" names of §3.1 | Short text, Long text, Number, Date, Yes/No, Select, E-mail, Phone, CPF, Full name, Address | §3.1 |
+| `forms.fields.types.duration` / `.money` | Duração (minutos) / Valor (R$) | Duration (minutes) / Amount (R$) | **proposed**; system-only types, shown on service system rows |
+| `forms.fields.limitReached` | Limite de 100 campos atingido. | Limit of 100 fields reached. | key from §8; copy **proposed** |
+| `forms.fields.label` / `.type` / `.helpText` / `.options` / `.addOption` | Rótulo / Tipo / Texto de ajuda / Opções / Adicionar opção | Label / Type / Help text / Options / Add option | **proposed** |
+| `forms.fields.menu` / `.dragHandle` | Mais ações do campo / Arrastar para reordenar (accessible names) | More field actions / Drag to reorder | **proposed** |
+| `forms.fields.removeConfirm` / `.cancel` | Remover campo / Cancelar | Remove field / Cancel | **proposed** |
 
 ### Persistence
 
-New migration `form_field_rules` (`drizzle-kit generate` after editing `forms.ts`). It only adds check constraints
+New migration `0003_form_field_rules.sql` (`pnpm --filter api exec drizzle-kit generate --name form_field_rules`
+after editing `forms.ts`). It only adds check constraints
 to `form_fields`, so the database also enforces R4, R5 and the system-only types (R7):
 
 | Constraint | Expression | Rule |
@@ -756,6 +775,10 @@ to `form_fields`, so the database also enforces R4, R5 and the system-only types
 - The label check (R6) and "`yes_no` is never required" (R8, `required` is on `form_version_fields`) stay in
   `FieldPolicy`; a check constraint cannot see the term list or join the two tables.
 - No column changes. `sensitiveLock` and `requiredLock` are computed, not stored.
+- **Existing rows** (owner, 2026-11-10): handled by a precondition only. SPEC-0001 and SPEC-0002 are released
+  together (forms-overview.md build order), so no environment holds fields stored under SPEC-0001's rules alone.
+  Postgres checks existing rows when a constraint is added, so a violating row fails the whole migration and
+  nothing changes. There is no separate pre-check and no data-fixing `UPDATE`.
 - **Rollback**: dropping the three constraints loses no data.
 - `docs/schema.dbml`: the three checks as notes on `form_fields`.
 
@@ -765,9 +788,24 @@ No new routes. The rules run in `POST /v1/forms` (create), `PATCH /v1/forms/:for
 `POST /v1/forms/:formId/preview`, with SPEC-0001's guards (`JwtAccessGuard`, then `ActiveTenantGuard`). The
 computed locks appear in every Field response: create, read, update, version read.
 
+**Where the code changes: `domain/` only, no handler edits.** SPEC-0001's plan fixes six points (its API section):
+1. the preview handler is a query;
+2. handlers store and diff the field list `FieldPolicy` returns;
+3. the aggregate builds the Field response under `domain/`;
+4. `FieldPolicy` gets the template's type, create or update, and each latest-version field's id, type,
+   `systemKey`, stored `required` and `sensitive`, and option ids. `fieldType.immutable`, the keep-current defaults
+   (AC-0002-51, -52) and `fieldOptionId.unknown` (AC-0002-42) need them;
+5. `FieldInputSchema.systemKey` is a plain string, so "client.cpf" reaches `FieldPolicy` (AC-0002-40) instead of
+   failing the shape check under another key;
+6. an update that omits `fields` runs no field rule.
+
+So the rules and defaults go into `domain/field-policy.ts`, and the locks go into the domain's Field response.
+Create, update and preview get the rules through `FieldPolicy`. If SPEC-0001's implementation departs from those
+points, see Risks 7.
+
 **Check order.** SPEC-0001's plan fixes the outer order of an update: contract shape (422) → 404 → 409 revision →
-**field rules** → 409 `formName.taken` → migration checks (400). On create: contract shape → field rules → the
-template cap → the name check. Inside "field rules", `FieldPolicy` walks `fields` in array order and returns the
+**field rules** → 409 `formName.taken` → migration checks (400). On create: contract shape → field rules → template
+cap → name check (Decision 7, the same order as SPEC-0001's plan, Decision 3). Inside "field rules", `FieldPolicy` walks `fields` in array order and returns the
 first failure. For each entry:
 
 1. **Repeated id**: an id already seen at an earlier index → 422 `fieldId.duplicate` at the later index.
@@ -815,13 +853,37 @@ Inside SPEC-0001's editor, in `forms/_components/fields/`:
 - `field-list.tsx`: rows from the draft's `fields` (react-hook-form `useFieldArray`). [Novo campo] appends a "Texto
   curto" row with an empty label and focuses it (§4.1). Disabled at 100 fields with `forms.fields.limitReached`.
   Hint `forms.fields.onlySystem` when every row is a system field.
-- `field-row.tsx`: drag handle, label input, type select, "Obrigatório" and "Dado protegido" switches, "⋯" menu,
-  "Sistema" badge on system rows. Errors from the server show inline under the matching input through
-  `useFieldError` (`fields.<i>.label`, `.type`, `.required`, `.sensitive`, `.helpText`, `.options.<j>.label`).
-- `field-type-select.tsx`: only the custom types (`CUSTOM_FIELD_TYPES`); disabled on system rows. Picking `select`
-  opens the options editor with two empty options; picking `yes_no` turns "Obrigatório" off and disables it (R8).
-  On a published field, a type change replaces the row with a new field without an id (R12). The row keeps its
-  label, help text and position, drops options, and shows `forms.fields.typeChangeWarning`.
+- `field-row.tsx`: drag handle, label input, type select, "Obrigatório" switch, "Dado protegido" switch, "⋯" menu,
+  "Sistema" badge on system rows. A system row has **no** "Dado protegido" switch at all (R4), and its
+  "Obrigatório" switch is disabled except on `client.phone`.
+- **Draft serialisation** (SPEC-0001's `use-form-draft`, under `forms/_components/`): the draft never sends
+  `sensitive` for a system row, and sends `systemKey` only on create. On update, system rows are identified by
+  id. Otherwise every save fails with 422 `fieldSensitive.not-allowed` (AC-0002-45) or
+  `fieldSystemKey.not-allowed` (AC-0002-46).
+- `field-error-target.ts`: maps a server `field` path to the place its message shows. `useFieldError` only
+  translates the key; this helper decides where. The row with the error is highlighted (§8).
+
+  | `field` path | Shown |
+  | --- | --- |
+  | `fields` | above the field list (`systemField.missing`) |
+  | `fields.<i>`, `fields.<i>.id`, `fields.<i>.systemKey` | at the top of row i (`systemField.locked`, `field.unknown`, `fieldId.duplicate`, `fieldSystemKey.not-allowed`) |
+  | `fields.<i>.label`, `.type`, `.required`, `.sensitive` | under that control |
+  | `fields.<i>.helpText` | under the help-text input, opened if it was closed |
+  | `fields.<i>.options` | under the options editor, opened if it was closed (§8 `fieldOptions.required`); on a type without options, at the top of row i |
+  | `fields.<i>.options.<j>.id`, `fields.<i>.options.<j>.label` | under option j |
+
+- `field-type-select.tsx`: offers the custom types (`CUSTOM_FIELD_TYPES`). On system rows it is disabled and shows
+  the row's type from `FIELD_TYPES`, so `duration` and `money` render with `forms.fields.types.duration` and
+  `.money`. Picking `select` opens the options editor with two empty options; picking `yes_no` turns "Obrigatório"
+  off and disables it (R8).
+- **Type change on a published field** (owner, 2026-11-10; R12). The row is replaced with a new field without an id,
+  and shows `forms.fields.typeChangeWarning`.
+  - The new field keeps label, help text and position, and drops options.
+  - `required` and `sensitive` carry over, then the locks apply: `yes_no` forces required off, and an
+    always-protected type or a label match forces sensitive on.
+  - Picking the original type again restores the original field: its id, options and both switches as they were,
+    with the current label and help text, and the locks apply again. Without this, switching away and back, then
+    "Atualizar todos", would delete every answer to the original field. Now R12 and AC-0002-53 (v1.1).
 - `field-protection.ts`: the draft-side locks, from `protectionLock` and the same system and `yes_no` rules as
   the server, re-evaluated on every label or type change (§4.3). A lock forces the switch ON and disables it,
   with the tooltip of its copy key. When the lock is released, the switch stays ON (R6).
@@ -844,11 +906,13 @@ Files:
 - **U-pol** `apps/api/src/modules/forms/domain/field-policy.spec.ts`: rule order, defaults and locks, with
   in-memory field lists.
 - **U-terms** `apps/api/src/modules/forms/domain/protected-terms.spec.ts`: every §3.4 term matches in upper case,
-  without accents and inside a phrase; whole words only ("Receptor" vs "cep"); "Peso da mochila" locks.
+  without accents and inside a phrase; whole words only ("Receptor" vs "cep"); "Peso da mochila" locks. It tests
+  `packages/schemas/src/forms/protected-terms.ts` from the api, because `packages/schemas` has no test runner.
 - **W-fld** `apps/web/tests/form-fields.test.tsx`: the field list inside the editor with a prepared draft and a
   mocked `@/lib/api/forms`.
 - Fixtures: `apps/api/test/utils/forms-fixtures.ts` gains field, option and value seeding that respects the new
-  checks.
+  checks. Fields whose label matches a §3.4 term ("Peso" in AC-0002-22 and -26) are seeded with sensitive true,
+  because the database checks do not enforce the label rule (R6).
 
 Every test name starts with its AC ID. "Index 3" in a criterion means after the three system fields.
 
@@ -905,13 +969,17 @@ Every test name starts with its AC ID. "Index 3" in a criterion means after the 
 | 50 | W-fld | new row set to "CPF" → switch ON, disabled, tooltip `forms.fields.sensitiveLockedType` |
 | 51 | E-fld | O (sensitive) saved without sensitive → still sensitive true |
 | 52 | E-fld | O (required, version 2, records) saved without required → 200, version 2, still required |
+| 53 | W-fld | required select "Turno" (T) → "yes_no" → "select", then [Salvar] → the mocked update receives id T, type "select", required true and the three original option ids |
 
 U-pol also covers each step of the check order with two failing rules in one request, the defaults, the locks,
 and that the first failing entry wins.
 
 ### Deferred checks
 
-`/done` reports these as partly verified, never as passing. Their Then reads or displays clients (§2).
+Their Then reads or displays clients (§2). Under `/done` step 4 they may stay partly verified when this spec is set
+`Implemented`: `/done` reports them as partly verified, never as passing, and lists them in the changelog line.
+The verifying spec's plan lists them in its test table, includes this file in its scope, and adds
+`<AC ids> verified with SPEC-XXXX, <date>` to this changelog.
 
 | AC | Checked here | Verified by |
 | --- | --- | --- |
@@ -923,18 +991,29 @@ and that the first failing entry wins.
 
 ### Sequence
 
-0. **Prerequisite**: SPEC-0001 implemented (see Risks 1).
+0. **Prerequisite**: SPEC-0001 implemented (Risks 1), and SPEC-0001's step 0 gate passed (Decision 9).
 1. **Contracts**: `protected-terms.ts`, the export, the `forms.fields.*` copy in both locales; build the package.
-2. **Persistence**: the three checks in `forms.ts`; generate `form_field_rules` and read its SQL; update the
-   fixtures so seeded fields respect them; `docs/schema.dbml`.
-3. **Failing tests**: E-fld, U-pol, U-terms and W-fld, one test per AC as mapped (written by `test-author`);
-   confirm each fails because the rule or control is missing.
-4. **API**: `FieldPolicy` rules in the order above, defaults, locks; wire into create, update and preview; locks
-   in every Field response.
+2. **Persistence**: the three checks in `forms.ts`; generate `0003_form_field_rules.sql` and read its SQL; update
+   the fixtures so seeded fields respect them; `docs/schema.dbml`.
+3. **Tests first**: E-fld, U-pol, U-terms and W-fld, one test per AC as mapped (written by `test-author`).
+   - **Expected to pass already** (regression tests): SPEC-0001's plan delivers AC-0002-03, -05, -14 to -16, -19,
+     -20, -23 to -26, -31 to -34, -36 and -37. They cover system-field presence, id matching, the schema/metadata
+     diff, the shape checks, order, and option and protection metadata. Confirm each passes.
+   - **Expected to fail**: every other AC. Confirm each fails because the rule or control is missing.
+   - A test outside the first list that passes at this step is reported with the SPEC-0001 behavior that delivers
+     it. It is never rewritten to fail.
+4. **API**: in `domain/` only. `FieldPolicy` rules in the order above, defaults, and locks in the domain's Field
+   response. No handler changes (API section).
 5. **Web, part 1**: switch, select, menu and tooltip primitives.
-6. **Web, part 2**: field list, row, type select, protection, options editor, row menu, remove dialog, reorder.
+6. **Web, part 2**, three commits, reorder first (Risks 5):
+   - **6a** field list and drag reorder (`field-list.tsx`, `use-field-reorder.ts`): AC-0002-49.
+   - **6b** row, type select, protection, draft serialisation, error targets (`field-row.tsx`,
+     `field-type-select.tsx`, `field-protection.ts`, `field-error-target.ts`): AC-0002-10, -22, -50, -53.
+   - **6c** options editor, row menu with move up and move down, remove dialog (`field-options-editor.tsx`,
+     `field-row-menu.tsx`, `remove-field-dialog.tsx`): AC-0002-21, -48.
 7. **Checks**: `pnpm --filter @planici/schemas build`, `pnpm lint`, `pnpm typecheck`, `pnpm --filter api test`,
-   `pnpm --filter api test:e2e`, `pnpm --filter web test`.
+   `pnpm --filter api test:e2e`, `pnpm --filter web exec vitest run`. `apps/web` has no `test` script; see the
+   owner action in SPEC-0001's plan, Sequence step 8.
 
 ### Decisions this plan makes (owner to confirm with the plan)
 
@@ -947,14 +1026,23 @@ The spec leaves these open. Each follows an existing rule where one exists.
 3. **Create-time ids and types.** An id on create → 400 `field.unknown`. A system entry with a type other than
    its fixed type on create → 422 `systemField.locked`, with the other create-time system-key errors.
 4. **A system-only type on an existing custom field** → 422 `fieldType.invalid`, before `fieldType.immutable`.
-5. **Type change in the editor** keeps label, help text and position on the new field, and drops options.
-6. **Proposed copy** for the keys marked "proposed" in Contracts.
+5. **Type change in the editor**: decided by the owner on 2026-11-10 (Web, "Type change on a published field").
+   Restoring the original field is now in the spec (R12, AC-0002-53); the rest is listed here so the plan approval
+   covers it.
+6. **Proposed copy** for the keys marked "proposed" in Contracts, in pt-BR and en-US.
+7. **Create check order**: contract shape → field rules → template cap → name check. SPEC-0001's plan uses the same
+   order (its Decision 3).
+8. **`textKey` collapses internal whitespace**, as well as ignoring case and accents. R2 only says case and
+   accents, so "Data  de nascimento" and "Data de nascimento" counting as the same label is a decision.
+9. **Step 0 gate** (inherited from SPEC-0001's plan, its Decision 1): SPEC-0003's plan is drafted and reviewed, not
+   approved, before SPEC-0001's persistence step. By the time this plan starts, the gate has already passed.
 
 ### Risks
 
 1. **SPEC-0001 must be `Implemented` first** (`task-lock.sh` checks `depends_on`). The earlier deadlock is resolved
    (owner, 2026-11-09): `/done` may set `Implemented` while the criteria in a plan's Deferred checks table are still
-   unverified, so SPEC-0001's deferred AC-0001-34, -58 and the eleven SPEC-0004 criteria no longer block this plan.
+   unverified, so SPEC-0001's deferred criteria no longer block this plan. Those are AC-0001-34 and -58 under an
+   owner waiver, ten SPEC-0004 criteria and the phone count, and AC-0001-10 for SPEC-0003.
 2. **The field-list interface is shared** with SPEC-0001's editor and draft hook. Cheapest check: build SPEC-0001's
    field region against the props `field-list.tsx` needs (rows, `fields.<i>` error paths, `valueCount`).
 3. **Term matching.** Whole-word matching on normalised text can surprise with multi-word terms and hyphens
@@ -965,6 +1053,18 @@ The spec leaves these open. Each follows an existing rule where one exists.
    and try it with mouse, touch emulation and the keyboard menu. If it is not usable, the fallback is a library,
    proposed to the owner as a new dependency.
 6. **E2e needs Docker** (Testcontainers); without it, only unit and web tests run, and that is reported.
+7. **File layout comes from SPEC-0001's implementation.** The API scope is `domain/` only, which relies on the
+   six points in SPEC-0001's plan (API section). If the implementation departs from them, the lock blocks
+   the edit. Cheapest check: when SPEC-0001's `/done` runs, compare its file list with this scope, and amend this
+   plan before `/implement SPEC-0002`.
+8. **SPEC-0001's tests run under these rules but are outside this scope**: `apps/api/test/e2e/forms*`, the
+   `commands/**` handler specs, `apps/web/tests/form-editor*` and `form-dialogs*`.
+   - After this plan, these inputs get 422: a custom field with a §3.4 label sent with `sensitive: false` (AC-0001-71
+     adds a "text" field "Peso"), `sensitive` on a system field, and `systemKey` on an update.
+   - Prevention (owner, 2026-11-10): SPEC-0001's plan has its tests, W-ed payloads and fixtures follow these input
+     rules from the start (its Tests, "SPEC-0002 input rules").
+   - Final check: at SPEC-0001's `/done`, grep its tests for those inputs. Any conflict goes to the owner, never to
+     an edit of those tests.
 
 ### New dependencies
 
@@ -983,3 +1083,4 @@ None. `@base-ui/react` 1.8.0 already exports Switch, Select, Menu and Tooltip. D
 | 0.7 | 2026-11-09 | Owner decisions: on update, an existing field that omits `required` or `sensitive` keeps its current value (protection still forced on by R5–R7), and the defaults apply only to new fields (§7; AC-0002-51 and -52 added, pending owner review); `systemField.locked` keeps one key for both statuses; `fieldOptionId.unknown` (422) and `field.unknown` (400) stay different; AC-0002-17 withdrawn |
 | 0.8 | 2026-11-09 | Owner Joao Izidoro approved all pending criteria as written (AC-0002-01, -02, -04, -05, -07 to -11, -13 to -16, -18 to -20 and -22 to -52); all criteria are now agreed |
 | 1.0 | 2026-11-09 | Approved by Joao Izidoro, 2026-11-09 (together with SPEC-0001) |
+| 1.1 | 2026-11-10 | From the second plan review, the owner agreed to add a criterion for reverting a type change before saving (it keeps the original field). Without one, a revert followed by "Atualizar todos" could delete every answer to that field with no test failing. AC-0002-53 added and R12 and §4.2 step 5 amended; their wording is pending owner review |
