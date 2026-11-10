@@ -63,21 +63,21 @@ Client / Service 1──* Field value  ──* 1 Field              at most one 
 | D-3 | For text-like fields, the sensitive-data check runs on the field **label** (templates hold no data). Personal-data field types are always sensitive. |
 | D-4 | A client or service is created from exactly one template and stays bound to it. Attaching extra forms later (an anamnesis, say) is post-MVP. |
 | D-5 | Custom forms are the product's main focus and are MVP regardless of the RFC (resolves C-1). The RFC text still needs amending. |
-| D-6 | Every tenant starts with a default "Cliente" and a default "Serviço" template (resolves Q-C). |
+| D-6 | Every tenant starts with a default "Cliente" and a default "Serviço" template (resolves Q-C). An existing tenant gets one only if it has no template of that type at all (SPEC-0004 §9 Q11). |
 | D-7 | The switch is called **"Dado protegido"** (resolves Q-A). |
 | D-8 | The field-type catalog in SPEC-0002 §3.1 is accepted as proposed, without "first name" (resolves Q-B, C-6). |
 | D-9 | Money is an integer in centavos (`9999` = R$ 99,99), and lists use `limit` + `after` cursor pagination. Both now live in `docs/architecture/api-convention.md` (resolves Q-D, Q-E). |
 | D-10 | Templates are **versioned** (RF-39, RN-21). Saving a new template publishes v1; applying schema changes publishes the next version; metadata (names, labels, help text, protection, option labels) is shared by all versions and publishes nothing. When records exist, the Apply dialog offers "Manter existentes" or "Atualizar todos". Deleting answers in a migration needs the template name typed. Migrated records missing a new required field are flagged pending. The draft lives only in the editor. A separate `revision` counter protects against two tabs. |
 | D-11 | A **record** is the saved client or service. A **submission** is only the answers sent on [Salvar]. The RFC's "many dated submissions per client" is replaced by "one record per client, linked to a template version" (RFC amended in the same change). |
-| D-12 | Consent is attested once per client, **when the client record is saved for the first time** (RFC §6 wording changed from "antes da primeira submissão"). No spec covers the attestation yet. |
-| D-13 | Deleting a template that has records asks whether to delete them too. Yes: type the template name, and the template and all its records are deleted. No: the template is archived and hidden from `/forms`. (SPEC-0001 R8) |
+| D-12 | Consent is attested once per client, **when the client record is saved for the first time** (RFC §6 wording changed from "antes da primeira submissão"). Specified in SPEC-0004 R12; text version "1" decided (SPEC-0004 §9 Q8). |
+| D-13 | Deleting a template that has records asks whether to delete them too. Yes: after the template name is typed, the template and all its records are deleted. No: the template is archived and hidden from `/forms`. If any record has linked history, only archive is offered. (SPEC-0001 R8, §9 Q7 option A) |
 | D-14 | Telefone is a locked client system field, like Nome and E-mail, so clients are easier to search by it. |
 | D-15 | The spec owner is **Joao Izidoro**. |
 
-Anything else in the specs (protected-terms list, uniqueness rules, limits, the delete pattern for clients and services)
-is a **proposal**. The criteria rewritten for D-10 (each spec's 0.3 changelog line) are
-awaiting the owner's review. Each spec's acceptance criteria that depend on a proposal are
-kept apart under "Provisional criteria" until the owner answers.
+Anything else in the specs is a **proposal** until the owner decides it. A spec records each decision in its §9 or
+tags the rule "owner decision". Only agreed criteria become tests. Criteria awaiting the owner sit in each spec's
+§10, under "Pending owner review" (new or changed criteria) or "Provisional criteria" (criteria that depend on an
+open question).
 
 ## 4. Conflicts with the RFC (owner must resolve)
 
@@ -87,9 +87,10 @@ kept apart under "Provisional criteria" until the owner answers.
 | C-2 | ~~RF-07: client has fixed fields (name, phone, e-mail, notes); "custom forms are post-MVP". RF-11: service has name, duration, default price.~~ | Those become **system fields** of the template, and everything else is custom. "Observações" (notes) becomes an ordinary long-text custom field. | **Resolved (owner, 2026-11-09):** RF-07 amended; its fixed fields are name, phone and e-mail, and notes are an ordinary custom long-text field (SPEC-0001 §3.2). RF-11 already lists only the service system fields. |
 | C-3 | ~~RF-37/RN-20: target entity "sugerida".~~ | The type is binding. | **Resolved:** the RFC now makes the type mandatory and binding. |
 | C-4 | RF-40–RF-42, RN-21: many dated **submissions** per client or service, filled on its page. | One record per client or service, created from one template and linked to one version (D-4, D-11). | **Decided (D-11).** RFC amended in the same change as these specs. Extra forms per client stay post-MVP. |
-| C-7 | RF-39: "Modelos com cadastros são arquivados em vez de removidos". | Deleting asks whether to delete the records too, or archive (D-13). | **Decided for templates (D-13);** RF-39 amended in the same change. Clients and services still open (SPEC-0004 Q5). |
+| C-7 | RF-39: "Modelos com cadastros são arquivados em vez de removidos". | Deleting asks whether to delete the records too, or archive (D-13). | **Decided for templates (D-13);** RF-39 amended in the same change. Clients: decided (SPEC-0004 §9 Q5: a client with history cannot be deleted; the API returns 409 and the UI offers "Inativar"). Services use the same pattern in SPEC-0005, not yet reviewed. |
 | C-5 | `schema.dbml`: `forms.default_entity_type` is nullable. `form_fields.sort_order int`. `clients.custom_fields jsonb` is an "ad-hoc fallback". | The type is required. Order uses fractional keys. No ad-hoc fallback. | Update `schema.dbml` during data modelling (§6). |
 | C-6 | `field_type` enum: text, textarea, number, date, select, multiselect, checkbox, radio, image, file, url, phone, email. | MVP catalog in SPEC-0002 §3.1 (adds cpf, full name, address, yes/no; defers multiselect, radio, image, file, url). | **Decided (D-8).** Update the enum during data modelling. |
+| C-8 | RFC §6 "Isolamento por Tenant" and RNF-07: the database applies Row-Level Security to every table with `tenant_id`. M6b: "RLS validado nas novas tabelas; testes de isolamento entre tenants". | The forms plans (SPEC-0001 onward) isolate tenants with `tenant_id` filters in every query, tested by each spec's isolation criteria. No table has RLS policies yet. | **Decided (owner, 2026-11-09):** RLS is deferred to a separate platform spec covering all tables, written before launch. Until then, tenant isolation stays on `tenant_id` filters and the isolation criteria. |
 
 ## 5. Cross-cutting open questions
 
@@ -134,3 +135,12 @@ These are inputs for modelling the database. They are not requirements.
   unique indexes.
 - **Optimistic concurrency.** A `revision` integer on the template, separate from the published version number,
   supports the 409 conflict in SPEC-0001 R11.
+
+## 7. Launch items
+
+Work that must be done before launch. It does not block specs or implementation.
+
+- Legal review of the consent attestation text (SPEC-0004 R12, §9 Q8) before launch. A changed wording ships as a
+  new text version.
+- Platform spec for Row-Level Security on every table with `tenant_id`, written before launch (C-8).
+- Verify AC-0001-34 and -58 once scheduling or payments exist (SPEC-0001 plan, Deferred checks).

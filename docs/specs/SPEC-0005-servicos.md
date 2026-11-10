@@ -3,7 +3,7 @@ id: SPEC-0005
 title: Cadastro de serviços
 status: Draft # Draft | Review | Approved | Implemented | Superseded
 plan_status: Draft # Draft | Approved
-version: 0.6
+version: 0.8
 owner: Joao Izidoro
 satisfies: [RF-11, RF-12, RF-13, RN-02, RN-06, RN-22, RN-24, RN-25]
 depends_on: [SPEC-0001, SPEC-0002, SPEC-0003]
@@ -51,7 +51,8 @@ are the same entity (RN-22). Template filling is shared with clients in SPEC-000
 - **R9.** The list is sorted by name (ignoring case and accents). Search matches name only, ignoring case and
   accents, as "contains", from 2 characters. (RF-13; search is an `assumption`)
 - **R10.** Every tenant has a service template named "Serviço" containing only the service
-  system fields. Existing tenants get it too. (owner decision, forms-overview.md D-6)
+  system fields. An existing tenant gets it only if it has no service template at all, active or archived; any
+  other existing tenant is left alone. (owner decisions, forms-overview.md D-6 and SPEC-0004 §9 Q11)
 
 ## 4. Behavior
 
@@ -80,14 +81,14 @@ archived, and no service is deleted (SPEC-0001 R8).
 | Action | Unauthenticated | Member | Owner | Other tenant |
 | --- | --- | --- | --- | --- |
 | List / search services | 401 | — (post-MVP) | 200, own tenant only | 404 `tenant.not-found` |
-| Create service | 401 | — | 201 | 422 `formId.invalid` (SPEC-0003) |
+| Create service | 401 | — | 201 | 400 `formId.invalid` (SPEC-0003) |
 | Read / update service | 401 | — | 200 | 404 `service.not-found` |
 | Inactivate / reactivate | 401 | — | 200 | 404 `service.not-found` |
 | Delete service | 401 | — | 204 | 404 `service.not-found` |
 
 ## 6. Errors
 
-Value errors for custom fields are in SPEC-0003 §6.
+Template, template-version, revision and custom-field value errors are in SPEC-0003 §6.
 
 | Situation | Status | `error` key | `field` |
 | --- | --- | --- | --- |
@@ -110,15 +111,16 @@ Value errors for custom fields are in SPEC-0003 §6.
 
 New, non-breaking. Consumers: `apps/web`; later the scheduling module.
 
-- **Service** (response): `id`, `form` (`{ id, name, version, latestVersion, status }`), `name`, `durationMinutes` (int),
-  `priceCents` (int, centavos), `currency` (`"BRL"`), `values`, `missingRequired`, `status` (`active | inactive`),
-  `inUse` (bool), `createdAt`, `updatedAt`.
+- **Service** (response): `id`, `form` (`{ id, name, version, latestVersion, status }`), `revision` (int, SPEC-0003
+  R14), `name`, `durationMinutes` (int), `priceCents` (int, centavos), `currency` (`"BRL"`), `values`,
+  `missingRequired`, `status` (`active | inactive`), `inUse` (bool), `createdAt`, `updatedAt`.
 - **ServiceSummary** (list item): `id`, `name`, `durationMinutes`, `priceCents`, `currency`, `formId`,
   `formName`, `status`.
 - **List**: query `q?`, `status?`, `limit?`, `after?` (`api-convention.md`, Pagination; sort: name, then `id`). Response
   `{ services: ServiceSummary[], nextCursor: string | null }`.
 - **Create request**: `formId`, `formVersion`, `name`, `durationMinutes`, `priceCents`, `values`.
-- **Update request**: `formVersion`, `name`, `durationMinutes`, `priceCents`, `values`.
+- **Update request**: `revision`, `formVersion`, `name`, `durationMinutes`, `priceCents`, `values` (SPEC-0003 §7
+  semantics).
 - **Money**: `priceCents` is an integer in centavos (`9999` = R$ 99,99) with `currency` beside it, per
   `api-convention.md`, Money. It is the first monetary field in the contracts.
 - `schema.dbml` `services.price` is nullable and `duration_minutes` nullable; RN-06 makes both required. Fix in
@@ -330,3 +332,5 @@ Written by `/plan` after the spec is Approved. Empty until then.
 | 0.4 | 2026-11-09 | Owner Joao Izidoro set. Services can be deleted together with their template (SPEC-0001 D-13) |
 | 0.5 | 2026-11-09 | Aligned with SPEC-0001 v0.5 (owner decision on SPEC-0001 Q7): deleting a template with its services is offered only when none has linked history (§4.4) |
 | 0.6 | 2026-11-09 | Owner decision (SPEC-0001 review round 2): length keys use `.max` / `.min` (`serviceName.max`, `serviceSearch.min`); system fields are now SPEC-0001 §3.2 |
+| 0.7 | 2026-11-09 | Aligned with SPEC-0003 v0.6 (owner decisions on the SPEC-0003 review): another tenant's template id returns 400 `formId.invalid` (§5); `revision` in the service response and update request (SPEC-0003 R14) |
+| 0.8 | 2026-11-09 | Owner decision (SPEC-0004 review, §9 Q11): the "Serviço" backfill only adds the template to existing tenants with no service template at all (R10) |

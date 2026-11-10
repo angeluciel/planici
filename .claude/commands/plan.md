@@ -27,6 +27,9 @@ Produce the implementation plan for $ARGUMENTS and write it into the spec's `## 
    - **API** — method, path, status codes, guards, ACs covered.
    - **Web** — routes, components, states, i18n keys.
    - **Tests** — for every in-scope AC, the test file and test name, so an unmapped AC is visible now.
+     - Deferred checks: ACs that can only be verified once another spec is implemented. List each with the spec
+       that will verify it. When this plan verifies ACs deferred from an earlier spec, list them in the test table
+       and include that spec's file in the scope block.
    - **Sequence** — commit-sized steps: contracts → schema/migration → failing tests → api → web.
    - **Risks** — what could invalidate the plan and the cheapest way to find out early.
    - **New dependencies** — each justified. None by default.

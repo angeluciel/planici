@@ -82,7 +82,7 @@ Cenário: Criar cliente com dados mínimos
 Dado que o profissional está autenticado
 E possui um tenant ativo
 Quando acessa a tela de clientes
-E informa nome e ao menos um contato válido
+E informa nome e e-mail válidos
 E confirma o cadastro
 Então o cliente é criado vinculado ao tenant ativo
 E aparece na listagem de clientes
