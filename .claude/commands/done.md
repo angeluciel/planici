@@ -15,9 +15,12 @@ Close the active task.
    - **Scope**: if a task is locked, the output of `.claude/bin/task-lock.sh check`. It lists files changed outside
      the plan's scope, including Bash writes the edit hook never sees (`drizzle-kit generate`, `lint:fix`).
    - **Follow-ups**: things noticed and deliberately not done.
-4. If every in-scope AC passes, update the spec's changelog with what was implemented. Set
-   `status: Implemented` only if all of the spec's ACs are verified **and** the owner has said they accept the
-   behavior on a running system. Otherwise leave the status and say what is missing.
+4. If every in-scope AC passes, update the spec's changelog with what was implemented. An AC may be left
+   unverified only if it appears in the plan's Deferred checks table, which names the spec that will verify it.
+   Set `status: Implemented` only if every non-deferred AC is verified and the owner has said they accept the
+   behavior on a running system. List the deferred ACs in the changelog line. When this task's plan verifies ACs
+   deferred from an earlier spec, add a changelog line to that spec: `<AC ids> verified with SPEC-XXXX, <date>`.
+   Otherwise leave the status and say what is missing.
 5. `.claude/bin/task-lock.sh clear`.
 6. **Commit plan**: branch (`feat/<slug>-spec-XXXX`, never named after a person or tool), then atomic commits,
    each with the exact files to stage and a conventional message ending in `[SPEC-XXXX]`.

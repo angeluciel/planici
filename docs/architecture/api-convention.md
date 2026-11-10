@@ -16,6 +16,10 @@
 | PUT    | No estrablished endpoint convention. |
 | DELETE | No estrablished endpoint convention. |
 
+Confirmed deletes use `POST /<resource>/:id/delete` with a JSON body, not `DELETE`. The body carries the
+confirmation (for example `{ "confirmName": "…" }`) and a success returns 204 with no payload. Examples: template
+delete (SPEC-0001) and client delete (SPEC-0004).
+
 Tenant creation is `POST /tenants`; renaming is `PATCH /tenants/:tenantId`.
 The tenant slug and ID are not changed by rename. Do not expose arbitrary status
 changes just because a database column exists.

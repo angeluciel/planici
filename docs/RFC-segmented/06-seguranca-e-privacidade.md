@@ -288,7 +288,7 @@ Por isso, o sistema deverá:
 
 - **reconhecer expressamente** que campos livres, observações e respostas de formulários personalizados podem conter dados sensíveis de saúde;
 - coletar **consentimento específico e destacado** (art. 11, I) do titular para o tratamento desses dados, quando aplicável, separado do aceite geral dos Termos/Política;
-- em formulários de cliente, exigir que o profissional, na qualidade de controlador, ateste uma vez por cliente e antes da primeira submissão que obteve esse consentimento, registrando autor, data e versão do texto, já que o titular não acessa o Planici;
+- em formulários de cliente, exigir que o profissional, na qualidade de controlador, ateste uma vez por cliente, ao salvar o cadastro pela primeira vez, que obteve esse consentimento, registrando autor, data e versão do texto, já que o titular não acessa o Planici;
 - aplicar **criptografia em repouso obrigatória** às observações que possam conter dados sensíveis e às respostas de formulários;
 - evitar solicitar dados sensíveis por padrão e indicar que campos livres devem ser usados apenas quando necessário;
 - permitir que o profissional defina quais informações serão coletadas nos formulários e proteger as respostas com as mesmas regras de autenticação, autorização e isolamento por tenant;
