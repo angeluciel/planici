@@ -1043,7 +1043,7 @@ no migration, so `apps/api/drizzle/**` and `apps/api/src/database/**` are not in
   plan, Persistence), the system attributes, the routes and the BFF. They rely on the points listed under "What
   SPEC-0004 and SPEC-0005 rely on".
 - SPEC-0001's plan says that "SPEC-0003's plan builds the record read/write API". Here that means the in-process
-  `RecordService`, not endpoints (G-6).
+  `RecordService`, not endpoints (G-6, decided by the owner on 2026-11-10).
 
 ### Contracts (`packages/schemas/src/records/`)
 
@@ -1101,14 +1101,18 @@ No schema change and no migration. The plan reads and writes SPEC-0001's tables:
   1 and `value_ciphertext`. The cipher is `FieldValueCipher` (AES-256-GCM, a new 12-byte nonce per row), with the
   associated data that SPEC-0001's plan fixes (`key_version`, `tenant_id`, `form_record_id`, `field_id`). The
   plaintext is the UTF-8 JSON of the normalised contract value (G-1). A `select` value is its option id. A
-  `yes_no` value is stored only when it is `true` (Decision 6, G-2).
+  `yes_no` value is stored only when it is `true` (Decision 6, G-2). The owner decided both on 2026-11-10, and
+  SPEC-0001's plan uses the same format.
 - **Writes.** A create inserts the `form_records` row (revision 1, the latest version's id), then its value rows.
   An update deletes the record's value rows, inserts the new set, raises `revision` by 1 and sets `updated_at`, all
   in the caller's `TenantScope.run` transaction (R14, Decision 4).
 - **Locks** (Decision 5). A create reads the template row `for share`, so it waits for a template update, archive
   or delete in progress, then sees its result (R7, §4.1 step 7). An update reads the record row `for update`, so
-  it waits for an "Atualizar todos" in progress, then sees the new version (R7). This only holds if SPEC-0001's
-  delete locks the template row and "Atualizar todos" repoints records before deleting answers (G-3, G-4).
+  it waits for an "Atualizar todos" in progress, then sees the new version (R7). Both rely on SPEC-0001's delete
+  locking the template row first and "Atualizar todos" repointing records before deleting answers (G-3, G-4,
+  decided by the owner on 2026-11-10). A create that waited for a delete finds no template and gets 400
+  `formId.invalid` (AC-0003-78's server side). It never reaches the foreign-key failure that SPEC-0001's Delete
+  leaves to this plan.
 - **Reads.** A read on its own takes no transaction (SPEC-0001 plan: RLS deferred). Inside a create or update, the
   caller passes its `tx` to `read`, because the record is not committed yet; a read from the pool would not see it
   and would need a second connection. Every query filters by `tenant_id`.
@@ -1216,8 +1220,10 @@ No routes and no BFF here. SPEC-0004 and SPEC-0005 own `/clients/new?form=:id`, 
     `extraFields` input), whatever its status, so 409 `clientEmail.taken` shows under E-mail; else
     `.form.saveError`. A `field` with no input (`formVersion`, `revision`, `values`), no `field`, a 500 or a
     network failure all end in `.form.saveError`. Typed values are kept in every case.
-  - [Cancelar]: with typed input, the `.form.discard` dialog (SPEC-0001's `dialog.tsx`) first; otherwise
-    `listHref`. Closing or reloading the tab while dirty uses `beforeunload`. In-app links: G-7.
+  - Leaving with typed input: SPEC-0001's shared `use-leave-guard.ts` (G-7, decided by the owner on 2026-11-10) with
+    `{entity}.form.discard`. It confirms in-app link clicks and uses `beforeunload` for tab close and reload.
+    [Cancelar] shows the same confirmation (SPEC-0001's `dialog.tsx`) before going to `listHref`; with nothing
+    typed it goes straight there.
   - Edit shows protected values in plain text (R9). `extraFields` renders above [Salvar].
 - `record-view.tsx`:
   - Loading skeleton (`.view.loading`); load failure `.view.loadError` with retry; `.view.notFound`.
@@ -1373,7 +1379,7 @@ U-req asserts the first-issue order of Decision 12 with one request per adjacent
 | 46 | W-view | "Modelo: Ficha · Versão 2" through `clients.view.version` |
 | 47 | W-form | archived template → `clients.form.unavailable` with a link to the list |
 | 48 | W-form | adapter rejects with 500 → `clients.form.saveError`; every typed value still in its input |
-| 49 | W-form | Cancelar after typing → `clients.form.discard` before any navigation |
+| 49 | W-form | Cancelar after typing → `clients.form.discard` before any navigation; an in-app link click while dirty shows the same confirmation (G-7) |
 | 50 | W-view | read rejects with 404 → `clients.view.notFound` |
 | 51 | W-form | form read rejects with 500 → `clients.form.loadError`; retry calls the form read again |
 | 52 | W-view | record read rejects with 500 → `clients.view.loadError`; retry reads again |
@@ -1428,7 +1434,8 @@ AC-0003-19, -39, -40, -57, -58 and -82 have no test here (Deferred checks).
 | AC-0001-10 | W-form | partly: the fill-in form opened with the new template's id shows "Ficha nutricional"; the route that reads `?form=` is SPEC-0004's (G-5) |
 
 At `/done`, SPEC-0001's changelog gets "AC-0001-10 partly verified with SPEC-0003, <date>", because `/done` step 4
-uses "verified" only for a fully verified criterion. The route part stays open until G-5 is decided.
+uses "verified" only for a fully verified criterion. The route part is SPEC-0004's (G-5, decided by the owner on
+2026-11-10); SPEC-0001's Deferred checks row names both specs.
 
 SPEC-0002's plan defers AC-0002-19, -23 and -24 to SPEC-0004, not to this spec (its Deferred checks). This plan
 neither verifies them nor edits SPEC-0002's file. AC-0003-84 and -85 already test the rename and protection cases.
@@ -1467,9 +1474,9 @@ their routes and run W-form and W-view against their adapters (What SPEC-0004 an
 
 ### Sequence
 
-0. **Prerequisites.** SPEC-0001 and SPEC-0002 `Implemented` (`task-lock.sh` checks `depends_on`). The owner answers
-   G-1 to G-4 before SPEC-0001's persistence step, because they change SPEC-0001's code (SPEC-0001 plan, Sequence
-   step 0).
+0. **Prerequisites.** SPEC-0001 and SPEC-0002 `Implemented` (`task-lock.sh` checks `depends_on`). G-1 to G-4,
+   which change SPEC-0001's code, were decided on 2026-11-10 and are in SPEC-0001's plan, ahead of its persistence
+   step (SPEC-0001 plan, Sequence step 0). Risks 1 checks that its code follows them.
 1. **Contracts.** U-val and U-req first, confirmed failing because the module is missing. Then
    `packages/schemas/src/records/*`, the export, the copy in both locales; build the package. AC-0003-54 to -56,
    -60, -64 to -66, -86 and -87 pass here.
@@ -1509,10 +1516,10 @@ The spec leaves these open.
 4. **Every accepted update raises the revision by 1**, even when the values equal the stored ones. Finding "no
    change" would mean decrypting and comparing every value (R14 says "every stored change").
 5. **Locks.** A create reads the template `for share`; an update reads the record `for update` (Persistence). Both
-   rely on G-3 and G-4.
+   rely on G-3 and G-4, which the owner decided on 2026-11-10.
 6. **A `yes_no` value is stored only when it is `true`.** "No value" already reads as `false` everywhere (§3.1), so
-   an explicit `false` row would add a difference nobody sees. The effect on SPEC-0001's and SPEC-0002's counts is
-   G-2.
+   an explicit `false` row would add a difference nobody sees. The owner decided this as G-2 on 2026-11-10, together
+   with its effect on SPEC-0001's and SPEC-0002's counts.
 7. **Locale formats.** Number and date are shown in the active locale through `Intl` ("72,5" and dd/mm/aaaa in
    pt-BR). CPF, phone and CEP keep their Brazilian formats in every locale. The number input accepts "," or "." as
    the decimal separator and no thousands separator. The date input is `<input type="date">`.
@@ -1535,27 +1542,29 @@ The spec leaves these open.
 
 ### Gaps and conflicts for the owner
 
-Found while drafting against SPEC-0001's record storage and SPEC-0001, SPEC-0002 and SPEC-0004. None is edited into
-those files. G-1 to G-4 change SPEC-0001's plan, so they are best decided before the owner approves it. This plan's
-Persistence, Decisions 5 and 6, the R7 race check and Risks 8 assume the proposals below, so the answers to G-1 to
-G-4 are recorded in SPEC-0001's plan before this plan is approved.
+Found while drafting against SPEC-0001's record storage and SPEC-0001, SPEC-0002 and SPEC-0004. This plan edits none
+of those files. The owner decided G-1 to G-7 on 2026-11-10, each as proposed, and the decisions are written into
+SPEC-0001's plan at the sections named below. This plan's Persistence, Decisions 5 and 6, the R7 race check and
+Risks 8 build on them. G-8 and G-9 are still open.
 
-| # | Where | Gap or conflict | Proposal |
+| # | Where | Gap or conflict | Proposal or decision |
 | --- | --- | --- | --- |
-| G-1 | SPEC-0001 plan, Persistence | The plaintext of an encrypted value is not fixed. SPEC-0001's "Atualizar todos" decrypts `select` values and its fixtures seed encrypted values; this plan writes them. If the two disagree, removed options are never found. | The cipher takes and returns the UTF-8 JSON of the normalised contract value; a `select` value is its option id. One line in SPEC-0001's Persistence. |
-| G-2 | SPEC-0001 plan, counts; SPEC-0002 `valueCount` | Whether a `false` `yes_no` is stored changes `valueCount`, `recordsLosingAnswers` and SPEC-0002's "Este campo tem respostas em {count} cadastros". | Store only `true` (Decision 6). Removing a `yes_no` field then counts only "Sim" answers as lost, which matches what the view shows. |
-| G-3 | SPEC-0001 plan, API, Delete | The delete does not say it locks the template row before counting records. A record created between the count and the delete either fails the delete with a `RESTRICT` error (500) or survives a "Sim, excluir tudo". | The delete reads the template `for update` first. Archive and update already lock it. |
-| G-4 | SPEC-0001 plan, API, Update ("Atualizar todos") | If answers are deleted before records are repointed, a record update holding its row lock can commit a value of a removed field after the delete, leaving a value outside the record's version. The bulk revision raise does not say it sets `updated_at`. | Repoint and raise revisions first, in the same statement, setting `updated_at`; then delete answers. |
-| G-5 | SPEC-0001 plan, Deferred checks, AC-0001-10 | It names SPEC-0003 to check "the new-client page". The page's route belongs to SPEC-0004, which also adds the consent checkbox to it (SPEC-0004 §4.3). | SPEC-0003 checks the fill-in form opened with the template id and records AC-0001-10 as partly verified (Tests); the route part moves to SPEC-0004. |
-| G-6 | SPEC-0001 plan, Boundary | It says SPEC-0003's plan "builds the record read/write API", while SPEC-0003 §2 puts the endpoints in SPEC-0004 and SPEC-0005. | Read "API" as the in-process `RecordService` (Boundary above). |
-| G-7 | SPEC-0001 plan, Web; this spec §8 | §8 asks for "Descartar cadastro?" when leaving a dirty fill-in page. SPEC-0001's link interception lives inside `use-form-draft`, under `forms/_components/`, outside this lock. | SPEC-0001 builds it as a shared hook, `apps/web/src/hooks/use-leave-guard.ts`, which this plan reuses (scope widened then). Otherwise this plan covers [Cancelar] and tab close only, which is all AC-0003-49 tests. |
-| G-8 | This spec §6 step 5; SPEC-0004 §6 | §6 step 5 lists the system-attribute rules after the custom values. SPEC-0004 §6 checks name, e-mail and phone before them. | SPEC-0004's order wins for clients; the two-phase service allows it (Decision 2). SPEC-0005 has no order yet. |
-| G-9 | SPEC-0005 status | SPEC-0005 is Draft, with provisional criteria. The service side of every deferred criterion, and the `/services` pages, wait for it. | No change here: the service is type-agnostic and tested with service templates. SPEC-0003 stays partly verified for services until SPEC-0005 ships. |
+| G-1 | SPEC-0001 plan, Persistence | The plaintext of an encrypted value was not fixed. SPEC-0001's "Atualizar todos" decrypts `select` values and its fixtures seed encrypted values; this plan writes them. If the two disagreed, removed options would never be found. | **Decided (owner, 2026-11-10):** the cipher takes and returns the UTF-8 JSON of the normalised contract value; a `select` value is its option id. In SPEC-0001's Persistence ("Plaintext"). |
+| G-2 | SPEC-0001 plan, counts; SPEC-0002 `valueCount` | Whether a `false` `yes_no` is stored changes `valueCount`, `recordsLosingAnswers` and SPEC-0002's "Este campo tem respostas em {count} cadastros". | **Decided (owner, 2026-11-10):** store only `true` (Decision 6). Removing a `yes_no` field then counts only "Sim" answers as lost, which matches what the view shows. In SPEC-0001's Persistence ("Plaintext") and API ("Counts"). |
+| G-3 | SPEC-0001 plan, API, Delete | The delete did not say it locks the template row before counting records. A record created between the count and the delete would either fail the delete with a `RESTRICT` error (500) or survive a "Sim, excluir tudo". | **Decided (owner, 2026-11-10):** the delete reads the template `for update` first; archive and update already lock it. In SPEC-0001's API ("Delete"). A create that waited for that delete finds no template and gets 400 `formId.invalid` (Persistence, Locks). |
+| G-4 | SPEC-0001 plan, API, Update ("Atualizar todos") | If answers were deleted before records were repointed, a record update holding its row lock could commit a value of a removed field after the delete, leaving a value outside the record's version. The bulk revision raise did not say it sets `updated_at`. | **Decided (owner, 2026-11-10):** repoint and raise revisions first, in one statement that also sets `updated_at`; then delete answers. In SPEC-0001's API ("Update" and "All records at once"). |
+| G-5 | SPEC-0001 plan, Deferred checks, AC-0001-10 | It named SPEC-0003 to check "the new-client page". The page's route belongs to SPEC-0004, which also adds the consent checkbox to it (SPEC-0004 §4.3). | **Decided (owner, 2026-11-10):** SPEC-0003 checks the fill-in form opened with the template id and records AC-0001-10 as partly verified (Tests); SPEC-0004 checks the `/clients/new` route. SPEC-0001's Deferred checks row now names both. |
+| G-6 | SPEC-0001 plan, Boundary | It said SPEC-0003's plan "builds the record read/write API", while SPEC-0003 §2 puts the endpoints in SPEC-0004 and SPEC-0005. | **Decided (owner, 2026-11-10):** "API" means the in-process `RecordService` (Boundary above). SPEC-0001's Boundary now says so. |
+| G-7 | SPEC-0001 plan, Web; this spec §8 | §8 asks for "Descartar cadastro?" when leaving a dirty fill-in page. SPEC-0001's link interception lived inside `use-form-draft`, outside this lock. | **Decided (owner, 2026-11-10):** SPEC-0001 builds the shared hook `apps/web/src/hooks/use-leave-guard.ts`, and the caller passes the copy key. `use-form-draft` uses it with `forms.editor.unsaved`; this plan's fill-in form uses it with `{entity}.form.discard` (Web). This plan only imports the hook, so its scope does not change. |
+| G-8 | This spec §6 step 5; SPEC-0004 §6 | §6 step 5 lists the system-attribute rules after the custom values. SPEC-0004 §6 checks name, e-mail and phone before them. | **Open.** Proposal: SPEC-0004's order wins for clients; the two-phase service allows it (Decision 2). SPEC-0005 has no order yet. |
+| G-9 | SPEC-0005 status | SPEC-0005 is Draft, with provisional criteria. The service side of every deferred criterion, and the `/services` pages, wait for it. | **Open.** Proposal: no change here. The service is type-agnostic and tested with service templates. SPEC-0003 stays partly verified for services until SPEC-0005 ships. |
 
 ### Risks
 
-1. **SPEC-0001 ships without G-1 to G-4.** Then this plan's encoding, counts or locks disagree with SPEC-0001's code.
-   Cheapest check: decide them with SPEC-0001's plan approval (Sequence step 0).
+1. **SPEC-0001's implementation departs from G-1 to G-4.** The owner decided them and they are in SPEC-0001's plan
+   (2026-11-10), but if the code differs, this plan's encoding, counts or locks disagree with it. Cheapest check: at
+   SPEC-0001's `/done`, compare the cipher plaintext, the `yes_no` rows, the delete lock and the order of the
+   "Atualizar todos" statements with its plan, and amend this plan before `/implement SPEC-0003`.
 2. **Most API criteria are only partly verified until SPEC-0004 and SPEC-0005** (§2). HTTP-only behavior (the pipe on
    each controller, guards, 201 and 200, logs over HTTP) can still break there. Cheapest check: SPEC-0004's plan
    maps every row of Deferred checks; the service keeps controllers thin.
