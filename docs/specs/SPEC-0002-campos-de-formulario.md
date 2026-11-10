@@ -690,7 +690,9 @@ apps/api/drizzle/0003_form_field_rules.sql
 apps/api/drizzle/meta/*
 apps/api/test/utils/forms-fixtures.ts
 apps/api/test/e2e/form-fields*
-apps/web/src/app/*/orgs/*/forms/_components/*
+apps/web/src/app/*/orgs/*/forms/_components/fields/*
+apps/web/src/app/*/orgs/*/forms/_components/use-form-draft*
+apps/web/src/app/*/orgs/*/forms/_components/form-editor*
 apps/web/src/components/ui/switch.tsx
 apps/web/src/components/ui/select.tsx
 apps/web/src/components/ui/menu.tsx
@@ -702,7 +704,9 @@ docs/schema.dbml
 `apps/api/drizzle/meta/*` is in the lock because `drizzle-kit generate` writes it and `task-lock.sh check` reports
 every changed file; `guard-paths.sh` still blocks hand edits there. Paths with `[lang]` and `[tenant]` use `*` (the
 lock matches bash globs). The API paths are `domain/` only, because of the layout SPEC-0001's plan fixes (API below,
-Risks 7).
+Risks 7). The lock's `*` crosses `/`, so `forms/_components/*` would also unlock every SPEC-0001 component (the
+forms list and the publish, apply, archive and delete dialogs). The web paths are therefore `_components/fields/*`
+plus the two SPEC-0001 files this plan edits, by name (Web).
 
 ### Starting point
 
@@ -758,6 +762,7 @@ Non-breaking. No request or response shape changes; SPEC-0001's plan adds every 
 | `forms.fields.limitReached` | Limite de 100 campos atingido. | Limit of 100 fields reached. | key from §8; copy **proposed** |
 | `forms.fields.label` / `.type` / `.helpText` / `.options` / `.addOption` | Rótulo / Tipo / Texto de ajuda / Opções / Adicionar opção | Label / Type / Help text / Options / Add option | **proposed** |
 | `forms.fields.menu` / `.dragHandle` | Mais ações do campo / Arrastar para reordenar (accessible names) | More field actions / Drag to reorder | **proposed** |
+| `forms.fields.removeOption` | Remover opção (accessible name of the remove-option button in the options editor) | Remove option | **proposed**; RNF-16–RNF-18 |
 | `forms.fields.removeConfirm` / `.cancel` | Remover campo / Cancelar | Remove field / Cancel | **proposed** |
 
 ### Persistence
@@ -775,10 +780,12 @@ to `form_fields`, so the database also enforces R4, R5 and the system-only types
 - The label check (R6) and "`yes_no` is never required" (R8, `required` is on `form_version_fields`) stay in
   `FieldPolicy`; a check constraint cannot see the term list or join the two tables.
 - No column changes. `sensitiveLock` and `requiredLock` are computed, not stored.
-- **Existing rows** (owner, 2026-11-10): handled by a precondition only. SPEC-0001 and SPEC-0002 are released
-  together (forms-overview.md build order), so no environment holds fields stored under SPEC-0001's rules alone.
-  Postgres checks existing rows when a constraint is added, so a violating row fails the whole migration and
-  nothing changes. There is no separate pre-check and no data-fixing `UPDATE`.
+- **Existing rows** (owner, 2026-11-10): handled by a precondition, checked in Sequence step 0 before step 2.
+  forms-overview.md only *suggests* building SPEC-0001 and SPEC-0002 together, and Risks 1 has SPEC-0001
+  implemented first, so a database can hold `form_fields` rows written under SPEC-0001's rules alone. Some of
+  those could break rules no check constraint sees (R6, R8). Postgres checks existing rows when a constraint is
+  added, so a row that breaks a check fails the whole migration and nothing changes. There is no data-fixing
+  `UPDATE`.
 - **Rollback**: dropping the three constraints loses no data.
 - `docs/schema.dbml`: the three checks as notes on `form_fields`.
 
@@ -848,15 +855,17 @@ R15 needs no code: protection lives on the field row, and an update only touches
 
 ### Web
 
-Inside SPEC-0001's editor, in `forms/_components/fields/`:
+Inside SPEC-0001's editor. Every file is **new**, in `forms/_components/fields/`, unless marked **edit**: an edit of
+a SPEC-0001 file in `forms/_components/`.
 
+- **Edit** `form-editor` (SPEC-0001's editor): mounts `field-list.tsx` in its field-list region.
 - `field-list.tsx`: rows from the draft's `fields` (react-hook-form `useFieldArray`). [Novo campo] appends a "Texto
   curto" row with an empty label and focuses it (§4.1). Disabled at 100 fields with `forms.fields.limitReached`.
   Hint `forms.fields.onlySystem` when every row is a system field.
 - `field-row.tsx`: drag handle, label input, type select, "Obrigatório" switch, "Dado protegido" switch, "⋯" menu,
   "Sistema" badge on system rows. A system row has **no** "Dado protegido" switch at all (R4), and its
   "Obrigatório" switch is disabled except on `client.phone`.
-- **Draft serialisation** (SPEC-0001's `use-form-draft`, under `forms/_components/`): the draft never sends
+- **Edit** `use-form-draft` (SPEC-0001's draft hook), **draft serialisation**: the draft never sends
   `sensitive` for a system row, and sends `systemKey` only on create. On update, system rows are identified by
   id. Otherwise every save fails with 422 `fieldSensitive.not-allowed` (AC-0002-45) or
   `fieldSystemKey.not-allowed` (AC-0002-46).
@@ -887,7 +896,8 @@ Inside SPEC-0001's editor, in `forms/_components/fields/`:
 - `field-protection.ts`: the draft-side locks, from `protectionLock` and the same system and `yes_no` rules as
   the server, re-evaluated on every label or type change (§4.3). A lock forces the switch ON and disables it,
   with the tooltip of its copy key. When the lock is released, the switch stays ON (R6).
-- `field-options-editor.tsx`: add, rename and remove options of a `select`.
+- `field-options-editor.tsx`: add, rename and remove options of a `select`. Each remove button's accessible name
+  is `forms.fields.removeOption`.
 - `field-row-menu.tsx`: base-ui Menu, keyboard operable: help text, options (select only), "Mover para cima",
   "Mover para baixo", and "Remover" (custom rows only, R3).
 - `remove-field-dialog.tsx`: for a field with `valueCount > 0`, `forms.fields.removeWithAnswers` with the count
@@ -895,7 +905,7 @@ Inside SPEC-0001's editor, in `forms/_components/fields/`:
 - `use-field-reorder.ts`: pointer-event drag on the handle (mouse and touch, a placeholder gap while dragging),
   plus the menu moves for keyboard users (RNF-16–RNF-18). Order is the array order sent on [Salvar].
 - New primitives on `@base-ui/react` 1.8.0, which already exports them: `components/ui/switch.tsx`,
-  `select.tsx`, `menu.tsx`, `tooltip.tsx`.
+  `select.tsx`, `menu.tsx`, `tooltip.tsx`. None exists today, and SPEC-0001 adds only dialog, toast and skeleton.
 - No Figma frame is referenced by SPEC-0001 or SPEC-0002, so the rows use the existing token layers and
   components. Visual review happens on the running editor.
 
@@ -918,7 +928,7 @@ Every test name starts with its AC ID. "Index 3" in a criterion means after the 
 
 | AC | Test | What it checks here |
 | --- | --- | --- |
-| 01 | E-fld | create with the three client system keys → name, email, phone; name and email required with `requiredLock` true; phone not required, `requiredLock` false |
+| 01 | E-fld, W-fld | create with the three client system keys → name, email, phone; name and email required with `requiredLock` true; phone not required, `requiredLock` false. W-fld: [Salvar] on a new client template → the mocked create receives the three system rows with their `systemKey` and no `sensitive` |
 | 02 | E-fld | service system keys → name, duration, price, all required, `requiredLock` true |
 | 03 | E-fld, U-pol | update without client.email → 422 `systemField.missing` at `fields` |
 | 04 | E-fld, U-pol | client.email with its id and type "text" at index 1 → 400 `systemField.locked` at `fields.1` |
@@ -931,7 +941,7 @@ Every test name starts with its AC ID. "Index 3" in a criterion means after the 
 | 11 | E-fld, U-pol | new " profissao " at index 5 → 422 `fieldLabel.duplicate` at `fields.5.label` |
 | 12 | E-fld | select with one option → 422 `fieldOptions.required` at `fields.3.options` |
 | 13 | E-fld | yes_no with required true → 422 `fieldRequired.locked` at `fields.3.required` |
-| 14 | E-fld | A, B, C, D saved as A, D, B, C → read returns A, D, B, C |
+| 14 | E-fld, W-fld | A, B, C, D saved as A, D, B, C → read returns A, D, B, C. W-fld: D moved up twice with the keyboard menu, then [Salvar] and the publish confirmation → the mocked update receives A, D, B, C, and the system rows carry their ids with no `sensitive` and no `systemKey` |
 | 15 | E-fld | remove "Profissão" with no records → version 2 without it; version 1 read still has it |
 | 16 | E-fld | remove "Profissão", "Manter existentes" → latest version without it; the 3 records stay on version 1 with their value rows |
 | 18 | E-fld, U-pol | id T at index 3 with type "number" → 400 `fieldType.immutable` at `fields.3.type` |
@@ -941,7 +951,7 @@ Every test name starts with its AC ID. "Index 3" in a criterion means after the 
 | 22 | W-fld | type of published "Peso" changed to number → `forms.fields.typeChangeWarning` |
 | 23 | E-fld | protection on for "Hobby" (H) → still version 2; H stored with sensitive true |
 | 24 | E-fld | rename option "Tarde" → "Período da tarde" → no new version; the option row has the new label |
-| 25 | E-fld | A, B, C saved as C, A, B → version 2 in that order; version 1 read is A, B, C |
+| 25 | E-fld, W-fld | A, B, C saved as C, A, B → version 2 in that order; version 1 read is A, B, C. W-fld: C moved up twice with the keyboard menu, then [Salvar] and the publish confirmation → the mocked update receives C, A, B, and the system rows carry their ids with no `sensitive` and no `systemKey` |
 | 26 | E-fld | T removed and a new number "Peso" added, "Manter existentes" → latest "Peso" is a number field with an id other than T; the 2 records stay on version 1 with their T value rows |
 | 27 | E-fld | "Alergia" (sensitive) relabelled "Preferência de horário" with sensitive false → sensitive false, `sensitiveLock` null |
 | 28 | E-fld | custom "money" at index 3 → 422 `fieldType.invalid` at `fields.3.type` |
@@ -984,21 +994,29 @@ The verifying spec's plan lists them in its test table, includes this file in it
 | AC | Checked here | Verified by |
 | --- | --- | --- |
 | 16 | latest version, records' version and value rows | SPEC-0004: the clients "still return their answers" |
-| 19 | latest version's options, the record's version and stored value | SPEC-0003: the client "still shows Tarde" |
-| 23 | version unchanged, field stored as protected | SPEC-0003 R9: the value shows masked |
-| 24 | no new version, option row renamed | SPEC-0003: the client shows "Período da tarde" |
+| 19 | latest version's options, the record's version and stored value | SPEC-0004: the client "still shows Tarde" |
+| 23 | version unchanged, field stored as protected | SPEC-0004, under SPEC-0003 R9: the value shows masked |
+| 24 | no new version, option row renamed | SPEC-0004: the client shows "Período da tarde" |
+
+Rows 19, 23 and 24 are verified by SPEC-0004, not SPEC-0003: SPEC-0003 §2 puts the record endpoints in SPEC-0004
+and SPEC-0005, so SPEC-0003's plan has no way to read a client.
 | 26 | new field id and type, records' version and value rows | SPEC-0004: the clients keep their "text" answers |
 
 ### Sequence
 
 0. **Prerequisite**: SPEC-0001 implemented (Risks 1), and SPEC-0001's step 0 gate passed (Decision 9).
+   - **Existing rows check**, before step 2 (Persistence): ask the owner which databases will run `0003`, shared
+     and local. Testcontainers databases start empty and are exempt. Each must hold no `form_fields` rows; the
+     owner runs `select count(*) from form_fields` there, or grants access to run it. If any database holds rows,
+     stop and ask the owner: resetting it, or fixing its rows, is a destructive database operation.
 1. **Contracts**: `protected-terms.ts`, the export, the `forms.fields.*` copy in both locales; build the package.
 2. **Persistence**: the three checks in `forms.ts`; generate `0003_form_field_rules.sql` and read its SQL; update
    the fixtures so seeded fields respect them; `docs/schema.dbml`.
 3. **Tests first**: E-fld, U-pol, U-terms and W-fld, one test per AC as mapped (written by `test-author`).
    - **Expected to pass already** (regression tests): SPEC-0001's plan delivers AC-0002-03, -05, -14 to -16, -19,
      -20, -23 to -26, -31 to -34, -36 and -37. They cover system-field presence, id matching, the schema/metadata
-     diff, the shape checks, order, and option and protection metadata. Confirm each passes.
+     diff, the shape checks, order, and option and protection metadata. Confirm each passes. This covers their E-fld
+     tests only: the W-fld parts of -14 and -25 need the menu and the draft serialisation, so they fail until step 6.
    - **Expected to fail**: every other AC. Confirm each fails because the rule or control is missing.
    - A test outside the first list that passes at this step is reported with the SPEC-0001 behavior that delivers
      it. It is never rewritten to fail.
@@ -1008,9 +1026,10 @@ The verifying spec's plan lists them in its test table, includes this file in it
 6. **Web, part 2**, three commits, reorder first (Risks 5):
    - **6a** field list and drag reorder (`field-list.tsx`, `use-field-reorder.ts`): AC-0002-49.
    - **6b** row, type select, protection, draft serialisation, error targets (`field-row.tsx`,
-     `field-type-select.tsx`, `field-protection.ts`, `field-error-target.ts`): AC-0002-10, -22, -50, -53.
+     `field-type-select.tsx`, `field-protection.ts`, `field-error-target.ts`): AC-0002-01 (W-fld), -10, -22, -50,
+     -53.
    - **6c** options editor, row menu with move up and move down, remove dialog (`field-options-editor.tsx`,
-     `field-row-menu.tsx`, `remove-field-dialog.tsx`): AC-0002-21, -48.
+     `field-row-menu.tsx`, `remove-field-dialog.tsx`): AC-0002-14 and -25 (W-fld), -21, -48.
 7. **Checks**: `pnpm --filter @planici/schemas build`, `pnpm lint`, `pnpm typecheck`, `pnpm --filter api test`,
    `pnpm --filter api test:e2e`, `pnpm --filter web exec vitest run`. `apps/web` has no `test` script; see the
    owner action in SPEC-0001's plan, Sequence step 8.
