@@ -55,3 +55,22 @@ CHECKS
 
 FAIL if any blocking item exists, any in-scope AC is untested, or a required check failed.
 Do not soften a blocker. If nothing is wrong, say so in one line. Keep the report under 40 lines.
+
+## Blocking vs should-fix
+
+BLOCKING is only:
+- an in-scope AC that fails, or has no test that asserts its observable outcome;
+- a broken non-negotiable from `CLAUDE.md` (for example a tenant-scoped query with no isolation test, a shape
+  defined outside `packages/schemas`, a secret or real personal data, a hand-edited `drizzle/meta` or lockfile);
+- a required check that fails because of this diff;
+- code that disagrees with the spec.
+
+Everything else is SHOULD-FIX: extra tests for paths no AC names, naming, comments, formatting, style, refactors.
+SHOULD-FIX never makes the verdict FAIL. A failing check in a file the diff does not touch is reported once under
+CHECKS as pre-existing, not as blocking.
+
+## Re-check mode
+
+When the brief says "re-check" and names the earlier report's blocking items, review only the diff since that
+report. Confirm each named blocking item is resolved. Raise a new item only if it is BLOCKING and the fix diff
+caused it. Do not raise new should-fix items.

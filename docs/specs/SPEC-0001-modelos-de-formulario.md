@@ -3,7 +3,7 @@ id: SPEC-0001
 title: Modelos de formulário
 status: Approved # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.1
+version: 1.2
 owner: Joao Izidoro
 satisfies: [RF-37, RF-39, RF-40, RN-01, RN-02, RN-20, RN-21, RN-24, RN-25]
 depends_on: []
@@ -1074,6 +1074,8 @@ apps/web/src/hooks/use-leave-guard.ts
 apps/web/tests/forms*
 apps/web/tests/form-editor*
 apps/web/tests/form-dialogs*
+apps/web/tests/stubs/client-only.ts
+apps/web/vitest.config.mts
 docs/schema.dbml
 ```
 
@@ -1156,6 +1158,8 @@ not-found link back to `/forms` reuses `common.back` ("Voltar"), and `validation
 | `forms.editor.loadError` | Não foi possível carregar o modelo. | Couldn't load the template. | §8 |
 | `forms.editor.notFound` | Modelo não encontrado. | Template not found. | §8 |
 | `forms.editor.unsaved` | Descartar alterações? | Discard changes? | §4.2 step 7 |
+| `forms.editor.discard` | Descartar | Discard | **proposed** (leave dialog's leave button, §4.2 step 7; amendment 2026-11-11) |
+| `common.notifications` | Notificações | Notifications | **proposed** (name of the toast region; its close buttons reuse `common.close`; amendment 2026-11-11) |
 | `forms.editor.saving` | Salvando… | Saving… | **proposed** |
 | `forms.editor.saveFailed` | Não foi possível salvar as alterações. Nada foi alterado. | Couldn't save your changes. Nothing was changed. | §8 |
 | `forms.editor.published` | Modelo publicado | Template published | §8 |
@@ -1575,7 +1579,7 @@ its scope, and adds `<AC ids> verified with SPEC-XXXX, <date>` to this changelog
 | 31 | partly: record rows are gone; reading each client → 404 `client.not-found` is not checked | SPEC-0004 |
 | 32 | partly: record rows are unchanged; the client API read is not checked | SPEC-0004 |
 | 33 | partly: record rows still exist; the client API read is not checked | SPEC-0004 |
-| — (§4.7 step 4) | partly: with the zero `SystemFieldPresence` adapter, `client.phone` turned required adds no record; custom-field counts are checked on the server by 37 (51 is a UI test with a mocked response) | SPEC-0004 |
+| — (§4.7 step 4) | partly: a fake `SystemFieldPresence` (`createTestApp({ systemFieldPresence })`) checks that `client.phone` turned required counts only records whose own version has it absent or optional, never another tenant's records, and nothing when phone stays optional; custom-field counts are checked on the server by 37 (51 is a UI test with a mocked response). The real adapter reading client rows is not checked | SPEC-0004 |
 
 ### Sequence
 
@@ -1667,6 +1671,39 @@ The spec leaves these open.
 None. `@base-ui/react` (dialog, toast), `react-hook-form`, `node:crypto` (AES-256-GCM, `randomUUID`) and Drizzle
 are already in use.
 
+Amendment (owner, 2026-11-11): toasts use `sonner` (`apps/web`), installed by the owner. `@base-ui/react` still
+provides the dialog.
+
+### Amendments during implementation
+
+Owner-approved in the implementation conversation, 2026-11-11. They change how the plan is carried out, not the
+acceptance criteria.
+
+1. **Leave prompt** (Web): an in-app dialog on the shared dialog component, never `window.confirm`. Text
+   `forms.editor.unsaved`, buttons [Cancelar] (`common.cancel`, stays) and [Descartar] (`forms.editor.discard`,
+   leaves). Tab close and reload keep the browser's own `beforeunload` prompt.
+2. **Leave guard history** (Web, Risk 4): every navigation the page starts itself (Descartar, Cancelar, the redirect
+   after create or publish, the redirect after delete) replaces the guard history entry while it is on top, and
+   pushes otherwise. After a save the guard entry can stay on top: in-app links then navigate without asking and
+   replace it, and Back skips it. An intercepted link click does not run the link's own `onClick` or `<Link>`
+   props such as `replace` or `scroll`.
+3. **Test seams**: `FormEditor`'s `initialDraft` prop prepares drafts that already contain fields (Boundary;
+   AC-0001-50 uses it). `createTestApp({ systemFieldPresence })` overrides the `SystemFieldPresence` provider in
+   e2e tests, next to `{ recordHistory }`.
+4. **Early SPEC-0002 rules kept** (Boundary): `FieldPolicy` already rejects a type change (`fieldType.immutable`,
+   `systemField.locked`), duplicate field ids (`fieldId.duplicate`), `systemKey` on update
+   (`fieldSystemKey.not-allowed`) and unknown option ids (`fieldOptionId.unknown`). SPEC-0002's plan step 3 lists
+   the matching criteria as expected to pass already.
+5. **Delete dialog on an archived template** (Web, §4.6): the archive option is hidden. With records: "Sim,
+   excluir tudo" and [Cancelar]. Records with history: only [Cancelar].
+6. **Create without `fields`** (Contracts): 422 `systemField.missing` at `fields`.
+7. **Test tooling** (Scope): `apps/web/vitest.config.mts` aliases `client-only` to the empty module
+   `apps/web/tests/stubs/client-only.ts`; both paths were added to the task scope.
+8. **Toasts**: `sonner` (New dependencies). The toast region is named by `common.notifications` and each close
+   button by `common.close` (Copy).
+9. **Pending `client.phone`** (API, "Pending required fields"): the preview counts a record when the next version
+   requires `client.phone` and the record's own version has it absent or optional, filtered by tenant and form.
+
 ## 12. Changelog
 
 | Version | Date | Change |
@@ -1681,3 +1718,4 @@ are already in use.
 | 0.8 | 2026-11-09 | Owner Joao Izidoro approved AC-0001-34 to -79 as written; all criteria are now agreed. Status stays Draft |
 | 1.0 | 2026-11-09 | Approved by Joao Izidoro, 2026-11-09 (together with SPEC-0002) |
 | 1.1 | 2026-11-11 | Implementation plan (§11) approved by Joao Izidoro, 2026-11-11 (together with SPEC-0002's plan). Outside §11, only §9 Q5 changed: it records the owner's 2026-11-09 decision on the delete and archive endpoints (`POST /forms/:id/delete` with a JSON body, no `DELETE` fallback; `POST /forms/:id/archive` and `/unarchive`) |
+| 1.2 | 2026-11-11 | Implemented per §11: contracts, tables and migration `0002`, field value cipher, the forms API (list, create, read, version read, preview, update with publish and Apply, archive, unarchive, delete), and the web list, editor and dialogs. All 79 criteria have passing tests. Partly verified, per Deferred checks: AC-0001-10, -12, -14, -20, -23, -24, -26, -27, -28, -31, -32, -33 (SPEC-0004, SPEC-0003 for -10), -34, -57, -58 (first scheduling or payments spec), and §4.7 step 4 (SPEC-0004). Learned during implementation, owner-approved 2026-11-11 and recorded in §11 "Amendments during implementation": in-app leave dialog and leave-guard history, `sonner` toasts, the `initialDraft` and `systemFieldPresence` test seams, early SPEC-0002 rules kept, archived delete dialog, `systemField.missing` on create without `fields`, the vitest `client-only` stub, per-version `client.phone` count; copy keys `forms.editor.discard` and `common.notifications` added. No criterion changed. Status stays Approved until the owner accepts the behavior on a running system |

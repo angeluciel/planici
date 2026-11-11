@@ -11,7 +11,12 @@ Review the current changes. Arguments: $ARGUMENTS
    in the brief.
 2. Relay its report unchanged.
 3. On FAIL, use skill `receiving-code-review`: verify each blocking item before fixing it, push back with
-   evidence where it is wrong, fix the rest within the task scope. Then run the reviewer again.
-4. Stop after two FAIL rounds and hand the remaining items to the owner.
+   evidence where it is wrong, fix the rest within the task scope. Fix only BLOCKING items here.
+4. Then run the reviewer once more in re-check mode: brief it with "re-check", the earlier report's blocking
+   items and the commit or diff they were fixed in. That is the last review round. If it still fails, hand the
+   remaining items to the owner and stop.
+5. SHOULD-FIX items never start another round. List them for the owner as follow-ups, numbered. Fix one now only
+   when the owner picks it, then run the checks for the touched packages, not the reviewer.
 
-On PASS, suggest `/done`.
+Budget: one full review plus at most one re-check per task. On PASS (with or without should-fix items), suggest
+`/done`.
