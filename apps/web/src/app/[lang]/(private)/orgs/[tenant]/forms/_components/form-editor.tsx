@@ -10,11 +10,10 @@ import {
 	type MigrationMode,
 	UpdateFormRequestSchema,
 } from "@planici/schemas";
-import { LockIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { useWatch } from "react-hook-form";
+import { type FieldPath, useWatch } from "react-hook-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +40,8 @@ import { isConflict } from "../_lib/failure";
 import { ApplyDialog } from "./apply-dialog";
 import { ArchiveDialog } from "./archive-dialog";
 import { DeleteDialog } from "./delete-dialog";
+import { fieldErrorPath, fieldErrorTarget } from "./fields/field-error-target";
+import { FieldList } from "./fields/field-list";
 import { LeaveDialog } from "./leave-dialog";
 import { PublishDialog } from "./publish-dialog";
 import { SpinnerIcon } from "./spinner-icon";
@@ -239,7 +240,6 @@ function EditorBody({
 		formState: { errors },
 	} = form;
 	const draftType = useWatch({ control, name: "type" });
-	const fields = useWatch({ control, name: "fields" });
 	const typeLocked = Boolean(current) || Boolean(from);
 	const base = `/orgs/${tenant}`;
 	const leaveTarget = from ? `${base}/${from}` : `${base}/forms`;
@@ -275,6 +275,28 @@ function EditorBody({
 		else if (keys.includes("description")) form.setFocus("description");
 	}
 
+	// a message for a field-list path, shown where the plan puts it (see
+	// fields/field-error-target.ts); false when the path is not a field's
+	function showFieldError(
+		path: string | readonly PropertyKey[] | undefined,
+		message: string,
+	): boolean {
+		const target = fieldErrorTarget(path);
+		if (!target) return false;
+		form.setError(fieldErrorPath(target) as FieldPath<FormDraft>, {
+			type: "server",
+			message,
+		});
+		requestAnimationFrame(() =>
+			document
+				.querySelector<HTMLElement>(
+					"li[aria-invalid=true] input, li[aria-invalid=true] [role=combobox]",
+				)
+				?.focus(),
+		);
+		return true;
+	}
+
 	// shape errors from the shared schema, shown next to their control
 	function showIssues(
 		issues: readonly { path: PropertyKey[]; message: string }[],
@@ -287,7 +309,7 @@ function EditorBody({
 					keys.push(key);
 					form.setError(key, { type: "validate", message: issue.message });
 				}
-			} else {
+			} else if (!showFieldError(issue.path, issue.message)) {
 				setBanner({
 					kind: "message",
 					text: text(issue.message) ?? t("editor.saveFailed"),
@@ -307,6 +329,9 @@ function EditorBody({
 			form.setError("name", { type: "server", message: failure.error });
 			focusFirstError(["name"]);
 			return;
+		}
+		if (failure.field?.startsWith("fields") && failure.error) {
+			if (showFieldError(failure.field, failure.error)) return;
 		}
 		if (failure.field === "description") {
 			form.setError("description", { type: "server", message: failure.error });
@@ -461,7 +486,12 @@ function EditorBody({
 	return (
 		<form
 			noValidate
-			onSubmit={submit}
+			onSubmit={(event) => {
+				// server errors sit on unregistered paths; handleSubmit would skip
+				// onValid while any remain, so they are dropped before it validates
+				form.clearErrors("fields");
+				return submit(event);
+			}}
 			className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 md:p-6"
 		>
 			<header className="flex flex-wrap items-start justify-between gap-3">
@@ -610,28 +640,18 @@ function EditorBody({
 				)}
 			</div>
 
-			{/* the field list region: SPEC-0002 fills it with its controls */}
+			{/* field list: SPEC-0002 */}
 			{draftType === "" ? (
 				<p className="font-body-sm text-text-secondary">
 					{t("editor.chooseType")}
 				</p>
 			) : (
-				<ul className="flex flex-col gap-2">
-					{fields.map((field, index) => (
-						<li
-							key={field.id ?? `${field.systemKey ?? "custom"}-${index}`}
-							className="flex items-center gap-2 rounded-md border border-border-input px-3 py-2 font-body-sm text-text-primary"
-						>
-							{field.systemKey && (
-								<LockIcon
-									aria-hidden="true"
-									className="size-4 shrink-0 text-icon-subtle"
-								/>
-							)}
-							<span>{field.label}</span>
-						</li>
-					))}
-				</ul>
+				<FieldList
+					form={form}
+					original={current?.fields ?? []}
+					text={text}
+					errors={errors.fields}
+				/>
 			)}
 
 			{banner?.kind === "saveFailed" && <Alert>{t("editor.saveFailed")}</Alert>}
