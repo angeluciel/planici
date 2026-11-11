@@ -10,6 +10,10 @@ import {
 import { DomainExceptionFilter } from '@shared/http/domain-exception.filter.js';
 import { inject } from 'vitest';
 import { PG_POOL } from '@src/database/database.constants.js';
+import {
+  RECORD_HISTORY_READER,
+  type RecordHistoryReader,
+} from '@modules/forms/ports/record-history.reader.js';
 
 // captura o e-mail enviado
 export class CapturingMailer implements Mailer {
@@ -52,7 +56,14 @@ export type TestContext = {
   close: () => Promise<void>;
 };
 
-export async function createTestApp(): Promise<TestContext> {
+export type TestAppOptions = {
+  // replaces the RecordHistoryReader provider; the real adapter runs when omitted
+  recordHistory?: RecordHistoryReader;
+};
+
+export async function createTestApp(
+  options: TestAppOptions = {},
+): Promise<TestContext> {
   const mailer = new CapturingMailer();
   const expectedUrl = inject('testDatabaseUrl');
 
@@ -64,10 +75,19 @@ export async function createTestApp(): Promise<TestContext> {
     throw new Error('Test app required the provisioned E2E database');
   }
 
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
+  const builder = Test.createTestingModule({
+    imports: [AppModule],
+  })
     .overrideProvider(MAILER)
-    .useValue(mailer)
-    .compile();
+    .useValue(mailer);
+
+  if (options.recordHistory) {
+    builder
+      .overrideProvider(RECORD_HISTORY_READER)
+      .useValue(options.recordHistory);
+  }
+
+  const moduleRef = await builder.compile();
 
   const app = moduleRef.createNestApplication();
   app.setGlobalPrefix('v1');

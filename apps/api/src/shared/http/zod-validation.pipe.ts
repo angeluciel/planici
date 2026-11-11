@@ -35,3 +35,23 @@ export class ZodBody<T extends ZodType> implements PipeTransform {
     return result.data;
   }
 }
+
+/**
+ * Validates a path parameter with a shared schema. A value that fails is not a
+ * validation error: the resource it names cannot exist, so `onInvalid` supplies
+ * the 404 domain error (SPEC-0001 section 5, malformed ids).
+ */
+export class ZodParam<T extends ZodType> implements PipeTransform {
+  constructor(
+    private readonly schema: T,
+    private readonly onInvalid: () => DomainError,
+  ) {}
+
+  transform(value: unknown): T['_output'] {
+    const result = this.schema.safeParse(value);
+
+    if (!result.success) throw this.onInvalid();
+
+    return result.data;
+  }
+}
