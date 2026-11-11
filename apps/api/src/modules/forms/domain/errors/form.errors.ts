@@ -132,3 +132,113 @@ export class FieldOptionIdUnknownError extends DomainError {
     this.field = `fields.${fieldIndex}.options.${optionIndex}.id`;
   }
 }
+
+export class FieldTypeInvalidError extends DomainError {
+  readonly code = 'fieldType.invalid';
+  readonly status = HttpStatus.UNPROCESSABLE_ENTITY;
+  readonly field: string;
+
+  constructor(index: number) {
+    super();
+    this.field = `fields.${index}.type`;
+  }
+}
+
+export class FieldLabelDuplicateError extends DomainError {
+  readonly code = 'fieldLabel.duplicate';
+  readonly status = HttpStatus.UNPROCESSABLE_ENTITY;
+  readonly field: string;
+
+  constructor(index: number) {
+    super();
+    this.field = `fields.${index}.label`;
+  }
+}
+
+export class FieldRequiredLockedError extends DomainError {
+  readonly code = 'fieldRequired.locked';
+  readonly status = HttpStatus.UNPROCESSABLE_ENTITY;
+  readonly field: string;
+
+  constructor(index: number) {
+    super();
+    this.field = `fields.${index}.required`;
+  }
+}
+
+export class FieldSensitiveNotAllowedError extends DomainError {
+  readonly code = 'fieldSensitive.not-allowed';
+  readonly status = HttpStatus.UNPROCESSABLE_ENTITY;
+  readonly field: string;
+
+  constructor(index: number) {
+    super();
+    this.field = `fields.${index}.sensitive`;
+  }
+}
+
+export class FieldSensitiveLockedError extends DomainError {
+  readonly code = 'fieldSensitive.locked';
+  readonly status = HttpStatus.UNPROCESSABLE_ENTITY;
+  readonly field: string;
+
+  constructor(index: number) {
+    super();
+    this.field = `fields.${index}.sensitive`;
+  }
+}
+
+export class FieldOptionsRequiredError extends DomainError {
+  readonly code = 'fieldOptions.required';
+  readonly status = HttpStatus.UNPROCESSABLE_ENTITY;
+  readonly field: string;
+
+  constructor(index: number) {
+    super();
+    this.field = `fields.${index}.options`;
+  }
+}
+
+export class FieldOptionsMaxError extends DomainError {
+  readonly code = 'fieldOptions.max';
+  readonly status = HttpStatus.UNPROCESSABLE_ENTITY;
+  readonly field: string;
+
+  constructor(index: number) {
+    super();
+    this.field = `fields.${index}.options`;
+  }
+}
+
+export class FieldOptionsNotAllowedError extends DomainError {
+  readonly code = 'fieldOptions.not-allowed';
+  readonly status = HttpStatus.UNPROCESSABLE_ENTITY;
+  readonly field: string;
+
+  constructor(index: number) {
+    super();
+    this.field = `fields.${index}.options`;
+  }
+}
+
+export class FieldOptionIdDuplicateError extends DomainError {
+  readonly code = 'fieldOptionId.duplicate';
+  readonly status = HttpStatus.UNPROCESSABLE_ENTITY;
+  readonly field: string;
+
+  constructor(fieldIndex: number, optionIndex: number) {
+    super();
+    this.field = `fields.${fieldIndex}.options.${optionIndex}.id`;
+  }
+}
+
+export class FieldOptionLabelDuplicateError extends DomainError {
+  readonly code = 'fieldOptionLabel.duplicate';
+  readonly status = HttpStatus.UNPROCESSABLE_ENTITY;
+  readonly field: string;
+
+  constructor(fieldIndex: number, optionIndex: number) {
+    super();
+    this.field = `fields.${fieldIndex}.options.${optionIndex}.label`;
+  }
+}
