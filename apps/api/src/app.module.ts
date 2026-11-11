@@ -9,6 +9,8 @@ import { HealthController } from './health/health.controller.js';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { TenantsModule } from './modules/tenants/tenants.module.js';
+import { FormsModule } from './modules/forms/forms.module.js';
+import { ZeroSystemFieldPresence } from './modules/forms/infrastructure/adapters/zero-system-field-presence.js';
 import { Pool } from 'pg';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule({
@@ -24,6 +26,8 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule({
     MailModule,
     AuthModule,
     TenantsModule,
+    // SPEC-0004's plan passes its clients adapter instead of the zero one
+    FormsModule.forRoot({ systemFieldPresence: ZeroSystemFieldPresence }),
     // per-IP route limit
     ThrottlerModule.forRoot({
       throttlers: [{ name: 'default', ttl: 60_000, limit: 60 }],
