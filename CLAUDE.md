@@ -47,6 +47,8 @@ Lint: Biome (root, web, packages); oxlint + prettier (api). An edit hook formats
 - Never claim something works, passes or is fixed without check output from this turn
   (skill `verification-before-completion`). Report missing, failing, skipped and unrun checks separately.
 - Debugging: skill `systematic-debugging`. Review feedback: skill `receiving-code-review`.
+- Good enough: done means no BLOCKING review items and green checks. SHOULD-FIX items become numbered follow-ups;
+  fix one only when the owner picks it. Review budget: one full review plus one re-check (`/review`).
 
 ## Commits (owner rule)
 
