@@ -1,5 +1,7 @@
 export * from './email-verifications.js';
 export * from './enums.js';
+export * from './form-records.js';
+export * from './forms.js';
 export * from './login-attempts.js';
 export * from './password-reset-tokens.js';
 export * from './refresh-tokens.js';

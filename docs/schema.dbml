@@ -226,66 +226,146 @@ Table plan_services {
 }
 
 // ================== Forms System
+// SPEC-0001. Every table carries tenant_id with ON DELETE CASCADE from tenants.
 Table forms {
   id              uuid        [primary key, default: `gen_random_uuid()`]
-  tenant_id       uuid        [not null, ref: > tenants.id]
+  tenant_id       text        [not null, ref: > tenants.id]
 
+  type            form_type   [not null]
   name            text        [not null]
+  name_key        text        [not null]
+  // name lowercased, accents stripped, whitespace collapsed (R4)
   description     text
+  status          form_status [not null, default: 'active']
 
-  default_entity_type entity_type
+  latest_version  int         [not null]
+  revision        int         [not null, default: 1]
 
   created_at      timestamptz [not null, default: `now()`]
   updated_at      timestamptz [not null, default: `now()`]
 
   Indexes {
-    tenant_id     [name: 'idx_forms_tenant_id']
+    (tenant_id, name_key)         [unique, name: 'idx_forms_tenant_name_key']
+    (tenant_id, type, status)     [name: 'idx_forms_tenant_type_status']
+  }
+  // checks: latest_version >= 1, revision >= 1
+}
+
+Table form_versions {
+  id              uuid        [primary key, default: `gen_random_uuid()`]
+  tenant_id       text        [not null, ref: > tenants.id]
+  form_id         uuid        [not null, ref: > forms.id]
+
+  number          int         [not null]
+  published_at    timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (form_id, number) [unique, name: 'idx_form_versions_form_number']
+    tenant_id         [name: 'idx_form_versions_tenant_id']
   }
 }
 
 Table form_fields {
   id              uuid        [primary key, default: `gen_random_uuid()`]
+  tenant_id       text        [not null, ref: > tenants.id]
   form_id         uuid        [not null, ref: > forms.id]
 
-  field_type      field_type  [not null]
+  type            field_type  [not null]
+  system_key      text
   label           text        [not null]
-  placeholder     text
   help_text       text
+  sensitive       boolean     [not null, default: false]
 
-  options         jsonb       [not null, default: '{}']
-  // for select/multiselect/radio: list of option strings
-  // for image/file: accepted mime types, max size, etc.
-
-  required        boolean     [not null, default: false]
-  sort_order      int         [not null, default: 0]
-
-  created_at      timestamptz [not null, default: `now()`]
-
-  Indexes {
-    form_id       [name: 'idx_form_fields_form_id']
-    (form_id, sort_order) [name: 'idx_form_fields_order']
-  }
-}
-
-Table form_attachments {
-  id              uuid        [primary key, default: `gen_random_uuid()`]
-  form_id         uuid        [not null, ref: > forms.id]
-
-  entity_type     entity_type [not null]
-  entity_id       uuid        [not null]
-
-  responses       jsonb       [not null, default: '{}']
-  // key: form_field.id → value: user-filled response
-
-  created_by      text        [ref: > users.id]
   created_at      timestamptz [not null, default: `now()`]
   updated_at      timestamptz [not null, default: `now()`]
 
   Indexes {
-    form_id                           [name: 'idx_form_attachments_form_id']
-    (entity_type, entity_id)          [name: 'idx_form_attachments_entity']
-    (form_id, entity_type, entity_id) [unique, name: 'idx_form_attachments_unique']
+    (form_id, system_key) [unique, name: 'idx_form_fields_form_system_key']
+    // partial: where system_key is not null
+    form_id               [name: 'idx_form_fields_form_id']
+    tenant_id             [name: 'idx_form_fields_tenant_id']
   }
+}
+
+Table form_field_options {
+  id              uuid        [primary key, default: `gen_random_uuid()`]
+  tenant_id       text        [not null, ref: > tenants.id]
+  field_id        uuid        [not null, ref: > form_fields.id]
+
+  label           text        [not null]
+  created_at      timestamptz [not null, default: `now()`]
+
+  Indexes {
+    field_id      [name: 'idx_form_field_options_field_id']
+    tenant_id     [name: 'idx_form_field_options_tenant_id']
+  }
+}
+
+Table form_version_fields {
+  version_id      uuid        [not null, ref: > form_versions.id]
+  field_id        uuid        [not null, ref: > form_fields.id]
+  tenant_id       text        [not null, ref: > tenants.id]
+
+  position        int         [not null]
+  required        boolean     [not null, default: false]
+
+  Indexes {
+    (version_id, field_id) [pk]
+    (version_id, position) [unique, name: 'idx_form_version_fields_position']
+    tenant_id              [name: 'idx_form_version_fields_tenant_id']
+  }
+}
+
+Table form_version_field_options {
+  version_id      uuid        [not null, ref: > form_versions.id]
+  option_id       uuid        [not null, ref: > form_field_options.id]
+  field_id        uuid        [not null]
+  tenant_id       text        [not null, ref: > tenants.id]
+
+  position        int         [not null]
+
+  Indexes {
+    (version_id, option_id)          [pk]
+    (version_id, field_id, position) [unique, name: 'idx_form_version_field_options_position']
+    tenant_id                        [name: 'idx_form_version_field_options_tenant_id']
+  }
+}
+
+// Shared record of SPEC-0003. form_id and form_version_id are ON DELETE RESTRICT.
+// Each client (SPEC-0004) and service (SPEC-0005) links to exactly one form_records row.
+Table form_records {
+  id              uuid        [primary key, default: `gen_random_uuid()`]
+  tenant_id       text        [not null, ref: > tenants.id]
+  form_id         uuid        [not null, ref: > forms.id]
+  form_version_id uuid        [not null, ref: > form_versions.id]
+
+  revision        int         [not null, default: 1]
+
+  created_at      timestamptz [not null, default: `now()`]
+  updated_at      timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (tenant_id, form_id) [name: 'idx_form_records_tenant_form']
+    form_version_id      [name: 'idx_form_records_version']
+  }
+}
+
+// Custom-field values only, AES-256-GCM (SPEC-0003 R11). field_id is ON DELETE RESTRICT.
+Table form_record_values {
+  form_record_id  uuid        [not null, ref: > form_records.id]
+  field_id        uuid        [not null, ref: > form_fields.id]
+  tenant_id       text        [not null, ref: > tenants.id]
+
+  key_version     smallint    [not null]
+  value_ciphertext bytea      [not null]
+  updated_at      timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (form_record_id, field_id) [pk]
+    field_id                   [name: 'idx_form_record_values_field_id']
+    tenant_id                  [name: 'idx_form_record_values_tenant_id']
+  }
+  // check: key_version >= 1
 }
 
 // ================== Scheduling
@@ -429,18 +509,28 @@ Enum billing_cycle {
 
 Enum field_type {
   text
-  textarea
+  long_text
   number
   date
+  yes_no
   select
-  multiselect
-  checkbox
-  radio
-  image
-  file
-  url
-  phone
   email
+  phone
+  cpf
+  full_name
+  address
+  duration
+  money
+}
+
+Enum form_type {
+  client
+  service
+}
+
+Enum form_status {
+  active
+  archived
 }
 
 Enum entity_type {

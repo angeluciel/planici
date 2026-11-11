@@ -39,6 +39,16 @@ export const envSchema = z
     LOGIN_MAX_FAILURES: z.coerce.number().int().positive().default(5),
     LOGIN_LOCKOUT_MINUTES: z.coerce.number().int().positive().default(15),
 
+    /** AES-256-GCM key for form record values: 32 random bytes, base64. */
+    FIELD_VALUES_KEY: z
+      .string()
+      .min(1, 'FIELD_VALUES_KEY is required')
+      .refine((v) => /^[A-Za-z0-9+/]+={0,2}$/.test(v), 'must be base64')
+      .refine(
+        (v) => Buffer.from(v, 'base64').length === 32,
+        'FIELD_VALUES_KEY must be 32 bytes, base64-encoded',
+      ),
+
     GOOGLE_CLIENT_ID: z.string().default(''),
 
     /** Test-only escape hatch for the per-IP throttler. */
