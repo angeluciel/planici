@@ -52,6 +52,8 @@ beforeEach(() => {
 afterEach(() => {
 	cleanup();
 	vi.unstubAllGlobals();
+	// links a test appended itself, left behind when an assertion failed first
+	for (const anchor of document.querySelectorAll("body > a")) anchor.remove();
 });
 
 const nameInput = () =>
@@ -437,5 +439,173 @@ describe("SPEC-0002 input rules on update requests", () => {
 				expect("sensitive" in field).toBe(false);
 			}
 		}
+	});
+});
+
+describe("Leave guard history", () => {
+	it("§4.2 step 7 Descartar on a link replaces the guard entry instead of pushing on top of it", async () => {
+		await openExisting();
+		const other = document.createElement("a");
+		other.href = "/pt-BR/orgs/studio-ana-4f9k2m7x1q/clients";
+		document.body.appendChild(other);
+		rename("Ficha editada");
+
+		fireEvent.click(other);
+		const dialog = await leaveDialog();
+		fireEvent.click(
+			within(dialog).getByRole("button", { name: t("editor.discard") }),
+		);
+
+		await waitFor(() => expect(router.replace).toHaveBeenCalledTimes(1));
+		expect(String(router.replace.mock.calls[0]?.[0])).toContain("/clients");
+		expect(router.push).not.toHaveBeenCalled();
+		other.remove();
+	});
+
+	it("§4.2 step 7 the redirect after a successful create replaces the guard entry", async () => {
+		setRoute({});
+		const created = template({ name: "Anamnese inicial" });
+		on("POST", "/api/forms", { status: 201, body: created });
+		renderApp(<FormEditor />);
+
+		await chooseType(t("editor.typeClient"));
+		fireEvent.change(nameInput(), { target: { value: "Anamnese inicial" } });
+		fireEvent.click(save());
+
+		await waitFor(() => expect(router.replace).toHaveBeenCalledTimes(1));
+		expect(String(router.replace.mock.calls[0]?.[0])).toContain(
+			`/forms/${created.id}`,
+		);
+		expect(router.push).not.toHaveBeenCalled();
+	});
+
+	it("§4.2 step 7 Cancelar on an untouched editor pushes, since no guard entry exists to replace", async () => {
+		await openExisting();
+
+		fireEvent.click(screen.getByRole("button", { name: tCommon("cancel") }));
+
+		await waitFor(() => expect(router.push).toHaveBeenCalledTimes(1));
+		expect(String(router.push.mock.calls[0]?.[0])).toContain("/forms");
+		expect(router.replace).not.toHaveBeenCalled();
+	});
+
+	it("§4.2 step 7 deleting from an untouched editor pushes to the list", async () => {
+		const tpl = await openExisting({ name: "Ficha", recordCount: 0 });
+		on("POST", `/api/forms/${tpl.id}/delete`, { status: 204 });
+
+		fireEvent.click(screen.getByRole("button", { name: t("actions.delete") }));
+		const dialog = await screen.findByRole("dialog");
+		fireEvent.change(within(dialog).getByRole("textbox"), {
+			target: { value: "Ficha" },
+		});
+		fireEvent.click(
+			within(dialog).getByRole("button", { name: t("actions.delete") }),
+		);
+
+		await waitFor(() => expect(router.push).toHaveBeenCalledTimes(1));
+		expect(String(router.push.mock.calls[0]?.[0])).toMatch(/\/forms$/);
+		expect(router.replace).not.toHaveBeenCalled();
+	});
+
+	it("§4.2 step 7 Descartar after Cancelar on a dirty editor replaces the guard entry", async () => {
+		await openExisting();
+		rename("Ficha editada");
+
+		fireEvent.click(screen.getByRole("button", { name: tCommon("cancel") }));
+		const dialog = await leaveDialog();
+		fireEvent.click(
+			within(dialog).getByRole("button", { name: t("editor.discard") }),
+		);
+
+		await waitFor(() => expect(router.replace).toHaveBeenCalledTimes(1));
+		expect(String(router.replace.mock.calls[0]?.[0])).toContain("/forms");
+		expect(router.push).not.toHaveBeenCalled();
+	});
+
+	it("§4.2 step 7 deleting from a dirty editor replaces the guard entry", async () => {
+		const tpl = await openExisting({ name: "Ficha", recordCount: 0 });
+		on("POST", `/api/forms/${tpl.id}/delete`, { status: 204 });
+		rename("Ficha editada");
+
+		fireEvent.click(screen.getByRole("button", { name: t("actions.delete") }));
+		const dialog = await screen.findByRole("dialog");
+		fireEvent.change(within(dialog).getByRole("textbox"), {
+			target: { value: "Ficha" },
+		});
+		fireEvent.click(
+			within(dialog).getByRole("button", { name: t("actions.delete") }),
+		);
+
+		await waitFor(() => expect(router.replace).toHaveBeenCalledTimes(1));
+		expect(String(router.replace.mock.calls[0]?.[0])).toMatch(/\/forms$/);
+		expect(router.push).not.toHaveBeenCalled();
+	});
+
+	async function editAndSave() {
+		const tpl = await openExisting({ version: 2, revision: 4 });
+		on("POST", `/api/forms/${tpl.id}/preview`, {
+			status: 200,
+			body: preview({ schemaChanged: false, nextVersion: 3 }),
+		});
+		on("PATCH", `/api/forms/${tpl.id}`, {
+			status: 200,
+			body: { ...tpl, name: "Ficha renomeada", revision: 5 },
+		});
+		rename("Ficha renomeada");
+		fireEvent.click(save());
+		await screen.findByText(t("editor.saved"));
+	}
+
+	it("§4.2 step 7 after editing and saving, Cancelar replaces the leftover guard entry", async () => {
+		await editAndSave();
+
+		fireEvent.click(screen.getByRole("button", { name: tCommon("cancel") }));
+
+		await waitFor(() => expect(router.replace).toHaveBeenCalledTimes(1));
+		expect(String(router.replace.mock.calls[0]?.[0])).toContain("/forms");
+		expect(router.push).not.toHaveBeenCalled();
+	});
+
+	it("§4.2 step 7 after editing and saving, an in-app link replaces the leftover guard entry without asking", async () => {
+		await editAndSave();
+		const other = document.createElement("a");
+		other.href = "/pt-BR/orgs/studio-ana-4f9k2m7x1q/clients";
+		document.body.appendChild(other);
+
+		const notPrevented = fireEvent.click(other);
+
+		await waitFor(() => expect(router.replace).toHaveBeenCalledTimes(1));
+		expect(notPrevented).toBe(false);
+		expect(String(router.replace.mock.calls[0]?.[0])).toContain("/clients");
+		expect(router.push).not.toHaveBeenCalled();
+		expect(screen.queryByText(t("editor.unsaved"))).toBeNull();
+		other.remove();
+	});
+});
+
+describe("Toast labels", () => {
+	it("§8 toasts: the notifications region and each toast's close button are named in the user's language", async () => {
+		const tpl = await openExisting();
+		on("POST", `/api/forms/${tpl.id}/preview`, {
+			status: 200,
+			body: preview({ schemaChanged: false }),
+		});
+		on("PATCH", `/api/forms/${tpl.id}`, {
+			status: 200,
+			body: { ...tpl, name: "Ficha renomeada", revision: tpl.revision + 1 },
+		});
+		rename("Ficha renomeada");
+		fireEvent.click(save());
+
+		const message = await screen.findByText(t("editor.saved"));
+		expect(
+			screen.getByRole("region", {
+				name: new RegExp(`^${tCommon("notifications")}`),
+			}),
+		).toBeTruthy();
+		const toast = message.closest("[data-sonner-toast]") as HTMLElement;
+		expect(
+			within(toast).getByRole("button", { name: tCommon("close") }),
+		).toBeTruthy();
 	});
 });

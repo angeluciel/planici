@@ -796,6 +796,23 @@ export class FakeFormPorts {
   findRecordIdsGainingRequiredFields = () =>
     Promise.resolve(this.recordIdsGainingRequiredFields);
 
+  /** Ids whose own version does not require the field; null keeps every id passed in. */
+  recordIdsNotRequiring: string[] | null = null;
+
+  filterRecordIdsNotRequiring = (
+    _tenantId: string,
+    _formId: string,
+    _fieldId: string,
+    recordIds: string[],
+  ) =>
+    Promise.resolve(
+      recordIds.filter(
+        (id) =>
+          this.recordIdsNotRequiring === null ||
+          this.recordIdsNotRequiring.includes(id),
+      ),
+    );
+
   repointAll(): Promise<void> {
     this.recordsRepointed = true;
     return Promise.resolve();

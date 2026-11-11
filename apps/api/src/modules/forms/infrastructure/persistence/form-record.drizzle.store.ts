@@ -135,6 +135,29 @@ export class DrizzleFormRecordStore implements FormRecordStore {
     return [...ids];
   }
 
+  async filterRecordIdsNotRequiring(
+    tenantId: string,
+    formId: string,
+    fieldId: string,
+    recordIds: string[],
+  ): Promise<string[]> {
+    if (recordIds.length === 0) return [];
+
+    const rows = await this.rows<{ id: string }>(
+      this.db,
+      sql`select r.id
+            from form_records r
+           where r.tenant_id = ${tenantId} and r.form_id = ${formId}
+             and r.id = any(${uuidArray(recordIds)})
+             and not exists (
+                   select 1 from form_version_fields vf
+                    where vf.version_id = r.form_version_id
+                      and vf.field_id = ${fieldId} and vf.required)`,
+    );
+
+    return rows.map((row) => row.id);
+  }
+
   async repointAll(
     tx: TransactionHandle,
     tenantId: string,

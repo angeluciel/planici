@@ -634,6 +634,93 @@ describe('preview', () => {
   });
 });
 
+describe('preview, client.phone pending (SystemFieldPresence fake)', () => {
+  let ids: string[] = [];
+  let presenceCtx: TestContext;
+
+  beforeAll(async () => {
+    presenceCtx = await createTestApp({
+      systemFieldPresence: {
+        findRecordIdsWithoutClientPhone: () => Promise.resolve(ids),
+      },
+    });
+  });
+
+  afterAll(async () => {
+    await presenceCtx?.close();
+  });
+
+  const phoneRequired = (required: boolean) =>
+    CLIENT_SYSTEM_FIELDS.map((field) =>
+      field.systemKey === 'client.phone' ? { ...field, required } : field,
+    );
+
+  // "Ficha" at version 2, one record on each version; phone optional in v1
+  async function seedTwoRecords(latestRequiresPhone: boolean) {
+    const form = await seedFicha([
+      phoneRequired(false),
+      phoneRequired(latestRequiresPhone),
+    ]);
+    const [older, latest] = await seedRecords(db(), form, [1, 2]);
+    return { form, older: older!, latest: latest! };
+  }
+
+  const previewWithObjetivo = async (formId: string) => {
+    const api = formsApi(presenceCtx.app, ana);
+    const read = await api.read(formId).expect(200);
+    // "Objetivo" is optional, so only client.phone can leave records pending
+    return api
+      .preview(formId, {
+        revision: 1,
+        fields: [...inputsFrom(read.body.fields), newField('Objetivo')],
+      })
+      .expect(200);
+  };
+
+  it('§4.7 step 4 counts a record whose own version has phone optional, not one whose version requires it', async () => {
+    const { form, older, latest } = await seedTwoRecords(true);
+    ids = [older.id, latest.id];
+
+    const response = await previewWithObjetivo(form.id);
+
+    expect(response.body).toMatchObject({
+      recordCount: 2,
+      recordsGainingRequiredFields: 1,
+    });
+  });
+
+  it('§4.7 step 4 does not count a record of another tenant that the presence port returns', async () => {
+    const { form, older, latest } = await seedTwoRecords(true);
+    const bia = await signUpOwner(ctx, 'studio-bia');
+    const theirs = await seedForm(db(), {
+      tenantId: bia.tenantId,
+      name: 'Ficha',
+      versions: [phoneRequired(false)],
+    });
+    const foreign = await seedRecord(db(), { form: theirs, version: 1 });
+    ids = [older.id, latest.id, foreign.id];
+
+    const response = await previewWithObjetivo(form.id);
+
+    expect(response.body).toMatchObject({
+      recordCount: 2,
+      recordsGainingRequiredFields: 1,
+    });
+  });
+
+  it('§4.7 step 4 counts nothing when the next version leaves phone optional', async () => {
+    const { form, older, latest } = await seedTwoRecords(false);
+    ids = [older.id, latest.id];
+
+    const response = await previewWithObjetivo(form.id);
+
+    expect(response.body).toMatchObject({
+      recordCount: 2,
+      recordsGainingRequiredFields: 0,
+    });
+  });
+});
+
 describe('records on older versions', () => {
   // "Ficha" is at version 2; its only record was kept on version 1. It answers
   // "Hobby" (removed by version 2) and "Tarde" to the required select "Turno".
