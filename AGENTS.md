@@ -3,9 +3,9 @@
 Scheduling & business management for independent professionals. Turborepo + pnpm monorepo.
 Product docs are in Portuguese; code, commits and agent files are in English.
 
-This is the shared project contract for Claude Code and Codex. Keep tool-specific
-instructions in their entry files; `CLAUDE.md` imports this file as `@AGENTS.md`.
-Keep this guide concise. Detailed procedures belong in skills and project docs.
+This is the shared project contract for coding agents. Claude Code reads `CLAUDE.md`,
+which states the same rules in short form; keep the two consistent. Keep this guide
+concise. Detailed procedures belong in skills, commands and project docs.
 
 ## Sources of truth
 
@@ -17,7 +17,8 @@ Keep this guide concise. Detailed procedures belong in skills and project docs.
   correction, not an agent's unilateral change to scope.
 - **Architecture:** accepted architecture decision records (ADRs), shared contracts,
   and the documented architecture. Code shows what exists, not necessarily what is intended.
-- **Context cards:** navigation and summaries, never a replacement for authoritative sources.
+- **Skills and reference docs:** procedures and navigation, never a replacement for
+  authoritative sources.
 
 An explicitly approved revision supersedes the older decision it names. Otherwise,
 if a ticket, spec, RFC, design, schema or implementation disagrees, identify the conflict
@@ -26,39 +27,39 @@ an unapproved proposal as a decision. Continue work unaffected by the conflict.
 
 ## Map (who owns what)
 
-| Path | Domain | Owner agent | Context card |
+| Path | Domain | Owner | Skill / reference |
 |---|---|---|---|
-| `docs/RFC-segmented/**`, `docs/schema.dbml`, Linear | Requirements analysis | `spec-analyst` (read-only) | `.ai/context/requirements.md` |
-| Feature specs, traceability, open questions and ADR drafts | Specification/process docs | Orchestrator or one explicitly assigned documentation writer | `.ai/context/requirements.md` |
-| Figma, `apps/web/src/styles/tokens/**` | Design system | `design-analyst` | `.ai/context/design-system.md` |
-| `packages/schemas/**` | API contracts (Zod), shared by web + api | `contracts-owner` | `.ai/context/contracts.md` |
-| `apps/api/src/database/**`, `apps/api/drizzle/**` | Postgres / Drizzle | `data-steward` | `.ai/context/db-schema.md` |
-| `apps/api/src/**` (rest), `packages/transactional/**` | NestJS API (CQRS + ports/adapters) | `api-implementer` | `.ai/context/api-architecture.md` |
-| `apps/web/**`, `packages/i18n/**` | Next.js 16 / React 19 app | `web-implementer` | `.ai/context/web-architecture.md` |
-| `docker/**`, `**/Dockerfile`, `compose*.y*ml`, `.github/**`, `turbo.json`, `sonar-project.properties` | Platform / CI | `platform-engineer` | `.ai/context/ci-infra.md` |
-| any diff | Review & quality gate | `quality-gate` (read-only) | — |
+| `docs/RFC-segmented/**`, `docs/schema.dbml`, Linear | Requirements (read) | main session | `spec-workflow` |
+| `docs/specs/**` | Specs and implementation plans | main session (`/spec-new`, `/plan`); `spec-reviewer` reviews (read-only) | `spec-workflow`, `docs/specs/SPEC-TEMPLATE.md` |
+| Figma, `apps/web/src/styles/tokens/**` | Design system | main session or `web-implementer` | `figma-to-component` |
+| `packages/schemas/**` | API contracts (Zod), shared by web + api | `api-implementer` | `api-contract` |
+| `apps/api/src/database/**`, `apps/api/drizzle/**` | Postgres / Drizzle | `api-implementer` | `drizzle-migration` |
+| `apps/api/src/**` (rest), `packages/transactional/**` | NestJS API (CQRS + ports/adapters) | `api-implementer` | `cqrs-command`, `docs/architecture/api-convention.md` |
+| `apps/web/**`, `packages/i18n/**` | Next.js 16 / React 19 app | `web-implementer` | `figma-to-component` |
+| tests for a spec's ACs, before production code | Failing tests | `test-author` | `test-driven-development` |
+| `docker/**`, `**/Dockerfile`, `compose*.y*ml`, `.github/**`, `turbo.json`, `sonar-project.properties` | Platform / CI | main session | — |
+| any diff | Review | `reviewer` (read-only, via `/review`) | `receiving-code-review` |
 
-The most specific path owns the file: design tokens belong to design, API database
-paths belong to data, and Dockerfiles belong to platform. Analysis does not grant
-write access to the RFC, schema or Linear; changes there require an explicit assignment.
+Agents are defined in `.claude/agents/*.md` and skills in `.claude/skills/`. The most
+specific path owns the file. Reading the RFC, schema or Linear does not grant write
+access to them; changes there require an explicit assignment.
 
 ## Context and ownership rules
 
-1. **Cards before sources.** Read the relevant context card before exploring a domain.
-2. **Stay within the assigned domain.** For another domain, use its card. If the card
-   is missing, stale or insufficient, return a `NEEDS` block using `.ai/README.md`.
-   State the owner, missing fact or artifact, and blocked acceptance criterion.
-   If that format is unavailable, report those fields plainly. The orchestrator routes it.
+1. **Skill before sources.** Read the domain's skill and reference doc before exploring it.
+2. **Stay within the assigned domain.** When you need something from another domain or
+   the owner, stop that part and report plainly: who owns it, the missing fact or
+   artifact, and the blocked acceptance criterion. The main session routes it.
 3. **One writer per path.** Only the assigned owner edits a path. Serialize changes
    to shared documents and contracts. Reviewers return findings; writers apply fixes.
 4. **Small-task exception.** For a small single-domain task, the main session may
-   assume that domain's role, read its card and agent instructions, and edit its files.
+   assume that domain's role, read its skill and agent instructions, and edit its files.
    This does not permit unrelated cross-domain edits or bypass spec requirements.
 5. **Return summaries, not dumps.** Handoffs and task reports stay within 40 lines:
    criteria covered, changes, files touched, checks, and open questions. Keep detailed
    evidence in task artifacts and link it. Requested document contents are not handoffs.
-6. **Per-task handoffs** go to `.ai/work/<TICKET-ID>/` (gitignored). Without a ticket,
-   use a descriptive task slug. Durable decisions belong in specs, ADRs and cards.
+6. **Per-task briefs and handoffs** go in the session's scratchpad, never in the repo.
+   Durable decisions belong in specs and ADRs.
 
 ## Spec-driven development
 
@@ -103,8 +104,8 @@ API contracts, test cases mapped to AC IDs, dependencies, compatibility impact, 
 and a sequence of reviewable changes. Explain any new dependency.
 
 Have the owner review the plan before code is written; explicit approval of a combined
-spec and plan is sufficient. For persistence, involve `data-steward`; for shared shapes,
-involve `contracts-owner`. Check that required prerequisite behavior is implemented and
+spec and plan is sufficient. For persistence, follow `drizzle-migration`; for shared
+shapes, follow `api-contract`. Check that required prerequisite behavior is implemented and
 verified; a Draft dependency is not ready. Document mocks as a limited development aid,
 never as evidence that an integration works.
 
@@ -131,11 +132,13 @@ to make faulty code pass. Keep unaffected work moving and update traceability af
   that behavior. Existing utility tests need not invent an AC; flag unexplained product behavior.
 - Run checks appropriate to the changed domains and affected consumers. Contract changes
   require checking both API and web consumers; migration changes require database verification.
-- Request `quality-gate` review. Security-sensitive changes also require focused review
-  of authentication, authorization, tenant isolation, secrets and personal-data exposure.
-  Use a dedicated security reviewer only if one has been configured.
-- Update the relevant spec, traceability and context cards through their assigned writer.
-  Keep detailed findings outside this guide.
+- Run `/review` (the `reviewer` agent). Security-sensitive changes also require focused
+  review of authentication, authorization, tenant isolation, secrets and personal-data
+  exposure. Use a dedicated security reviewer only if one has been configured.
+- Good enough: done means no BLOCKING review items and green checks. SHOULD-FIX items
+  become numbered follow-ups that the owner picks. Review budget: one full review plus
+  one re-check.
+- Record the result in the spec through `/done`. Keep detailed findings outside this guide.
 - A partial AC implementation is a partial result. Do not mark the whole spec Implemented
   until all its criteria are verified, required human review is complete, and the owner
   has accepted the behavior on a running system. Report blocked acceptance honestly.
@@ -144,20 +147,18 @@ to make faulty code pass. Keep unaffected work moving and update traceability af
 
 ## Orchestration
 
-For a Linear ticket or any change touching 2+ domains, the main session orchestrates:
-follow `.agents/skills/feature-pipeline/SKILL.md`. It delegates in waves
-(spec + design → contracts + db → api + web + platform → quality-gate) and never reads
-app source itself. It may read/write workflow and spec documents and relay summaries.
-The spec and plan approval gates precede implementation waves.
+For an approved spec or any change touching 2+ domains, the main session orchestrates
+(or run `claude --agent orchestrator`). It follows `/implement`: task lock →
+`test-author` (failing tests) → `api-implementer` and `web-implementer` (in parallel only
+with non-overlapping files) → its own re-run of every check → `/review` → `/done`.
+It writes briefs and verifies reports; it does not write production code. The spec and
+plan approval gates precede implementation.
 
-Small single-domain edits do not require the pipeline; the ownership exception above
-applies. No tickets yet? Use `.agents/skills/plan-backlog/` when available to propose
-RFC-derived work. Creating or changing external tickets requires owner authorization.
+Small single-domain edits do not require this flow; the ownership exception above
+applies. Creating or changing external tickets requires owner authorization.
 
-Agent definitions: Claude Code `.claude/agents/*.md` (source of truth) → Codex
-`.codex/agents/*.toml` (generated by `node scripts/ai/sync-codex-agents.mjs`).
-Skills: `.agents/skills/` (symlinked as `.claude/skills`). Keep tool-specific mechanics
-in their entry files and keep generated definitions aligned with the source.
+Agent definitions live in `.claude/agents/*.md` and skills in `.claude/skills/`. No other
+tool has generated definitions yet; if one is added, generate them from these sources.
 
 ## Adopting supporting tools and documents
 
@@ -177,10 +178,11 @@ Introduce missing documents incrementally as the task needs them; do not create 
 entire empty documentation tree. Record architecture decisions with real alternatives,
 tradeoffs, affected specs and superseded decisions. Human approval makes an ADR accepted.
 
-Commands such as `/spec-new`, `/spec-review`, `/plan`, `/implement`, `/trace` and
-`/adr-new`, and additional specialist agents, are optional future interfaces. Verify
-they exist before invoking them. Otherwise perform the same steps using the current
-roles and ordinary instructions. Do not assume a missing agent or skill is installed.
+The commands `/spec-new`, `/spec-review`, `/plan`, `/implement`, `/review` and `/done`
+exist in `.claude/commands/`. Others, such as `/trace` and `/adr-new`, and additional
+specialist agents, are optional future interfaces. Verify they exist before invoking them.
+Otherwise perform the same steps using the current roles and ordinary instructions.
+Do not assume a missing agent or skill is installed.
 If a required pipeline or role is unavailable, report the affected blocker and propose
 a bounded fallback for owner approval; documentation drafting can continue.
 
