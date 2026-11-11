@@ -523,6 +523,47 @@
 			"unarchived": "Modelo desarquivado",
 			"archived": "Modelo arquivado",
 			"deletedWithRecords": "{count, plural, one {Modelo e # cadastro excluídos} other {Modelo e # cadastros excluídos}}"
+		},
+		"fields": {
+			"add": "Novo campo",
+			"onlySystem": "Adicione campos para coletar mais informações",
+			"systemBadge": "Sistema",
+			"required": "Obrigatório",
+			"sensitive": "Dado protegido",
+			"sensitiveHelp": "Oculta o valor nas listas e só o mostra quando você pedir. Use para documentos, contatos e informações de saúde.",
+			"sensitiveLockedType": "Este tipo de campo sempre é protegido",
+			"sensitiveLockedLabel": "Rótulo indica dado pessoal ou de saúde",
+			"typeChangeWarning": "Alterar o tipo cria um novo campo. As respostas atuais não são convertidas.",
+			"removeWithAnswers": "Este campo tem respostas em {count} cadastros. Ele sairá da próxima versão; o que acontece com as respostas é decidido ao aplicar as alterações.",
+			"moveUp": "Mover para cima",
+			"moveDown": "Mover para baixo",
+			"remove": "Remover",
+			"limitReached": "Limite de 100 campos atingido.",
+			"label": "Rótulo",
+			"type": "Tipo",
+			"helpText": "Texto de ajuda",
+			"options": "Opções",
+			"addOption": "Adicionar opção",
+			"menu": "Mais ações do campo",
+			"dragHandle": "Arrastar para reordenar",
+			"removeOption": "Remover opção",
+			"removeConfirm": "Remover campo",
+			"cancel": "Cancelar",
+			"types": {
+				"text": "Texto curto",
+				"long_text": "Texto longo",
+				"number": "Número",
+				"date": "Data",
+				"yes_no": "Sim/Não",
+				"select": "Seleção",
+				"email": "E-mail",
+				"phone": "Telefone",
+				"cpf": "CPF",
+				"full_name": "Nome completo",
+				"address": "Endereço",
+				"duration": "Duração (minutos)",
+				"money": "Valor (R$)"
+			}
 		}
 	}
 }

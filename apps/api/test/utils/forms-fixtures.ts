@@ -1,6 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import type { INestApplication } from '@nestjs/common';
-import type { FieldInput, FormType } from '@planici/schemas';
+import {
+  protectionLock,
+  type FieldInput,
+  type FormType,
+} from '@planici/schemas';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { sql } from 'drizzle-orm';
 import type { Pool } from 'pg';
@@ -218,6 +222,19 @@ export type SeedField = {
   options?: string[];
 };
 
+/**
+ * Seeded protection that respects the database checks (SPEC-0002 R4, R5): a
+ * system field is never protected, a custom field of an always-protected type
+ * is always protected. A section 3.4 label defaults to protected too (R6); the
+ * database does not enforce that one, so an explicit `sensitive` still wins.
+ */
+function seededSensitive(field: SeedField): boolean {
+  if (field.systemKey) return false;
+  const lock = protectionLock(field.type ?? 'text', field.label);
+  if (lock === 'type') return true;
+  return field.sensitive ?? lock !== null;
+}
+
 export const CLIENT_SYSTEM_FIELDS: SeedField[] = [
   {
     systemKey: 'client.name',
@@ -334,7 +351,7 @@ export async function seedForm(
           systemKey: field.systemKey ?? null,
           label: field.label,
           helpText: field.helpText ?? null,
-          sensitive: field.sensitive ?? false,
+          sensitive: seededSensitive(field),
         });
       }
 
@@ -452,6 +469,30 @@ export async function seedRecord(
   }
 
   return { id: recordId };
+}
+
+/**
+ * The decrypted answer a record stores for a field, or `undefined` when it
+ * stores none. A `select` answer is its option id.
+ */
+export async function storedValue(
+  pool: Pool,
+  record: { id: string; tenantId: string },
+  fieldId: string,
+): Promise<unknown> {
+  const { rows } = await pool.query(
+    `select key_version, value_ciphertext
+       from form_record_values
+      where form_record_id = $1 and field_id = $2`,
+    [record.id, fieldId],
+  );
+  if (!rows[0]) return undefined;
+  return valueCipher().decrypt(rows[0].value_ciphertext as Buffer, {
+    keyVersion: rows[0].key_version as number,
+    tenantId: record.tenantId,
+    formRecordId: record.id,
+    fieldId,
+  });
 }
 
 export async function seedRecords(

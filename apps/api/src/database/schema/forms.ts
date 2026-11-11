@@ -106,6 +106,21 @@ export const formFields = pgTable(
       .where(sql`${table.systemKey} is not null`),
     index('idx_form_fields_form_id').on(table.formId),
     index('idx_form_fields_tenant_id').on(table.tenantId),
+    // SPEC-0002 R4: system fields are never protected
+    check(
+      'ck_form_fields_system_not_sensitive',
+      sql`${table.systemKey} is null or ${table.sensitive} = false`,
+    ),
+    // SPEC-0002 R5, R7: always-protected types are stored protected
+    check(
+      'ck_form_fields_always_protected',
+      sql`${table.systemKey} is not null or ${table.type} not in ('email','phone','cpf','full_name','address') or ${table.sensitive} = true`,
+    ),
+    // SPEC-0002 §3.1: duration and money exist only as system fields
+    check(
+      'ck_form_fields_system_only_types',
+      sql`${table.type} not in ('duration','money') or ${table.systemKey} is not null`,
+    ),
   ],
 );
 
