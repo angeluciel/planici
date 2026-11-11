@@ -1220,10 +1220,11 @@ No routes and no BFF here. SPEC-0004 and SPEC-0005 own `/clients/new?form=:id`, 
     `extraFields` input), whatever its status, so 409 `clientEmail.taken` shows under E-mail; else
     `.form.saveError`. A `field` with no input (`formVersion`, `revision`, `values`), no `field`, a 500 or a
     network failure all end in `.form.saveError`. Typed values are kept in every case.
-  - Leaving with typed input: SPEC-0001's shared `use-leave-guard.ts` (G-7, decided by the owner on 2026-11-10) with
-    `{entity}.form.discard`. It confirms in-app link clicks and uses `beforeunload` for tab close and reload.
-    [Cancelar] shows the same confirmation (SPEC-0001's `dialog.tsx`) before going to `listHref`; with nothing
-    typed it goes straight there.
+  - Leaving with typed input: SPEC-0001's shared `use-leave-guard.ts` (G-7, decided by the owner on 2026-11-10),
+    reused as is with `{entity}.form.discard`. It confirms in-app link clicks, uses `beforeunload` for tab close and
+    reload, and covers the browser's back and forward buttons: while the form is dirty it keeps a guard entry on top
+    of the history and listens for `popstate` (SPEC-0001 plan, Web; owner, 2026-11-11). [Cancelar] shows the same
+    confirmation (SPEC-0001's `dialog.tsx`) before going to `listHref`; with nothing typed it goes straight there.
   - Edit shows protected values in plain text (R9). `extraFields` renders above [Salvar].
 - `record-view.tsx`:
   - Loading skeleton (`.view.loading`); load failure `.view.loadError` with retry; `.view.notFound`.
