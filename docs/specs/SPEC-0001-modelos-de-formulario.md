@@ -1,9 +1,9 @@
 ---
 id: SPEC-0001
 title: Modelos de formulário
-status: Approved # Draft | Review | Approved | Implemented | Superseded
+status: Implemented # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.2
+version: 1.3
 owner: Joao Izidoro
 satisfies: [RF-37, RF-39, RF-40, RN-01, RN-02, RN-20, RN-21, RN-24, RN-25]
 depends_on: []
@@ -1719,3 +1719,4 @@ acceptance criteria.
 | 1.0 | 2026-11-09 | Approved by Joao Izidoro, 2026-11-09 (together with SPEC-0002) |
 | 1.1 | 2026-11-11 | Implementation plan (§11) approved by Joao Izidoro, 2026-11-11 (together with SPEC-0002's plan). Outside §11, only §9 Q5 changed: it records the owner's 2026-11-09 decision on the delete and archive endpoints (`POST /forms/:id/delete` with a JSON body, no `DELETE` fallback; `POST /forms/:id/archive` and `/unarchive`) |
 | 1.2 | 2026-11-11 | Implemented per §11: contracts, tables and migration `0002`, field value cipher, the forms API (list, create, read, version read, preview, update with publish and Apply, archive, unarchive, delete), and the web list, editor and dialogs. All 79 criteria have passing tests. Partly verified, per Deferred checks: AC-0001-10, -12, -14, -20, -23, -24, -26, -27, -28, -31, -32, -33 (SPEC-0004, SPEC-0003 for -10), -34, -57, -58 (first scheduling or payments spec), and §4.7 step 4 (SPEC-0004). Learned during implementation, owner-approved 2026-11-11 and recorded in §11 "Amendments during implementation": in-app leave dialog and leave-guard history, `sonner` toasts, the `initialDraft` and `systemFieldPresence` test seams, early SPEC-0002 rules kept, archived delete dialog, `systemField.missing` on create without `fields`, the vitest `client-only` stub, per-version `client.phone` count; copy keys `forms.editor.discard` and `common.notifications` added. No criterion changed. Status stays Approved until the owner accepts the behavior on a running system |
+| 1.3 | 2026-11-11 | Status Implemented: Joao Izidoro tested the behavior on a running system and accepted it, 2026-11-11. Still partly verified, per Deferred checks: AC-0001-10, -12, -14, -20, -23, -24, -26, -27, -28, -31, -32, -33, -34, -57, -58 and §4.7 step 4; each verifying spec adds `<AC ids> verified with SPEC-XXXX, <date>` here |
