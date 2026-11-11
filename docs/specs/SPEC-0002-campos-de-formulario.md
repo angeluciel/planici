@@ -1,9 +1,9 @@
 ---
 id: SPEC-0002
 title: Campos do modelo de formulário
-status: Approved # Draft | Review | Approved | Implemented | Superseded
+status: Implemented # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.2
+version: 1.4
 owner: Joao Izidoro
 satisfies: [RF-38, RF-39, RN-20, RN-21]
 depends_on: [SPEC-0001]
@@ -690,9 +690,11 @@ apps/api/drizzle/0003_form_field_rules.sql
 apps/api/drizzle/meta/*
 apps/api/test/utils/forms-fixtures.ts
 apps/api/test/e2e/form-fields*
+apps/api/test/e2e/forms-versions.e2e-spec.ts
 apps/web/src/app/*/orgs/*/forms/_components/fields/*
 apps/web/src/app/*/orgs/*/forms/_components/use-form-draft*
 apps/web/src/app/*/orgs/*/forms/_components/form-editor*
+apps/web/src/app/*/orgs/*/forms/_lib/draft.ts
 apps/web/src/components/ui/switch.tsx
 apps/web/src/components/ui/select.tsx
 apps/web/src/components/ui/menu.tsx
@@ -1105,6 +1107,29 @@ The spec leaves these open. Each follows an existing rule where one exists.
 
 None. `@base-ui/react` 1.8.0 already exports Switch, Select, Menu and Tooltip. Drag uses pointer events.
 
+### Amendments during implementation
+
+Owner-approved in the implementation conversation, 2026-11-11. They change how the plan is carried out, not the
+acceptance criteria.
+
+1. **Existing rows check** (Sequence step 0): only the local Docker database runs `0003` besides Testcontainers. It
+   held 3 `form_fields` rows from manual testing; the owner chose to leave it and reset it (its data is tmpfs) before
+   applying `0003` there. Nothing was deleted.
+2. **SPEC-0001 R18 test data** (Risks 8): the three R18 tests in `apps/api/test/e2e/forms-versions.e2e-spec.ts`
+   dropped option "Tarde" and left the select "Turno" with one option, which §3.1 rejects. The owner chose to fix the
+   test data: "Turno" is seeded with Manhã, Tarde and Noite, and the next version keeps Manhã and Noite. The
+   assertions are unchanged. The file was added to the scope.
+3. **Draft serialisation** (Web, 6b): `forms/_lib/draft.ts` `toRequestFields` sends `sensitive` whenever it is set on
+   a custom field (never on a system field), so turning protection off on an existing field is saved (§7: an omitted
+   `sensitive` keeps the stored value). The file was added to the scope; W-fld test "§7 turning protection off on an
+   existing custom field sends sensitive: false".
+4. **Server error placement** (Web, §8; from the review): errors at `fields.<i>.options` are shown in that row's
+   options, and the form clears earlier server field errors before validating, so [Salvar] keeps working after a
+   field error. W-fld tests "§8 …" cover both.
+5. **Files**: `fields/field-model.ts` holds the row model shared by the row, list and draft code (not in the Web file
+   list). The W-fld `chooseFieldType` helper fires `pointerDown` before the click, because the Select ignores a bare
+   virtual click; no assertion changed.
+
 ## 12. Changelog
 
 | Version | Date | Change |
@@ -1120,3 +1145,5 @@ None. `@base-ui/react` 1.8.0 already exports Switch, Select, Menu and Tooltip. D
 | 1.0 | 2026-11-09 | Approved by Joao Izidoro, 2026-11-09 (together with SPEC-0001) |
 | 1.1 | 2026-11-10 | From the second plan review, the owner agreed to add a criterion for reverting a type change before saving (it keeps the original field). Without one, a revert followed by "Atualizar todos" could delete every answer to that field with no test failing. AC-0002-53 added and R12 and §4.2 step 5 amended; owner Joao Izidoro approved all three as written, 2026-11-10 |
 | 1.2 | 2026-11-11 | Implementation plan approved by Joao Izidoro, 2026-11-11 (together with SPEC-0001's plan); behavior sections unchanged |
+| 1.3 | 2026-11-11 | Implemented per §11: `protected-terms` contract and `forms.fields.*` copy, migration `0003` (three CHECK constraints on `form_fields`), `FieldPolicy` rules in the check order with defaults and locks, and the editor's field list (switch, select, menu and tooltip primitives; rows, type select, protection, options editor, row menu, drag and keyboard reorder, remove dialog). All 52 active criteria have passing tests (AC-0002-17 was withdrawn in 0.7). Partly verified, per Deferred checks: AC-0002-16, -19, -23, -24, -26 (SPEC-0004). Passing before step 4 through SPEC-0001's early rules, besides the plan's step 3 list: AC-0002-04, -18, -39 to -42, -46, -51, -52 (E-fld), and -08, -09 in U-terms through the step 1 contract. Learned during implementation, owner-approved and recorded in §11 "Amendments during implementation": the local database rows, the R18 test data, `draft.ts` sending `sensitive: false`, server error placement. No criterion changed. Status stays Approved until the owner accepts the behavior on a running system |
+| 1.4 | 2026-11-11 | Status Implemented: Joao Izidoro tested the behavior on a running system and accepted it, 2026-11-11. Still partly verified, per Deferred checks: AC-0002-16, -19, -23, -24, -26 (SPEC-0004); SPEC-0004 adds `<AC ids> verified with SPEC-0004, <date>` here |
