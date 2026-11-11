@@ -2,8 +2,8 @@
 id: SPEC-0002
 title: Campos do modelo de formulário
 status: Approved # Draft | Review | Approved | Implemented | Superseded
-plan_status: Draft # Draft | Approved
-version: 1.1
+plan_status: Approved # Draft | Approved
+version: 1.2
 owner: Joao Izidoro
 satisfies: [RF-38, RF-39, RN-20, RN-21]
 depends_on: [SPEC-0001]
@@ -675,7 +675,7 @@ Withdrawn IDs are never reused.
 
 Drafted by `/plan` on 2026-11-09, checked again on 2026-11-10 against SPEC-0001's plan and the code (no forms code
 exists yet; every path below that SPEC-0001 creates is taken from its plan), and revised on 2026-11-10 after each
-plan review and the owner's decisions. `plan_status: Draft` until the owner approves it.
+plan review and the owner's decisions. Approved by the owner on 2026-11-11.
 
 ### Scope
 
@@ -1016,13 +1016,12 @@ SPEC-0005, so SPEC-0003's plan has no way to read a client.
 2. **Persistence**: the three checks in `forms.ts`; generate `0003_form_field_rules.sql` and read its SQL; update
    the fixtures so seeded fields respect them; `docs/schema.dbml`.
 3. **Tests first**: E-fld, U-pol, U-terms and W-fld, one test per AC as mapped (written by `test-author`).
-   - **Expected to pass already** (regression tests): SPEC-0001's plan delivers AC-0002-03, -05, -14 to -16, -19,
-     -20, -23 to -26, -31 to -34, -36 and -37. They cover system-field presence, id matching, the schema/metadata
-     diff, the shape checks, order, and option and protection metadata. AC-0002-01 (E-fld) and -02 may pass too,
-     because SPEC-0001 returns the system-field `requiredLock` early (its Contracts, "Locks before SPEC-0002");
-     that depends on how SPEC-0001 stores a system field's `required` on create, and is reported either way.
-     Confirm each passes. This covers their E-fld tests only: the W-fld parts of -14 and -25 need the menu and the
-     draft serialisation, so they fail until step 6.
+   - **Expected to pass already** (regression tests): SPEC-0001's plan delivers AC-0002-03, -05, -14 to -16, -19, -20,
+     -23 to -26, -31 to -34, -36 and -37. They cover system-field presence, id matching, the schema/metadata diff, the
+     shape checks, order, and option and protection metadata. AC-0002-01 (E-fld), -02, -06, -27 and -30 pass too:
+     SPEC-0001 stores a system field's fixed `required` on create (its API, "System fields' `required`") and returns
+     the interim locks (its Contracts, "Locks before SPEC-0002"). Confirm each passes. This covers their E-fld tests
+     only: the W-fld parts of -14 and -25 need the menu and the draft serialisation, so they fail until step 6.
    - **Expected to fail**: every other AC. Confirm each fails because the rule or control is missing.
    - A test outside the first list that passes at this step is reported with the SPEC-0001 behavior that delivers
      it. It is never rewritten to fail.
@@ -1031,7 +1030,8 @@ SPEC-0005, so SPEC-0003's plan has no way to read a client.
 5. **Web, part 1**: switch, select, menu and tooltip primitives.
 6. **Web, part 2**, three commits, reorder first (Risks 5):
    - **6a** field list, drag handle and drag reorder (`field-list.tsx`, `use-field-reorder.ts`, and the handle in
-     `field-row.tsx`, whose other controls follow in 6b): AC-0002-49.
+     `field-row.tsx`, whose other controls follow in 6b): AC-0002-49. `field-list.tsx` is mounted in
+     `form-editor` here; until 6b, each row shows its label as visible text next to the handle.
    - **6b** row, type select, protection, draft serialisation, error targets (`field-row.tsx`,
      `field-type-select.tsx`, `field-protection.ts`, `field-error-target.ts`): AC-0002-01 (W-fld), -10, -22, -50,
      -53.
@@ -1067,8 +1067,8 @@ The spec leaves these open. Each follows an existing rule where one exists.
 
 1. **SPEC-0001 must be `Implemented` first** (`task-lock.sh` checks `depends_on`). The earlier deadlock is resolved
    (owner, 2026-11-09): `/done` may set `Implemented` while the criteria in a plan's Deferred checks table are still
-   unverified, so SPEC-0001's deferred criteria no longer block this plan. Those are AC-0001-34 and -58 under an
-   owner waiver, eleven SPEC-0004 criteria and the phone count, and AC-0001-10 for SPEC-0003 and SPEC-0004.
+   unverified, so SPEC-0001's deferred criteria no longer block this plan. Those are AC-0001-34, -57 and -58 under
+   an owner waiver, eleven SPEC-0004 criteria and the phone count, and AC-0001-10 for SPEC-0003 and SPEC-0004.
 2. **The field-list interface is shared** with SPEC-0001's editor and draft hook. Cheapest check: build SPEC-0001's
    field region against the props `field-list.tsx` needs (rows, `fields.<i>` error paths, `valueCount`).
 3. **Term matching.** Whole-word matching on normalised text can surprise with multi-word terms and hyphens
@@ -1097,7 +1097,8 @@ The spec leaves these open. Each follows an existing rule where one exists.
      field list shows the service system fields and still has "Objetivo", and AC-0001-01 that the editor sends
      the system fields. Once labels are input values, text queries can stop matching. W-ed must still pass with
      `field-list.tsx` mounted. Cheapest check: at SPEC-0001's `/done`, list the roles and accessible names W-ed
-     queries in that region and keep them in `field-row.tsx`; then run `form-editor.test.tsx` at the end of 6b.
+     queries in that region and keep them in `field-row.tsx`; then run `form-editor.test.tsx` at the end of 6a
+     and again at the end of 6b.
      Any failure goes to the owner, never to an edit of that test.
 
 ### New dependencies
@@ -1118,3 +1119,4 @@ None. `@base-ui/react` 1.8.0 already exports Switch, Select, Menu and Tooltip. D
 | 0.8 | 2026-11-09 | Owner Joao Izidoro approved all pending criteria as written (AC-0002-01, -02, -04, -05, -07 to -11, -13 to -16, -18 to -20 and -22 to -52); all criteria are now agreed |
 | 1.0 | 2026-11-09 | Approved by Joao Izidoro, 2026-11-09 (together with SPEC-0001) |
 | 1.1 | 2026-11-10 | From the second plan review, the owner agreed to add a criterion for reverting a type change before saving (it keeps the original field). Without one, a revert followed by "Atualizar todos" could delete every answer to that field with no test failing. AC-0002-53 added and R12 and §4.2 step 5 amended; owner Joao Izidoro approved all three as written, 2026-11-10 |
+| 1.2 | 2026-11-11 | Implementation plan approved by Joao Izidoro, 2026-11-11 (together with SPEC-0001's plan); behavior sections unchanged |
