@@ -143,4 +143,4 @@ Work that must be done before launch. It does not block specs or implementation.
 - Legal review of the consent attestation text (SPEC-0004 R12, §9 Q8) before launch. A changed wording ships as a
   new text version.
 - Platform spec for Row-Level Security on every table with `tenant_id`, written before launch (C-8).
-- Verify AC-0001-34 and -58 once scheduling or payments exist (SPEC-0001 plan, Deferred checks).
+- Verify AC-0001-34, -57 (with a real linked appointment) and -58 once scheduling or payments exist (SPEC-0001 plan, Deferred checks).

@@ -2,8 +2,8 @@
 id: SPEC-0001
 title: Modelos de formulário
 status: Approved # Draft | Review | Approved | Implemented | Superseded
-plan_status: Draft # Draft | Approved
-version: 1.0
+plan_status: Approved # Draft | Approved
+version: 1.1
 owner: Joao Izidoro
 satisfies: [RF-37, RF-39, RF-40, RN-01, RN-02, RN-20, RN-21, RN-24, RN-25]
 depends_on: []
@@ -1033,7 +1033,8 @@ Then  the editor shows a skeleton of the header and 3 field rows with copy key f
 
 ## 11. Implementation plan
 
-Drafted by `/plan` on 2026-11-09. `plan_status: Draft` until the owner approves it.
+Drafted by `/plan` on 2026-11-09, revised after three plan review rounds and a targeted re-review, and approved by
+the owner on 2026-11-11.
 
 ### Scope
 
@@ -1135,8 +1136,8 @@ New, non-breaking. Consumers: `apps/api`, `apps/web` (BFF routes and pages).
 Every §8 key, the labels §4 uses, and a `validation.*` entry for every key of §6 and SPEC-0002 §6 (owner,
 2026-11-11). The spec gives pt-BR for only part of §4 and §8 and no en-US, so every en-US string, and every pt-BR
 string marked **proposed**, is proposed; the owner approves them with this plan (Decision 5). Counts use ICU
-plurals, as the existing messages do. [Salvar] and [Cancelar] reuse `common.save` and `common.cancel`;
-`validation.unexpected` already exists.
+plurals, as the existing messages do. [Salvar] and [Cancelar] reuse `common.save` and `common.cancel`, the
+not-found link back to `/forms` reuses `common.back` ("Voltar"), and `validation.unexpected` already exists.
 
 | Key | pt-BR | en-US | Source |
 | --- | --- | --- | --- |
@@ -1169,8 +1170,8 @@ plurals, as the existing messages do. [Salvar] and [Cancelar] reuse `common.save
 | `forms.publish.failed` | Não foi possível publicar a versão. Nada foi alterado. | Couldn't publish the version. Nothing was changed. | §8 |
 | `forms.apply.title` | Aplicar alterações | Apply changes | §4.7 |
 | `forms.apply.summary` | {added, plural, one {# campo adicionado} other {# campos adicionados}}, {removed, plural, one {# removido} other {# removidos}}, {changed, plural, one {# alterado} other {# alterados}} | {added, plural, one {# field added} other {# fields added}}, {removed} removed, {changed} changed | §4.7 step 1; key and plurals **proposed** |
-| `forms.apply.keep` / `.keepDescription` | Manter existentes / Os {count} cadastros atuais continuam na versão em que estão. Novos cadastros usarão a versão {next}. | Keep existing / The {count} current records stay on their version. New records will use version {next}. | §4.7 step 2; `keepDescription` key **proposed** |
-| `forms.apply.updateAll` / `.updateAllDescription` | Atualizar todos / Todos os {count} cadastros passam para a versão {next}. | Update all / All {count} records move to version {next}. | §4.7 step 2; `updateAllDescription` key **proposed** |
+| `forms.apply.keep` / `.keepDescription` | Manter existentes / {count, plural, one {O cadastro atual continua} other {Os # cadastros atuais continuam}} na versão em que está. Novos cadastros usarão a versão {next}. | Keep existing / {count, plural, one {The current record stays} other {The # current records stay}} on their version. New records will use version {next}. | §4.7 step 2; `keepDescription` key and plurals **proposed** |
+| `forms.apply.updateAll` / `.updateAllDescription` | Atualizar todos / {count, plural, one {O cadastro passa} other {Todos os # cadastros passam}} para a versão {next}. | Update all / {count, plural, one {The record moves} other {All # records move}} to version {next}. | §4.7 step 2; `updateAllDescription` key and plurals **proposed** |
 | `forms.apply.answersDeleted` | {count, plural, one {# cadastro tem} other {# cadastros têm}} respostas em campos removidos. Essas respostas serão excluídas. | {count, plural, one {# record has} other {# records have}} answers in removed fields. Those answers will be deleted. | §4.7 step 3; plurals **proposed** |
 | `forms.apply.typeName` | Digite o nome do modelo para confirmar | Type the template name to confirm | §4.7 step 3 |
 | `forms.apply.pendingRequired` | {count, plural, one {# cadastro ficará} other {# cadastros ficarão}} com preenchimento pendente. | {count, plural, one {# record will have} other {# records will have}} required fields left to fill. | §8; plurals **proposed** |
@@ -1183,8 +1184,8 @@ plurals, as the existing messages do. [Salvar] and [Cancelar] reuse `common.save
 | `forms.delete.confirm` | Excluir o modelo permanentemente? Digite o nome do modelo para confirmar. | Delete the template permanently? Type the template name to confirm. | **proposed** (§4.6 step 2) |
 | `forms.delete.withRecords` | Este modelo tem {count, plural, one {# cadastro. Deseja excluir também esse cadastro?} other {# cadastros. Deseja excluir também esses cadastros?}} | This template has {count, plural, one {# record. Delete that record too?} other {# records. Delete those records too?}} | §4.6 step 3; plurals **proposed** |
 | `forms.delete.deleteAll` / `.archiveInstead` / `.archiveOnly` | Sim, excluir tudo / Não, arquivar o modelo / Arquivar o modelo | Yes, delete everything / No, archive the template / Archive the template | §4.6; keys **proposed** |
-| `forms.delete.confirmWithRecords` | O modelo e {count, plural, one {o # cadastro será excluído} other {os # cadastros serão excluídos}} permanentemente. | The template and {count, plural, one {# record} other {# records}} will be deleted permanently. | §4.6 step 3; plurals **proposed** |
-| `forms.delete.recordsHaveHistory` | Este modelo tem {count, plural, one {# cadastro} other {# cadastros}}, e alguns têm histórico de atendimentos ou pagamentos. Cadastros com histórico não podem ser excluídos. | This template has {count, plural, one {# record} other {# records}}, and some have appointment or payment history. Records with history can't be deleted. | §4.6 step 4 |
+| `forms.delete.confirmWithRecords` | O modelo e {count, plural, one {o # cadastro serão excluídos} other {os # cadastros serão excluídos}} permanentemente. | The template and {count, plural, one {# record} other {# records}} will be deleted permanently. | §4.6 step 3; plurals **proposed** |
+| `forms.delete.recordsHaveHistory` | {count, plural, one {Este modelo tem # cadastro, e ele tem} other {Este modelo tem # cadastros, e alguns têm}} histórico de atendimentos ou pagamentos. Cadastros com histórico não podem ser excluídos. | {count, plural, one {This template has # record, and it has} other {This template has # records, and some have}} appointment or payment history. Records with history can't be deleted. | §4.6 step 4; singular **proposed** |
 | `forms.delete.recordsChanged` | Os cadastros deste modelo mudaram. Revise antes de continuar. | This template's records changed. Review before continuing. | §8 |
 | `forms.delete.deleting` | Excluindo… | Deleting… | **proposed** |
 | `forms.delete.failed` | Não foi possível excluir o modelo. Nada foi excluído. | Couldn't delete the template. Nothing was deleted. | §8 |
@@ -1276,9 +1277,13 @@ not null` referencing `tenants(id)` with `ON DELETE CASCADE`, and an index on it
     that are already missing from the latest version, so the diff against the latest version is not enough.
     `recordsLosingAnswers` counts the distinct records with at least one such row, and "Atualizar todos" deletes
     exactly those rows.
-  - **Pending required fields**: `recordsGainingRequiredFields` counts the distinct records, on any version, that
-    have no value for a field required in the next version (custom fields from `form_record_values`,
-    `client.phone` through `SystemFieldPresence`).
+  - **Pending required fields** (owner, 2026-11-11): `recordsGainingRequiredFields` counts the distinct records,
+    on any version, that the migration would newly leave pending (SPEC-0003 R6). After its lost answers are
+    deleted, such a record has no value for a field required in the next version, and either that field is absent
+    or optional in the record's own version, or its value was a lost `select` option. A record already pending on
+    its own version for that field is not counted, so the count matches §4.7 step 4 ("the new version adds
+    required fields"). Custom fields come from `form_record_values`; `client.phone` comes from
+    `SystemFieldPresence`, for records whose own version has it optional.
   - Finding answers to absent fields needs no decryption. Only `select` fields kept in the next version whose
     options differ from those of a version some record is on need their values decrypted.
 - **Row-level security is deferred (owner, 2026-11-09)** to a separate platform spec covering all tables, written
@@ -1344,16 +1349,21 @@ How the handlers work:
   (`FOR UPDATE`) so two creates cannot both pass the cap, count the tenant's templates (400 `form.limit-reached`,
   R19), and insert the template (revision 1, version 1), its fields, options and version-1 rows. The name check is
   the insert itself: a unique violation on `name_key` becomes 409 `formName.taken`.
+- **System fields' `required`** (§3.2; owner, 2026-11-11): stored as true on create and kept true on update for
+  every system field except `client.phone`, whatever the request sends. `client.phone` takes the sent value, and
+  false when it is omitted. Once SPEC-0002 lands, `required: false` on the other system fields is rejected earlier,
+  by its field rules (422 `fieldRequired.locked`).
 - **Update**: shape errors come from the contract (422). Then, in one transaction with the template row locked:
-  404 if absent; 409 if `revision` is outdated; field rules (`FieldPolicy`); 409 on a name clash; diff the next
-  fields against the latest version (`schema-diff.ts`, §3.3); with schema changes and records, 400 without a
-  migration mode, and 400 when "Atualizar todos" would delete answers and `confirmName` does not match (R9
-  comparison). Then store metadata and publish the next version if the schema changed. For "Atualizar todos", first
-  repoint every record and raise its revision (SPEC-0003 R14) in one statement that also sets `updated_at`, then
-  delete the lost answers of every record, on any version (Persistence, "Lost answers") (owner, 2026-11-10;
-  SPEC-0003 G-4). In that order, a record update holding its row lock makes the repoint wait, and its lost answers
-  are deleted afterwards; a record update that starts later sees the new version and revision. Everything commits
-  together or not at all (R10); the template revision goes up by 1.
+  404 if absent; 409 if `revision` is outdated; field rules (`FieldPolicy`); 409 on a name clash; diff the next fields
+  against the latest version (`schema-diff.ts`, §3.3); with schema changes and records, 400 without a migration mode,
+  and 400 when "Atualizar todos" would delete any lost answer (Persistence, "Lost answers"), including one held only
+  by a record still on an older version, and `confirmName` does not match (R9 comparison; owner, 2026-11-11). Then
+  store metadata and publish the next version if the schema changed. For "Atualizar todos", first repoint every record
+  and raise its revision (SPEC-0003 R14) in one statement that also sets `updated_at`, then delete the lost answers of
+  every record, on any version (Persistence, "Lost answers") (owner, 2026-11-10; SPEC-0003 G-4). In that order, a
+  record update holding its row lock makes the repoint wait, and its lost answers are deleted afterwards; a record
+  update that starts later sees the new version and revision. Everything commits together or not at all (R10); the
+  template revision goes up by 1.
 - **Preview** runs the same checks and diff without writing, then counts `recordsLosingAnswers` and
   `recordsGainingRequiredFields` through `FormRecordStore`, as defined under Persistence ("Lost answers", "Pending
   required fields"). Custom fields are counted from `form_record_values`. `client.phone` is the only system field
@@ -1442,10 +1452,15 @@ Checks outside the AC table (owner: the first two 2026-11-10, the last two 2026-
   - no `sensitive` on a system field, and no `systemKey` on an update;
   - a custom field of an always-protected type (SPEC-0002 R5), or whose label contains a SPEC-0002 §3.4 term
     ("Peso" in AC-0001-71), is sent without `sensitive` or with `sensitive: true`, and seeded with `sensitive` true.
-- **Records on older versions** (E-ver, named `R18 …`): a record kept on version 1 by "Manter existentes" holds a
-  "Hobby" answer, and version 2 already removed "Hobby". A preview of version 3 counts that record in
-  `recordsLosingAnswers`, and in `recordsGainingRequiredFields` when version 3 adds a required field it has no
-  value for. "Atualizar todos" then deletes its "Hobby" answer (Persistence, "Lost answers").
+- **Records on older versions** (E-ver, named `R18 …`): template "Ficha" is at version 2, and its only record was
+  kept on version 1 by "Manter existentes". It holds a "Hobby" answer and an answer "Tarde" to the required
+  `select` "Turno"; version 2 already removed "Hobby". The next version drops option "Tarde" and adds a required
+  field "Objetivo". Then:
+  - the preview returns `recordsLosingAnswers` 1 and `recordsGainingRequiredFields` 1 (the record misses
+    "Objetivo", and its "Turno" answer is a lost option);
+  - `update_all` without `confirmName` → 400 `migration.confirmation-required`, and the "Hobby" row is kept;
+  - `update_all` with "Ficha" → 200, and the "Hobby" and "Turno" rows of that record are gone (Persistence, "Lost
+    answers", "Pending required fields").
 - **Browser back** (W-ed, named `§4.2 step 7 …`): with unsaved changes, the browser back button shows
   `forms.editor.unsaved`; "stay" keeps the draft and the editor's URL (Web, leave prompt).
 
@@ -1469,7 +1484,7 @@ Checks outside the AC table (owner: the first two 2026-11-10, the last two 2026-
 | 16 | E-crud | no token → 401 |
 | 17 | W-list | archived hidden by default; toggle shows it with "Arquivado" |
 | 18 | W-ed | dirty draft + in-app link → `forms.editor.unsaved`; "stay" keeps the draft |
-| 19 | E-crud, E-ver | 101 fields → 422 `formFields.max`. E-ver: an update with 101 fields → the same 422, template unchanged |
+| 19 | E-crud, E-ver | 101 fields → 422 `formFields.max`. E-ver: an update with 101 fields → the same 422, template unchanged; a preview with 101 fields → the same 422 |
 | 20 | E-ver, U-diff, W-ed | metadata-only save → 200, same version, revision + 1; seeded records still on version 2. W-ed: the save shows `forms.editor.saved` and neither the publish nor the Apply dialog |
 | 21 | E-ver, W-dlg | no records + schema change → 200 version 2; the dialog is `forms.publish.confirm` without migration options |
 | 22 | E-ver, U-upd | records + schema change without migration → 400 `migration.mode-required`, still version 1 |
@@ -1507,7 +1522,7 @@ Checks outside the AC table (owner: the first two 2026-11-10, the last two 2026-
 | 54 | W-list | list error → `forms.list.error`; retry requests again |
 | 55 | W-ed | unknown id → `forms.editor.notFound` with a link to `/forms` |
 | 56 | W-dlg | Escape or outside click while applying → dialog stays with `forms.apply.applying` |
-| 57 | W-dlg | `recordsWithHistory` 1 (mocked response) → `forms.delete.recordsHaveHistory` with only "Arquivar o modelo" and Cancelar |
+| 57 | W-dlg | `recordsWithHistory` 1 (mocked response) → `forms.delete.recordsHaveHistory` with only "Arquivar o modelo" and Cancelar (partial, see Deferred checks) |
 | 58 | E-crud | a fake `RecordHistoryReader` reports 1 of 3 records → read and list return `recordCount` 3, `recordsWithHistory` 1 (partial, see Deferred checks) |
 | 59 | E-crud | `type=client` → exactly "Cliente" and "Ficha" |
 | 60 | E-crud | `type=plan` → 422 `formType.invalid` |
@@ -1546,7 +1561,7 @@ its scope, and adds `<AC ids> verified with SPEC-XXXX, <date>` to this changelog
 | AC | Status after this plan | Verified by |
 | --- | --- | --- |
 | 34 | partly: the 409 is checked with a fake `RecordHistoryReader`; a real linked appointment is not | owner waiver (2026-11-10): the first scheduling or payments spec, tracked in forms-overview.md §7 |
-| 57 | partly: the dialog is checked with a mocked `recordsWithHistory` 1; a real linked appointment is not | owner waiver (2026-11-11), as for 34 and 58: the first scheduling or payments spec |
+| 57 | partly: the dialog is checked with a mocked `recordsWithHistory` 1; a real linked appointment is not | owner waiver (2026-11-11), as for 34 and 58: the first scheduling or payments spec; tracked in forms-overview.md §7 |
 | 58 | partly: `recordsWithHistory` 1 is checked with a fake `RecordHistoryReader`; a real linked appointment is not | owner waiver (2026-11-10): the first scheduling or payments spec, tracked in forms-overview.md §7 |
 | 10 | partly: the redirect to `/clients/new?form=<id>` is checked; the page it opens is not | SPEC-0003: the fill-in form opened with the new template's id. SPEC-0004: the `/clients/new` route and its "Criar novo modelo" entry (§4.2, §4.3). Owner, 2026-11-10 (SPEC-0003 G-5) |
 | 12 | partly: archive and the unchanged record are checked; the Novo dropdown and the client read/update are not | SPEC-0004 |
@@ -1577,13 +1592,14 @@ its scope, and adds `<AC ids> verified with SPEC-XXXX, <date>` to this changelog
    adapters.
 3. **Failing tests**: the three e2e files, the unit specs and the three web test files, one test per AC as mapped
    above (written by `test-author`); `createTestApp({ recordHistory })`; confirm each fails because the behavior
-   is missing.
+   is missing. U-ciph is the exception: it was written in step 2b and already passes.
 4. **API, part 1**: domain (`FormName`, `schema-diff`, `FieldPolicy`, errors), repositories, `ZodParam`,
    `FormsModule.forRoot` in `app.module.ts`.
 5. **API, part 2**, three commits. Routes are added with their handlers.
-   - **5a** create, list, read, version read: AC-0001-01 to -06, -16, -19, -36, -41 to -44, -48, -52, -58 to -62,
-     -72, -73, -76.
-   - **5b** update, preview, Apply: AC-0001-07 to -09, -20 to -24, -26 to -29, -37 to -39, -45, -46, -71, -74, -75.
+   - **5a** create, list, read, version read: AC-0001-01 to -06, -16, -19 (E-crud), -36, -41 to -44, -48, -52, -58
+     to -62, -72, -73, -76.
+   - **5b** update, preview, Apply: AC-0001-07 to -09, -19 (E-ver), -20 to -24, -26 to -29, -37 to -39, -45, -46,
+     -71, -74, -75, and the `R18 …` check.
      Then the one-off timing run (Decision 4): `apps/api/test/e2e/forms-apply-timing.e2e-spec.ts` with 5,000 seeded
      records, some of them on an older version with answers to fields and `select` options already absent from
      the latest version, run once with `FORMS_TIMING=1`. RNF-02 thresholds: preview under 500 ms, "Atualizar
@@ -1633,10 +1649,10 @@ The spec leaves these open.
    fields. Cheapest check: the one-off timing run after step 5b, against RNF-02 (preview under 500 ms, "Atualizar
    todos" under 1 s at 5,000 records). `/done` reports the numbers.
 4. **Leave prompt in the App Router.** There is no official navigation-blocking API, so link interception and the
-   back/forward guard entry are workarounds. The guard entry can surprise users (an extra history step) and break
-   with a Next.js upgrade. Cheapest check: build the shared hook, AC-0001-18's test and the browser-back test first
-   in step 7. If the back/forward guard is not reliable, that half goes to the owner as a proposed spec change,
-   never shipped silently.
+   back/forward guard entry are workarounds. The guard entry can surprise users (an extra history step, and pushing it
+   clears the browser's forward history) and break with a Next.js upgrade. Cheapest check: build the shared hook,
+   AC-0001-18's test and the browser-back test first in step 7. If the back/forward guard is not reliable, that half
+   goes to the owner as a proposed spec change, never shipped silently.
 5. **SPEC-0002 overlap.** The editor and `FieldPolicy` are shared. SPEC-0002's plan is drafted. It relies on the
    six points under API and on the create order (Decision 3). A change to either amends both plans.
 6. **No RLS until the platform spec (RNF-07, forms-overview.md C-8).** Isolation relies on `tenant_id` filters,
@@ -1664,3 +1680,4 @@ are already in use.
 | 0.7 | 2026-11-09 | Owner decisions, review round 3: Q12 decided (client e-mail stays required, RN-04); RF-07 amended, no notes system field (§3.2, forms-overview.md C-2 resolved); typed names compared after trimming, otherwise exactly (R9, R18); the audit spec is MVP (§2); SPEC-0001 and SPEC-0002 approved together (§2); AC-0001-02 reworded as an API request. Review fixes: change-preview `added` / `removed` / `changed` shapes (§7, §4.7 step 1); malformed template ids and version numbers return 404 (§5, §6); AC-0001-52 tests sorting that ignores case and accents; AC-0001-26 added to the §2 list. AC-0001-70 to -79 added, pending owner review |
 | 0.8 | 2026-11-09 | Owner Joao Izidoro approved AC-0001-34 to -79 as written; all criteria are now agreed. Status stays Draft |
 | 1.0 | 2026-11-09 | Approved by Joao Izidoro, 2026-11-09 (together with SPEC-0002) |
+| 1.1 | 2026-11-11 | Implementation plan (§11) approved by Joao Izidoro, 2026-11-11 (together with SPEC-0002's plan). Outside §11, only §9 Q5 changed: it records the owner's 2026-11-09 decision on the delete and archive endpoints (`POST /forms/:id/delete` with a JSON body, no `DELETE` fallback; `POST /forms/:id/archive` and `/unarchive`) |
