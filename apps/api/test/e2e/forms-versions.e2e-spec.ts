@@ -735,9 +735,9 @@ describe('records on older versions', () => {
       [
         ...CLIENT_SYSTEM_FIELDS,
         { label: 'Hobby', type: 'text' },
-        turno(['Manhã', 'Tarde']),
+        turno(['Manhã', 'Tarde', 'Noite']),
       ],
-      [...CLIENT_SYSTEM_FIELDS, turno(['Manhã', 'Tarde'])],
+      [...CLIENT_SYSTEM_FIELDS, turno(['Manhã', 'Tarde', 'Noite'])],
     ]);
     const record = await seedRecord(db(), {
       form,
@@ -751,7 +751,11 @@ describe('records on older versions', () => {
       field.label === 'Turno'
         ? {
             ...field,
-            options: [{ id: form.optionId('Turno', 'Manhã'), label: 'Manhã' }],
+            // a select keeps at least 2 options (SPEC-0002 §3.1)
+            options: [
+              { id: form.optionId('Turno', 'Manhã'), label: 'Manhã' },
+              { id: form.optionId('Turno', 'Noite'), label: 'Noite' },
+            ],
           }
         : field,
     );
