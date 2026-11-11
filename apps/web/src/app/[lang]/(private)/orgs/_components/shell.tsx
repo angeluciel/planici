@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ToastProvider } from "@/components/ui/toast";
 import { usePathname } from "@/i18n/navigation";
 import Header from "./header";
 import Sidebar from "./sidebar/sidebar";
@@ -21,7 +22,7 @@ export default function AppShell({
 	}, [pathname, closeSidebar]);
 
 	return (
-		<>
+		<ToastProvider>
 			<Sidebar
 				mode={mode}
 				onModeChange={changeMode}
@@ -38,6 +39,6 @@ export default function AppShell({
 				/>
 				<main>{children}</main>
 			</div>
-		</>
+		</ToastProvider>
 	);
 }
