@@ -39,6 +39,17 @@ export interface FormRecordStore {
     next: NextVersionShape,
   ): Promise<string[]>;
 
+  /**
+   * Of `recordIds`, those whose own version does not require `fieldId` (absent
+   * or optional there): the records a newly required field would leave pending.
+   */
+  filterRecordIdsNotRequiring(
+    tenantId: string,
+    formId: string,
+    fieldId: string,
+    recordIds: string[],
+  ): Promise<string[]>;
+
   /** Repoints every record to version `version` and raises its revision, in one statement. */
   repointAll(
     tx: TransactionHandle,

@@ -67,7 +67,7 @@ export class PreviewFormChangesHandler implements IQueryHandler<PreviewFormChang
       this.records.valueCountsByField(tenantId, formId),
       this.records.countRecordsLosingAnswers(tenantId, formId, next),
       this.records.findRecordIdsGainingRequiredFields(tenantId, formId, next),
-      this.recordIdsGainingPhone(tenantId, formId, template, planned),
+      this.recordIdsGainingPhone(tenantId, formId, planned),
     ]);
 
     // a record missing both a custom field and the phone counts once
@@ -88,17 +88,33 @@ export class PreviewFormChangesHandler implements IQueryHandler<PreviewFormChang
     };
   }
 
-  /** `client.phone` is the only system field that can newly become required. */
+  /**
+   * `client.phone` is the only system field that can newly become required. It
+   * counts only for records whose own version has it optional, when the next
+   * version requires it (plan, "Pending required fields").
+   */
   private async recordIdsGainingPhone(
     tenantId: string,
     formId: string,
-    template: FormTemplate,
-    planned: readonly { systemKey: string | null; required: boolean }[],
+    planned: readonly {
+      id: string;
+      systemKey: string | null;
+      required: boolean;
+    }[],
   ): Promise<string[]> {
-    const before = template.fields.find((f) => f.systemKey === 'client.phone');
-    const after = planned.find((f) => f.systemKey === 'client.phone');
-    if (!before || !after || before.required || !after.required) return [];
+    const phone = planned.find((f) => f.systemKey === 'client.phone');
+    if (!phone?.required) return [];
 
-    return this.presence.findRecordIdsWithoutClientPhone(tenantId, formId);
+    const ids = await this.presence.findRecordIdsWithoutClientPhone(
+      tenantId,
+      formId,
+    );
+
+    return this.records.filterRecordIdsNotRequiring(
+      tenantId,
+      formId,
+      phone.id,
+      ids,
+    );
   }
 }

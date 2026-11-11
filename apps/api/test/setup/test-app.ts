@@ -14,6 +14,10 @@ import {
   RECORD_HISTORY_READER,
   type RecordHistoryReader,
 } from '@modules/forms/ports/record-history.reader.js';
+import {
+  SYSTEM_FIELD_PRESENCE,
+  type SystemFieldPresence,
+} from '@modules/forms/ports/system-field-presence.js';
 
 // captura o e-mail enviado
 export class CapturingMailer implements Mailer {
@@ -57,6 +61,8 @@ export type TestContext = {
 };
 
 export type TestAppOptions = {
+  // replaces the SystemFieldPresence provider (the zero adapter runs when omitted)
+  systemFieldPresence?: SystemFieldPresence;
   // replaces the RecordHistoryReader provider; the real adapter runs when omitted
   recordHistory?: RecordHistoryReader;
 };
@@ -85,6 +91,12 @@ export async function createTestApp(
     builder
       .overrideProvider(RECORD_HISTORY_READER)
       .useValue(options.recordHistory);
+  }
+
+  if (options.systemFieldPresence) {
+    builder
+      .overrideProvider(SYSTEM_FIELD_PRESENCE)
+      .useValue(options.systemFieldPresence);
   }
 
   const moduleRef = await builder.compile();

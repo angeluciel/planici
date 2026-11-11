@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangleIcon, CheckCircle2Icon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo } from "react";
 import { Toaster, toast } from "sonner";
 
@@ -26,6 +27,8 @@ export function useToast(): ToastApi {
 export function ToastProvider({
 	children,
 }: Readonly<{ children: React.ReactNode }>) {
+	const t = useTranslations("common");
+
 	// sonner keeps its toasts in a module store: drop them with the provider
 	useEffect(() => () => void toast.dismiss(), []);
 
@@ -35,6 +38,7 @@ export function ToastProvider({
 			<Toaster
 				position="bottom-right"
 				closeButton
+				containerAriaLabel={t("notifications")}
 				duration={6000}
 				icons={{
 					success: (
@@ -52,6 +56,7 @@ export function ToastProvider({
 				}}
 				toastOptions={{
 					unstyled: true,
+					closeButtonAriaLabel: t("close"),
 					classNames: {
 						toast:
 							"flex w-full items-start gap-2 rounded-md border-2 border-border-input bg-surface-overlay px-3 py-2 shadow-overlay",

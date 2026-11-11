@@ -345,10 +345,12 @@ function EditorBody({
 		adopt(result.form);
 		toast.show(t("editor.published"));
 		// from /clients or /services: straight to creating a record with it (§4.3)
-		router.push(
-			from
-				? `${base}/${from}/new?form=${result.form.id}`
-				: `${base}/forms/${result.form.id}`,
+		guard.navigate((mode) =>
+			router[mode](
+				from
+					? `${base}/${from}/new?form=${result.form.id}`
+					: `${base}/forms/${result.form.id}`,
+			),
 		);
 	}
 
@@ -659,7 +661,11 @@ function EditorBody({
 					text={tCommon("cancel")}
 					className="w-auto"
 					disabled={saving}
-					onPress={() => guard.requestLeave(() => router.push(leaveTarget))}
+					onPress={() =>
+						guard.requestLeave(() =>
+							guard.navigate((mode) => router[mode](leaveTarget)),
+						)
+					}
 				/>
 				<Button
 					type="submit"
@@ -708,7 +714,7 @@ function EditorBody({
 					onCancel={() => setDialog(null)}
 					onDeleted={() => {
 						setDialog(null);
-						router.push(`${base}/forms`);
+						guard.navigate((mode) => router[mode](`${base}/forms`));
 					}}
 					onArchived={(archivedForm) => {
 						setCurrent(archivedForm);

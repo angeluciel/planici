@@ -14,6 +14,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 //    stack. Going back lands on the entry under it (same URL) and fires
 //    `popstate`; "stay" pushes the guard entry again, "leave" goes back once
 //    more, past the page.
+// After a save the guard entry stays on top until the page leaves: links and
+// `navigate` then replace it instead of pushing on top of it, and back skips it.
 //
 // The caller renders the dialog (see forms/_components/leave-dialog.tsx) from
 // `open`, `message`, `stay` and `leave`, so this file stays free of markup.
@@ -29,6 +31,10 @@ export type LeaveGuard = {
 	leave: () => void;
 	// runs `action` now when the form is clean, otherwise after the user confirms
 	requestLeave: (action: () => void) => void;
+	// Programmatic navigation that does not strand the guard entry: `go` gets
+	// "replace" while the guard entry is on top (it takes that entry's place),
+	// "push" otherwise. Use it for every navigation the page starts itself.
+	navigate: (go: (mode: "push" | "replace") => void) => void;
 };
 
 export function useLeaveGuard({
@@ -51,6 +57,12 @@ export function useLeaveGuard({
 	const pushGuard = useCallback(() => {
 		window.history.pushState(window.history.state, "", window.location.href);
 		guardActive.current = true;
+	}, []);
+
+	const navigate = useCallback((go: (mode: "push" | "replace") => void) => {
+		const mode = guardActive.current ? "replace" : "push";
+		guardActive.current = false;
+		go(mode);
 	}, []);
 
 	// back and forward: always listening, because the guard entry can outlive
@@ -91,49 +103,40 @@ export function useLeaveGuard({
 			event.returnValue = "";
 		};
 
+		window.addEventListener("beforeunload", onBeforeUnload);
+		return () => window.removeEventListener("beforeunload", onBeforeUnload);
+	}, [dirty, pushGuard]);
+
+	// in-app links: always listening, like popstate, because the guard entry can
+	// outlive the dirty state. Dirty: ask first. Saved but the guard entry is
+	// still on top: go without asking, taking that entry's place.
+	// An intercepted click stops in the capture phase, so the link's own onClick
+	// (e.g. the sidebar closing its drawer) and <Link> props such as `replace` or
+	// `scroll` do not run. Code that must react to leaving should watch the
+	// pathname, as the org shell does, not the link's click.
+	useEffect(() => {
 		const onClick = (event: MouseEvent) => {
-			if (
-				event.defaultPrevented ||
-				event.button !== 0 ||
-				event.metaKey ||
-				event.ctrlKey ||
-				event.shiftKey ||
-				event.altKey
-			) {
-				return;
-			}
+			if (!dirtyRef.current && !guardActive.current) return;
 
-			const target = event.target instanceof Element ? event.target : null;
-			const anchor = target?.closest<HTMLAnchorElement>("a[href]");
-			if (!anchor) return;
-			if (anchor.target && anchor.target !== "_self") return;
-			if (anchor.hasAttribute("download")) return;
-
-			const url = new URL(anchor.href, window.location.href);
-			if (url.origin !== window.location.origin) return;
-			if (
-				url.pathname === window.location.pathname &&
-				url.search === window.location.search
-			) {
-				return;
-			}
+			const href = inAppLinkTarget(event);
+			if (!href) return;
 
 			event.preventDefault();
 			event.stopPropagation();
-			pending.current = {
-				kind: "link",
-				run: () => router.push(`${url.pathname}${url.search}${url.hash}`),
-			};
+			const go = () => navigate((mode) => router[mode](href));
+
+			if (!dirtyRef.current) {
+				go();
+				return;
+			}
+
+			pending.current = { kind: "link", run: go };
 			setOpen(true);
 		};
 
-		window.addEventListener("beforeunload", onBeforeUnload);
 		document.addEventListener("click", onClick, true);
-		return () => {
-			window.removeEventListener("beforeunload", onBeforeUnload);
-			document.removeEventListener("click", onClick, true);
-		};
-	}, [dirty, pushGuard, router]);
+		return () => document.removeEventListener("click", onClick, true);
+	}, [router, navigate]);
 
 	const stay = useCallback(() => {
 		const current = pending.current;
@@ -158,5 +161,37 @@ export function useLeaveGuard({
 		setOpen(true);
 	}, []);
 
-	return { open, message: t(messageKey), stay, leave, requestLeave };
+	return { open, message: t(messageKey), stay, leave, requestLeave, navigate };
+}
+
+// Target of a plain left click on a same-origin link to another page, or null
+// when the click is not ours to handle (modifiers, new tab, download, same page).
+function inAppLinkTarget(event: MouseEvent): string | null {
+	if (
+		event.defaultPrevented ||
+		event.button !== 0 ||
+		event.metaKey ||
+		event.ctrlKey ||
+		event.shiftKey ||
+		event.altKey
+	) {
+		return null;
+	}
+
+	const target = event.target instanceof Element ? event.target : null;
+	const anchor = target?.closest<HTMLAnchorElement>("a[href]");
+	if (!anchor) return null;
+	if (anchor.target && anchor.target !== "_self") return null;
+	if (anchor.hasAttribute("download")) return null;
+
+	const url = new URL(anchor.href, window.location.href);
+	if (url.origin !== window.location.origin) return null;
+	if (
+		url.pathname === window.location.pathname &&
+		url.search === window.location.search
+	) {
+		return null;
+	}
+
+	return `${url.pathname}${url.search}${url.hash}`;
 }
