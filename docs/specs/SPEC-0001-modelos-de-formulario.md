@@ -1092,8 +1092,8 @@ every changed file; `guard-paths.sh` still blocks hand edits there. Paths with `
   whose add/remove controls SPEC-0002 provides. UI tests in this plan prepare drafts that already contain fields.
 - **SPEC-0003's plan** builds the in-process record service (`RecordService`) on the record tables created here
   (`form_records`, `form_record_values`). The record endpoints that call it belong to SPEC-0004 and SPEC-0005
-  (SPEC-0003 §2; owner, 2026-11-10, SPEC-0003 G-6). This plan only creates them and uses them to count, migrate and delete records, so the
-  record criteria here can seed rows directly (§2 Dependencies).
+  (SPEC-0003 §2; owner, 2026-11-10, SPEC-0003 G-6). This plan only creates them and uses them to count, migrate
+  and delete records, so the record criteria here can seed rows directly (§2 Dependencies).
 
 ### Contracts (`packages/schemas/src/forms/`)
 
@@ -1113,17 +1113,107 @@ New, non-breaking. Consumers: `apps/api`, `apps/web` (BFF routes and pages).
   integer; failure maps to 404 `formVersion.not-found`), `FormTypeSchema`, `FormNameSchema` (trim, collapse
   internal whitespace, 1–80), `FormDescriptionSchema` (trim, ≤ 500, blank becomes null),
   `CreateFormRequestSchema` (`type`, `name`, `description?`, `fields` ≤ 100 → `formFields.max`),
-  `UpdateFormRequestSchema` (`revision` → `formRevision.required`, `name?`, `description?`, `fields?`,
-  `migration?` with `mode` → `migration.mode-invalid`; a `type` key → `formType.immutable`),
-  `PreviewFormChangesRequestSchema` (`revision`, `fields`), `ListFormsQuerySchema` (`type?` → `formType.invalid`,
+  `UpdateFormRequestSchema` (`revision` → `formRevision.required`, `name?`, `description?`, `fields?` ≤ 100 →
+  `formFields.max`, `migration?` with `mode` → `migration.mode-invalid`; a `type` key → `formType.immutable`),
+  `PreviewFormChangesRequestSchema` (`revision`, `fields` ≤ 100 → `formFields.max`; R12 applies to every request
+  that carries `fields`), `ListFormsQuerySchema` (`type?` → `formType.invalid`,
   `includeArchived?` as `"true"`/`"false"` → `includeArchived.invalid`), `DeleteFormRequestSchema`
   (`deleteRecords?`, `confirmName?`).
 - `responses.ts`: `FormTemplateSchema`, `FormTemplateSummarySchema`, `FormListResponseSchema`,
   `FormVersionResponseSchema`, `FormChangePreviewResponseSchema` (§7, including `added` / `removed` / `changed`).
+- **Locks before SPEC-0002.** `FieldSchema` already has `requiredLock` and `sensitiveLock` (SPEC-0002 §7), and the
+  BFF's `parseUpstream` answers 502 when a response misses them. Until SPEC-0002's `FieldPolicy.locks()` lands, the
+  aggregate (API point 3) returns `requiredLock` true for system fields other than `client.phone` and false for
+  every other field, and `sensitiveLock` null. SPEC-0002's plan replaces both with the full rules.
 - `errors.ts`: `FORM_ERROR_CODES` (every key of §6) and `FIELD_ERROR_CODES` (every key of SPEC-0002 §6, so
   SPEC-0002 adds rules, not contract).
-- `index.ts` re-exports. i18n: a `forms` namespace with every §8 copy key, and `validation.*` entries for every
-  new error key, in pt-BR (spec copy) and en-US.
+- `index.ts` re-exports. i18n: the `forms` namespace and the `validation.*` entries of the Copy table below, in
+  pt-BR and en-US.
+
+### Copy
+
+Every §8 key, the labels §4 uses, and a `validation.*` entry for every key of §6 and SPEC-0002 §6 (owner,
+2026-11-11). The spec gives pt-BR for only part of §4 and §8 and no en-US, so every en-US string, and every pt-BR
+string marked **proposed**, is proposed; the owner approves them with this plan (Decision 5). Counts use ICU
+plurals, as the existing messages do. [Salvar] and [Cancelar] reuse `common.save` and `common.cancel`;
+`validation.unexpected` already exists.
+
+| Key | pt-BR | en-US | Source |
+| --- | --- | --- | --- |
+| `forms.list.title` | Modelos de formulário | Form templates | **proposed** |
+| `forms.list.loading` | Carregando modelos… | Loading templates… | **proposed** (accessible name of the skeleton) |
+| `forms.list.empty` | Nenhum modelo de {type, select, client {cliente} other {serviço}} ainda. | No {type, select, client {client} other {service}} templates yet. | §8; service wording **proposed** |
+| `forms.list.error` | Não foi possível carregar os modelos. | Couldn't load the templates. | §8 |
+| `forms.list.groupClient` / `.groupService` | Clientes / Serviços | Clients / Services | §4.1 |
+| `forms.list.archivedBadge` / `.showArchived` | Arquivado / Mostrar arquivados | Archived / Show archived | §4.1 |
+| `forms.list.fieldCount` / `.recordCount` | {count, plural, one {# campo} other {# campos}} / {count, plural, one {# cadastro} other {# cadastros}} | {count, plural, one {# field} other {# fields}} / {count, plural, one {# record} other {# records}} | **proposed** (§4.1 row counts) |
+| `forms.actions.new` / `.archive` / `.unarchive` / `.delete` / `.publish` / `.apply` / `.reload` | Novo / Arquivar / Desarquivar / Excluir / Publicar / Aplicar / Recarregar | New / Archive / Unarchive / Delete / Publish / Apply / Reload | §4, §8 |
+| `forms.actions.retry` | Tentar novamente | Try again | **proposed** (retry in the §8 error states) |
+| `forms.editor.type` / `.name` / `.description` | Tipo / Nome / Descrição | Type / Name / Description | §4.2 |
+| `forms.editor.typeClient` / `.typeService` | Cliente / Serviço | Client / Service | **proposed** |
+| `forms.editor.loading` | Carregando modelo… | Loading template… | **proposed** |
+| `forms.editor.loadError` | Não foi possível carregar o modelo. | Couldn't load the template. | §8 |
+| `forms.editor.notFound` | Modelo não encontrado. | Template not found. | §8 |
+| `forms.editor.unsaved` | Descartar alterações? | Discard changes? | §4.2 step 7 |
+| `forms.editor.saving` | Salvando… | Saving… | **proposed** |
+| `forms.editor.saveFailed` | Não foi possível salvar as alterações. Nada foi alterado. | Couldn't save your changes. Nothing was changed. | §8 |
+| `forms.editor.published` | Modelo publicado | Template published | §8 |
+| `forms.editor.saved` | Alterações salvas | Changes saved | §8 |
+| `forms.editor.version` | Versão {version} | Version {version} | §8 |
+| `forms.editor.recordCounts` | {current, plural, one {# cadastro} other {# cadastros}} nesta versão · {older} em versões anteriores | {current, plural, one {# record} other {# records}} on this version · {older} on older versions | §8; plurals **proposed** |
+| `forms.editor.conflict` | Este modelo foi alterado em outra janela. Recarregue para ver a versão atual. | This template was changed in another window. Reload to see the current version. | §4.4 step 4 |
+| `forms.editor.chooseType` | Escolha o tipo para começar | Choose a type to start | §8 |
+| `forms.editor.archived` | Modelo arquivado | Template archived | §8 |
+| `forms.publish.confirm` | Publicar versão {version}? | Publish version {version}? | §8 |
+| `forms.publish.publishing` | Publicando… | Publishing… | **proposed** |
+| `forms.publish.failed` | Não foi possível publicar a versão. Nada foi alterado. | Couldn't publish the version. Nothing was changed. | §8 |
+| `forms.apply.title` | Aplicar alterações | Apply changes | §4.7 |
+| `forms.apply.summary` | {added, plural, one {# campo adicionado} other {# campos adicionados}}, {removed, plural, one {# removido} other {# removidos}}, {changed, plural, one {# alterado} other {# alterados}} | {added, plural, one {# field added} other {# fields added}}, {removed} removed, {changed} changed | §4.7 step 1; key and plurals **proposed** |
+| `forms.apply.keep` / `.keepDescription` | Manter existentes / Os {count} cadastros atuais continuam na versão em que estão. Novos cadastros usarão a versão {next}. | Keep existing / The {count} current records stay on their version. New records will use version {next}. | §4.7 step 2; `keepDescription` key **proposed** |
+| `forms.apply.updateAll` / `.updateAllDescription` | Atualizar todos / Todos os {count} cadastros passam para a versão {next}. | Update all / All {count} records move to version {next}. | §4.7 step 2; `updateAllDescription` key **proposed** |
+| `forms.apply.answersDeleted` | {count, plural, one {# cadastro tem} other {# cadastros têm}} respostas em campos removidos. Essas respostas serão excluídas. | {count, plural, one {# record has} other {# records have}} answers in removed fields. Those answers will be deleted. | §4.7 step 3; plurals **proposed** |
+| `forms.apply.typeName` | Digite o nome do modelo para confirmar | Type the template name to confirm | §4.7 step 3 |
+| `forms.apply.pendingRequired` | {count, plural, one {# cadastro ficará} other {# cadastros ficarão}} com preenchimento pendente. | {count, plural, one {# record will have} other {# records will have}} required fields left to fill. | §8; plurals **proposed** |
+| `forms.apply.applying` | Aplicando… | Applying… | §8 |
+| `forms.apply.failed` | Não foi possível aplicar as alterações. Nada foi alterado. | Couldn't apply the changes. Nothing was changed. | §8 |
+| `forms.archive.confirm` | Arquivar modelo? Cadastros existentes não são afetados. | Archive template? Existing records are not affected. | §8 |
+| `forms.archive.archiving` / `forms.unarchive.unarchiving` | Arquivando… / Desarquivando… | Archiving… / Unarchiving… | **proposed** |
+| `forms.archive.failed` | Não foi possível arquivar o modelo. | Couldn't archive the template. | §8 |
+| `forms.unarchive.failed` | Não foi possível desarquivar o modelo. | Couldn't unarchive the template. | §8 |
+| `forms.delete.confirm` | Excluir o modelo permanentemente? Digite o nome do modelo para confirmar. | Delete the template permanently? Type the template name to confirm. | **proposed** (§4.6 step 2) |
+| `forms.delete.withRecords` | Este modelo tem {count, plural, one {# cadastro. Deseja excluir também esse cadastro?} other {# cadastros. Deseja excluir também esses cadastros?}} | This template has {count, plural, one {# record. Delete that record too?} other {# records. Delete those records too?}} | §4.6 step 3; plurals **proposed** |
+| `forms.delete.deleteAll` / `.archiveInstead` / `.archiveOnly` | Sim, excluir tudo / Não, arquivar o modelo / Arquivar o modelo | Yes, delete everything / No, archive the template / Archive the template | §4.6; keys **proposed** |
+| `forms.delete.confirmWithRecords` | O modelo e {count, plural, one {o # cadastro será excluído} other {os # cadastros serão excluídos}} permanentemente. | The template and {count, plural, one {# record} other {# records}} will be deleted permanently. | §4.6 step 3; plurals **proposed** |
+| `forms.delete.recordsHaveHistory` | Este modelo tem {count, plural, one {# cadastro} other {# cadastros}}, e alguns têm histórico de atendimentos ou pagamentos. Cadastros com histórico não podem ser excluídos. | This template has {count, plural, one {# record} other {# records}}, and some have appointment or payment history. Records with history can't be deleted. | §4.6 step 4 |
+| `forms.delete.recordsChanged` | Os cadastros deste modelo mudaram. Revise antes de continuar. | This template's records changed. Review before continuing. | §8 |
+| `forms.delete.deleting` | Excluindo… | Deleting… | **proposed** |
+| `forms.delete.failed` | Não foi possível excluir o modelo. Nada foi excluído. | Couldn't delete the template. Nothing was deleted. | §8 |
+| `forms.toast.versionPublished` | Versão {version} publicada | Version {version} published | §8 |
+| `forms.toast.unarchived` / `.archived` | Modelo desarquivado / Modelo arquivado | Template unarchived / Template archived | §8 |
+| `forms.toast.deletedWithRecords` | {count, plural, one {Modelo e # cadastro excluídos} other {Modelo e # cadastros excluídos}} | Template and {count, plural, one {# record} other {# records}} deleted | §8; plurals **proposed** |
+| `validation.formName.required` / `.max` / `.taken` | Informe o nome do modelo. / O nome deve ter no máximo 80 caracteres. / Já existe um modelo com esse nome. | Enter the template name. / The name must be at most 80 characters. / A template with this name already exists. | **proposed** |
+| `validation.formDescription.max` | A descrição deve ter no máximo 500 caracteres. | The description must be at most 500 characters. | **proposed** |
+| `validation.formType.invalid` / `.immutable` | Escolha o tipo do modelo. / O tipo do modelo não pode ser alterado. | Choose the template type. / The template type can't be changed. | **proposed** |
+| `validation.includeArchived.invalid` | Filtro inválido. | Invalid filter. | **proposed** |
+| `validation.formFields.max` | Limite de 100 campos atingido. | Limit of 100 fields reached. | **proposed**; same text as SPEC-0002's `forms.fields.limitReached` |
+| `validation.form.limit-reached` | Limite de 200 modelos atingido. Exclua um modelo para criar outro. | Limit of 200 templates reached. Delete a template to create another. | §4.2 step 6 |
+| `validation.formRevision.required` | Não foi possível salvar. Recarregue o modelo e tente novamente. | Couldn't save. Reload the template and try again. | **proposed** |
+| `validation.form.revision-conflict` | Este modelo foi alterado em outra janela. Recarregue para ver a versão atual. | This template was changed in another window. Reload to see the current version. | §4.4 step 4 |
+| `validation.migration.mode-required` / `.mode-invalid` | Escolha como aplicar as alterações aos cadastros existentes. / Opção de aplicação inválida. | Choose how to apply the changes to existing records. / Invalid apply option. | **proposed** |
+| `validation.migration.confirmation-required`, `validation.deleteConfirmation.required` | Digite o nome do modelo para confirmar. | Type the template name to confirm. | §4.7 step 3 |
+| `validation.form.not-found` / `validation.formVersion.not-found` | Modelo não encontrado. / Versão não encontrada. | Template not found. / Version not found. | §8; the version text **proposed** |
+| `validation.form.in-use`, `validation.form.records-have-history` | Os cadastros deste modelo mudaram. Revise antes de continuar. | This template's records changed. Review before continuing. | §4.6 step 5 |
+| `validation.form.status-unchanged` | O status deste modelo já foi alterado. Recarregue a página. | This template's status already changed. Reload the page. | **proposed** |
+| `validation.fieldLabel.required` / `.max` / `.duplicate` | Informe o rótulo do campo. / O rótulo deve ter no máximo 80 caracteres. / Já existe um campo com esse rótulo neste modelo. | Enter the field label. / The label must be at most 80 characters. / Another field in this template has this label. | **proposed** |
+| `validation.fieldType.invalid` / `.immutable` | Escolha um tipo de campo válido. / O tipo de um campo publicado não pode ser alterado. Crie um novo campo. | Choose a valid field type. / A published field's type can't be changed. Create a new field. | **proposed** |
+| `validation.fieldSensitive.locked` / `.not-allowed` | Este campo precisa ser protegido. / Campos do sistema não podem ser protegidos. | This field must be protected. / System fields can't be protected. | **proposed** |
+| `validation.fieldRequired.locked` | A obrigatoriedade deste campo não pode ser alterada. | Whether this field is required can't be changed. | **proposed** |
+| `validation.fieldHelpText.max` | O texto de ajuda deve ter no máximo 200 caracteres. | The help text must be at most 200 characters. | **proposed** |
+| `validation.fieldOptions.required` / `.max` / `.not-allowed` | Adicione pelo menos 2 opções. / Use no máximo 50 opções. / Este tipo de campo não tem opções. | Add at least 2 options. / Use at most 50 options. / This field type has no options. | **proposed** |
+| `validation.fieldOptionLabel.required` / `.max` / `.duplicate` | Informe o texto da opção. / A opção deve ter no máximo 80 caracteres. / Já existe uma opção com esse texto. | Enter the option text. / The option must be at most 80 characters. / Another option has this text. | **proposed** |
+| `validation.fieldOptionId.unknown` / `.duplicate` | Esta opção não existe mais. Recarregue o modelo. / Esta opção aparece duas vezes. Recarregue o modelo. | This option no longer exists. Reload the template. / This option appears twice. Reload the template. | **proposed** |
+| `validation.systemField.missing` / `.locked` | Um campo do sistema está faltando. Recarregue o modelo. / Este campo do sistema não pode ser alterado assim. Recarregue o modelo. | A system field is missing. Reload the template. / This system field can't be changed this way. Reload the template. | **proposed** |
+| `validation.fieldSystemKey.not-allowed`, `validation.field.unknown`, `validation.fieldId.duplicate` | Não foi possível salvar este campo. Recarregue o modelo. / Este campo não existe mais neste modelo. Recarregue o modelo. / Este campo aparece duas vezes. Recarregue o modelo. | Couldn't save this field. Reload the template. / This field no longer exists in this template. Reload the template. / This field appears twice. Reload the template. | **proposed** |
 
 ### Persistence
 
@@ -1180,8 +1270,17 @@ not null` referencing `tenants(id)` with `ON DELETE CASCADE`, and an index on it
     environments the real key lives in a secret manager and reaches the API as an environment variable; it is never
     committed. `.env.example` gets an empty placeholder with the command that generates a key.
     `test/setup/env.ts` generates a random key for each test run.
-  - Counting answers and deleting answers to removed fields needs no decryption. Only removed `select` options need
-    the affected select values decrypted.
+  - **Lost answers** (R18, SPEC-0003 R13; owner, 2026-11-11) are every value row of the template's records, on any
+    version, whose field is absent from the next version, or whose `select` value is an option absent from the
+    next version. A record kept on an older version by "Manter existentes" can hold answers to fields or options
+    that are already missing from the latest version, so the diff against the latest version is not enough.
+    `recordsLosingAnswers` counts the distinct records with at least one such row, and "Atualizar todos" deletes
+    exactly those rows.
+  - **Pending required fields**: `recordsGainingRequiredFields` counts the distinct records, on any version, that
+    have no value for a field required in the next version (custom fields from `form_record_values`,
+    `client.phone` through `SystemFieldPresence`).
+  - Finding answers to absent fields needs no decryption. Only `select` fields kept in the next version whose
+    options differ from those of a version some record is on need their values decrypted.
 - **Row-level security is deferred (owner, 2026-11-09)** to a separate platform spec covering all tables, written
   before launch (forms-overview.md C-8, against RFC §6 "Isolamento por Tenant", RNF-07 and M6b). In this plan,
   tenant isolation stays on `tenant_id` filters in every query, covered by the isolation criteria (AC-0001-15,
@@ -1251,23 +1350,26 @@ How the handlers work:
   migration mode, and 400 when "Atualizar todos" would delete answers and `confirmName` does not match (R9
   comparison). Then store metadata and publish the next version if the schema changed. For "Atualizar todos", first
   repoint every record and raise its revision (SPEC-0003 R14) in one statement that also sets `updated_at`, then
-  delete answers to removed fields and removed options (owner, 2026-11-10; SPEC-0003 G-4). In that order, a record
-  update holding its row lock makes the repoint wait, and its answers to removed fields are deleted afterwards; a
-  record update that starts later sees the new version and revision. Everything commits together or not at all
-  (R10); the template revision goes up by 1.
+  delete the lost answers of every record, on any version (Persistence, "Lost answers") (owner, 2026-11-10;
+  SPEC-0003 G-4). In that order, a record update holding its row lock makes the repoint wait, and its lost answers
+  are deleted afterwards; a record update that starts later sees the new version and revision. Everything commits
+  together or not at all (R10); the template revision goes up by 1.
 - **Preview** runs the same checks and diff without writing, then counts `recordsLosingAnswers` and
-  `recordsGainingRequiredFields` through `FormRecordStore`. Custom fields are counted from `form_record_values`.
-  `client.phone` is the only system field that can gain "required" (SPEC-0002 R3), and records missing it are
-  counted through `SystemFieldPresence` (owner, 2026-11-10). That port has one method, for `client.phone` only. Its
-  default adapter returns 0 until SPEC-0004 provides the real one (Deferred checks).
+  `recordsGainingRequiredFields` through `FormRecordStore`, as defined under Persistence ("Lost answers", "Pending
+  required fields"). Custom fields are counted from `form_record_values`. `client.phone` is the only system field
+  that can gain "required" (SPEC-0002 R3), and records missing it come from `SystemFieldPresence` (owner,
+  2026-11-10). That port has one method, for `client.phone` only: given the template, it returns the ids of its
+  records with no phone (owner, 2026-11-11). Preview merges them with the ids of records missing a required custom
+  field, so a record missing both counts once. The default adapter returns no ids until SPEC-0004 provides the
+  real one (Deferred checks). SPEC-0004 implements against this signature.
 - **Registering `SystemFieldPresence`** (owner, 2026-11-10): `app.module.ts` imports `FormsModule.forRoot({
   systemFieldPresence })`. This plan passes the zero adapter. SPEC-0004's plan passes its clients adapter class
   from `app.module.ts`. `DatabaseModule` is global, so the adapter needs no module import, and `FormsModule` and
   `ClientsModule` never import each other.
 - **All records at once** (owner, 2026-11-10): preview and "Atualizar todos" run one statement per step across all
-  of the template's records (count; repoint the version and raise revisions together; delete answers to removed
-  fields), never one query per record. For removed `select` options, one query reads the affected values, they are decrypted in
-  memory, and one statement deletes the matching rows.
+  of the template's records, on any version (count; repoint the version and raise revisions together; delete lost
+  answers), never one query per record. For `select` options absent from the next version, one query reads the
+  affected values, they are decrypted in memory, and one statement deletes the matching rows.
 - **Archive and unarchive** change the status and raise the template revision by 1 (R11), so an editor still open
   on the old revision gets 409 `form.revision-conflict` on its next save.
 - **Delete** reads the template row `for update` first, then follows the §6 order in the same transaction (owner,
@@ -1276,7 +1378,8 @@ How the handlers work:
   delete and then fails its foreign-key check (SPEC-0003 handles that case). With records and
   `deleteRecords: true`, it deletes the record values, records and template in that transaction.
 - **Counts**: `recordCount` and `recordsOnOlderVersions` come from `form_records`; `valueCount` from
-  `form_record_values`, where a `yes_no` field has rows only for `true` answers (Persistence; SPEC-0003 G-2). `recordsWithHistory` comes from `RecordHistoryReader`, whose adapter returns 0 until
+  `form_record_values`, where a `yes_no` field has rows only for `true` answers (Persistence; SPEC-0003 G-2).
+  `recordsWithHistory` comes from `RecordHistoryReader`, whose adapter returns 0 until
   scheduling and payments exist. E2e tests can pass a fake reader to `createTestApp({ recordHistory })`, which
   overrides the provider only when a fake is given, so the real adapter runs everywhere else (owner, 2026-11-10).
 
@@ -1302,8 +1405,10 @@ How the handlers work:
 - The leave prompt (AC-0001-18) is a shared hook, `apps/web/src/hooks/use-leave-guard.ts` (owner, 2026-11-10;
   SPEC-0003 G-7). The App Router has no navigation-blocking API, so while a form is dirty the hook intercepts in-app
   link clicks, shows a confirmation whose copy key the caller passes, and uses `beforeunload` for tab close and
-  reload. `use-form-draft` uses it with `forms.editor.unsaved`; SPEC-0003's fill-in page reuses it with
-  `{entity}.form.discard`.
+  reload. It also covers the browser's back and forward buttons, because §4.2 step 7 asks for confirmation on any
+  leave (owner, 2026-11-11): while dirty it keeps a guard entry on top of the history and listens for `popstate`;
+  "stay" restores the guard entry, and leaving goes back past it. `use-form-draft` uses it with
+  `forms.editor.unsaved`; SPEC-0003's fill-in page reuses it with `{entity}.form.discard`.
 - Every §8 state and copy key is implemented. Server errors show through `useFieldError`.
 
 ### Tests
@@ -1328,7 +1433,7 @@ Every test name starts with its AC ID, e.g. `it('AC-0001-13 deletes a template w
 name', …)`. Where a criterion reads clients in its Then, this plan checks the stored record rows; SPEC-0004's
 plan adds the same check through the client API. Those criteria are listed under "Deferred checks".
 
-Two checks outside the AC table (owner, 2026-11-10):
+Checks outside the AC table (owner: the first two 2026-11-10, the last two 2026-11-11):
 - **Tenant erasure** (E-crud, named `RNF-14 …`, because no criterion covers it): a tenant seeded with templates,
   versions, fields, options, records and values is deleted directly in SQL. None of its rows remain in the eight
   tables, and another tenant's rows are unchanged (Persistence, "Tenant erasure").
@@ -1337,6 +1442,12 @@ Two checks outside the AC table (owner, 2026-11-10):
   - no `sensitive` on a system field, and no `systemKey` on an update;
   - a custom field of an always-protected type (SPEC-0002 R5), or whose label contains a SPEC-0002 §3.4 term
     ("Peso" in AC-0001-71), is sent without `sensitive` or with `sensitive: true`, and seeded with `sensitive` true.
+- **Records on older versions** (E-ver, named `R18 …`): a record kept on version 1 by "Manter existentes" holds a
+  "Hobby" answer, and version 2 already removed "Hobby". A preview of version 3 counts that record in
+  `recordsLosingAnswers`, and in `recordsGainingRequiredFields` when version 3 adds a required field it has no
+  value for. "Atualizar todos" then deletes its "Hobby" answer (Persistence, "Lost answers").
+- **Browser back** (W-ed, named `§4.2 step 7 …`): with unsaved changes, the browser back button shows
+  `forms.editor.unsaved`; "stay" keeps the draft and the editor's URL (Web, leave prompt).
 
 | AC | Test | What it checks here |
 | --- | --- | --- |
@@ -1358,7 +1469,7 @@ Two checks outside the AC table (owner, 2026-11-10):
 | 16 | E-crud | no token → 401 |
 | 17 | W-list | archived hidden by default; toggle shows it with "Arquivado" |
 | 18 | W-ed | dirty draft + in-app link → `forms.editor.unsaved`; "stay" keeps the draft |
-| 19 | E-crud | 101 fields → 422 `formFields.max` |
+| 19 | E-crud, E-ver | 101 fields → 422 `formFields.max`. E-ver: an update with 101 fields → the same 422, template unchanged |
 | 20 | E-ver, U-diff, W-ed | metadata-only save → 200, same version, revision + 1; seeded records still on version 2. W-ed: the save shows `forms.editor.saved` and neither the publish nor the Apply dialog |
 | 21 | E-ver, W-dlg | no records + schema change → 200 version 2; the dialog is `forms.publish.confirm` without migration options |
 | 22 | E-ver, U-upd | records + schema change without migration → 400 `migration.mode-required`, still version 1 |
@@ -1435,6 +1546,7 @@ its scope, and adds `<AC ids> verified with SPEC-XXXX, <date>` to this changelog
 | AC | Status after this plan | Verified by |
 | --- | --- | --- |
 | 34 | partly: the 409 is checked with a fake `RecordHistoryReader`; a real linked appointment is not | owner waiver (2026-11-10): the first scheduling or payments spec, tracked in forms-overview.md §7 |
+| 57 | partly: the dialog is checked with a mocked `recordsWithHistory` 1; a real linked appointment is not | owner waiver (2026-11-11), as for 34 and 58: the first scheduling or payments spec |
 | 58 | partly: `recordsWithHistory` 1 is checked with a fake `RecordHistoryReader`; a real linked appointment is not | owner waiver (2026-11-10): the first scheduling or payments spec, tracked in forms-overview.md §7 |
 | 10 | partly: the redirect to `/clients/new?form=<id>` is checked; the page it opens is not | SPEC-0003: the fill-in form opened with the new template's id. SPEC-0004: the `/clients/new` route and its "Criar novo modelo" entry (§4.2, §4.3). Owner, 2026-11-10 (SPEC-0003 G-5) |
 | 12 | partly: archive and the unchanged record are checked; the Novo dropdown and the client read/update are not | SPEC-0004 |
@@ -1442,12 +1554,13 @@ its scope, and adds `<AC ids> verified with SPEC-XXXX, <date>` to this changelog
 | 20 | partly: records stay on version 2; "clients report form version 2" through the client API is not checked | SPEC-0004 |
 | 23 | partly: records stay on version 1; showing no "Objetivo" and a client created afterwards are not checked | SPEC-0004 |
 | 24 | partly: records move to version 4; the client API read is not checked | SPEC-0004 |
+| 26 | partly: both "Hobby" value rows still exist; the client API read is not checked | SPEC-0004 |
 | 27 | partly: records move to version 2 with no "Hobby" value rows; the client API read is not checked | SPEC-0004 |
 | 28 | partly: records stay on version 1; the client API read is not checked | SPEC-0004 |
 | 31 | partly: record rows are gone; reading each client → 404 `client.not-found` is not checked | SPEC-0004 |
 | 32 | partly: record rows are unchanged; the client API read is not checked | SPEC-0004 |
 | 33 | partly: record rows still exist; the client API read is not checked | SPEC-0004 |
-| — (§4.7 step 4) | partly: `client.phone` turned required counts 0 through the zero `SystemFieldPresence` adapter; custom-field counts are checked by 37 and 51 | SPEC-0004 |
+| — (§4.7 step 4) | partly: with the zero `SystemFieldPresence` adapter, `client.phone` turned required adds no record; custom-field counts are checked on the server by 37 (51 is a UI test with a mocked response) | SPEC-0004 |
 
 ### Sequence
 
@@ -1456,19 +1569,25 @@ its scope, and adds `<AC ids> verified with SPEC-XXXX, <date>` to this changelog
 1. **Contracts**: `packages/schemas/src/forms/*`, `index.ts`, i18n keys (both locales); build the package.
 2. **Persistence**: enums, `forms.ts`, `form-records.ts`, `index.ts`; generate `0002_forms_templates.sql` and read
    its SQL; update `docs/schema.dbml`.
+2b. **Test foundations** (owner, 2026-11-11): the production code step 3's fixtures and test app need, so its
+   tests fail only because behavior is missing, never because setup is broken. `FieldValueCipher`, with U-ciph
+   written first; `FIELD_VALUES_KEY` in `env.schema.ts`, `.env.example` and `test/setup/env.ts`; the port
+   interfaces and injection tokens (`FormRepository`, `FormRecordStore`, `RecordHistoryReader`,
+   `SystemFieldPresence`, `FieldValueCipher`), with the zero `RecordHistoryReader` and `SystemFieldPresence`
+   adapters.
 3. **Failing tests**: the three e2e files, the unit specs and the three web test files, one test per AC as mapped
    above (written by `test-author`); `createTestApp({ recordHistory })`; confirm each fails because the behavior
    is missing.
-4. **API, part 1**: domain (`FormName`, `schema-diff`, `FieldPolicy`, errors), cipher and `FIELD_VALUES_KEY`
-   (`env.schema.ts`, `.env.example`, `test/setup/env.ts`), ports with the zero `SystemFieldPresence` adapter,
-   repositories, `ZodParam`, `FormsModule.forRoot` in `app.module.ts`.
+4. **API, part 1**: domain (`FormName`, `schema-diff`, `FieldPolicy`, errors), repositories, `ZodParam`,
+   `FormsModule.forRoot` in `app.module.ts`.
 5. **API, part 2**, three commits. Routes are added with their handlers.
    - **5a** create, list, read, version read: AC-0001-01 to -06, -16, -19, -36, -41 to -44, -48, -52, -58 to -62,
      -72, -73, -76.
    - **5b** update, preview, Apply: AC-0001-07 to -09, -20 to -24, -26 to -29, -37 to -39, -45, -46, -71, -74, -75.
      Then the one-off timing run (Decision 4): `apps/api/test/e2e/forms-apply-timing.e2e-spec.ts` with 5,000 seeded
-     records, run once with `FORMS_TIMING=1`. RNF-02 thresholds: preview under 500 ms, "Atualizar todos" under 1 s.
-     `/done` reports both numbers; a number over its threshold goes to the owner as a risk.
+     records, some of them on an older version with answers to fields and `select` options already absent from
+     the latest version, run once with `FORMS_TIMING=1`. RNF-02 thresholds: preview under 500 ms, "Atualizar
+     todos" under 1 s. `/done` reports both numbers; a number over its threshold goes to the owner as a risk.
    - **5c** archive, unarchive, delete: AC-0001-12 to -15, -31 to -35, -40, -47, -49, -70.
 6. **Web, part 1**: BFF routes, `lib/api/forms.ts`, dialog, toast and skeleton primitives, sidebar link.
 7. **Web, part 2**, three commits.
@@ -1499,6 +1618,8 @@ The spec leaves these open.
 4. **Timing run outside CI.** The timing file sits with the e2e files so it can use `createTestApp` and the
    fixtures. It runs only when `FORMS_TIMING=1` (`describe.runIf`, with its own timeout above the e2e 15 s
    default), so CI skips it.
+5. **Proposed copy** (Copy): every en-US string, and every pt-BR string marked **proposed**, including the new
+   keys for labels and plurals that §8 does not name.
 
 ### Risks
 
@@ -1511,8 +1632,11 @@ The spec leaves these open.
 3. **Removed `select` options need decryption.** Preview and "Atualizar todos" decrypt the values of affected select
    fields. Cheapest check: the one-off timing run after step 5b, against RNF-02 (preview under 500 ms, "Atualizar
    todos" under 1 s at 5,000 records). `/done` reports the numbers.
-4. **Leave prompt in the App Router.** There is no official navigation-blocking API. Cheapest check: build the
-   leave guard and AC-0001-18's test first in step 7.
+4. **Leave prompt in the App Router.** There is no official navigation-blocking API, so link interception and the
+   back/forward guard entry are workarounds. The guard entry can surprise users (an extra history step) and break
+   with a Next.js upgrade. Cheapest check: build the shared hook, AC-0001-18's test and the browser-back test first
+   in step 7. If the back/forward guard is not reliable, that half goes to the owner as a proposed spec change,
+   never shipped silently.
 5. **SPEC-0002 overlap.** The editor and `FieldPolicy` are shared. SPEC-0002's plan is drafted. It relies on the
    six points under API and on the create order (Decision 3). A change to either amends both plans.
 6. **No RLS until the platform spec (RNF-07, forms-overview.md C-8).** Isolation relies on `tenant_id` filters,

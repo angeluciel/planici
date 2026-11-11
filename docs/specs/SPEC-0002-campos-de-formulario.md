@@ -864,7 +864,8 @@ a SPEC-0001 file in `forms/_components/`.
   Hint `forms.fields.onlySystem` when every row is a system field.
 - `field-row.tsx`: drag handle, label input, type select, "Obrigatório" switch, "Dado protegido" switch, "⋯" menu,
   "Sistema" badge on system rows. A system row has **no** "Dado protegido" switch at all (R4), and its
-  "Obrigatório" switch is disabled except on `client.phone`.
+  "Obrigatório" switch is disabled except on `client.phone`. On custom rows, `forms.fields.sensitiveHelp` is the
+  description of the "Dado protegido" switch.
 - **Edit** `use-form-draft` (SPEC-0001's draft hook), **draft serialisation**: the draft never sends
   `sensitive` for a system row, and sends `systemKey` only on create. On update, system rows are identified by
   id. Otherwise every save fails with 422 `fieldSensitive.not-allowed` (AC-0002-45) or
@@ -921,8 +922,10 @@ Files:
 - **W-fld** `apps/web/tests/form-fields.test.tsx`: the field list inside the editor with a prepared draft and a
   mocked `@/lib/api/forms`.
 - Fixtures: `apps/api/test/utils/forms-fixtures.ts` gains field, option and value seeding that respects the new
-  checks. Fields whose label matches a §3.4 term ("Peso" in AC-0002-22 and -26) are seeded with sensitive true,
-  because the database checks do not enforce the label rule (R6).
+  checks. Fields whose label matches a §3.4 term ("Peso" in AC-0002-26, "Alergia" in AC-0002-27) are seeded with
+  sensitive true, because the database checks do not enforce the label rule (R6). W-fld uses no fixture: its
+  prepared drafts for AC-0002-10 ("Alergia") and -22 ("Peso") give those fields `sensitive: true` and
+  `sensitiveLock: "label"`.
 
 Every test name starts with its AC ID. "Index 3" in a criterion means after the three system fields.
 
@@ -997,10 +1000,10 @@ The verifying spec's plan lists them in its test table, includes this file in it
 | 19 | latest version's options, the record's version and stored value | SPEC-0004: the client "still shows Tarde" |
 | 23 | version unchanged, field stored as protected | SPEC-0004, under SPEC-0003 R9: the value shows masked |
 | 24 | no new version, option row renamed | SPEC-0004: the client shows "Período da tarde" |
-
-Rows 19, 23 and 24 are verified by SPEC-0004, not SPEC-0003: SPEC-0003 §2 puts the record endpoints in SPEC-0004
-and SPEC-0005, so SPEC-0003's plan has no way to read a client.
 | 26 | new field id and type, records' version and value rows | SPEC-0004: the clients keep their "text" answers |
+
+Every row is verified by SPEC-0004, not SPEC-0003: SPEC-0003 §2 puts the record endpoints in SPEC-0004 and
+SPEC-0005, so SPEC-0003's plan has no way to read a client.
 
 ### Sequence
 
@@ -1015,8 +1018,11 @@ and SPEC-0005, so SPEC-0003's plan has no way to read a client.
 3. **Tests first**: E-fld, U-pol, U-terms and W-fld, one test per AC as mapped (written by `test-author`).
    - **Expected to pass already** (regression tests): SPEC-0001's plan delivers AC-0002-03, -05, -14 to -16, -19,
      -20, -23 to -26, -31 to -34, -36 and -37. They cover system-field presence, id matching, the schema/metadata
-     diff, the shape checks, order, and option and protection metadata. Confirm each passes. This covers their E-fld
-     tests only: the W-fld parts of -14 and -25 need the menu and the draft serialisation, so they fail until step 6.
+     diff, the shape checks, order, and option and protection metadata. AC-0002-01 (E-fld) and -02 may pass too,
+     because SPEC-0001 returns the system-field `requiredLock` early (its Contracts, "Locks before SPEC-0002");
+     that depends on how SPEC-0001 stores a system field's `required` on create, and is reported either way.
+     Confirm each passes. This covers their E-fld tests only: the W-fld parts of -14 and -25 need the menu and the
+     draft serialisation, so they fail until step 6.
    - **Expected to fail**: every other AC. Confirm each fails because the rule or control is missing.
    - A test outside the first list that passes at this step is reported with the SPEC-0001 behavior that delivers
      it. It is never rewritten to fail.
@@ -1024,7 +1030,8 @@ and SPEC-0005, so SPEC-0003's plan has no way to read a client.
    response. No handler changes (API section).
 5. **Web, part 1**: switch, select, menu and tooltip primitives.
 6. **Web, part 2**, three commits, reorder first (Risks 5):
-   - **6a** field list and drag reorder (`field-list.tsx`, `use-field-reorder.ts`): AC-0002-49.
+   - **6a** field list, drag handle and drag reorder (`field-list.tsx`, `use-field-reorder.ts`, and the handle in
+     `field-row.tsx`, whose other controls follow in 6b): AC-0002-49.
    - **6b** row, type select, protection, draft serialisation, error targets (`field-row.tsx`,
      `field-type-select.tsx`, `field-protection.ts`, `field-error-target.ts`): AC-0002-01 (W-fld), -10, -22, -50,
      -53.
@@ -1061,16 +1068,18 @@ The spec leaves these open. Each follows an existing rule where one exists.
 1. **SPEC-0001 must be `Implemented` first** (`task-lock.sh` checks `depends_on`). The earlier deadlock is resolved
    (owner, 2026-11-09): `/done` may set `Implemented` while the criteria in a plan's Deferred checks table are still
    unverified, so SPEC-0001's deferred criteria no longer block this plan. Those are AC-0001-34 and -58 under an
-   owner waiver, ten SPEC-0004 criteria and the phone count, and AC-0001-10 for SPEC-0003 and SPEC-0004.
+   owner waiver, eleven SPEC-0004 criteria and the phone count, and AC-0001-10 for SPEC-0003 and SPEC-0004.
 2. **The field-list interface is shared** with SPEC-0001's editor and draft hook. Cheapest check: build SPEC-0001's
    field region against the props `field-list.tsx` needs (rows, `fields.<i>` error paths, `valueCount`).
 3. **Term matching.** Whole-word matching on normalised text can surprise with multi-word terms and hyphens
    ("e-mail", "cartão sus"). U-terms runs every term; any change to the list amends this spec (§3.4).
 4. **Check constraints and seeded data.** SPEC-0001's fixtures could seed an unprotected cpf field, which the new
    checks reject. Step 2 updates the fixtures before any test runs.
-5. **Pointer-event drag** is written here, not taken from a library. Cheapest check: build reorder first in step 6
-   and try it with mouse, touch emulation and the keyboard menu. If it is not usable, the fallback is a library,
-   proposed to the owner as a new dependency.
+5. **Pointer-event drag** is written here, not taken from a library. Cheapest check: build drag reorder first, in
+   6a, and try it with mouse and touch emulation at the end of 6a; try the keyboard menu moves at the end of 6c,
+   where the menu is built. If drag is not usable, the fallback is a library, proposed to the owner as a new
+   dependency. Pointer drag has no automated test (AC-0002-14 and -25 use the keyboard menu), so this manual check
+   is its only coverage.
 6. **E2e needs Docker** (Testcontainers); without it, only unit and web tests run, and that is reported.
 7. **File layout comes from SPEC-0001's implementation.** The API scope is `domain/` only, which relies on the
    six points in SPEC-0001's plan (API section). If the implementation departs from them, the lock blocks
@@ -1084,6 +1093,12 @@ The spec leaves these open. Each follows an existing rule where one exists.
      rules from the start (its Tests, "SPEC-0002 input rules").
    - Final check: at SPEC-0001's `/done`, grep its tests for those inputs. Any conflict goes to the owner, never to
      an edit of those tests.
+   - Mounting `field-list.tsx` in `form-editor` changes the region W-ed already queries: AC-0001-50 checks that the
+     field list shows the service system fields and still has "Objetivo", and AC-0001-01 that the editor sends
+     the system fields. Once labels are input values, text queries can stop matching. W-ed must still pass with
+     `field-list.tsx` mounted. Cheapest check: at SPEC-0001's `/done`, list the roles and accessible names W-ed
+     queries in that region and keep them in `field-row.tsx`; then run `form-editor.test.tsx` at the end of 6b.
+     Any failure goes to the owner, never to an edit of that test.
 
 ### New dependencies
 
