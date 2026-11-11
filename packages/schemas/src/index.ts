@@ -5,7 +5,7 @@ export * from "./auth/requests.js";
 export * from "./auth/responses.js";
 
 export * from "./common.js";
-
+export * from "./forms/index.js";
 export * from "./tenants/errors.js";
 export * from "./tenants/requests.js";
 export * from "./tenants/responses.js";

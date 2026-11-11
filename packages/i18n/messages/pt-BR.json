@@ -132,6 +132,92 @@
 		},
 		"verification": {
 			"expired": "A verificação do seu e-mail expirou. Verifique novamente para continuar."
+		},
+		"formName": {
+			"required": "Informe o nome do modelo.",
+			"max": "O nome deve ter no máximo 80 caracteres.",
+			"taken": "Já existe um modelo com esse nome."
+		},
+		"formDescription": {
+			"max": "A descrição deve ter no máximo 500 caracteres."
+		},
+		"formType": {
+			"invalid": "Escolha o tipo do modelo.",
+			"immutable": "O tipo do modelo não pode ser alterado."
+		},
+		"includeArchived": {
+			"invalid": "Filtro inválido."
+		},
+		"formFields": {
+			"max": "Limite de 100 campos atingido."
+		},
+		"form": {
+			"limit-reached": "Limite de 200 modelos atingido. Exclua um modelo para criar outro.",
+			"revision-conflict": "Este modelo foi alterado em outra janela. Recarregue para ver a versão atual.",
+			"not-found": "Modelo não encontrado.",
+			"in-use": "Os cadastros deste modelo mudaram. Revise antes de continuar.",
+			"records-have-history": "Os cadastros deste modelo mudaram. Revise antes de continuar.",
+			"status-unchanged": "O status deste modelo já foi alterado. Recarregue a página."
+		},
+		"formRevision": {
+			"required": "Não foi possível salvar. Recarregue o modelo e tente novamente."
+		},
+		"migration": {
+			"mode-required": "Escolha como aplicar as alterações aos cadastros existentes.",
+			"mode-invalid": "Opção de aplicação inválida.",
+			"confirmation-required": "Digite o nome do modelo para confirmar."
+		},
+		"deleteConfirmation": {
+			"required": "Digite o nome do modelo para confirmar."
+		},
+		"formVersion": {
+			"not-found": "Versão não encontrada."
+		},
+		"fieldLabel": {
+			"required": "Informe o rótulo do campo.",
+			"max": "O rótulo deve ter no máximo 80 caracteres.",
+			"duplicate": "Já existe um campo com esse rótulo neste modelo."
+		},
+		"fieldType": {
+			"invalid": "Escolha um tipo de campo válido.",
+			"immutable": "O tipo de um campo publicado não pode ser alterado. Crie um novo campo."
+		},
+		"fieldSensitive": {
+			"locked": "Este campo precisa ser protegido.",
+			"not-allowed": "Campos do sistema não podem ser protegidos."
+		},
+		"fieldRequired": {
+			"locked": "A obrigatoriedade deste campo não pode ser alterada."
+		},
+		"fieldHelpText": {
+			"max": "O texto de ajuda deve ter no máximo 200 caracteres."
+		},
+		"fieldOptions": {
+			"required": "Adicione pelo menos 2 opções.",
+			"max": "Use no máximo 50 opções.",
+			"not-allowed": "Este tipo de campo não tem opções."
+		},
+		"fieldOptionLabel": {
+			"required": "Informe o texto da opção.",
+			"max": "A opção deve ter no máximo 80 caracteres.",
+			"duplicate": "Já existe uma opção com esse texto."
+		},
+		"fieldOptionId": {
+			"unknown": "Esta opção não existe mais. Recarregue o modelo.",
+			"duplicate": "Esta opção aparece duas vezes. Recarregue o modelo."
+		},
+		"systemField": {
+			"missing": "Um campo do sistema está faltando. Recarregue o modelo.",
+			"locked": "Este campo do sistema não pode ser alterado assim. Recarregue o modelo."
+		},
+		"fieldSystemKey": {
+			"not-allowed": "Não foi possível salvar este campo. Recarregue o modelo."
+		},
+		"field": {
+			"unknown": "Este campo não existe mais neste modelo. Recarregue o modelo."
+		},
+		"fieldId": {
+			"duplicate": "Este campo aparece duas vezes. Recarregue o modelo."
 		}
 	},
 	"auth": {
@@ -347,5 +433,95 @@
 		"content": "A página que você procura foi roubada :O",
 		"button": "Voltar",
 		"profile": "Ir ao perfil"
+	},
+	"forms": {
+		"list": {
+			"title": "Modelos de formulário",
+			"loading": "Carregando modelos…",
+			"empty": "Nenhum modelo de {type, select, client {cliente} other {serviço}} ainda.",
+			"error": "Não foi possível carregar os modelos.",
+			"groupClient": "Clientes",
+			"groupService": "Serviços",
+			"archivedBadge": "Arquivado",
+			"showArchived": "Mostrar arquivados",
+			"fieldCount": "{count, plural, one {# campo} other {# campos}}",
+			"recordCount": "{count, plural, one {# cadastro} other {# cadastros}}"
+		},
+		"actions": {
+			"new": "Novo",
+			"archive": "Arquivar",
+			"unarchive": "Desarquivar",
+			"delete": "Excluir",
+			"publish": "Publicar",
+			"apply": "Aplicar",
+			"reload": "Recarregar",
+			"retry": "Tentar novamente"
+		},
+		"editor": {
+			"type": "Tipo",
+			"name": "Nome",
+			"description": "Descrição",
+			"typeClient": "Cliente",
+			"typeService": "Serviço",
+			"loading": "Carregando modelo…",
+			"loadError": "Não foi possível carregar o modelo.",
+			"notFound": "Modelo não encontrado.",
+			"unsaved": "Descartar alterações?",
+			"discard": "Descartar",
+			"saving": "Salvando…",
+			"saveFailed": "Não foi possível salvar as alterações. Nada foi alterado.",
+			"published": "Modelo publicado",
+			"saved": "Alterações salvas",
+			"version": "Versão {version}",
+			"recordCounts": "{current, plural, one {# cadastro} other {# cadastros}} nesta versão · {older} em versões anteriores",
+			"conflict": "Este modelo foi alterado em outra janela. Recarregue para ver a versão atual.",
+			"chooseType": "Escolha o tipo para começar",
+			"archived": "Modelo arquivado"
+		},
+		"publish": {
+			"confirm": "Publicar versão {version}?",
+			"publishing": "Publicando…",
+			"failed": "Não foi possível publicar a versão. Nada foi alterado."
+		},
+		"apply": {
+			"title": "Aplicar alterações",
+			"summary": "{added, plural, one {# campo adicionado} other {# campos adicionados}}, {removed, plural, one {# removido} other {# removidos}}, {changed, plural, one {# alterado} other {# alterados}}",
+			"keep": "Manter existentes",
+			"keepDescription": "{count, plural, one {O cadastro atual continua} other {Os # cadastros atuais continuam}} na versão em que está. Novos cadastros usarão a versão {next}.",
+			"updateAll": "Atualizar todos",
+			"updateAllDescription": "{count, plural, one {O cadastro passa} other {Todos os # cadastros passam}} para a versão {next}.",
+			"answersDeleted": "{count, plural, one {# cadastro tem} other {# cadastros têm}} respostas em campos removidos. Essas respostas serão excluídas.",
+			"typeName": "Digite o nome do modelo para confirmar",
+			"pendingRequired": "{count, plural, one {# cadastro ficará} other {# cadastros ficarão}} com preenchimento pendente.",
+			"applying": "Aplicando…",
+			"failed": "Não foi possível aplicar as alterações. Nada foi alterado."
+		},
+		"archive": {
+			"confirm": "Arquivar modelo? Cadastros existentes não são afetados.",
+			"archiving": "Arquivando…",
+			"failed": "Não foi possível arquivar o modelo."
+		},
+		"unarchive": {
+			"unarchiving": "Desarquivando…",
+			"failed": "Não foi possível desarquivar o modelo."
+		},
+		"delete": {
+			"confirm": "Excluir o modelo permanentemente? Digite o nome do modelo para confirmar.",
+			"withRecords": "Este modelo tem {count, plural, one {# cadastro. Deseja excluir também esse cadastro?} other {# cadastros. Deseja excluir também esses cadastros?}}",
+			"deleteAll": "Sim, excluir tudo",
+			"archiveInstead": "Não, arquivar o modelo",
+			"archiveOnly": "Arquivar o modelo",
+			"confirmWithRecords": "O modelo e {count, plural, one {o # cadastro serão excluídos} other {os # cadastros serão excluídos}} permanentemente.",
+			"recordsHaveHistory": "{count, plural, one {Este modelo tem # cadastro, e ele tem} other {Este modelo tem # cadastros, e alguns têm}} histórico de atendimentos ou pagamentos. Cadastros com histórico não podem ser excluídos.",
+			"recordsChanged": "Os cadastros deste modelo mudaram. Revise antes de continuar.",
+			"deleting": "Excluindo…",
+			"failed": "Não foi possível excluir o modelo. Nada foi excluído."
+		},
+		"toast": {
+			"versionPublished": "Versão {version} publicada",
+			"unarchived": "Modelo desarquivado",
+			"archived": "Modelo arquivado",
+			"deletedWithRecords": "{count, plural, one {Modelo e # cadastro excluídos} other {Modelo e # cadastros excluídos}}"
+		}
 	}
 }

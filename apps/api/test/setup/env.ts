@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { randomBytes } from 'node:crypto';
 import { inject } from 'vitest';
 
 const databaseUrl = inject('testDatabaseUrl');
@@ -15,6 +16,9 @@ Object.assign(process.env, {
 
   JWT_SECRET: 'test-only-access-secret-00000000',
   JWT_REFRESH_SECRET: 'test-only-refresh-secret-00000000',
+
+  // random per run
+  FIELD_VALUES_KEY: randomBytes(32).toString('base64'),
 
   OBSERVE_APP_KEY: 'test-key',
   OBSERVE_APP_SECRET: 'test-secret',

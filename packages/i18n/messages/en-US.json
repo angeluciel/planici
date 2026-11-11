@@ -132,6 +132,92 @@
 		},
 		"verification": {
 			"expired": "Your email verification expired. Verify your email again to continue."
+		},
+		"formName": {
+			"required": "Enter the template name.",
+			"max": "The name must be at most 80 characters.",
+			"taken": "A template with this name already exists."
+		},
+		"formDescription": {
+			"max": "The description must be at most 500 characters."
+		},
+		"formType": {
+			"invalid": "Choose the template type.",
+			"immutable": "The template type can't be changed."
+		},
+		"includeArchived": {
+			"invalid": "Invalid filter."
+		},
+		"formFields": {
+			"max": "Limit of 100 fields reached."
+		},
+		"form": {
+			"limit-reached": "Limit of 200 templates reached. Delete a template to create another.",
+			"revision-conflict": "This template was changed in another window. Reload to see the current version.",
+			"not-found": "Template not found.",
+			"in-use": "This template's records changed. Review before continuing.",
+			"records-have-history": "This template's records changed. Review before continuing.",
+			"status-unchanged": "This template's status already changed. Reload the page."
+		},
+		"formRevision": {
+			"required": "Couldn't save. Reload the template and try again."
+		},
+		"migration": {
+			"mode-required": "Choose how to apply the changes to existing records.",
+			"mode-invalid": "Invalid apply option.",
+			"confirmation-required": "Type the template name to confirm."
+		},
+		"deleteConfirmation": {
+			"required": "Type the template name to confirm."
+		},
+		"formVersion": {
+			"not-found": "Version not found."
+		},
+		"fieldLabel": {
+			"required": "Enter the field label.",
+			"max": "The label must be at most 80 characters.",
+			"duplicate": "Another field in this template has this label."
+		},
+		"fieldType": {
+			"invalid": "Choose a valid field type.",
+			"immutable": "A published field's type can't be changed. Create a new field."
+		},
+		"fieldSensitive": {
+			"locked": "This field must be protected.",
+			"not-allowed": "System fields can't be protected."
+		},
+		"fieldRequired": {
+			"locked": "Whether this field is required can't be changed."
+		},
+		"fieldHelpText": {
+			"max": "The help text must be at most 200 characters."
+		},
+		"fieldOptions": {
+			"required": "Add at least 2 options.",
+			"max": "Use at most 50 options.",
+			"not-allowed": "This field type has no options."
+		},
+		"fieldOptionLabel": {
+			"required": "Enter the option text.",
+			"max": "The option must be at most 80 characters.",
+			"duplicate": "Another option has this text."
+		},
+		"fieldOptionId": {
+			"unknown": "This option no longer exists. Reload the template.",
+			"duplicate": "This option appears twice. Reload the template."
+		},
+		"systemField": {
+			"missing": "A system field is missing. Reload the template.",
+			"locked": "This system field can't be changed this way. Reload the template."
+		},
+		"fieldSystemKey": {
+			"not-allowed": "Couldn't save this field. Reload the template."
+		},
+		"field": {
+			"unknown": "This field no longer exists in this template. Reload the template."
+		},
+		"fieldId": {
+			"duplicate": "This field appears twice. Reload the template."
 		}
 	},
 	"auth": {
@@ -347,5 +433,95 @@
 		"content": "The page you're looking for is gone :(",
 		"button": "Back",
 		"profile": "Go to profile"
+	},
+	"forms": {
+		"list": {
+			"title": "Form templates",
+			"loading": "Loading templates…",
+			"empty": "No {type, select, client {client} other {service}} templates yet.",
+			"error": "Couldn't load the templates.",
+			"groupClient": "Clients",
+			"groupService": "Services",
+			"archivedBadge": "Archived",
+			"showArchived": "Show archived",
+			"fieldCount": "{count, plural, one {# field} other {# fields}}",
+			"recordCount": "{count, plural, one {# record} other {# records}}"
+		},
+		"actions": {
+			"new": "New",
+			"archive": "Archive",
+			"unarchive": "Unarchive",
+			"delete": "Delete",
+			"publish": "Publish",
+			"apply": "Apply",
+			"reload": "Reload",
+			"retry": "Try again"
+		},
+		"editor": {
+			"type": "Type",
+			"name": "Name",
+			"description": "Description",
+			"typeClient": "Client",
+			"typeService": "Service",
+			"loading": "Loading template…",
+			"loadError": "Couldn't load the template.",
+			"notFound": "Template not found.",
+			"unsaved": "Discard changes?",
+			"discard": "Discard",
+			"saving": "Saving…",
+			"saveFailed": "Couldn't save your changes. Nothing was changed.",
+			"published": "Template published",
+			"saved": "Changes saved",
+			"version": "Version {version}",
+			"recordCounts": "{current, plural, one {# record} other {# records}} on this version · {older} on older versions",
+			"conflict": "This template was changed in another window. Reload to see the current version.",
+			"chooseType": "Choose a type to start",
+			"archived": "Template archived"
+		},
+		"publish": {
+			"confirm": "Publish version {version}?",
+			"publishing": "Publishing…",
+			"failed": "Couldn't publish the version. Nothing was changed."
+		},
+		"apply": {
+			"title": "Apply changes",
+			"summary": "{added, plural, one {# field added} other {# fields added}}, {removed} removed, {changed} changed",
+			"keep": "Keep existing",
+			"keepDescription": "{count, plural, one {The current record stays} other {The # current records stay}} on their version. New records will use version {next}.",
+			"updateAll": "Update all",
+			"updateAllDescription": "{count, plural, one {The record moves} other {All # records move}} to version {next}.",
+			"answersDeleted": "{count, plural, one {# record has} other {# records have}} answers in removed fields. Those answers will be deleted.",
+			"typeName": "Type the template name to confirm",
+			"pendingRequired": "{count, plural, one {# record will have} other {# records will have}} required fields left to fill.",
+			"applying": "Applying…",
+			"failed": "Couldn't apply the changes. Nothing was changed."
+		},
+		"archive": {
+			"confirm": "Archive template? Existing records are not affected.",
+			"archiving": "Archiving…",
+			"failed": "Couldn't archive the template."
+		},
+		"unarchive": {
+			"unarchiving": "Unarchiving…",
+			"failed": "Couldn't unarchive the template."
+		},
+		"delete": {
+			"confirm": "Delete the template permanently? Type the template name to confirm.",
+			"withRecords": "This template has {count, plural, one {# record. Delete that record too?} other {# records. Delete those records too?}}",
+			"deleteAll": "Yes, delete everything",
+			"archiveInstead": "No, archive the template",
+			"archiveOnly": "Archive the template",
+			"confirmWithRecords": "The template and {count, plural, one {# record} other {# records}} will be deleted permanently.",
+			"recordsHaveHistory": "{count, plural, one {This template has # record, and it has} other {This template has # records, and some have}} appointment or payment history. Records with history can't be deleted.",
+			"recordsChanged": "This template's records changed. Review before continuing.",
+			"deleting": "Deleting…",
+			"failed": "Couldn't delete the template. Nothing was deleted."
+		},
+		"toast": {
+			"versionPublished": "Version {version} published",
+			"unarchived": "Template unarchived",
+			"archived": "Template archived",
+			"deletedWithRecords": "Template and {count, plural, one {# record} other {# records}} deleted"
+		}
 	}
 }
