@@ -1,0 +1,3 @@
+ALTER TABLE "form_fields" ADD CONSTRAINT "ck_form_fields_system_not_sensitive" CHECK ("form_fields"."system_key" is null or "form_fields"."sensitive" = false);--> statement-breakpoint
+ALTER TABLE "form_fields" ADD CONSTRAINT "ck_form_fields_always_protected" CHECK ("form_fields"."system_key" is not null or "form_fields"."type" not in ('email','phone','cpf','full_name','address') or "form_fields"."sensitive" = true);--> statement-breakpoint
+ALTER TABLE "form_fields" ADD CONSTRAINT "ck_form_fields_system_only_types" CHECK ("form_fields"."type" not in ('duration','money') or "form_fields"."system_key" is not null);

@@ -523,6 +523,47 @@
 			"unarchived": "Template unarchived",
 			"archived": "Template archived",
 			"deletedWithRecords": "Template and {count, plural, one {# record} other {# records}} deleted"
+		},
+		"fields": {
+			"add": "New field",
+			"onlySystem": "Add fields to collect more information",
+			"systemBadge": "System",
+			"required": "Required",
+			"sensitive": "Protected data",
+			"sensitiveHelp": "Hides the value in lists and only shows it when you ask. Use it for documents, contact details and health information.",
+			"sensitiveLockedType": "This field type is always protected",
+			"sensitiveLockedLabel": "The label points to personal or health data",
+			"typeChangeWarning": "Changing the type creates a new field. Current answers are not converted.",
+			"removeWithAnswers": "This field has answers in {count} records. It leaves the next version; what happens to the answers is decided when you apply the changes.",
+			"moveUp": "Move up",
+			"moveDown": "Move down",
+			"remove": "Remove",
+			"limitReached": "Limit of 100 fields reached.",
+			"label": "Label",
+			"type": "Type",
+			"helpText": "Help text",
+			"options": "Options",
+			"addOption": "Add option",
+			"menu": "More field actions",
+			"dragHandle": "Drag to reorder",
+			"removeOption": "Remove option",
+			"removeConfirm": "Remove field",
+			"cancel": "Cancel",
+			"types": {
+				"text": "Short text",
+				"long_text": "Long text",
+				"number": "Number",
+				"date": "Date",
+				"yes_no": "Yes/No",
+				"select": "Select",
+				"email": "E-mail",
+				"phone": "Phone",
+				"cpf": "CPF",
+				"full_name": "Full name",
+				"address": "Address",
+				"duration": "Duration (minutes)",
+				"money": "Amount (R$)"
+			}
 		}
 	}
 }

@@ -285,6 +285,14 @@ Table form_fields {
     form_id               [name: 'idx_form_fields_form_id']
     tenant_id             [name: 'idx_form_fields_tenant_id']
   }
+
+  Note: '''
+    Check constraints (SPEC-0002):
+    - ck_form_fields_system_not_sensitive: system_key is null or sensitive = false (R4)
+    - ck_form_fields_always_protected: system_key is not null or type not in ('email','phone','cpf','full_name','address') or sensitive = true (R5, R7)
+    - ck_form_fields_system_only_types: type not in ('duration','money') or system_key is not null (§3.1)
+    The label check (R6) and "yes_no is never required" (R8) stay in FieldPolicy.
+  '''
 }
 
 Table form_field_options {
