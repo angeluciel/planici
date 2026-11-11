@@ -33,7 +33,7 @@ const groups = [
 			{ label: "Clientes", icon: UserRoundPenIcon, path: "clients" },
 			{ label: "Serviços", icon: CoinsIcon },
 			{ label: "Pacotes e Planos", icon: BookOpenIcon },
-			{ label: "Formulários", icon: CheckCircle2Icon },
+			{ label: "Formulários", icon: CheckCircle2Icon, path: "forms" },
 		],
 	},
 	{

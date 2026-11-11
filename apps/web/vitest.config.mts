@@ -7,6 +7,9 @@ export default defineConfig({
 	root: fileURLToPath(new URL(".", import.meta.url)),
 	resolve: {
 		alias: {
+			"client-only": fileURLToPath(
+				new URL("./tests/stubs/client-only.ts", import.meta.url),
+			),
 			"@/": fileURLToPath(new URL("./src/", import.meta.url)),
 			"@planici/schemas": fileURLToPath(
 				new URL("../../packages/schemas/src/index.ts", import.meta.url),
