@@ -88,13 +88,13 @@ export function blankDraft(type?: FormType): FormDraft {
 
 // Request shape of the fields. `systemKey` only goes on a create (fields
 // without an id): an update that sends it is rejected (422
-// fieldSystemKey.not-allowed). `sensitive` is never sent on a system field.
+// fieldSystemKey.not-allowed). `sensitive` is sent whenever defined (false turns protection off), never on a system field.
 export function toRequestFields(fields: readonly FieldInput[]): FieldInput[] {
 	return fields.map((field) => {
 		const { systemKey, sensitive, ...rest } = field;
 		return {
 			...rest,
-			...(sensitive && !systemKey ? { sensitive } : {}),
+			...(sensitive !== undefined && !systemKey ? { sensitive } : {}),
 			...(systemKey && !field.id ? { systemKey } : {}),
 		};
 	});
