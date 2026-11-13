@@ -43,24 +43,47 @@ Se não usar mise, instale as versões indicadas nos arquivos do repositório e 
 - `apps/web`: Aplicação web em Nextjs.
 - `packages/`: pacotes compartilhados entre as aplicações.
 
-## Desenvolvimento e verificações
+## Começando a desenvolver
 
-Os comandos abaixo devem ser executados na raiz do repositório. Para iniciar iniciar a aplicação web e a API, configure as **variáveis locais** e o banco de dados conforme o `.env.example` e os arquivos de execução do projeto.
-Antes de executar as aplicações em si, é necessário fazer a build dos pacotes compartilhados:
+Rode os comandos na raiz do repositório, com o Docker em execução.
+
+**1. Variáveis locais (só na primeira vez)**
+
+- API: copie `apps/api/.env.example` para `apps/api/.env` e aponte para o banco do Docker:
+  `DATABASE_URL=postgresql://planici:planici@127.0.0.1:5433/planici_dev`
+- Web: em `apps/web/.env.local`, `API_URL` precisa usar a mesma porta do `PORT` da API (por exemplo,
+  `PORT=5000` na API e `API_URL=http://localhost:5000` na web). Com portas diferentes, as rotas `/api/*` da web
+  respondem 502. As demais variáveis da web estão no `.env.example` da raiz.
+
+**2. Subir tudo**
 
 ```bash
-pnpm --filter @planici/schemas build
-pnpm --filter @planici/i18n build
-pnpm --filter @planici/utils build
+pnpm dev
 ```
 
-Então, rode cada aplicação em um terminal:
+Em sequência, o comando:
 
-```bash
-pnpm dev:web
+1. sobe o Postgres do `compose.dev.yaml` (porta `5433`) e espera ele ficar saudável;
+2. aplica as migrações no Postgres do Docker;
+3. builda os pacotes compartilhados que a API e a web usam (`schemas`, `utils`, `i18n`, `emails`), com cache do Turbo;
+4. inicia a API (`nest start --watch`) e a web (`next dev`) no mesmo terminal.
 
-pnpm --filter api start:dev
-```
+**Outros comandos**
+
+| Comando | O que faz |
+| --- | --- |
+| `pnpm db:up` | Sobe só o Postgres e espera ele ficar saudável. |
+| `pnpm db:migrate` | Aplica as migrações no Postgres do Docker. Sempre usa `127.0.0.1:5433`, mesmo que o `.env` aponte para outro banco. |
+| `pnpm db:down` | Para o Postgres e **apaga os dados**. |
+| `pnpm dev:api`, `pnpm dev:web` | Inicia só uma aplicação (depois de buildar as dependências dela). Não sobe o banco. |
+| `pnpm dev:email` | Preview dos e-mails na porta `3001`. |
+
+> [!NOTE]
+> O banco de desenvolvimento roda em memória (tmpfs): parar o container apaga tudo, e o próximo `pnpm dev` recria
+> as tabelas vazias. `packages/schemas` não tem modo watch: depois de alterar um contrato, reinicie o `pnpm dev`
+> ou rode `pnpm --filter @planici/schemas build`.
+
+## Verificações
 
 Para validar o projeto:
 
