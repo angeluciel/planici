@@ -78,14 +78,20 @@ export function FormsList() {
 	}
 
 	const base = `/orgs/${tenant}/forms`;
+	const hasForms = forms.length > 0;
 
 	return (
 		<div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 md:p-6">
 			<div className="flex flex-wrap items-center justify-between gap-3">
 				<h1 className="font-heading-md text-text-bold">{t("list.title")}</h1>
-				<Link href={`${base}/new`} className="link-button link-button-primary">
-					{t("actions.new")}
-				</Link>
+				{hasForms && (
+					<Link
+						href={`${base}/new`}
+						className="link-button link-button-primary"
+					>
+						{t("actions.new")}
+					</Link>
+				)}
 			</div>
 
 			<Checkbox
