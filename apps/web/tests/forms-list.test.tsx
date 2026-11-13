@@ -140,6 +140,33 @@ describe("FormsList", () => {
 		expect(screen.queryByText(t("list.empty", { type: "client" }))).toBeNull();
 	});
 
+	it("shows the page empty state with a create link per type when there are no templates", async () => {
+		on("GET", "/api/forms", { status: 200, body: { forms: [] } });
+
+		renderApp(<FormsList />);
+
+		await screen.findByRole("heading", { name: t("list.emptyTitle") });
+		expect(screen.getByText(t("list.emptyDescription"))).toBeTruthy();
+		expect(
+			screen
+				.getByRole("link", { name: t("actions.newClient") })
+				.getAttribute("href"),
+		).toMatch(/\/forms\/new\?type=client$/);
+		expect(
+			screen
+				.getByRole("link", { name: t("actions.newService") })
+				.getAttribute("href"),
+		).toMatch(/\/forms\/new\?type=service$/);
+
+		// the page shell stays, so archived templates remain reachable
+		expect(screen.getByRole("heading", { name: t("list.title") })).toBeTruthy();
+		expect(screen.getByLabelText(t("list.showArchived"))).toBeTruthy();
+		expect(
+			screen.queryByRole("heading", { name: t("list.groupClient") }),
+		).toBeNull();
+		expect(screen.queryByText(t("list.empty", { type: "client" }))).toBeNull();
+	});
+
 	it("AC-0001-54 shows the error copy with a retry button that requests the list again", async () => {
 		let attempt = 0;
 		on("GET", "/api/forms", () =>

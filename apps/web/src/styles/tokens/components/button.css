@@ -1,0 +1,18 @@
+@import "../semantic/background.css";
+@import "../semantic/border.css";
+@import "../semantic/text.css";
+
+/* Links that look like buttons. Use on <Link>/<a>; real buttons use <Button>. */
+@layer components {
+	.link-button {
+		@apply inline-flex h-9 items-center rounded-sm px-3 font-body-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focused;
+	}
+
+	.link-button-primary {
+		@apply bg-background-brand-bold text-text-inverse hover:bg-background-brand-bold-hovered active:bg-background-brand-bold-pressed;
+	}
+
+	.link-button-secondary {
+		@apply border border-border-input text-text-bold hover:bg-surface-hovered active:bg-surface-pressed;
+	}
+}

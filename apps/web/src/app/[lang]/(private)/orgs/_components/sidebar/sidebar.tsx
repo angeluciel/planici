@@ -52,8 +52,6 @@ function SidebarContent({
 	const { tenant } = useParams<{ tenant: string }>();
 	const pathname = usePathname();
 	const labelClass = clsx("whitespace-nowrap", !expanded && "sr-only");
-	const itemClass =
-		"flex min-h-11 w-full shrink-0 items-center gap-3 rounded-md px-3 font-body-sm text-text-secondary hover:bg-surface-hovered hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focused";
 
 	return (
 		<>
@@ -112,7 +110,7 @@ function SidebarContent({
 									aria-current={active ? "page" : undefined}
 									title={!expanded ? item.label : undefined}
 									className={clsx(
-										itemClass,
+										"nav-item",
 										active && "bg-surface-pressed font-medium text-text-bold",
 									)}
 								>
@@ -125,7 +123,7 @@ function SidebarContent({
 									type="button"
 									disabled
 									title={`${item.label} — em breve`}
-									className={clsx(itemClass, "cursor-not-allowed opacity-50")}
+									className={clsx("nav-item", "cursor-not-allowed opacity-50")}
 								>
 									{content}
 								</button>
@@ -139,7 +137,7 @@ function SidebarContent({
 					type="button"
 					disabled
 					title="Configurações — em breve"
-					className={clsx(itemClass, "cursor-not-allowed opacity-50")}
+					className={clsx("nav-item", "cursor-not-allowed opacity-50")}
 				>
 					<Settings2Icon aria-hidden="true" className="size-5 shrink-0" />
 					<span className={labelClass}>Configurações</span>
