@@ -5,7 +5,11 @@
 	"private": true,
 	"scripts": {
 		"clean": "turbo run clean",
-		"dev": "turbo run dev",
+		"dev": "pnpm db:up && pnpm db:migrate && turbo run dev --filter=api --filter=web",
+		"dev:api": "turbo run dev --filter=api",
+		"db:up": "docker compose -f compose.dev.yaml up -d --wait",
+		"db:down": "docker compose -f compose.dev.yaml down",
+		"db:migrate": "DATABASE_URL=postgresql://planici:planici@127.0.0.1:5433/planici_dev pnpm --filter api exec drizzle-kit migrate",
 		"dev:web": "turbo run dev --filter=web",
 		"dev:email": "turbo run dev --filter=@planici/emails",
 		"build": "turbo run build",

@@ -49,15 +49,11 @@ cd planici
 pnpm install
 ```
 
-Para iniciar a aplicação localmente, configure as variáveis de ambiente e o banco de dados conforme as instruções em [CONTRIBUTING](CONTRIBUTING.md). Depois, inicie a web e a API em terminais separados:
+Com o Docker em execução e as variáveis locais configuradas (veja [Começando a desenvolver](CONTRIBUTING.md#começando-a-desenvolver)), um comando sobe o banco, aplica as migrações, builda os pacotes compartilhados e inicia a API e a web:
 
 ```bash
-pnpm dev:web
-pnpm --filter api start:dev
+pnpm dev
 ```
-
-> [!WARNING]
-> Os pacotes compartilhados precisam ser buildados antes de iniciar as aplicações. Consulte o guida de contribuição para ver a sequência completa.
 
 ## Verificações
 
