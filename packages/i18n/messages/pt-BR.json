@@ -440,6 +440,8 @@
 			"title": "Modelos de formulário",
 			"loading": "Carregando modelos…",
 			"empty": "Nenhum modelo de {type, select, client {cliente} other {serviço}} ainda.",
+			"emptyTitle": "Nenhum modelo de formulário ainda",
+			"emptyDescription": "Crie um modelo para definir o que você coleta de clientes e em serviços.",
 			"error": "Não foi possível carregar os modelos.",
 			"groupClient": "Clientes",
 			"groupService": "Serviços",
@@ -450,6 +452,8 @@
 		},
 		"actions": {
 			"new": "Novo",
+			"newClient": "Novo modelo de cliente",
+			"newService": "Novo modelo de serviço",
 			"archive": "Arquivar",
 			"unarchive": "Desarquivar",
 			"delete": "Excluir",

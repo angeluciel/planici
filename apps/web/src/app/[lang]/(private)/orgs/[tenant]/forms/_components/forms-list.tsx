@@ -14,10 +14,8 @@ import { Link } from "@/i18n/navigation";
 import { archiveForm, listForms, unarchiveForm } from "@/lib/api/forms";
 import { ArchiveDialog } from "./archive-dialog";
 import { DeleteDialog } from "./delete-dialog";
+import { EmptyState } from "./empty-state";
 import { SpinnerIcon } from "./spinner-icon";
-
-const LINK_BUTTON =
-	"inline-flex h-9 items-center rounded-sm bg-background-brand-bold px-3 font-body-sm font-medium text-text-inverse hover:bg-background-brand-bold-hovered active:bg-background-brand-bold-pressed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focused";
 
 type Status = "loading" | "error" | "ready";
 type Dialog =
@@ -85,7 +83,7 @@ export function FormsList() {
 		<div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 md:p-6">
 			<div className="flex flex-wrap items-center justify-between gap-3">
 				<h1 className="font-heading-md text-text-bold">{t("list.title")}</h1>
-				<Link href={`${base}/new`} className={LINK_BUTTON}>
+				<Link href={`${base}/new`} className="link-button link-button-primary">
 					{t("actions.new")}
 				</Link>
 			</div>
@@ -121,17 +119,21 @@ export function FormsList() {
 			)}
 
 			{status === "ready" &&
-				FORM_TYPES.map((type) => (
-					<TypeGroup
-						key={type}
-						type={type}
-						forms={forms.filter((form) => form.type === type)}
-						base={base}
-						unarchiving={unarchiving}
-						onArchive={(form) => setDialog({ kind: "archive", form })}
-						onUnarchive={unarchive}
-						onDelete={(form) => setDialog({ kind: "delete", form })}
-					/>
+				(forms.length === 0 ? (
+					<EmptyState base={base} />
+				) : (
+					FORM_TYPES.map((type) => (
+						<TypeGroup
+							key={type}
+							type={type}
+							forms={forms.filter((form) => form.type === type)}
+							base={base}
+							unarchiving={unarchiving}
+							onArchive={(form) => setDialog({ kind: "archive", form })}
+							onUnarchive={unarchive}
+							onDelete={(form) => setDialog({ kind: "delete", form })}
+						/>
+					))
 				))}
 
 			{dialog?.kind === "archive" && (
@@ -195,7 +197,10 @@ function TypeGroup({
 					<p className="font-body-sm text-text-secondary">
 						{t("list.empty", { type })}
 					</p>
-					<Link href={`${base}/new?type=${type}`} className={LINK_BUTTON}>
+					<Link
+						href={`${base}/new?type=${type}`}
+						className="link-button link-button-primary"
+					>
 						{t("actions.new")}
 					</Link>
 				</div>

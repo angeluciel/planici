@@ -6,6 +6,8 @@
 @import "./elevation.css";
 @import "./typography.css";
 @import "./components/text.css";
+@import "./components/button.css";
+@import "./components/nav.css";
 
 @theme inline {
 	--color-*: initial;
