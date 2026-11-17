@@ -3,7 +3,7 @@ id: SPEC-0002
 title: Campos do modelo de formulário
 status: Approved # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.18
+version: 1.24
 owner: Joao Izidoro
 satisfies: [RF-38, RF-39, RN-20, RN-21]
 depends_on: [SPEC-0001]
@@ -177,16 +177,18 @@ accepted.
 
 ### 4.4 Reorder
 _(Amended in v1.5, approved 2026-11-16. Before: rows were dragged by a handle. Steps 1 to 3 amended in v1.12,
-approved 2026-11-17, because cards hold no controls any more (§4.6).)_
+approved 2026-11-17, because cards hold no controls any more (§4.6). Steps 1 and 3 amended in v1.19, approved
+2026-11-17, for the title and help-text inputs of §4.6 step 12.)_
 
-1. The professional drags a card by pressing anywhere on it. With a mouse or pen, the drag starts once the pointer moves. On touch, it starts once the card has been held still for
+1. The professional drags a card by pressing anywhere on it, except, on wide screens, inside its title and help-text
+   inputs (§4.6 step 12). With a mouse or pen, the drag starts once the pointer moves. On touch, it starts once the card has been held still for
    300 ms (owner, 2026-11-16); a finger that moves before then scrolls the page. The other cards shift and the gap
    follows the pointer. Near the top or bottom edge of the screen, the page scrolls while a card is dragged (owner,
    2026-11-17).
 2. No card can be dragged while a settings panel is open (§4.6 step 10). A press inside the panel never starts a
    drag.
-3. Dragging a card neither selects nor focuses it, and focus stays where it was. A click without a drag still
-   selects the card and opens its settings panel (owner, 2026-11-17).
+3. Dragging a card neither selects nor focuses it, and focus stays where it was. A click without a drag, outside the
+   card's title and help-text inputs, still selects the card and opens its settings panel (owner, 2026-11-17).
 4. Keyboard users open "Mover" in the settings panel and pick "Mover para cima" or "Mover para baixo" (RNF-18).
 5. System fields move like any other field.
 6. The new order is stored on **[Salvar]** (R9).
@@ -204,19 +206,26 @@ _(Added in v1.5, approved 2026-11-16. Replaces the row layout of §4.1 step 3 in
 (owner, 2026-11-17). A card is now selected exactly while its panel is open. The panel holds all editing on every
 screen, and the rest of the page does not respond while it is open. Before: focus selected a card; on wide screens
 the selected card edited its label and description and showed a "⋯" button that opened the panel; selecting
-another card closed the panel (Q14); clicks outside the panel did not close it.)_
+another card closed the panel (Q14); clicks outside the panel did not close it. Steps 1, 2, 3 and 10 amended and
+step 12 added in v1.19 (owner, 2026-11-17), approved 2026-11-17: on wide screens an idle card's title and help
+text are edited in place. Before: cards only displayed on every screen.)_
 
 1. Each field is a card. Every card can be reached with Tab. It takes focus as a whole, with its label as its
-   accessible name, or the type name while the label is empty. Taking focus does not select a card (RNF-18).
+   accessible name, or the type name while the label is empty. On wide screens, Tab then reaches the card's title
+   input and its help-text input, when it is shown, and then the next card (step 12, Q21). Taking focus selects no card,
+   whether the card or one of its inputs takes it (RNF-18).
 2. A card shows the label as its title, the help text when there is one, and an answer preview for its type that
    cannot be filled in (Q16): a box with "Resposta" for one-line types, a taller one for "Texto longo", "Sim" and
    "Não" for `yes_no`, and the options for `select`. A system field also shows the "Sistema" badge, and a field whose
-   published type was changed shows the warning of §4.2 step 4. Cards only display: nothing is edited on the card.
-3. Clicking or tapping a card, or pressing Enter or Space while it has focus, **selects** it and opens its
+   published type was changed shows the warning of §4.2 step 4. On wide screens, an idle card's title and help text
+   are edited in place (step 12), and everything else is edited in the panel. On narrow screens, cards only display.
+3. Clicking or tapping a card, or pressing Enter or Space while the card itself has focus, **selects** it and opens its
    **settings panel** "Configurações do campo" (Q13). A card is selected exactly while its panel is open, so at most
    one card is selected. The selected card is highlighted. Every other card is **idle**. When the card is not fully
-   in view, the page first scrolls to it, because the page cannot scroll while the panel is open (Q19).
-4. The panel holds all editing of the field, in this order:
+   in view, the page first scrolls to it, because the page cannot scroll while the panel is open (Q19). On wide
+   screens, a click inside an idle card's title or help-text input edits it instead (step 12).
+4. The panel holds every editing control of the field. On wide screens, the label and the description can also be
+   edited in place on an idle card (step 12). The panel's controls, in this order:
    - the label input;
    - the description input "Adicionar descrição", while "Texto de ajuda" is ON;
    - the options editor, for `select`;
@@ -252,6 +261,7 @@ another card closed the panel (Q14); clicks outside the panel did not close it.)
    - nothing under the pointer shows a hover effect;
    - clicks and taps close the panel and do nothing else (step 5);
    - no card can be dragged (§4.4);
+   - no card's title or help-text input can be edited (step 12): a click on one only closes the panel;
    - Tab and Shift+Tab move only between the panel's controls;
    - the page does not scroll, and a panel taller than the screen scrolls on its own (Q19).
 
@@ -267,6 +277,29 @@ another card closed the panel (Q14); clicks outside the panel did not close it.)
      or to the previous card when the removed one was the last.
    - For a field with answers, the remove dialog opens. Confirming does the same as above. Cancelling, or pressing
      Escape, closes only the dialog: the panel stays open, with focus on "Remover".
+12. Editing in place, on wide screens only (owner, 2026-11-17; v1.19, approved 2026-11-17):
+   - An idle card shows its title as an input holding the label. While "Texto de ajuda" is ON, it shows its help
+     text as an input holding the description. Both look like the card's text. While the label is empty, the title
+     input shows the type name as its placeholder (Q20). While the description is empty, its input shows
+     "Adicionar descrição". While "Texto de ajuda" is OFF, the card shows no description input, and the description
+     is edited in the panel after turning the switch ON.
+   - Each input has its own accessible name (RNF-18), so the inputs of different cards can be told apart: the
+     title input is "Rótulo de <name>" and the help-text input is "Texto de ajuda de <name>", where <name> is the
+     label, or the type name while the label is empty. A focused input shows a visible focus indicator.
+   - Clicking either input, or moving focus to it with Tab, puts the cursor in it. No card is selected and no panel
+     opens.
+   - Typing changes the draft as the panel's inputs do. The label check of §4.3 runs on each change, and the panel
+     shows the new text when it opens. R2 is checked on [Salvar], as for the panel.
+   - Enter keeps the text and does not save the template. Moving focus out of the input also keeps it. Escape
+     restores the text the input had when it took focus, both in the input and in the draft, and the label check of
+     §4.3 runs again on the restored label. After Enter or Escape, focus stays in the input (Q22).
+   - A press inside either input never starts a drag (§4.4 step 1).
+   - While the editor saves, the inputs are read-only, like the editor's other inputs (SPEC-0001 §8).
+   - Step 8 is unchanged: when the first error of a save is on the label or the description, the card's panel opens
+     with focus on the panel's input. An idle card with an error on its label or description marks that input as
+     invalid, and the input is described by the message under the title.
+   - On narrow screens, the card shows its title and help text as text, and a tap anywhere on it selects it and
+     opens the sheet (step 3, Q18).
 
 ## 5. Permissions and tenant isolation
 
@@ -339,14 +372,14 @@ New, non-breaking. Part of the FormTemplate shapes in SPEC-0001 §7.
 | Screen | State | Behavior | Copy key |
 | --- | --- | --- | --- |
 | Editor fields | only system fields | Hint "Adicione campos para coletar mais informações" | `forms.fields.onlySystem` |
-| Field card | idle | Label as title, help text if any, answer preview (§4.6 step 2) | `forms.fields.answerPreview` |
+| Field card | idle | Label as title, help text if any, answer preview (§4.6 step 2). On wide screens the title and help text are inputs edited in place, named "Rótulo de <name>" and "Texto de ajuda de <name>", with the type name as the title's placeholder while the label is empty and "Adicionar descrição" while the description is empty; read-only while the editor saves (§4.6 step 12) | `forms.fields.answerPreview`, `forms.fields.inlineLabel`, `forms.fields.inlineHelpText`, `forms.fields.types.*`, `forms.fields.descriptionPlaceholder` |
 | Field card | selected | Highlighted while its settings panel is open (§4.6 step 3) | — |
 | Settings panel | open | Beside the card, or a sheet on narrow screens (§4.6 step 6). Label, description and options inputs, then the settings (§4.6 step 4). The rest of the page does not respond, and a click outside only closes the panel (§4.6 steps 5 and 10) | `forms.fields.panelTitle`, `forms.fields.close`, `forms.fields.descriptionPlaceholder` |
 | Settings panel | system field | "Sistema" badge on the card; no Remover; no Dado protegido; Tipo and fixed switches disabled | `forms.fields.systemBadge` |
 | Settings panel | protected locked by type | Switch ON + disabled + tooltip | `forms.fields.sensitiveLockedType` |
 | Settings panel | protected locked by label | Switch ON + disabled + tooltip | `forms.fields.sensitiveLockedLabel` |
 | Field card | type changed on a published field | Warning inside the card, and under "Tipo" in the panel (4.2 step 4) | `forms.fields.typeChangeWarning` |
-| Field card | validation error | First error with a control: its card's panel or sheet opens, with focus and the message on the invalid control (§4.6 step 8). No control: no card is selected, the message goes under the title on wide screens or into an error toast on narrow screens, and the card takes focus (§4.6 step 9). Other cards with errors: highlighted, first message under the title | `validation.*` |
+| Field card | validation error | First error with a control: its card's panel or sheet opens, with focus and the message on the invalid control (§4.6 step 8). No control: no card is selected, the message goes under the title on wide screens or into an error toast on narrow screens, and the card takes focus (§4.6 step 9). Other cards with errors: highlighted, first message under the title; on wide screens, an idle card's title or help-text input that holds an error is marked invalid and described by that message (§4.6 step 12) | `validation.*` |
 | Field card | dragging | Placeholder gap, others shift | — |
 | Remove dialog | field has answers | Explanation (4.5 step 3) | `forms.fields.removeWithAnswers` |
 | Options editor | fewer than 2 options | [Salvar] shows `fieldOptions.required` inline | `validation.fieldOptions.required` |
@@ -373,8 +406,11 @@ New, non-breaking. Part of the FormTemplate shapes in SPEC-0001 §7.
 | 15 | ~~Below which screen width does the panel become a sheet?~~ | **Decided (owner, 2026-11-16):** below 1024 px, RNF-16's `lg` breakpoint (64rem). Beside the card, the panel needs room for both. The app sidebar still switches at 768 px. | — |
 | 16 | ~~What does the answer preview show?~~ | **Decided (owner, 2026-11-16):** a box with "Resposta" for one-line types, a taller one for "Texto longo", "Sim" and "Não" for `yes_no`, and the options for `select`. It cannot be filled in. | — |
 | 17 | ~~Does turning "Texto de ajuda" OFF clear the help text, or only hide it?~~ | **Decided (owner, 2026-11-16):** it clears it. What is hidden in the editor is not shown to clients either, so it is not stored. | — |
-| 18 | ~~On narrow screens, where are the description input and the `select` options editor? Can the label still be edited in the card?~~ | **Decided (owner, 2026-11-16):** all editing is in the sheet: label, description and options. On narrow screens the card only displays, and tapping it selects it and opens the sheet. **Extended in v1.12 (owner, 2026-11-17):** wide screens too: all editing is in the panel. | — |
+| 18 | ~~On narrow screens, where are the description input and the `select` options editor? Can the label still be edited in the card?~~ | **Decided (owner, 2026-11-16):** all editing is in the sheet: label, description and options. On narrow screens the card only displays, and tapping it selects it and opens the sheet. **Extended in v1.12 (owner, 2026-11-17):** wide screens too: all editing is in the panel. **Narrowed in v1.19 (owner, 2026-11-17), approved 2026-11-17:** on wide screens an idle card's title and help text are edited in place (§4.6 step 12). On narrow screens the card still only displays. | — |
 | 19 | ~~Does the page scroll while a settings panel is open?~~ | **Decided (owner, 2026-11-17):** no. The panel stays beside its card, and a panel taller than the screen scrolls on its own. Before a panel opens, the page scrolls its card into view (§4.6 step 3). On narrow screens the sheet already covers the page. | — |
+| 20 | ~~While the label is empty, what does an idle card's title input show on wide screens?~~ | **Decided (owner, 2026-11-17):** the type name as its placeholder, as the card title shows it today. | — |
+| 21 | ~~On wide screens, in what order does Tab reach a card and its inputs?~~ | **Decided (owner, 2026-11-17):** the card, then its title input, then its help-text input, then the next card. | — |
+| 22 | ~~After Enter or Escape in an idle card's title or help-text input, where is focus?~~ | **Decided (owner, 2026-11-17):** it stays in the input. | — |
 
 ## 10. Acceptance criteria
 
@@ -823,10 +859,12 @@ And   no card is selected
 
 _AC-0002-59 amended in v1.12, approved 2026-11-17. Before: "Given the editor with the custom field card "Objetivo" selected and its settings panel closed / When the owner presses the card's "⋯" button / Then the settings panel "Configurações do campo" opens / And it lists "Obrigatório", "Texto de ajuda", "Dado protegido", "Tipo", "Mover" and "Remover" in that order"._
 
+_AC-0002-59 amended in v1.19, approved 2026-11-17. Before: "When the owner clicks the card "Objetivo"", because the card had no inputs (§4.6 step 12)._
+
 ```
 AC-0002-59
 Given the editor on a wide screen with the custom "text" field "Objetivo", help text "Conte o que você espera", and no settings panel open
-When  the owner clicks the card "Objetivo"
+When  the owner clicks the card "Objetivo" outside its title and help-text inputs
 Then  "Objetivo" is the selected card and its settings panel "Configurações do campo" is open beside it
 And   the panel shows the label input, the "Adicionar descrição" input, "Obrigatório", "Texto de ajuda", "Dado protegido", "Tipo", "Mover" and "Remover" in that order
 ```
@@ -985,6 +1023,158 @@ And   the card at index 3 has focus and is not selected
 And   no settings panel is open
 ```
 
+### Criteria added in v1.19 (approved 2026-11-17)
+
+From editing in place (owner, 2026-11-17): §4.4 steps 1 and 3, and §4.6 steps 1, 3, 10 and 12. AC-0002-83 follows
+Q20, AC-0002-85 Q21, and AC-0002-79 and -81 Q22. AC-0002-90 to -94 were added in v1.20 from the spec review.
+
+```
+AC-0002-77
+Given the editor on a wide screen with the custom field card "Objetivo" idle and no settings panel open
+When  the owner clicks the title of the card "Objetivo"
+Then  the card's title input has focus and shows "Objetivo"
+And   no settings panel is open
+And   no card is selected
+```
+
+```
+AC-0002-78
+Given the editor on a wide screen with the custom field card "Objetivo", help text "Conte o que você espera", idle and no settings panel open
+When  the owner clicks the help text of the card "Objetivo"
+Then  the card's help-text input has focus and shows "Conte o que você espera"
+And   no settings panel is open
+And   no card is selected
+```
+
+```
+AC-0002-79
+Given the editor on a wide screen of an existing template, with the custom field card "Objetivo" idle and no settings panel open
+When  the owner clicks the title of the card "Objetivo", replaces the text with "Meta" and presses Enter
+Then  no request is sent
+And   the card's title input shows "Meta" and has focus
+And   no settings panel is open
+```
+
+```
+AC-0002-80
+Given the editor on a wide screen of an existing template with the published custom "text" field "Objetivo" (id O)
+When  the owner replaces the text in the title input of the card "Objetivo" with "Meta" and presses [Salvar]
+Then  the update request sends the field with id O and label "Meta"
+```
+
+```
+AC-0002-81
+Given the editor on a wide screen with the custom field card "Objetivo" idle and no settings panel open
+When  the owner clicks the title of the card "Objetivo", replaces the text with "Meta" and presses Escape
+Then  the card's title input shows "Objetivo" and has focus
+And   no settings panel is open
+```
+
+```
+AC-0002-82
+Given the editor of a client template on a wide screen
+When  the owner presses [Novo campo] and then closes the new field's settings panel with Escape
+Then  the new card shows an empty help-text input whose placeholder is the copy of forms.fields.descriptionPlaceholder
+```
+
+```
+AC-0002-83
+Given the editor of a client template on a wide screen
+When  the owner presses [Novo campo] and then closes the new field's settings panel with Escape
+Then  the new card's title input is empty and shows "Texto curto" as its placeholder
+```
+
+```
+AC-0002-84
+Given an existing template with the published custom "text" field "Profissão" without help text
+When  its owner opens the template in the editor on a wide screen
+Then  the card "Profissão" shows its title input
+And   the card shows no help-text input
+```
+
+```
+AC-0002-85
+Given the editor on a wide screen with the custom field card "Objetivo", help text "Conte o que você espera", and no settings panel open
+And   focus is on the card "Objetivo"
+When  the owner presses Tab
+Then  focus is on the card's title input
+And   no settings panel is open
+And   no card is selected
+```
+
+```
+AC-0002-86
+Given the editor on a wide screen with custom fields "A", "B" and "C", in that order after the system fields, and no settings panel open
+When  the owner presses the mouse inside the title input of card "C", moves the pointer above card "A" and releases it
+Then  the cards stay in the order "A", "B", "C"
+And   no card is selected
+```
+
+```
+AC-0002-87
+Given the editor on a wide screen with custom field cards "Profissão" and "Objetivo"
+And   the settings panel of "Profissão" is open
+When  the owner clicks the title of the card "Objetivo"
+Then  no settings panel is open
+And   no card is selected
+And   the title input of the card "Objetivo" does not have focus
+```
+
+```
+AC-0002-88
+Given the editor on a wide screen with a new custom "text" field card idle and no settings panel open
+When  the owner types "CPF do responsável" into the card's title input and then clicks the card outside its inputs
+Then  the card's settings panel is open
+And   the panel's label input shows "CPF do responsável"
+And   its "Dado protegido" switch is ON and disabled, with the tooltip of copy key forms.fields.sensitiveLockedLabel
+```
+
+```
+AC-0002-89
+Given the editor on a narrow screen with the custom field card "Objetivo" idle
+When  the owner taps the title of the card "Objetivo"
+Then  "Objetivo" is the selected card and its sheet is open
+And   the card shows no title input
+```
+
+```
+AC-0002-90
+Given the editor on a wide screen of an existing template whose name was changed, with the published custom "text" field "Objetivo" (id O)
+When  the owner replaces the text in the title input of the card "Objetivo" with "Meta", presses Escape and presses [Salvar]
+Then  the update request sends the field with id O and label "Objetivo"
+```
+
+```
+AC-0002-91
+Given the editor on a wide screen with the custom field card "Objetivo", help text "Conte o que você espera", and no settings panel open
+When  the owner reaches the card's inputs with Tab
+Then  the title input's accessible name is the copy of forms.fields.inlineLabel for "Objetivo" ("Rótulo de Objetivo")
+And   the help-text input's accessible name is the copy of forms.fields.inlineHelpText for "Objetivo" ("Texto de ajuda de Objetivo")
+```
+
+```
+AC-0002-92
+Given the editor on a wide screen with custom "text" fields at index 3 and index 4, both with an empty label, and no settings panel open
+When  the owner presses [Salvar] and the save is stopped by fieldLabel.required at fields.3.label and at fields.4.label
+Then  the settings panel of the card at index 3 is open
+And   the card at index 4 is not selected
+And   its title input is marked invalid and is described by the message of validation.fieldLabel.required
+```
+
+```
+AC-0002-93
+Given the editor on a wide screen of an existing template with the published custom "text" field "Objetivo" (id O) and help text "Conte o que você espera"
+When  the owner replaces the text in the help-text input of the card "Objetivo" with "Diga sua meta" and presses [Salvar]
+Then  the update request sends the field with id O and helpText "Diga sua meta"
+```
+
+```
+AC-0002-94
+Given the editor on a wide screen of an existing template whose name was changed, with the custom field card "Objetivo" idle
+When  the owner presses [Salvar] and the request has not returned yet
+Then  the title input of the card "Objetivo" is read-only
+```
+
 ### Withdrawn criteria
 
 Withdrawn IDs are never reused.
@@ -993,6 +1183,221 @@ Withdrawn IDs are never reused.
   exist; template versions replaced them (D-10, R10–R11).
 
 ## 11. Implementation plan
+
+### Editing-in-place amendment (v1.21)
+
+Drafted by `/plan` on 2026-11-17 for the v1.19–v1.20 amendment, approved in v1.21 (§4.4 steps 1 and 3; §4.6 steps
+1–4, 10 and 12; §8; Q18, Q20–Q22; AC-0002-59 amended; AC-0002-77 to -94 added). Revised after the plan review, with
+the owner's picks of 2026-11-17 (v1.23). **Approved by the owner on 2026-11-17.** Only the editor's field list and
+two copy keys change. Contracts, database and API stay as they are. It builds on the modal panel amendment below
+(implemented and committed), whose structure it keeps: display cards with a cover button, the modal popover, the
+one-open-card state in the list, and `field-reorder.tsx`.
+
+#### Scope
+
+`task-lock.sh` reads the first `scope` block of the file, so this block is the lock while this amendment is
+implemented.
+
+```scope
+apps/web/src/app/*/orgs/*/forms/_components/fields/*
+apps/web/tests/form-fields*
+packages/i18n/messages/pt-BR.json
+packages/i18n/messages/en-US.json
+docs/specs/SPEC-0002-campos-de-formulario.md
+```
+
+Not in scope:
+- `form-editor.tsx`. It already passes `disabled={saving}` to the list, which becomes the inputs' read-only flag.
+  Enter is stopped in the card's own inputs, so the editor's `<form>` needs no change.
+- `popover.tsx` and `sheet.tsx`. The backdrop already covers the cards' inputs while a panel is open (§4.6 step 10).
+- `forms-harness.tsx` and `tests/setup.ts`. Its `never` reply already holds a save open (AC-0002-94).
+
+The SPEC-0001 tests are not in scope, and they must still pass.
+
+#### Contracts
+
+None. `packages/schemas` is unchanged.
+
+#### Persistence
+
+None.
+
+#### API
+
+None. The label and the help text reach the existing update request through the same draft as the panel's inputs
+(AC-0002-80, -90, -93).
+
+#### Web
+
+1. **Inline text box** (new, `fields/field-card/field-inline-input.tsx`). It is one auto-growing `<textarea rows={1}>`
+   that looks like the card's text, used for the title and the help text (§4.6 step 12). A textarea wraps long text
+   as the card's text does today; a one-line input would clip it (Decisions 6).
+   - Props: `value`, `name` (its accessible name), `placeholder`, `invalid`, `describedBy`, `readOnly`, an error
+     slot for `data-error-slot`, and `onChange(value)`.
+   - Classes: `field-sizing-content`, `w-auto`, `max-w-full`, `self-start` and `resize-none`. It grows with its text
+     and wraps at the card's width. A short text box is only as wide as its text or placeholder, so a click beside
+     the text lands on the cover button and opens the panel (§4.6 step 3). Its padding, font and line height are
+     those of the text it replaces (no `px-2 py-1`), so the title does not shift when the card is selected and the
+     text comes back (Decisions 1). It adds `pointer-events-auto`, because the card's content layer has
+     `pointer-events-none`, and a visible focus ring (`focus-visible:outline-2 focus-visible:outline-border-focused`).
+     It does **not** take `CardTextInput`'s `focus:outline-none`: in Tailwind v4 that sets the outline style to
+     `none`, which would hide the ring.
+   - Line breaks: a change replaces each line break with a space, because a label or help text holds one line
+     (pasted text included).
+   - On focus, it keeps the current value as its snapshot.
+   - On Enter, it cancels the keydown, so no line break is typed (AC-0002-79). A textarea never submits its form on
+     Enter, so the editor's `<form>` is not saved either. An Enter that ends an IME composition (`isComposing`) is
+     left alone.
+   - On Escape, it calls `onChange(snapshot)` (AC-0002-81, -90). An Escape during an IME composition, or while the
+     text box is read-only, is left alone.
+   - Focus stays in the input after Enter and Escape (Q22). There is no blur or commit step: like the panel's
+     inputs, every change already updates the draft, and leaving the input keeps it.
+   - It renders no error line of its own. `aria-invalid` and `aria-describedby` point at the message under the card
+     title (§4.6 step 12, AC-0002-92).
+2. **Card** (`fields/field-card/field-card.tsx`).
+   - New props: `wide`, `saving` and `onChange`.
+   - When `wide && !selected`, it renders the title and, while help text is ON, the description as inline inputs.
+     The title input's name is `forms.fields.inlineLabel` and its placeholder is the type name (Q20). The help-text
+     input's name is `forms.fields.inlineHelpText` and its placeholder is `forms.fields.descriptionPlaceholder`.
+     `<name>` in both names is the label, or the type name while the label is empty.
+   - The title's `onChange` goes through `withLabel`, so the label check of §4.3 runs on each change, Escape
+     included (AC-0002-88). The help text's `onChange` sets `helpText`.
+   - The selected card and every card on a narrow screen keep the current text title and help text (Decisions 1).
+   - Each input's `invalid` is its own slot's error (`errors.label` for the title, `errors.helpText` for the help
+     text). Its `describedBy` is the card error's id only while that own error is set, so a valid input is never
+     described by another slot's message, such as the options error of AC-0002-76.
+   - DOM order is the cover button, then the title input, then the help-text input. That gives the Tab order of
+     Q21 without any `tabIndex` (AC-0002-85).
+   - A press in the inputs starts no drag, because `pressOnCard` in `field-reorder.tsx` already ignores inputs
+     (`isCardControl`, AC-0002-86). No change there.
+3. **List** (`fields/field-list.tsx`). It passes `wide`, `saving={disabled}` and `onChange={(next) => setRow(index,
+   next)}` to each card. Its state, the reveal and focus rules are unchanged. A label error still opens the panel on
+   the panel's input (§4.6 step 8, AC-0002-65 unchanged).
+4. **i18n**: two new keys in `forms.fields`.
+
+   | Key | pt-BR | en-US |
+   | --- | --- | --- |
+   | `inlineLabel` | Rótulo de {name} | Label for {name} |
+   | `inlineHelpText` | Texto de ajuda de {name} | Help text for {name} |
+
+   Then run `pnpm --filter @planici/i18n build`.
+
+#### Tests
+
+All in W-fld (`apps/web/tests/form-fields.test.tsx`).
+
+New helpers. Each one emulates what a browser does, because jsdom does not:
+- `inlineTitle(card)` and `inlineHelp(card)` find the card's inputs by their names (`forms.fields.inlineLabel` and
+  `forms.fields.inlineHelpText`), with `{ hidden: true }`, because a modal panel hides the page from assistive
+  technology (AC-0002-87, -92).
+- `clickInput(input)` sends `pointerdown` and `mousedown`, focuses the input unless `mousedown` was cancelled, then
+  sends `mouseup` and `click`.
+- `pressEnterIn(input)` sends `keydown` Enter and, unless it was cancelled, appends a line break with
+  `fireEvent.change`, as a browser does in a textarea. A missed cancel then shows up as a line break in the value.
+- Typing is `fireEvent.change`, as in the existing tests.
+
+| AC | Test |
+| --- | --- |
+| AC-0002-59 | renamed "AC-0002-59 clicking a card outside its title and help-text inputs opens Configurações do campo with label, description and the six items in order"; it already clicks the cover button |
+| AC-0002-77 | "AC-0002-77 clicking an idle card's title edits it in place without selecting the card" |
+| AC-0002-78 | "AC-0002-78 clicking an idle card's help text edits it in place without selecting the card" |
+| AC-0002-79 | "AC-0002-79 Enter in a card's title input keeps the text, sends nothing and keeps focus" |
+| AC-0002-80 | "AC-0002-80 a label edited on the card is sent on Salvar" |
+| AC-0002-81 | "AC-0002-81 Escape in a card's title input restores the text and keeps focus" |
+| AC-0002-82 | "AC-0002-82 a new card closed with Escape shows an empty help-text input with the description placeholder" |
+| AC-0002-83 | "AC-0002-83 a new card closed with Escape shows an empty title input with the type name as placeholder" |
+| AC-0002-84 | "AC-0002-84 a field without help text shows a title input and no help-text input on its card" |
+| AC-0002-85 | "AC-0002-85 Tab from a card moves to its title input without selecting it" (jsdom does not move focus on Tab, so the test checks that the title input is the next tab stop after the cover button in document order, as AC-0002-55 does) |
+| AC-0002-86 | "AC-0002-86 a mouse drag that starts in a card's title input does not move the card" |
+| AC-0002-87 | "AC-0002-87 with a panel open, clicking another card's title only closes the panel" (`clickOutside()`, because the backdrop covers the title) |
+| AC-0002-88 | "AC-0002-88 a protected term typed in a card's title locks Dado protegido in its panel" |
+| AC-0002-89 | "AC-0002-89 on a narrow screen, tapping a card's title opens its sheet and the card has no inputs" |
+| AC-0002-90 | "AC-0002-90 Escape in a card's title input, then Salvar, sends the original label" |
+| AC-0002-91 | "AC-0002-91 a card's inputs are named Rótulo de Objetivo and Texto de ajuda de Objetivo" |
+| AC-0002-92 | "AC-0002-92 an idle card with a label error marks its title input invalid, described by the message" |
+| AC-0002-93 | "AC-0002-93 help text edited on the card is sent on Salvar" |
+| AC-0002-94 | "AC-0002-94 while saving, a card's title input is read-only" (the preview request gets `never`) |
+
+Every other W-fld test is re-run with no assertion changed. Inline inputs are named "Rótulo de …" and "Texto de
+ajuda de …", so the existing queries for the panel's "Rótulo" and "Texto de ajuda" textboxes, which match names
+exactly, do not find them.
+
+#### Deferred checks
+
+No AC is deferred to another spec. The deferred checks of the plans below are unchanged. Three ACs are only partly
+checked in jsdom, and a manual check below finishes each:
+- **AC-0002-79** (Enter keeps the text and sends nothing): the test emulates the line break a browser types when
+  Enter is not cancelled. Manual check 2 confirms it in a browser.
+- **AC-0002-85** (Tab from the card to its title): the test checks document order only, because jsdom does not move
+  focus on Tab. Manual check 6 confirms the order.
+- **AC-0002-87** (a click on another card's title only closes the panel): the test clicks the backdrop, the same
+  action as the AC-0002-58 test, so "the title input does not have focus" holds without a real hit-test. Manual
+  check 4 confirms it.
+
+`/done` reports these three as verified by test plus manual check.
+
+**Manual checks on a running system** (owner, before `status: Implemented`; jsdom cannot check them):
+1. On a wide screen, a click on the title text edits it, and a click beside it, on the same row, opens the panel. Do
+   this in Chrome, Safari and Firefox, because the input's width depends on `field-sizing` (Risks 2).
+2. Enter in a card's title or help-text input adds no line break, sends no request (browser network tab), and the
+   page does not reload.
+3. A focused title or help-text input shows a visible focus ring.
+4. With a panel open, hovering another card's title shows no text cursor or hover effect, and a click only closes
+   the panel.
+5. Below 1024 px, cards show no inputs, and a tap on the title opens the sheet.
+6. With no panel open, Tab goes from a card to its title input, then to its help-text input, then to the next card,
+   and Shift+Tab goes back the same way (Q21).
+7. Still open from the earlier plans: modal panel manual checks 1–5.
+
+#### Sequence
+
+0. **Owner commits the spec changes of v1.19–v1.21** (docs only) before `/implement`, so the lock's base commit
+   holds the approved spec. The spec file is in scope, so this step is optional.
+1. **i18n**: the two keys (Web 4), then `pnpm --filter @planici/i18n build`. First, so that the failing tests fail for
+   the missing behavior and not for missing copy.
+2. **Failing tests.** The `test-author` subagent adds the helpers and the tests in the table, and renames AC-0002-59.
+   Each new test must fail for the missing behavior.
+3. **Inline text box, card and list**, in one step so that typecheck passes at its end (Web 1–3).
+4. **Checks**: `pnpm --filter web lint`, `typecheck` and `test`, and `pnpm --filter @planici/emails typecheck`. The
+   API is unchanged.
+5. `/review`, then `/done`, with the manual checks listed for the owner.
+
+#### Decisions this plan makes
+
+1. **The selected card shows text, not inputs.** §4.6 step 12 puts inputs on idle cards. The selected card sits
+   behind the backdrop, and its panel edits the same text.
+2. **An inline input has no error line of its own.** It is described by the message under the card title, as
+   §4.6 step 12 says, so the message is not shown twice.
+3. **Escape goes through the same update as typing**, so the restored label re-runs the label check (§4.6 step 12).
+   Under R6, a lock that typing added is released, and the switch stays ON.
+4. **en-US copy**: "Label for {name}" and "Help text for {name}". pt-BR is the spec's.
+5. **The focus ring is added to the inline inputs only.** The panel's inputs keep their look. Whether the panel's
+   inputs also need a ring is left as a follow-up.
+6. **An auto-growing textarea, not a one-line input** (owner, 2026-11-17, from the plan review). R2 allows 80
+   characters of label and 200 of help text, and the card's text wraps today. A textarea wraps the same way, so the
+   card looks the same while it is edited. A short title is only as wide as its text, so a click beside it opens
+   the panel. A title long enough to wrap fills its row, as the text does now, so there is less room beside it, and
+   the area below the text and the answer preview still open the panel. A one-line input would have kept room
+   beside any title, but long text would be clipped and scroll sideways.
+
+#### Risks
+
+1. **Layering of the card.** The content layer has `pointer-events-none`, and the inputs must opt back in. If
+   another element in that layer catches clicks, the cover button never gets them. jsdom cannot see this. Cheapest
+   early check: after Sequence step 3, click the title, beside it and the answer preview in the dev server.
+2. **`field-sizing: content` support.** Browsers without it draw the textarea at its default size, one row at its
+   default width, so a click beside a short title would edit it instead of opening the panel, and long text would
+   scroll inside one row instead of wrapping. Manual check 1 covers this. The fallback, if needed, is to size the
+   textarea to its text, which is a follow-up and not in this plan.
+3. **Enter in a textarea.** A missed `preventDefault` on Enter would type a line break into the label. AC-0002-79
+   emulates the browser's line break, so a missed cancel fails the test. The change handler also turns line breaks
+   into spaces, as a second guard.
+4. **Test churn.** The cards gain textboxes on wide screens, so a query for any textbox without a name could start
+   matching them. The failing-tests step reports any existing test that changes, and no assertion may change.
+
+#### New dependencies
+
+None.
 
 ### Modal panel amendment (v1.14)
 
@@ -2015,3 +2420,9 @@ acceptance criteria.
 | 1.16 | 2026-11-17 | Plan review of "Modal panel amendment (v1.14)": 8 required changes applied with the owner's picks, 2026-11-17. Web 2 dropped, because base-ui's drawer already closes on the click; `sheet.tsx`, `forms-harness.tsx` and `tests/setup.ts` left the scope. Sequence step 0 added: the owner commits the field-card work first. Steps 3 and 4 merged. The popover's ✕ moves after the content, so the label input is the first control (Decisions 6, AC-0002-72). The card's type-change warning has no id. Decisions 3 confirmed. Risks 5: base-ui focus guard, no new dependency. The `forms.fields.menu` grep is recorded, and the emails typecheck is added. 7 should-fix items listed as follow-ups. plan_status stays Draft |
 | 1.17 | 2026-11-17 | Plan approved by Joao Izidoro, 2026-11-17: §11 "Modal panel amendment (v1.14)" as revised in 1.16. plan_status Approved. Sequence step 0 (the owner commits the field-card work) comes before `/implement` |
 | 1.18 | 2026-11-17 | Modal panel amendment implemented per §11 "Modal panel amendment (v1.14)". Built: the popover is modal, with a transparent backdrop that closes it on click, so nothing under it reacts; its popup scrolls on its own and its ✕ comes last in tab order. Cards only display on every screen, and the "⋯" button is gone. A button covering each card is its tab stop (`aria-haspopup="dialog"`, `aria-expanded`), and a click, Enter or Space opens the panel; focus alone selects nothing. The panel always holds the label, the description and the options, and the remove dialog opens inside it. The list keeps one open card; closing the panel deselects it and returns focus to the card, or after a removal to the next card, else the previous one. Drag is off while a panel is open. `forms.fields.menu` was removed from pt-BR and en-US. All 15 criteria in scope have passing tests (W-fld 40/40): AC-0002-21, -54, -57 to -60, -62, -65 and -70 to -76. AC-0002-55, -56, -61, -63, -64, -66, -67 and -69 still pass. Test edits beyond the plan's table: AC-0002-22 checks the warning on the card and in the panel (Web 3); "§8 a server fieldOptions.required" looks for the message in the panel, where the options moved (Web 4); AC-0002-70 looks for the copy inside the toast, because Decisions 3 also shows it under the title; the `closePanel` helper reads the dialog once. Choices that change no criterion: the backdrop has `role="presentation"`; the cover button shows a focus ring, because focus no longer highlights the card. Review PASS with 5 should-fix follow-ups. Deferred checks unchanged: AC-0002-16, -19, -23, -24, -26 (SPEC-0004). Status stays Approved until the owner accepts the behavior on a running system and does the §11 manual checks 1–5 |
+| 1.19 | 2026-11-17 | Editing in place (owner, 2026-11-17), pending owner approval. On wide screens, an idle card's title and help text are inputs that edit the label and the description in place, without selecting the card or opening the panel. A click elsewhere on the card still selects it and opens the panel, and the panel's editing is unchanged. While a panel is open, these inputs do not respond like the rest of the page: a click on one only closes the panel. Owner decisions, 2026-11-17: wide screens only (narrow screens keep display-only cards and tap to open the sheet); the inputs are always inputs and each is a Tab stop; a press inside them never starts a drag; with "Texto de ajuda" ON and an empty description the card shows "Adicionar descrição", and with it OFF the card shows no description input; Enter or leaving keeps the text, and Escape restores the text from when the input took focus. Changed: §4.4 steps 1 and 3, §4.6 steps 1, 2, 3 and 10, §8 (idle card), and Q18 (narrowed). Added §4.6 step 12, and Q20–Q22 (proposed answers, assumed in §4.6 steps 1 and 12). Amended AC-0002-59. Added AC-0002-77 to -89. Status back to Review and plan_status to Draft, until the owner approves and `/plan` writes the plan amendment. The §11 plans still describe v1.18 |
+| 1.20 | 2026-11-17 | Spec review of v1.19: the 8 required changes applied with the owner's picks, 2026-11-17; still pending owner approval. Q20–Q22 decided by the owner as proposed (the type name as the empty title's placeholder; Tab goes card, title input, help-text input, next card; focus stays in the input after Enter or Escape). §4.6 step 12: Escape also restores the draft and runs the label check again; each input has its own accessible name ("Rótulo de <name>", "Texto de ajuda de <name>") and a visible focus indicator; the inputs are read-only while the editor saves; an idle card's invalid input is described by the message under the title. §4.6 step 4 reworded, because the panel no longer holds all editing on wide screens. §8 idle and validation-error rows updated, with the new copy keys `forms.fields.inlineLabel` and `forms.fields.inlineHelpText`. AC-0002-82 and -88 use copy keys, and AC-0002-88 also checks the panel's label input. Added AC-0002-90 to -94. Review follow-ups not taken: a positive focus check in AC-0002-87; Tab past the title input and Shift+Tab; the no-drag rule on the help-text input; Space typed in a title input; older items (file names in changelog rows 1.10, 1.11, 1.16 and 1.18; §3.5 before §3.4; the Given of AC-0002-09, -12 and -13) |
+| 1.21 | 2026-11-17 | Approved by Joao Izidoro, 2026-11-17: the v1.19 editing-in-place amendment with the v1.20 review fixes, including AC-0002-59 as amended and AC-0002-77 to -94 as written. The "pending" notes now read "approved 2026-11-17". plan_status stays Draft until `/plan` writes the plan amendment and the owner approves it. Review follow-ups stay follow-ups |
+| 1.22 | 2026-11-17 | `/plan` wrote §11 "Editing-in-place amendment (v1.21)" for the v1.19–v1.21 amendment. Its scope block is now the first in the file. plan_status stays Draft until the owner approves the plan |
+| 1.23 | 2026-11-17 | Plan review of "Editing-in-place amendment (v1.21)": 4 required changes applied with the owner's picks, 2026-11-17. Web 1: the inline editor is an auto-growing textarea that wraps like the card's text (Decisions 6), it does not take `focus:outline-none` so its focus ring shows, Enter is cancelled so no line break is typed, and pasted line breaks become spaces; the AC-0002-79 helper, manual check 2 and Risks 3 now describe a textarea's Enter. Web 2: an input is described by the message under the title only while its own error is set. Deferred checks: AC-0002-79, -85 and -87 are finished by manual checks 2, 6 and 4, and manual check 6 (Tab order) was added. Should-fix items also taken: i18n before the failing tests (Sequence 1), the text box's spacing matches the text, Escape is left alone during IME composition and while read-only, and the inline helpers pass `{ hidden: true }`. Follow-ups not taken: drop or justify `data-error-slot` on the inline inputs; Sequence 0 should name v1.19–v1.23. plan_status stays Draft |
+| 1.24 | 2026-11-17 | Plan approved by Joao Izidoro, 2026-11-17: §11 "Editing-in-place amendment (v1.21)" as revised in 1.23. plan_status Approved. Sequence step 0 (the owner commits the spec changes) is optional, because the spec file is in scope |
