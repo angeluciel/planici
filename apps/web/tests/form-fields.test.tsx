@@ -1,6 +1,6 @@
 // W-fld: SPEC-0002 AC-0002-01, -10, -14, -21, -22, -25, -48, -49, -50, -53 to -67,
-// -69, -70 (field cards and settings panel inside SPEC-0001's editor; network
-// faked by forms-harness).
+// -69 to -76 (field cards and the modal settings panel inside SPEC-0001's
+// editor; network faked by forms-harness).
 import {
 	act,
 	cleanup,
@@ -61,16 +61,19 @@ afterEach(() => {
 });
 
 // ------------------------------------------------------------------ helpers
-// Interface assumed from SPEC-0002 section 4.6 and 11 (Web): each field is an
-// <li> card named by its label (type name while the label is empty), covered by
-// a button of the same name: the idle card's tab stop (tabIndex 0) and its
-// click target. The selected card has aria-current="true". On a
-// wide screen the selected card holds a textbox named `forms.fields.label` and
-// a button named `forms.fields.menu` that opens the settings panel, a dialog
-// named `forms.fields.panelTitle` holding the switches, the type combobox, the
-// "Mover" menu button and "Remover".
+// Interface assumed from SPEC-0002 section 4.6 and 11 (Modal panel amendment,
+// Tests): each field is an <li> card named by its label (type name while the
+// label is empty), covered by a button of the same name: the card's only tab
+// stop (tabIndex 0) and its click target. The card only displays; the
+// selected card has aria-current="true" exactly while its panel is open. The
+// panel is a dialog named `forms.fields.panelTitle` (a modal popover on wide
+// screens, a sheet on narrow ones) that holds the label textbox, the
+// description textbox, the switches, the type combobox, the "Mover" menu
+// button and "Remover". While it is open the page behind it is hidden from
+// assistive technology, so page queries pass `{ hidden: true }`.
 
-const save = () => screen.getByRole("button", { name: tCommon("save") });
+const save = () =>
+	screen.getByRole("button", { name: tCommon("save"), hidden: true });
 
 /** The field cards: outermost list items, minus toasts, dialogs and menus. */
 function cards(): HTMLElement[] {
@@ -82,22 +85,10 @@ function cards(): HTMLElement[] {
 	);
 }
 
-const labelTextbox = (card: HTMLElement) =>
-	within(card).queryByRole("textbox", {
-		name: t("fields.label"),
-	}) as HTMLInputElement | null;
-
-const cardLabel = (card: HTMLElement) =>
-	labelTextbox(card)?.value ?? card.getAttribute("aria-label") ?? "";
+const cardLabel = (card: HTMLElement) => card.getAttribute("aria-label") ?? "";
 
 function cardOf(label: string): HTMLElement {
-	const card = cards().find(
-		(el) =>
-			el.getAttribute("aria-label") === label ||
-			labelTextbox(el)?.value === label ||
-			(el.getAttribute("aria-current") === "true" &&
-				within(el).queryByText(label) !== null),
-	);
+	const card = cards().find((el) => cardLabel(el) === label);
 	if (!card) throw new Error(`no field card labelled "${label}"`);
 	return card;
 }
@@ -106,9 +97,10 @@ function cardOf(label: string): HTMLElement {
 const coverButton = (card: HTMLElement) =>
 	within(card).getByRole("button", {
 		name: card.getAttribute("aria-label") ?? "",
+		hidden: true,
 	});
 
-/** A card that is not selected is named by its label and reachable with Tab. */
+/** A card is named by its label and reachable with Tab. */
 function idleCard(label: string): HTMLElement {
 	const card = cardOf(label);
 	expect(card.getAttribute("aria-label")).toBe(label);
@@ -116,56 +108,103 @@ function idleCard(label: string): HTMLElement {
 	return card;
 }
 
-/** Moving focus into a card selects it. */
-function selectCard(card: HTMLElement): HTMLElement {
-	if (card.getAttribute("aria-current") !== "true") {
-		act(() => card.focus());
-	}
-	return card;
-}
+const selectedCards = () =>
+	cards().filter((card) => card.getAttribute("aria-current") === "true");
 
-const settingsButton = (card: HTMLElement) =>
-	within(card).getByRole("button", { name: t("fields.menu") });
+/** True when focus is on the card or on something inside it (its cover button). */
+const focusIsOnCard = (card: HTMLElement) =>
+	card.contains(document.activeElement);
+
 const panelOrNull = () =>
 	screen.queryByRole("dialog", { name: t("fields.panelTitle") });
 const panel = () =>
 	screen.getByRole("dialog", { name: t("fields.panelTitle") });
 
+/** Clicks the card's cover button and waits for the panel. A card whose panel is already open is not clicked again: a click then lands on the backdrop. */
 async function openSettings(card: HTMLElement): Promise<HTMLElement> {
-	selectCard(card);
-	const trigger = settingsButton(card);
-	if (trigger.getAttribute("aria-expanded") !== "true") {
-		fireEvent.click(trigger);
+	if (card.getAttribute("aria-current") === "true" && panelOrNull()) {
+		return panel();
 	}
+	fireEvent.click(coverButton(card));
 	return screen.findByRole("dialog", { name: t("fields.panelTitle") });
 }
 
-// jsdom does not turn Enter on a focused button into a click, so the keyboard
-// path is: focus + Enter, and the click is only the fallback for that gap.
+// jsdom does not turn Enter on a focused button into a click, so Enter is the
+// keydown and then the click a browser sends unless keydown was cancelled.
+function pressEnter(element: HTMLElement) {
+	if (fireEvent.keyDown(element, { key: "Enter" })) fireEvent.click(element);
+}
+
+/** Tab onto the card's cover button, then Enter. Keys only. */
 async function openSettingsByKeyboard(card: HTMLElement): Promise<HTMLElement> {
-	selectCard(card);
-	const trigger = settingsButton(card);
-	if (trigger.getAttribute("aria-expanded") === "true") return panel();
-	trigger.focus();
-	fireEvent.keyDown(trigger, { key: "Enter" });
-	fireEvent.keyUp(trigger, { key: "Enter" });
-	try {
-		return await waitFor(() => panel(), { timeout: 150 });
-	} catch {
-		fireEvent.click(trigger);
-		return screen.findByRole("dialog", { name: t("fields.panelTitle") });
+	if (card.getAttribute("aria-current") === "true" && panelOrNull()) {
+		return panel();
 	}
+	const cover = coverButton(card);
+	act(() => cover.focus());
+	pressEnter(cover);
+	return screen.findByRole("dialog", { name: t("fields.panelTitle") });
+}
+
+const isNarrowScreen = () =>
+	typeof window.matchMedia === "function" &&
+	!window.matchMedia("(min-width: 1024px)").matches;
+
+/** A full press, as a browser sends it. */
+function press(target: Element) {
+	fireEvent.pointerDown(target);
+	fireEvent.mouseDown(target);
+	fireEvent.pointerUp(target);
+	fireEvent.mouseUp(target);
+	fireEvent.click(target);
+}
+
+/**
+ * A click or tap anywhere outside the open panel. jsdom has no hit-testing, so
+ * this goes to what covers the page: the popover's backdrop on wide screens,
+ * the sheet's viewport (outside its popup) on narrow ones.
+ */
+function clickOutside() {
+	const popup = panel();
+	if (isNarrowScreen()) {
+		const viewport = popup.parentElement;
+		if (!viewport || viewport === document.body) {
+			throw new Error("the sheet has no viewport around its popup");
+		}
+		press(viewport);
+		return;
+	}
+	const backdrop = Array.from(
+		document.querySelectorAll<HTMLElement>('[role="presentation"]'),
+	).find((el) => !el.hidden && !el.contains(popup));
+	if (!backdrop) {
+		throw new Error("the open panel has no backdrop covering the page");
+	}
+	press(backdrop);
+}
+
+/** Closes an open panel the way a person does, with Escape. */
+async function closePanel() {
+	const dialog = panelOrNull();
+	if (!dialog) return;
+	fireEvent.keyDown(dialog, { key: "Escape" });
+	fireEvent.keyUp(dialog, { key: "Escape" });
+	await waitFor(() => expect(panelOrNull()).toBeNull());
 }
 
 async function switchIn(card: HTMLElement, name: string) {
 	return within(await openSettings(card)).getByRole("switch", { name });
 }
 
-/** The label textbox of a card; a card that is not selected is selected first. */
+/** The label textbox in the open panel, which must be the panel of `label`. */
 function labelInput(label: string): HTMLInputElement {
-	const card = selectCard(cardOf(label));
-	const input = labelTextbox(card);
-	if (!input) throw new Error(`card "${label}" has no label textbox`);
+	const input = within(panel()).queryByRole("textbox", {
+		name: t("fields.label"),
+	}) as HTMLInputElement | null;
+	if (!input) throw new Error("the open panel has no label textbox");
+	if (input.value !== label) {
+		throw new Error(`the open panel edits "${input.value}", not "${label}"`);
+	}
 	return input;
 }
 
@@ -289,6 +328,8 @@ async function reorderAndPublish(tpl: ReturnType<typeof template>) {
 		status: 200,
 		body: { ...tpl, version: 2, revision: tpl.revision + 1 },
 	});
+	// [Salvar] does not respond while a panel is open (SPEC-0002 section 4.6 step 10)
+	await closePanel();
 	fireEvent.click(save());
 	// the settings panel is a dialog too: ask for the publish dialog by name
 	const dialog = await screen.findByRole("dialog", {
@@ -508,20 +549,13 @@ describe("FormEditor field list (W-fld)", () => {
 		expectSystemRowsSentByIdOnly(sent, tpl);
 	});
 
-	it("AC-0002-21 tabbing to an idle system card and opening Mover by keyboard offers move up and move down, no Remover", async () => {
+	it("AC-0002-21 Tab to a system card, Enter opens its panel, Mover offers up and down, no Remover", async () => {
 		renderApp(<FormEditor type="client" />);
 		const card = idleCard("E-mail");
-		expect(card.getAttribute("aria-current")).toBeNull();
+		expect(panelOrNull()).toBeNull();
 
-		// Tab onto the idle card, then keys only: no click fallback
-		act(() => card.focus());
-		const trigger = settingsButton(card);
-		act(() => trigger.focus());
-		fireEvent.keyDown(trigger, { key: "Enter" });
-		fireEvent.keyUp(trigger, { key: "Enter" });
-		const dialog = await screen.findByRole("dialog", {
-			name: t("fields.panelTitle"),
-		});
+		// Tab onto the card, then keys only: no click fallback
+		const dialog = await openSettingsByKeyboard(card);
 
 		const move = within(dialog).getByRole("button", { name: t("fields.move") });
 		act(() => move.focus());
@@ -557,7 +591,15 @@ describe("FormEditor field list (W-fld)", () => {
 
 		await chooseFieldType(cardOf("Peso"), t("fields.types.number"));
 
-		expect(await screen.findByText(t("fields.typeChangeWarning"))).toBeTruthy();
+		// on the card, and in the panel under "Tipo" (§4.6 steps 2 and 4)
+		await waitFor(() =>
+			expect(
+				within(panel()).getByText(t("fields.typeChangeWarning")),
+			).toBeTruthy(),
+		);
+		expect(
+			within(cardOf("Peso")).getByText(t("fields.typeChangeWarning")),
+		).toBeTruthy();
 	});
 
 	it("AC-0002-48 removing a field with answers asks first and says how many records have answers", async () => {
@@ -635,6 +677,7 @@ describe("FormEditor field list (W-fld)", () => {
 
 		await chooseFieldType(cardOf("Turno"), t("fields.types.yes_no"));
 		await chooseFieldType(cardOf("Turno"), t("fields.types.select"));
+		await closePanel();
 		// the template name changes too, so [Salvar] is enabled whatever the draft's dirty tracking says
 		fireEvent.change(
 			screen.getByLabelText(t("editor.name"), { selector: "input" }),
@@ -693,8 +736,10 @@ describe("FormEditor field list (W-fld)", () => {
 		renameTemplate("Ficha 2");
 		fireEvent.click(save());
 
+		// the options are edited in the card's panel, which opens on the error
 		const message = await screen.findByText("Adicione pelo menos 2 opções.");
-		expect(cardOf("Turno").contains(message)).toBe(true);
+		expect(cardOf("Turno").getAttribute("aria-current")).toBe("true");
+		expect(panel().contains(message)).toBe(true);
 		expect(cardOf("Turno").getAttribute("aria-invalid")).toBe("true");
 	});
 
@@ -714,7 +759,11 @@ describe("FormEditor field list (W-fld)", () => {
 			body: preview({ schemaChanged: false }),
 		});
 		on("PATCH", `/api/forms/${tpl.id}`, { status: 200, body: tpl });
+		// the error opened the panel of "B"; close it, then open the panel of "A"
+		await closePanel();
+		await openSettings(cardOf("A"));
 		fireEvent.change(labelInput("A"), { target: { value: "A2" } });
+		await closePanel();
 		fireEvent.click(save());
 
 		await waitFor(() =>
@@ -744,7 +793,7 @@ describe("FormEditor field list (W-fld)", () => {
 		);
 	});
 
-	it("AC-0002-54 Novo campo on a wide screen selects the new card, opens its panel, help text ON, focus on its label", async () => {
+	it("AC-0002-54 Novo campo on a wide screen opens the new card's panel with help text ON and focus on its label", async () => {
 		renderApp(<FormEditor type="client" />);
 		const before = cards().length;
 
@@ -765,14 +814,14 @@ describe("FormEditor field list (W-fld)", () => {
 		expect(
 			isOn(within(dialog).getByRole("switch", { name: t("fields.helpText") })),
 		).toBe(true);
-		const description = within(card).getByRole("textbox", {
+		const description = within(dialog).getByRole("textbox", {
 			name: t("fields.helpText"),
 		}) as HTMLInputElement;
 		expect(description.value).toBe("");
 		expect(description.getAttribute("placeholder")).toBe(
 			t("fields.descriptionPlaceholder"),
 		);
-		const label = within(card).getByRole("textbox", {
+		const label = within(dialog).getByRole("textbox", {
 			name: t("fields.label"),
 		});
 		await waitFor(() => expect(document.activeElement).toBe(label));
@@ -841,7 +890,7 @@ describe("FormEditor field list (W-fld)", () => {
 		expect(sent?.helpText).toBeNull();
 	});
 
-	it("AC-0002-57 a published field without help text opens with help text OFF and no description input", async () => {
+	it("AC-0002-57 a published field without help text opens its panel with help text OFF and no description input", async () => {
 		await openExisting([field({ label: "Profissão", type: "text" })]);
 		const card = idleCard("Profissão");
 
@@ -851,47 +900,49 @@ describe("FormEditor field list (W-fld)", () => {
 			isOn(within(dialog).getByRole("switch", { name: t("fields.helpText") })),
 		).toBe(false);
 		expect(
-			within(card).queryByRole("textbox", { name: t("fields.helpText") }),
+			within(dialog).queryByRole("textbox", { name: t("fields.helpText") }),
 		).toBeNull();
 		expect(
-			within(card).queryByPlaceholderText(t("fields.descriptionPlaceholder")),
+			within(dialog).queryByPlaceholderText(t("fields.descriptionPlaceholder")),
 		).toBeNull();
 	});
 
-	it("AC-0002-58 clicking another card selects it and closes the open panel", async () => {
+	it("AC-0002-58 clicking outside an open panel over another card only closes the panel", async () => {
 		await openExisting([
 			field({ label: "Profissão", type: "text" }),
 			field({ label: "Objetivo", type: "text" }),
 		]);
 		await openSettings(cardOf("Profissão"));
-		const objetivo = idleCard("Objetivo");
+		expect(idleCard("Objetivo").getAttribute("aria-current")).toBeNull();
 
-		pointer("pointerDown", objetivo, "mouse", 50);
-		fireEvent.mouseDown(objetivo);
-		act(() => objetivo.focus());
-		pointer("pointerUp", objetivo, "mouse", 50);
-		fireEvent.mouseUp(objetivo);
-		fireEvent.click(objetivo);
+		// jsdom has no hit-testing: a click on a card under the panel's backdrop
+		// is a click on the backdrop
+		clickOutside();
 
 		await waitFor(() => expect(panelOrNull()).toBeNull());
-		expect(cardOf("Objetivo").getAttribute("aria-current")).toBe("true");
-		expect(idleCard("Profissão").getAttribute("aria-current")).toBeNull();
+		expect(selectedCards()).toEqual([]);
 	});
 
-	it("AC-0002-59 the ⋯ button opens Configurações do campo with its six items in order", async () => {
-		await openExisting([field({ label: "Objetivo", type: "text" })]);
-		const card = selectCard(cardOf("Objetivo"));
+	it("AC-0002-59 clicking a card opens Configurações do campo with label, description and the six items in order", async () => {
+		await openExisting([
+			field({
+				label: "Objetivo",
+				type: "text",
+				helpText: "Conte o que você espera",
+			}),
+		]);
+		const card = idleCard("Objetivo");
 		expect(panelOrNull()).toBeNull();
-		const trigger = settingsButton(card);
-		expect(trigger.getAttribute("aria-expanded")).toBe("false");
 
-		fireEvent.click(trigger);
+		fireEvent.click(coverButton(card));
 
 		const dialog = await screen.findByRole("dialog", {
 			name: t("fields.panelTitle"),
 		});
-		expect(trigger.getAttribute("aria-expanded")).toBe("true");
+		expect(cardOf("Objetivo").getAttribute("aria-current")).toBe("true");
 		const items = [
+			within(dialog).getByRole("textbox", { name: t("fields.label") }),
+			within(dialog).getByRole("textbox", { name: t("fields.helpText") }),
 			within(dialog).getByRole("switch", { name: t("fields.required") }),
 			within(dialog).getByRole("switch", { name: t("fields.helpText") }),
 			within(dialog).getByRole("switch", { name: t("fields.sensitive") }),
@@ -907,7 +958,7 @@ describe("FormEditor field list (W-fld)", () => {
 		}
 	});
 
-	it("AC-0002-60 Escape from a panel control closes the panel and returns focus to ⋯", async () => {
+	it("AC-0002-60 Escape closes the panel, deselects the card and returns focus to it", async () => {
 		await openExisting([field({ label: "Objetivo", type: "text" })]);
 		const card = cardOf("Objetivo");
 		const dialog = await openSettings(card);
@@ -920,7 +971,8 @@ describe("FormEditor field list (W-fld)", () => {
 		fireEvent.keyUp(control, { key: "Escape" });
 
 		await waitFor(() => expect(panelOrNull()).toBeNull());
-		expect(document.activeElement).toBe(settingsButton(cardOf("Objetivo")));
+		expect(selectedCards()).toEqual([]);
+		await waitFor(() => expect(focusIsOnCard(cardOf("Objetivo"))).toBe(true));
 	});
 
 	const abc = () => [
@@ -968,9 +1020,10 @@ describe("FormEditor field list (W-fld)", () => {
 		expect(document.activeElement).toBe(document.body);
 	});
 
-	it("AC-0002-62 a mouse drag that starts in the label input does not move the card", async () => {
+	it("AC-0002-62 a mouse drag that starts in the panel's label input does not move the card", async () => {
 		await openExisting(abc());
 		stubCardLayout();
+		await openSettings(cardOf("C"));
 		const input = labelInput("C");
 
 		pointer("pointerDown", input, "mouse", centerOf(5));
@@ -1027,25 +1080,27 @@ describe("FormEditor field list (W-fld)", () => {
 		expect(customLabels()).toEqual(["A", "B", "C"]);
 	});
 
-	it("AC-0002-65 a label error on an idle card selects it with the message and focus on its label input", async () => {
+	it("AC-0002-65 a label error on a wide screen opens that card's panel with the message and focus on its label input", async () => {
 		await openExisting([
 			field({ label: "Profissão", type: "text" }),
 			field({ label: "Objetivo", type: "text" }),
 		]);
+		await openSettings(cardOf("Objetivo"));
 		fireEvent.change(labelInput("Objetivo"), { target: { value: "" } });
-		selectCard(cardOf("Profissão"));
+		await closePanel();
+		expect(panelOrNull()).toBeNull();
 
 		fireEvent.click(save());
 
-		await waitFor(() =>
-			expect(cards()[4]?.getAttribute("aria-current")).toBe("true"),
-		);
-		const card = cards()[4] as HTMLElement;
-		const input = within(card).getByRole("textbox", {
+		const dialog = await screen.findByRole("dialog", {
+			name: t("fields.panelTitle"),
+		});
+		expect(cards()[4]?.getAttribute("aria-current")).toBe("true");
+		const input = within(dialog).getByRole("textbox", {
 			name: t("fields.label"),
 		});
 		expect(
-			within(card).getByText(tValidation("fieldLabel.required")),
+			within(dialog).getByText(tValidation("fieldLabel.required")),
 		).toBeTruthy();
 		await waitFor(() => expect(document.activeElement).toBe(input));
 		expect(cards()[3]?.getAttribute("aria-current")).toBeNull();
@@ -1118,8 +1173,121 @@ describe("FormEditor field list (W-fld)", () => {
 		expect(cards()[3]?.getAttribute("aria-current")).toBe("true");
 	});
 
-	it("AC-0002-70 an error with no control on a narrow screen shows an error toast and focuses the card, no sheet", async () => {
+	it("AC-0002-70 an error with no control on a narrow screen shows an error toast and focuses the card, unselected, no sheet", async () => {
 		setScreen("narrow");
+		const tpl = await openExisting([field({ label: "Obs", type: "text" })]);
+		expect(idleCard("Obs").getAttribute("aria-current")).toBeNull();
+		failPreview(tpl.id, "fieldOptions.not-allowed", "fields.3.options");
+		renameTemplate("Ficha 2");
+
+		fireEvent.click(save());
+
+		// the card shows the message under its title too (SPEC-0002 §11
+		// Decisions 3), so look for the copy in the toast
+		const message = await waitFor(() => {
+			const el = screen
+				.getAllByText(tValidation("fieldOptions.not-allowed"))
+				.find((node) => node.closest("[data-sonner-toast]"));
+			if (!el) throw new Error("no toast with the message");
+			return el;
+		});
+		expect(
+			message.closest("[data-sonner-toast]")?.getAttribute("data-type"),
+		).toBe("error");
+		const card = cards()[3] as HTMLElement;
+		await waitFor(() => expect(focusIsOnCard(card)).toBe(true));
+		expect(card.getAttribute("aria-current")).toBeNull();
+		expect(panelOrNull()).toBeNull();
+	});
+
+	it("AC-0002-71 with a panel open, dragging another card does not reorder", async () => {
+		await openExisting(abc());
+		stubCardLayout();
+		await openSettings(cardOf("A"));
+		const c = coverButton(cardOf("C"));
+
+		pointer("pointerDown", c, "mouse", centerOf(5));
+		fireEvent.mouseDown(c);
+		pointer("pointerMove", c, "mouse", centerOf(5) - 10);
+		pointer("pointerMove", c, "mouse", centerOf(3));
+		pointer("pointerUp", c, "mouse", centerOf(3));
+		fireEvent.mouseUp(c);
+		await afterDrop();
+
+		expect(customLabels()).toEqual(["A", "B", "C"]);
+	});
+
+	it("AC-0002-72 Tab from the panel's last control (✕) moves to its label input", async () => {
+		await openExisting([field({ label: "Objetivo", type: "text" })]);
+		const dialog = await openSettings(cardOf("Objetivo"));
+		const close = within(dialog).getByRole("button", {
+			name: t("fields.close"),
+		});
+		const label = within(dialog).getByRole("textbox", {
+			name: t("fields.label"),
+		});
+		act(() => close.focus());
+		expect(document.activeElement).toBe(close);
+
+		// jsdom does not move focus on Tab. A browser sends it to base-ui's
+		// trailing focus guard, the next tab stop after the last control, and the
+		// guard hands focus to the first control (SPEC-0002 Risks 5)
+		const guard = Array.from(
+			document.querySelectorAll<HTMLElement>("[data-base-ui-focus-guard]"),
+		).find(
+			(el) =>
+				dialog.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING,
+		);
+		if (!guard) throw new Error("no focus guard after the panel");
+		act(() => guard.focus());
+
+		await waitFor(() => expect(document.activeElement).toBe(label));
+	});
+
+	it("AC-0002-73 clicking [Salvar] while a panel is open sends nothing and only closes the panel", async () => {
+		const tpl = await openExisting([
+			field({ label: "Objetivo", type: "text" }),
+		]);
+		on("POST", previewUrl(tpl.id), {
+			status: 200,
+			body: preview({ schemaChanged: false }),
+		});
+		on("PATCH", `/api/forms/${tpl.id}`, { status: 200, body: tpl });
+		renameTemplate("Ficha renomeada");
+		await openSettings(cardOf("Objetivo"));
+
+		// jsdom has no hit-testing: a click on [Salvar] under the panel's
+		// backdrop is a click on the backdrop
+		clickOutside();
+
+		await waitFor(() => expect(panelOrNull()).toBeNull());
+		expect(callsTo("POST", previewUrl(tpl.id))).toHaveLength(0);
+		expect(callsTo("PATCH", `/api/forms/${tpl.id}`)).toHaveLength(0);
+	});
+
+	it("AC-0002-74 tapping outside the sheet closes it and deselects the card", async () => {
+		setScreen("narrow");
+		await openExisting([field({ label: "Objetivo", type: "text" })]);
+		await openSettings(cardOf("Objetivo"));
+
+		clickOutside();
+
+		await waitFor(() => expect(panelOrNull()).toBeNull());
+		expect(selectedCards()).toEqual([]);
+	});
+
+	it("AC-0002-75 Tab to a card neither opens its panel nor selects it", async () => {
+		await openExisting([field({ label: "Objetivo", type: "text" })]);
+		const card = idleCard("Objetivo");
+
+		act(() => coverButton(card).focus());
+
+		expect(document.activeElement).toBe(coverButton(card));
+		expect(panelOrNull()).toBeNull();
+		expect(selectedCards()).toEqual([]);
+	});
+
+	it("AC-0002-76 an error with no control on a wide screen shows under the card title, card focused and unselected, no panel", async () => {
 		const tpl = await openExisting([field({ label: "Obs", type: "text" })]);
 		expect(idleCard("Obs").getAttribute("aria-current")).toBeNull();
 		failPreview(tpl.id, "fieldOptions.not-allowed", "fields.3.options");
@@ -1130,12 +1298,90 @@ describe("FormEditor field list (W-fld)", () => {
 		const message = await screen.findByText(
 			tValidation("fieldOptions.not-allowed"),
 		);
-		expect(
-			message.closest("[data-sonner-toast]")?.getAttribute("data-type"),
-		).toBe("error");
 		const card = cards()[3] as HTMLElement;
-		expect(card.getAttribute("aria-current")).toBe("true");
-		await waitFor(() => expect(document.activeElement).toBe(card));
+		expect(card.contains(message)).toBe(true);
+		await waitFor(() => expect(focusIsOnCard(card)).toBe(true));
+		expect(card.getAttribute("aria-current")).toBeNull();
 		expect(panelOrNull()).toBeNull();
+	});
+
+	it("§4.6 step 11 removing a field without answers from its panel focuses the next card", async () => {
+		await openExisting(abc());
+		const dialog = await openSettings(cardOf("B"));
+		const remove = within(dialog).getByRole("button", {
+			name: t("fields.remove"),
+		});
+		act(() => remove.focus());
+
+		fireEvent.click(remove);
+
+		await waitFor(() => expect(panelOrNull()).toBeNull());
+		expect(customLabels()).toEqual(["A", "C"]);
+		await waitFor(() => expect(focusIsOnCard(cardOf("C"))).toBe(true));
+	});
+
+	it("§4.6 step 11 cancelling the remove dialog keeps the panel open with focus on Remover", async () => {
+		await openExisting([
+			field({ label: "Profissão", type: "text", valueCount: 3 }),
+		]);
+		const settings = await openSettings(cardOf("Profissão"));
+		const remove = within(settings).getByRole("button", {
+			name: t("fields.remove"),
+		});
+		act(() => remove.focus());
+		fireEvent.click(remove);
+		const confirm = await waitFor(() => {
+			const el =
+				screen.queryByRole("alertdialog", {
+					name: t("fields.removeConfirm"),
+				}) ?? screen.queryByRole("dialog", { name: t("fields.removeConfirm") });
+			if (!el) throw new Error("remove dialog not shown");
+			return el;
+		});
+
+		fireEvent.click(
+			within(confirm).getByRole("button", { name: t("fields.cancel") }),
+		);
+
+		await waitFor(() =>
+			expect(
+				screen.queryByRole("alertdialog", {
+					name: t("fields.removeConfirm"),
+				}) ?? screen.queryByRole("dialog", { name: t("fields.removeConfirm") }),
+			).toBeNull(),
+		);
+		const still = panel();
+		expect(customLabels()).toEqual(["Profissão"]);
+		await waitFor(() =>
+			expect(document.activeElement).toBe(
+				within(still).getByRole("button", { name: t("fields.remove") }),
+			),
+		);
+	});
+
+	it("§4.6 step 10 the leave prompt responds while a panel is open", async () => {
+		await openExisting([field({ label: "Objetivo", type: "text" })]);
+		const other = document.createElement("a");
+		other.href = "/pt-BR/orgs/studio-ana-4f9k2m7x1q/clients";
+		other.textContent = "outra página";
+		document.body.appendChild(other);
+		renameTemplate("Ficha editada");
+		await openSettings(cardOf("Objetivo"));
+
+		fireEvent.click(other);
+
+		const prompt = await screen.findByRole("dialog", {
+			name: t("editor.unsaved"),
+		});
+		fireEvent.click(
+			within(prompt).getByRole("button", { name: tCommon("cancel") }),
+		);
+		await waitFor(() =>
+			expect(
+				screen.queryByRole("dialog", { name: t("editor.unsaved") }),
+			).toBeNull(),
+		);
+		expect(panelOrNull()).not.toBeNull();
+		other.remove();
 	});
 });

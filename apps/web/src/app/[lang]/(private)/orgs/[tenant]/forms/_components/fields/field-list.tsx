@@ -19,7 +19,6 @@ import { useWideScreen } from "@/hooks/use-media-query";
 import type { FormDraft } from "../../_lib/draft";
 import {
 	FieldCard,
-	isPanelSlot,
 	type RowErrors,
 	slotHasControl,
 } from "./field-card/field-card";
@@ -27,7 +26,6 @@ import type { FieldErrorSlot } from "./field-error-target";
 import { type DraftField, MAX_FIELDS, newField } from "./field-model";
 import { FieldReorder } from "./field-reorder";
 import { FieldSettings } from "./field-settings";
-import { RemoveFieldDialog } from "./remove-field-dialog";
 
 // The first field error of a save, which the list brings into view (SPEC-0002
 // §4.6 steps 8 and 9). `nonce` changes on every save, so the same error is
@@ -53,17 +51,17 @@ type Props = {
 	reveal?: FieldReveal | null;
 };
 
-// what the panel focuses when it opens: its first control, nothing (a new
-// field keeps focus on its label), or the control of an error
-type PanelFocus = "first" | "none" | { slot: FieldErrorSlot };
+// the control the panel focuses when it opens: the label input, or the
+// control of an error
+type PanelFocus = FieldErrorSlot | "label";
 
-// focus to move once the card's new state is on screen
-type PendingFocus =
-	| { kind: "card"; key: string }
-	| { kind: "control"; key: string; slot: FieldErrorSlot | "label" }
-	| { kind: "afterRemove"; index: number };
+// where focus goes when the panel closes: the card's cover button, or, after a
+// removal, the card now at that place
+type CloseFocus = { kind: "card" } | { kind: "removed"; index: number };
 
-function slotSelector(slot: FieldErrorSlot | "label"): string {
+const COVER = "[data-card-activate]";
+
+function slotSelector(slot: PanelFocus): string {
 	if (typeof slot === "object")
 		return `[data-error-slot="option-${slot.option}"]`;
 	// the first option, or "Adicionar opção" when there is none
@@ -103,31 +101,30 @@ export function FieldList({
 	// holds [Novo campo]; Button takes no ref
 	const addRef = useRef<HTMLDivElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
-	const settingsRef = useRef<HTMLButtonElement>(null);
 	const cardEls = useRef(new Map<string, HTMLLIElement>());
 	// one stable ref callback per card, so the drag's node ref is not reset on
 	// every render
 	const cardRefs = useRef(
 		new Map<string, (element: HTMLLIElement | null) => void>(),
 	);
-	const panelFocus = useRef<PanelFocus>("first");
-	// focus goes back to "⋯" only when the professional closed the panel
-	const closedByUser = useRef(false);
-	const pendingFocus = useRef<PendingFocus | null>(null);
+	const panelFocus = useRef<PanelFocus>("label");
+	// the card whose panel was opened last, to return focus to it
+	const lastOpen = useRef<string | null>(null);
+	const closeFocus = useRef<CloseFocus>({ kind: "card" });
+	// a card's cover button to focus once the list is rendered
+	const pendingFocus = useRef<string | null>(null);
 
-	const [selected, setSelected] = useState<string | null>(null);
-	const [panelOpen, setPanelOpen] = useState(false);
+	// the row key of the card whose panel is open (§4.6 step 3)
+	const [open, setOpen] = useState<string | null>(null);
 	const [addedNew, setAddedNew] = useState(false);
-	const [removing, setRemoving] = useState<number | null>(null);
 
 	const count = values.length;
 	const atLimit = count >= MAX_FIELDS;
 	const onlySystem = count > 0 && values.every((row) => row.systemKey);
-	const selectedIndex = rows.findIndex((row) => row.rowKey === selected);
-	const selectedField = selectedIndex >= 0 ? values[selectedIndex] : undefined;
-	const showPanel = panelOpen && selectedField !== undefined;
+	const openIndex = rows.findIndex((row) => row.rowKey === open);
+	const openField = openIndex >= 0 ? values[openIndex] : undefined;
+	const showPanel = open !== null && openField !== undefined;
 
-	// selecting another card closes the panel (Q14)
 	function cardRefOf(key: string) {
 		let ref = cardRefs.current.get(key);
 		if (!ref) {
@@ -140,58 +137,39 @@ export function FieldList({
 		return ref;
 	}
 
-	function select(key: string) {
-		if (key === selected) return;
-		closedByUser.current = false;
-		setSelected(key);
-		setPanelOpen(false);
-	}
+	const coverOf = (key: string | null) =>
+		(key && cardEls.current.get(key)?.querySelector<HTMLElement>(COVER)) ||
+		null;
 
-	function openPanel(focus: PanelFocus) {
+	// Every way of opening a panel: click, tap, Enter, Space, a held touch, [Novo
+	// campo] and the first error of a save. The card is brought into view first,
+	// because the page cannot scroll while the panel is open (Q19).
+	function openCard(key: string, focus: PanelFocus = "label") {
+		cardEls.current.get(key)?.scrollIntoView?.({ block: "nearest" });
 		panelFocus.current = focus;
-		setPanelOpen(true);
+		lastOpen.current = key;
+		closeFocus.current = { kind: "card" };
+		setOpen(key);
 	}
 
+	// Escape, the close button, or a click outside: closing deselects (§4.6 step 5)
 	function closePanel() {
-		closedByUser.current = true;
-		setPanelOpen(false);
+		setOpen(null);
 	}
 
-	// a click or tap on a card: on narrow screens it also opens the sheet
-	function activate(key: string) {
-		select(key);
-		if (!wide) openPanel("first");
-	}
-
-	function toggleSettings(key: string) {
-		if (key !== selected) {
-			select(key);
-			openPanel("first");
-			return;
-		}
-		if (panelOpen) closePanel();
-		else openPanel("first");
-	}
-
-	// a new card is selected with its panel open (§4.6, Novo campo)
+	// a new card opens its panel (§4.6, Novo campo)
 	// biome-ignore lint/correctness/useExhaustiveDependencies: runs when a row is appended
 	useEffect(() => {
 		if (!addedNew) return;
 		setAddedNew(false);
 		const key = rows.at(-1)?.rowKey;
-		if (!key) return;
-		closedByUser.current = false;
-		setSelected(key);
-		if (wide) {
-			openPanel("none");
-			pendingFocus.current = { kind: "control", key, slot: "label" };
-		} else {
-			openPanel("first");
-		}
+		if (key) openCard(key);
 	}, [addedNew, rows.length]);
 
-	// the first error of a save (§4.6 steps 8 and 9). A layout effect, so the
-	// card is selected before the error is painted on the idle card.
+	// The first error of a save (§4.6 steps 8 and 9). One with a control opens
+	// the card's panel on it. One without stays on the card, unselected, with a
+	// toast on narrow screens. A layout effect, so the panel opens before the
+	// message is painted under the card title.
 	// biome-ignore lint/correctness/useExhaustiveDependencies: runs once per save
 	useLayoutEffect(() => {
 		if (!reveal) return;
@@ -199,64 +177,41 @@ export function FieldList({
 		const field = values[reveal.index];
 		if (!key || !field) return;
 		const { slot } = reveal;
-		select(key);
-
-		if (!slotHasControl(slot, field)) {
-			if (!wide) {
-				toast.show(text(reveal.message) ?? reveal.message, "danger");
-			}
-			setPanelOpen(false);
-			pendingFocus.current = { kind: "card", key };
+		if (slotHasControl(slot, field)) {
+			openCard(key, slot);
 			return;
 		}
-		if (!wide || isPanelSlot(slot)) openPanel({ slot });
-		pendingFocus.current = { kind: "control", key, slot };
+		if (!wide) toast.show(text(reveal.message) ?? reveal.message, "danger");
+		setOpen(null);
+		pendingFocus.current = key;
 	}, [reveal]);
 
-	// moves focus once the selection, the card and the panel are rendered
 	useEffect(() => {
-		const pending = pendingFocus.current;
-		if (!pending) return;
-		if (pending.kind === "afterRemove") {
-			pendingFocus.current = null;
-			const cards = listRef.current?.children;
-			const next = (cards?.[pending.index] ?? cards?.[pending.index - 1]) as
-				| HTMLElement
-				| undefined;
-			if (next) next.focus();
-			else addRef.current?.querySelector("button")?.focus();
-			return;
-		}
-		if (pending.key !== selected) return;
+		const key = pendingFocus.current;
+		if (!key) return;
 		pendingFocus.current = null;
-		const card = cardEls.current.get(pending.key);
-		if (pending.kind === "card") {
-			card?.focus();
-			return;
-		}
-		const selector = slotSelector(pending.slot);
-		const target =
-			card?.querySelector<HTMLElement>(selector) ??
-			panelRef.current?.querySelector<HTMLElement>(selector);
-		target?.focus();
+		coverOf(key)?.focus();
 	});
 
 	function focusInPanel(): HTMLElement | boolean {
-		const request = panelFocus.current;
-		if (request === "none") return false;
-		const root = panelRef.current;
-		if (!root) return true;
-		let selector: string;
-		if (request !== "first") selector = slotSelector(request.slot);
-		else if (wide) selector = '[data-error-slot="required"]';
-		else selector = '[data-error-slot="label"]';
-		return root.querySelector<HTMLElement>(selector) ?? true;
+		return (
+			panelRef.current?.querySelector<HTMLElement>(
+				slotSelector(panelFocus.current),
+			) ?? true
+		);
 	}
 
 	function focusOnClose(): HTMLElement | false {
-		if (!closedByUser.current) return false;
-		closedByUser.current = false;
-		return settingsRef.current ?? false;
+		const target = closeFocus.current;
+		if (target.kind === "card") return coverOf(lastOpen.current) ?? false;
+		// the next card, else the previous one, else [Novo campo]
+		const items = listRef.current?.children;
+		const next = items?.[target.index] ?? items?.[target.index - 1];
+		return (
+			next?.querySelector<HTMLElement>(COVER) ??
+			addRef.current?.querySelector<HTMLElement>("button") ??
+			false
+		);
 	}
 
 	function publishedOf(row: DraftField): Field | undefined {
@@ -281,21 +236,11 @@ export function FieldList({
 		move(from, to);
 	}
 
-	// focus goes to the next card, else the previous one, else [Novo campo]
+	// from the panel, after the dialog when the field has answers (§4.6 step 11)
 	function removeRow(index: number) {
+		closeFocus.current = { kind: "removed", index };
 		remove(index);
-		setRemoving(null);
-		setSelected(null);
-		pendingFocus.current = { kind: "afterRemove", index };
-	}
-
-	function requestRemove(index: number) {
-		const row = values[index];
-		if (!row) return;
-		closedByUser.current = false;
-		setPanelOpen(false);
-		if (answersOf(row) > 0) setRemoving(index);
-		else removeRow(index);
+		setOpen(null);
 	}
 
 	function errorsOf(index: number): RowErrors {
@@ -319,23 +264,22 @@ export function FieldList({
 	}
 
 	const listError = text(get(errors, "root.message") as string | undefined);
-	const removingRow = removing === null ? undefined : values[removing];
 	const rowId = (key: string) => `${listId}-${key}`;
 
-	const settings = selectedField && selected && (
+	const settings = openField && open && (
 		<div ref={panelRef}>
 			<FieldSettings
-				key={selected}
-				field={selectedField}
-				published={publishedOf(selectedField)}
-				errors={errorsOf(selectedIndex)}
-				baseId={rowId(selected)}
-				index={selectedIndex}
+				key={open}
+				field={openField}
+				published={publishedOf(openField)}
+				errors={errorsOf(openIndex)}
+				baseId={rowId(open)}
+				index={openIndex}
 				count={count}
-				narrow={!wide}
-				onChange={(next) => setRow(selectedIndex, next)}
-				onMove={(to) => moveTo(selectedIndex, to)}
-				onRemove={() => requestRemove(selectedIndex)}
+				answers={answersOf(openField)}
+				onChange={(next) => setRow(openIndex, next)}
+				onMove={(to) => moveTo(openIndex, to)}
+				onRemove={() => removeRow(openIndex)}
 			/>
 		</div>
 	);
@@ -353,8 +297,9 @@ export function FieldList({
 			<FieldReorder
 				ids={rows.map((row) => row.rowKey)}
 				move={move}
-				disabled={disabled}
-				onTap={activate}
+				// no drag while saving or while a panel is open (§4.4 step 2)
+				disabled={disabled || open !== null}
+				onTap={(key) => openCard(key)}
 			>
 				<ul ref={listRef} className="flex flex-col gap-2">
 					{rows.map((row, index) => {
@@ -367,17 +312,11 @@ export function FieldList({
 								field={field}
 								errors={errorsOf(index)}
 								baseId={rowId(key)}
-								selected={key === selected}
-								panelOpen={key === selected && showPanel}
+								selected={key === open && showPanel}
 								panelId={panelId}
-								wide={wide}
 								dragId={key}
 								cardRef={cardRefOf(key)}
-								settingsRef={settingsRef}
-								onSelect={() => select(key)}
-								onActivate={() => activate(key)}
-								onToggleSettings={() => toggleSettings(key)}
-								onChange={(next) => setRow(index, next)}
+								onActivate={() => openCard(key)}
 							/>
 						);
 					})}
@@ -409,9 +348,7 @@ export function FieldList({
 				<Popover
 					open={showPanel}
 					onClose={closePanel}
-					anchor={() =>
-						(selected ? cardEls.current.get(selected) : null) ?? null
-					}
+					anchor={() => (open ? cardEls.current.get(open) : null) ?? null}
 					title={t("panelTitle")}
 					closeLabel={t("close")}
 					id={panelId}
@@ -432,14 +369,6 @@ export function FieldList({
 				>
 					{settings}
 				</Sheet>
-			)}
-
-			{removingRow && removing !== null && (
-				<RemoveFieldDialog
-					count={answersOf(removingRow)}
-					onCancel={() => setRemoving(null)}
-					onConfirm={() => removeRow(removing)}
-				/>
 			)}
 		</div>
 	);

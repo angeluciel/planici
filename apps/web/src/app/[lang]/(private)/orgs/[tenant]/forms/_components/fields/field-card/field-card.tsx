@@ -1,21 +1,16 @@
 "use client";
 
-import { EllipsisIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { type KeyboardEvent, type Ref, useCallback } from "react";
+import { useCallback } from "react";
 import { FieldAnswerPreview } from "../field-answer-preview";
 import type { DraftField } from "../field-model";
-import { FieldOptionsEditor } from "../field-options-editor";
 import { useSortableCard } from "../field-reorder";
 import {
-	isPanelSlot,
 	placedErrors,
 	type RowErrors,
 	slotHasControl,
 } from "./field-card-errors";
-import { FieldTextInputs } from "./field-text-inputs";
 
-// Preserve the original public exports for existing consumers.
 export {
 	isPanelSlot,
 	placedErrors,
@@ -42,45 +37,30 @@ type Props = {
 	field: DraftField;
 	errors: RowErrors;
 	baseId: string;
+	// the card's panel is open (SPEC-0002 §4.6 step 3)
 	selected: boolean;
-	panelOpen: boolean;
 	panelId: string;
-	// wide screens edit on the card; narrow ones edit in the sheet
-	wide: boolean;
-	// the row key, which FieldReorder sorts by
 	dragId: string;
-	// keep it stable: the card merges it with the drag's node ref
 	cardRef: (element: HTMLLIElement | null) => void;
-	settingsRef: Ref<HTMLButtonElement>;
-	onSelect: () => void;
-	// a click or tap on the card itself, not on one of its controls
 	onActivate: () => void;
-	onToggleSettings: () => void;
-	onChange: (next: DraftField) => void;
 };
 
-// The list item holds the card; a sibling activation button covers its surface.
-// Inputs and settings remain separate controls above that button.
+// One field of the list. It only displays: the label, description and every
+// setting are edited in the panel (SPEC-0002 §4.6 step 2). A button covers the
+// card: it is the card's tab stop, and a click, Enter or Space on it opens the
+// panel. Focus alone selects nothing (§4.6 step 1).
 export function FieldCard({
 	field,
 	errors,
 	baseId,
 	selected,
-	panelOpen,
 	panelId,
-	wide,
 	dragId,
 	cardRef,
-	settingsRef,
-	onSelect,
 	onActivate,
-	onToggleSettings,
-	onChange,
 }: Readonly<Props>) {
 	const t = useTranslations("forms.fields");
 	const system = Boolean(field.systemKey);
-	const isSelect = field.type === "select";
-	const editing = selected && wide;
 	const typeName = t(`types.${field.type}`);
 	const title = field.label || typeName;
 	const helpText = field.helpText ?? "";
@@ -94,82 +74,59 @@ export function FieldCard({
 		[setNodeRef, cardRef],
 	);
 
+	// while the panel is open it shows the messages under their controls; one
+	// with no control stays here (§4.6 steps 8 and 9)
 	const placed = placedErrors(field, errors);
-	const underTitle = placed.find(({ slot }) => {
-		const control = slotHasControl(slot, field);
-		if (editing) {
-			if (!control) return true;
-			return isPanelSlot(slot) && !panelOpen;
-		}
-		if (selected && !wide) return control;
-		return true;
-	})?.message;
+	const underTitle = placed.find(
+		({ slot }) => !selected || !slotHasControl(slot, field),
+	)?.message;
 
 	const outline = selected
 		? "outline-border-brand-selected"
 		: "outline-transparent hover:outline-border-brand-disabled";
-
-	function onSettingsKey(event: KeyboardEvent<HTMLButtonElement>) {
-		if (event.key !== "Enter" || event.repeat) return;
-		event.preventDefault();
-		onToggleSettings();
-	}
 
 	return (
 		<li
 			{...drag.listeners}
 			ref={nodeRef}
 			style={drag.style}
-			tabIndex={-1}
 			aria-label={title}
 			aria-current={selected ? "true" : undefined}
 			aria-invalid={placed.length > 0 || undefined}
 			data-dragging={drag.dragging || undefined}
-			onFocus={onSelect}
-			className={`group relative isolate flex touch-pan-y flex-col gap-2 rounded-md outline-2 -outline-offset-2 transition-[outline-color] duration-200 ease-out bg-surface-sunken px-3 py-2 font-body-sm text-text-primary ${outline} ${
+			className={`relative isolate flex touch-pan-y flex-col gap-2 rounded-md outline-2 -outline-offset-2 transition-[outline-color] duration-200 ease-out bg-surface-sunken px-3 py-2 font-body-sm text-text-primary ${outline} ${
 				drag.dragging ? "z-20 shadow-overlay select-none" : ""
-			} ${selected ? "" : "cursor-pointer"}`}
+			}`}
 		>
 			<button
 				type="button"
 				data-card-activate=""
-				tabIndex={selected ? -1 : 0}
+				tabIndex={0}
 				aria-label={title}
-				// an idle card, the only time this button is a tab stop, always shows
-				// its first error under the title
+				aria-haspopup="dialog"
+				aria-expanded={selected}
+				aria-controls={selected ? panelId : undefined}
 				aria-describedby={underTitle ? `${baseId}-card-error` : undefined}
-				// A press may become a drag (§4.4), which must not select the card, so
-				// the press does not take focus. The click does, and dnd-kit drops the
-				// click that follows a drag.
+				// a drag starts with this press; the button gets focus on the click
+				// only, so a drag neither focuses nor selects the card (§4.4 step 3)
 				onMouseDown={(event) => event.preventDefault()}
 				onClick={(event) => {
 					event.currentTarget.focus();
 					onActivate();
 				}}
-				className="absolute inset-0 z-0 cursor-pointer rounded-md focus-visible:outline-none"
+				className="absolute inset-0 z-0 cursor-pointer rounded-md focus-visible:outline-2 focus-visible:outline-border-focused"
 			/>
-			<div className="pointer-events-none relative z-10 flex flex-col gap-2 [&_:is(input,textarea,select,button,a,label,[role=switch],[role=combobox],[role=option],[role=menuitem])]:pointer-events-auto">
+			<div className="pointer-events-none relative z-10 flex flex-col gap-2">
 				<div className="flex items-start gap-2">
 					<div className="flex min-w-0 flex-1 flex-col gap-1">
-						{editing ? (
-							<FieldTextInputs
-								field={field}
-								errors={errors}
-								baseId={baseId}
-								onChange={onChange}
-							/>
-						) : (
-							<>
-								<p
-									className={`wrap-break-word font-body-md font-semibold ${
-										field.label ? "text-text-bold" : "text-text-secondary"
-									}`}
-								>
-									{title}
-								</p>
-								{helpText && <p className="text-text-secondary">{helpText}</p>}
-							</>
-						)}
+						<p
+							className={`wrap-break-word font-body-md font-semibold ${
+								field.label ? "text-text-bold" : "text-text-secondary"
+							}`}
+						>
+							{title}
+						</p>
+						{helpText && <p className="text-text-secondary">{helpText}</p>}
 						{underTitle && (
 							<p
 								id={`${baseId}-card-error`}
@@ -184,38 +141,12 @@ export function FieldCard({
 							{t("systemBadge")}
 						</span>
 					)}
-					<button
-						ref={selected ? settingsRef : undefined}
-						type="button"
-						tabIndex={selected ? 0 : -1}
-						aria-label={t("menu")}
-						aria-expanded={panelOpen}
-						aria-controls={panelOpen ? panelId : undefined}
-						onClick={onToggleSettings}
-						onKeyDown={onSettingsKey}
-						className={`transition-all duration-150 flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-icon-subtle hover:bg-surface-hovered focus-visible:outline-2 focus-visible:outline-border-focused aria-expanded:bg-surface-pressed ${
-							selected ? "" : "opacity-0 group-hover:opacity-100"
-						}`}
-					>
-						<EllipsisIcon aria-hidden="true" className="size-5" />
-					</button>
 				</div>
 
-				{field.replaces && (
-					<TypeChangeWarning id={wide ? `${baseId}-warning` : undefined} />
-				)}
+				{/* displays only; the panel's copy is the one "Tipo" refers to */}
+				{field.replaces && <TypeChangeWarning />}
 
-				{editing && isSelect ? (
-					<FieldOptionsEditor
-						options={field.options ?? []}
-						groupError={errors.options}
-						groupErrorId={`${baseId}-options-error`}
-						errorOf={errors.option}
-						onChange={(options) => onChange({ ...field, options })}
-					/>
-				) : (
-					<FieldAnswerPreview field={field} />
-				)}
+				<FieldAnswerPreview field={field} />
 			</div>
 		</li>
 	);
