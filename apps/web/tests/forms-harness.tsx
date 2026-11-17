@@ -36,6 +36,15 @@ export const tCommon = createTranslator({
 	values?: Record<string, unknown>,
 ) => string;
 
+export const tValidation = createTranslator({
+	locale: "pt-BR",
+	messages,
+	namespace: "validation",
+} as never) as unknown as (
+	key: string,
+	values?: Record<string, unknown>,
+) => string;
+
 // ---------------------------------------------------------------- fake API
 
 export type Call = {
@@ -268,6 +277,59 @@ export function renderApp(ui: ReactNode): RenderResult {
 			{inner}
 		</NextIntlClientProvider>,
 	);
+}
+
+// ------------------------------------------------------------ screen width
+// The app reads window.matchMedia("(min-width: 1024px)") and treats a missing
+// matchMedia as a wide screen (jsdom has none). SPEC-0002 AC-0002-55, -66, -69
+// and -70 need a narrow one. This is a property override, not vi.stubGlobal,
+// because the suites call vi.unstubAllGlobals() after each test; call
+// restoreScreen() in afterEach.
+
+const NARROW_PX = 600;
+const WIDE_PX = 1280;
+let screenOverridden = false;
+let originalMatchMedia: PropertyDescriptor | undefined;
+
+function mediaMatches(query: string, width: number): boolean {
+	const min = /\(\s*min-width:\s*(\d+(?:\.\d+)?)px\s*\)/.exec(query);
+	if (min) return width >= Number(min[1]);
+	const max = /\(\s*max-width:\s*(\d+(?:\.\d+)?)px\s*\)/.exec(query);
+	if (max) return width <= Number(max[1]);
+	return false;
+}
+
+export function setScreen(size: "narrow" | "wide") {
+	if (!screenOverridden) {
+		originalMatchMedia = Object.getOwnPropertyDescriptor(window, "matchMedia");
+		screenOverridden = true;
+	}
+	const width = size === "narrow" ? NARROW_PX : WIDE_PX;
+	Object.defineProperty(window, "matchMedia", {
+		configurable: true,
+		writable: true,
+		value: (query: string) => ({
+			matches: mediaMatches(query, width),
+			media: query,
+			onchange: null,
+			addEventListener: () => undefined,
+			removeEventListener: () => undefined,
+			addListener: () => undefined,
+			removeListener: () => undefined,
+			dispatchEvent: () => false,
+		}),
+	});
+}
+
+export function restoreScreen() {
+	if (!screenOverridden) return;
+	screenOverridden = false;
+	if (originalMatchMedia) {
+		Object.defineProperty(window, "matchMedia", originalMatchMedia);
+	} else {
+		Reflect.deleteProperty(window, "matchMedia");
+	}
+	originalMatchMedia = undefined;
 }
 
 // ---------------------------------------------------------------- fixtures
