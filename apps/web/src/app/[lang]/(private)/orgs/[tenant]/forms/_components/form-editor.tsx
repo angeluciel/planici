@@ -10,6 +10,7 @@ import {
 	type MigrationMode,
 	UpdateFormRequestSchema,
 } from "@planici/schemas";
+import { BriefcaseBusiness, type LucideIcon, UserRound } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
@@ -198,6 +199,22 @@ type SaveBody = {
 
 const TYPE_ID_SUFFIX = "type";
 
+const TYPE_OPTIONS = {
+	client: {
+		icon: UserRound,
+		label: "editor.typeClient",
+		hint: "editor.typeClientHint",
+	},
+	service: {
+		icon: BriefcaseBusiness,
+		label: "editor.typeService",
+		hint: "editor.typeServiceHint",
+	},
+} as const satisfies Record<
+	FormType,
+	{ icon: LucideIcon; label: string; hint: string }
+>;
+
 function EditorBody({
 	template,
 	type,
@@ -243,6 +260,7 @@ function EditorBody({
 	const typeLocked = Boolean(current) || Boolean(from);
 	const base = `/orgs/${tenant}`;
 	const leaveTarget = from ? `${base}/${from}` : `${base}/forms`;
+	const name = useWatch({ control, name: "name" });
 
 	const text = useCallback(
 		(key: string | undefined) =>
@@ -483,6 +501,15 @@ function EditorBody({
 	const typeError = errors.type?.message;
 	const descriptionId = `${baseId}-description`;
 
+	let headerText = null;
+	if (current) {
+		headerText = current.name;
+	} else if (name) {
+		headerText = name;
+	} else {
+		headerText = t("actions.new");
+	}
+
 	return (
 		<form
 			noValidate
@@ -496,9 +523,7 @@ function EditorBody({
 		>
 			<header className="flex flex-wrap items-start justify-between gap-3">
 				<div className="flex flex-col gap-1">
-					<h1 className="font-heading-md text-text-bold">
-						{current ? current.name : t("actions.new")}
-					</h1>
+					<h1 className="font-heading-md text-text-bold">{headerText}</h1>
 					{current && (
 						<div className="flex flex-wrap items-center gap-2">
 							<span className="rounded-sm bg-background-accent-gray-subtler px-2 font-body-xs text-text-accent-gray-bolder">
@@ -568,26 +593,45 @@ function EditorBody({
 							: t("editor.typeClient")}
 					</p>
 				) : (
-					<div className="flex flex-wrap gap-4">
-						{FORM_TYPES.map((option, index) => (
-							<label
-								key={option}
-								className="flex cursor-pointer items-center gap-2 font-body-sm text-text-primary"
-							>
-								<input
-									id={index === 0 ? `${baseId}-${TYPE_ID_SUFFIX}` : undefined}
-									type="radio"
-									name={`${baseId}-type`}
-									value={option}
-									checked={draftType === option}
-									onChange={() => chooseType(option)}
-									className="size-4 accent-background-brand-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focused"
-								/>
-								{option === "client"
-									? t("editor.typeClient")
-									: t("editor.typeService")}
-							</label>
-						))}
+					<div className="grid max-w-lg grid-cols-2 gap-3">
+						{FORM_TYPES.map((option, index) => {
+							const { icon: Icon, label, hint } = TYPE_OPTIONS[option];
+							const optionId = `${baseId}-${TYPE_ID_SUFFIX}-${option}`;
+							return (
+								<label
+									key={option}
+									className="group flex cursor-pointer flex-col gap-1 rounded-lg border border-border-input p-3 transition-colors duration-100 ease-out hover:bg-surface-hovered has-checked:border-border-brand has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-border-focused has-disabled:cursor-not-allowed has-disabled:border-border-disabled has-disabled:hover:bg-transparent"
+								>
+									<input
+										id={index === 0 ? `${baseId}-${TYPE_ID_SUFFIX}` : undefined}
+										type="radio"
+										name={`${baseId}-type`}
+										value={option}
+										checked={draftType === option}
+										onChange={() => chooseType(option)}
+										aria-labelledby={`${optionId}-label`}
+										aria-describedby={`${optionId}-hint`}
+										className="sr-only"
+									/>
+									<Icon
+										aria-hidden
+										className="mb-1 size-5 text-icon-subtle transition-colors group-has-checked:text-icon-brand group-has-disabled:text-icon-disabled"
+									/>
+									<span
+										id={`${optionId}-label`}
+										className="font-body-md font-semibold text-text-primary group-has-disabled:text-text-disabled"
+									>
+										{t(label)}
+									</span>
+									<span
+										id={`${optionId}-hint`}
+										className="font-body-sm text-text-secondary group-has-disabled:text-text-disabled"
+									>
+										{t(hint)}
+									</span>
+								</label>
+							);
+						})}
 					</div>
 				)}
 				{typeError && (
