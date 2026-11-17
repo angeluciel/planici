@@ -140,7 +140,7 @@ describe("FormsList", () => {
 		expect(screen.queryByText(t("list.empty", { type: "client" }))).toBeNull();
 	});
 
-	it("shows the page empty state with a create link per type when there are no templates", async () => {
+	it("shows the page empty state with a single create link when there are no templates", async () => {
 		on("GET", "/api/forms", { status: 200, body: { forms: [] } });
 
 		renderApp(<FormsList />);
@@ -149,14 +149,11 @@ describe("FormsList", () => {
 		expect(screen.getByText(t("list.emptyDescription"))).toBeTruthy();
 		expect(
 			screen
-				.getByRole("link", { name: t("actions.newClient") })
+				.getByRole("link", { name: t("actions.newForm") })
 				.getAttribute("href"),
-		).toMatch(/\/forms\/new\?type=client$/);
-		expect(
-			screen
-				.getByRole("link", { name: t("actions.newService") })
-				.getAttribute("href"),
-		).toMatch(/\/forms\/new\?type=service$/);
+		).toMatch(/\/forms\/new$/);
+		// the header's create link is hidden so the page offers one entry point
+		expect(screen.queryByRole("link", { name: t("actions.new") })).toBeNull();
 
 		// the page shell stays, so archived templates remain reachable
 		expect(screen.getByRole("heading", { name: t("list.title") })).toBeTruthy();
