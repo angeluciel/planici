@@ -280,6 +280,7 @@ export function FieldList({
 				onChange={(next) => setRow(openIndex, next)}
 				onMove={(to) => moveTo(openIndex, to)}
 				onRemove={() => removeRow(openIndex)}
+				showTextInputs={!wide}
 			/>
 		</div>
 	);

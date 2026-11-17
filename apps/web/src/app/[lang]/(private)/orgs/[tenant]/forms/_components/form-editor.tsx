@@ -525,7 +525,7 @@ function EditorBody({
 				form.clearErrors("fields");
 				return submit(event);
 			}}
-			className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 md:p-6"
+			className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 md:p-6"
 		>
 			<header className="flex flex-wrap items-start justify-between gap-3">
 				<div className="flex flex-col gap-1">

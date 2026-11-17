@@ -1,12 +1,19 @@
 "use client";
 
 import type { Field, FieldType } from "@planici/schemas";
-import { InfoIcon } from "lucide-react";
+import {
+	AsteriskIcon,
+	InfoIcon,
+	type LucideIcon,
+	TextAlignStartIcon,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useState } from "react";
+import { tr } from "zod/v4/locales";
 import { Menu, MenuItem } from "@/components/ui/menu";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import {
 	FieldTextInputs,
 	type RowErrors,
@@ -31,6 +38,7 @@ type Props = {
 	onChange: (next: DraftField) => void;
 	onMove: (to: number) => void;
 	onRemove: () => void;
+	showTextInputs: boolean;
 };
 
 function ErrorText({
@@ -54,14 +62,17 @@ function SwitchRow({
 	label,
 	extra,
 	children,
+	Icon,
 }: Readonly<{
 	labelId: string;
 	label: string;
 	extra?: ReactNode;
 	children: ReactNode;
+	Icon?: LucideIcon;
 }>) {
 	return (
-		<div className="flex min-h-9 items-center gap-2 px-1 font-body-sm">
+		<div className="flex py-1 items-center transition-colors duration-100 ease-out gap-1.5 px-2 font-body-sm hover:bg-surface-overlay-hovered rounded-md">
+			<div className="size-5 text-icon">{Icon && <Icon />}</div>
 			<span className="flex flex-1 items-center gap-1">
 				<span id={labelId}>{label}</span>
 				{extra}
@@ -71,10 +82,6 @@ function SwitchRow({
 	);
 }
 
-// The content of "Configurações do campo" (SPEC-0002 §4.6 step 4), in the
-// popover on wide screens and in the sheet on narrow ones: the label, the
-// description and the options first, then the settings. The locks are the
-// row's: §4.2, §4.3, R3, R4 and R8.
 export function FieldSettings({
 	field,
 	published,
@@ -86,6 +93,7 @@ export function FieldSettings({
 	onChange,
 	onMove,
 	onRemove,
+	showTextInputs = true,
 }: Readonly<Props>) {
 	const t = useTranslations("forms.fields");
 	const system = Boolean(field.systemKey);
@@ -142,12 +150,14 @@ export function FieldSettings({
 	return (
 		<div className="flex flex-col gap-1">
 			<div className="flex flex-col gap-2 pb-2">
-				<FieldTextInputs
-					field={field}
-					errors={errors}
-					baseId={baseId}
-					onChange={onChange}
-				/>
+				{showTextInputs && (
+					<FieldTextInputs
+						field={field}
+						errors={errors}
+						baseId={baseId}
+						onChange={onChange}
+					/>
+				)}
 				{field.type === "select" && (
 					<FieldOptionsEditor
 						options={field.options ?? []}
@@ -159,7 +169,11 @@ export function FieldSettings({
 				)}
 			</div>
 
-			<SwitchRow labelId={ids.required} label={t("required")}>
+			<SwitchRow
+				labelId={ids.required}
+				label={t("required")}
+				Icon={AsteriskIcon}
+			>
 				<Switch
 					data-error-slot="required"
 					aria-labelledby={ids.required}
@@ -176,7 +190,11 @@ export function FieldSettings({
 				<ErrorText id={ids.requiredError}>{errors.required}</ErrorText>
 			)}
 
-			<SwitchRow labelId={ids.help} label={t("helpText")}>
+			<SwitchRow
+				labelId={ids.help}
+				label={t("helpText")}
+				Icon={TextAlignStartIcon}
+			>
 				<Switch
 					aria-labelledby={ids.help}
 					checked={helpOn}

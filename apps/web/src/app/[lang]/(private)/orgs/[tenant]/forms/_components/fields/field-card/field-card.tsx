@@ -39,24 +39,16 @@ type Props = {
 	field: DraftField;
 	errors: RowErrors;
 	baseId: string;
-	// the card's panel is open (SPEC-0002 §4.6 step 3)
 	selected: boolean;
 	panelId: string;
 	dragId: string;
-	// wide screens edit an idle card's title and help text in place
 	wide: boolean;
-	// while the editor saves, those inputs are read-only
 	saving: boolean;
 	cardRef: (element: HTMLLIElement | null) => void;
 	onActivate: () => void;
 	onChange: (next: DraftField) => void;
 };
 
-// One field of the list (SPEC-0002 §4.6 step 2). A button covers the card: it
-// is the card's tab stop, and a click, Enter or Space on it opens the panel.
-// Focus alone selects nothing (§4.6 step 1). On wide screens an idle card's
-// title and help text are edited in place (§4.6 step 12), and come after the
-// button in tab order (Q21). Everything else is edited in the panel.
 export function FieldCard({
 	field,
 	errors,
@@ -76,7 +68,6 @@ export function FieldCard({
 	const title = field.label || typeName;
 	const helpText = field.helpText ?? "";
 	const helpOn = field.helpText !== null && field.helpText !== undefined;
-	// the selected card sits behind the panel, which edits the same text
 	const inline = wide && !selected;
 	const errorId = `${baseId}-card-error`;
 	const drag = useSortableCard(dragId);
@@ -89,8 +80,6 @@ export function FieldCard({
 		[setNodeRef, cardRef],
 	);
 
-	// while the panel is open it shows the messages under their controls; one
-	// with no control stays here (§4.6 steps 8 and 9)
 	const placed = placedErrors(field, errors);
 	const underTitle = placed.find(
 		({ slot }) => !selected || !slotHasControl(slot, field),
@@ -122,8 +111,6 @@ export function FieldCard({
 				aria-expanded={selected}
 				aria-controls={selected ? panelId : undefined}
 				aria-describedby={underTitle ? errorId : undefined}
-				// a drag starts with this press; the button gets focus on the click
-				// only, so a drag neither focuses nor selects the card (§4.4 step 3)
 				onMouseDown={(event) => event.preventDefault()}
 				onClick={(event) => {
 					event.currentTarget.focus();
