@@ -17,6 +17,7 @@ import {
 	clientFields,
 	FORM_ID,
 	field,
+	never,
 	on,
 	preview,
 	renderApp,
@@ -444,6 +445,61 @@ function tapCard(card: HTMLElement) {
 }
 
 const customLabels = () => cards().map(cardLabel).slice(3);
+
+// Inline editing on wide screens (SPEC-0002 section 4.6 step 12): an idle card
+// shows its title and help text as textareas named by forms.fields.inlineLabel
+// and forms.fields.inlineHelpText. A modal panel hides the page from assistive
+// technology, hence `hidden: true`.
+const inlineTitle = (card: HTMLElement) =>
+	within(card).getByRole("textbox", {
+		name: t("fields.inlineLabel", { name: cardLabel(card) }),
+		hidden: true,
+	}) as HTMLTextAreaElement;
+const inlineHelp = (card: HTMLElement) =>
+	within(card).getByRole("textbox", {
+		name: t("fields.inlineHelpText", { name: cardLabel(card) }),
+		hidden: true,
+	}) as HTMLTextAreaElement;
+
+/** A click on an input as a browser sends it: focus unless mousedown was cancelled. */
+function clickInput(input: HTMLElement) {
+	fireEvent.pointerDown(input);
+	if (fireEvent.mouseDown(input)) act(() => input.focus());
+	fireEvent.pointerUp(input);
+	fireEvent.mouseUp(input);
+	fireEvent.click(input);
+}
+
+/** Enter in a textarea: a browser types a line break unless keydown was cancelled. */
+function pressEnterIn(input: HTMLTextAreaElement) {
+	if (fireEvent.keyDown(input, { key: "Enter" })) {
+		fireEvent.change(input, { target: { value: `${input.value}\n` } });
+	}
+}
+
+/** Edits a card's title in place, the way a person does: click, then replace the text. */
+function typeTitle(card: HTMLElement, text: string) {
+	const input = inlineTitle(card);
+	clickInput(input);
+	fireEvent.change(input, { target: { value: text } });
+	return input;
+}
+
+/** Saves a template whose only change is not a schema change, without the publish dialog. */
+async function saveEdited(tpl: ReturnType<typeof template>) {
+	on("POST", previewUrl(tpl.id), {
+		status: 200,
+		body: preview({ schemaChanged: false, nextVersion: 1 }),
+	});
+	on("PATCH", `/api/forms/${tpl.id}`, {
+		status: 200,
+		body: { ...tpl, revision: tpl.revision + 1 },
+	});
+	fireEvent.click(save());
+	await waitFor(() =>
+		expect(callsTo("PATCH", `/api/forms/${tpl.id}`)).toHaveLength(1),
+	);
+}
 
 // -------------------------------------------------------------------- tests
 
@@ -923,7 +979,7 @@ describe("FormEditor field list (W-fld)", () => {
 		expect(selectedCards()).toEqual([]);
 	});
 
-	it("AC-0002-59 clicking a card opens Configurações do campo with label, description and the six items in order", async () => {
+	it("AC-0002-59 clicking a card outside its title and help-text inputs opens Configurações do campo with label, description and the six items in order", async () => {
 		await openExisting([
 			field({
 				label: "Objetivo",
@@ -1383,5 +1439,326 @@ describe("FormEditor field list (W-fld)", () => {
 		);
 		expect(panelOrNull()).not.toBeNull();
 		other.remove();
+	});
+
+	// ---- inline editing on the card (SPEC-0002 v1.19, section 4.6 step 12)
+
+	it("AC-0002-77 clicking an idle card's title edits it in place without selecting the card", async () => {
+		setScreen("wide");
+		await openExisting([field({ label: "Objetivo", type: "text" })]);
+		const card = idleCard("Objetivo");
+
+		const title = inlineTitle(card);
+		clickInput(title);
+
+		expect(document.activeElement).toBe(title);
+		expect(title.value).toBe("Objetivo");
+		expect(panelOrNull()).toBeNull();
+		expect(selectedCards()).toEqual([]);
+	});
+
+	it("AC-0002-78 clicking an idle card's help text edits it in place without selecting the card", async () => {
+		setScreen("wide");
+		await openExisting([
+			field({
+				label: "Objetivo",
+				type: "text",
+				helpText: "Conte o que você espera",
+			}),
+		]);
+		const card = idleCard("Objetivo");
+
+		const help = inlineHelp(card);
+		clickInput(help);
+
+		expect(document.activeElement).toBe(help);
+		expect(help.value).toBe("Conte o que você espera");
+		expect(panelOrNull()).toBeNull();
+		expect(selectedCards()).toEqual([]);
+	});
+
+	it("AC-0002-79 Enter in a card's title input keeps the text, sends nothing and keeps focus", async () => {
+		setScreen("wide");
+		const tpl = await openExisting([
+			field({ label: "Objetivo", type: "text" }),
+		]);
+		const title = typeTitle(idleCard("Objetivo"), "Meta");
+
+		pressEnterIn(title);
+
+		expect(callsTo("POST", previewUrl(tpl.id))).toHaveLength(0);
+		expect(callsTo("PATCH", `/api/forms/${tpl.id}`)).toHaveLength(0);
+		expect(title.value).toBe("Meta");
+		expect(document.activeElement).toBe(title);
+		expect(panelOrNull()).toBeNull();
+	});
+
+	it("AC-0002-80 a label edited on the card is sent on Salvar", async () => {
+		setScreen("wide");
+		const objetivo = field({ label: "Objetivo", type: "text" });
+		const tpl = await openExisting([objetivo]);
+		typeTitle(idleCard("Objetivo"), "Meta");
+
+		await saveEdited(tpl);
+
+		const sent = sentFields().find((f) => f.id === objetivo.id);
+		expect(sent?.label).toBe("Meta");
+	});
+
+	it("AC-0002-81 Escape in a card's title input restores the text and keeps focus", async () => {
+		setScreen("wide");
+		await openExisting([field({ label: "Objetivo", type: "text" })]);
+		const title = typeTitle(idleCard("Objetivo"), "Meta");
+
+		fireEvent.keyDown(title, { key: "Escape" });
+
+		expect(title.value).toBe("Objetivo");
+		expect(document.activeElement).toBe(title);
+		expect(panelOrNull()).toBeNull();
+	});
+
+	it("AC-0002-82 a new card closed with Escape shows an empty help-text input with the description placeholder", async () => {
+		setScreen("wide");
+		renderApp(<FormEditor type="client" />);
+		fireEvent.click(screen.getByRole("button", { name: t("fields.add") }));
+		await screen.findByRole("dialog", { name: t("fields.panelTitle") });
+		await closePanel();
+
+		const card = cards().at(-1) as HTMLElement;
+		const help = inlineHelp(card);
+		expect(help.value).toBe("");
+		expect(help.getAttribute("placeholder")).toBe(
+			t("fields.descriptionPlaceholder"),
+		);
+	});
+
+	it("AC-0002-83 a new card closed with Escape shows an empty title input with the type name as placeholder", async () => {
+		setScreen("wide");
+		renderApp(<FormEditor type="client" />);
+		fireEvent.click(screen.getByRole("button", { name: t("fields.add") }));
+		await screen.findByRole("dialog", { name: t("fields.panelTitle") });
+		await closePanel();
+
+		const title = inlineTitle(cards().at(-1) as HTMLElement);
+		expect(title.value).toBe("");
+		expect(title.getAttribute("placeholder")).toBe(t("fields.types.text"));
+	});
+
+	it("AC-0002-84 a field without help text shows a title input and no help-text input on its card", async () => {
+		setScreen("wide");
+		await openExisting([field({ label: "Profissão", type: "text" })]);
+		const card = idleCard("Profissão");
+
+		expect(inlineTitle(card).value).toBe("Profissão");
+		expect(
+			within(card).queryByRole("textbox", {
+				name: t("fields.inlineHelpText", { name: "Profissão" }),
+				hidden: true,
+			}),
+		).toBeNull();
+	});
+
+	it("AC-0002-85 Tab from a card moves to its title input without selecting it", async () => {
+		setScreen("wide");
+		await openExisting([
+			field({
+				label: "Objetivo",
+				type: "text",
+				helpText: "Conte o que você espera",
+			}),
+		]);
+		const card = idleCard("Objetivo");
+
+		// jsdom does not move focus on Tab: the title input must be the next tab
+		// stop after the cover button, in document order, and be tabbable
+		const stops = Array.from(
+			card.querySelectorAll<HTMLElement>("button, textarea, input"),
+		).filter((el) => el.tabIndex >= 0 && !el.hasAttribute("disabled"));
+		const cover = coverButton(card);
+		const title = inlineTitle(card);
+		expect(stops.indexOf(title)).toBe(stops.indexOf(cover) + 1);
+		expect(stops.indexOf(inlineHelp(card))).toBe(stops.indexOf(title) + 1);
+		act(() => title.focus());
+		expect(panelOrNull()).toBeNull();
+		expect(selectedCards()).toEqual([]);
+	});
+
+	it("AC-0002-86 a mouse drag that starts in a card's title input does not move the card", async () => {
+		setScreen("wide");
+		await openExisting(abc());
+		stubCardLayout();
+		const input = inlineTitle(cardOf("C"));
+
+		pointer("pointerDown", input, "mouse", centerOf(5));
+		pointer("pointerMove", input, "mouse", centerOf(5) - 10);
+		pointer("pointerMove", input, "mouse", centerOf(3));
+		pointer("pointerUp", input, "mouse", centerOf(3));
+
+		expect(customLabels()).toEqual(["A", "B", "C"]);
+		expect(selectedCards()).toEqual([]);
+	});
+
+	it("AC-0002-87 with a panel open, clicking another card's title only closes the panel", async () => {
+		setScreen("wide");
+		await openExisting([
+			field({ label: "Profissão", type: "text" }),
+			field({ label: "Objetivo", type: "text" }),
+		]);
+		await openSettings(cardOf("Profissão"));
+
+		// the backdrop covers the title: a click on it is a click on the backdrop
+		clickOutside();
+
+		await waitFor(() => expect(panelOrNull()).toBeNull());
+		expect(selectedCards()).toEqual([]);
+		expect(document.activeElement).not.toBe(inlineTitle(cardOf("Objetivo")));
+	});
+
+	it("AC-0002-88 a protected term typed in a card's title locks Dado protegido in its panel", async () => {
+		setScreen("wide");
+		renderApp(<FormEditor type="client" />);
+		fireEvent.click(screen.getByRole("button", { name: t("fields.add") }));
+		await screen.findByRole("dialog", { name: t("fields.panelTitle") });
+		await closePanel();
+		const card = cards().at(-1) as HTMLElement;
+		fireEvent.change(inlineTitle(card), {
+			target: { value: "CPF do responsável" },
+		});
+
+		fireEvent.click(coverButton(card));
+
+		const dialog = await screen.findByRole("dialog", {
+			name: t("fields.panelTitle"),
+		});
+		expect(
+			(
+				within(dialog).getByRole("textbox", {
+					name: t("fields.label"),
+				}) as HTMLInputElement
+			).value,
+		).toBe("CPF do responsável");
+		const lock = within(dialog).getByRole("switch", {
+			name: t("fields.sensitive"),
+		});
+		expect(isOn(lock)).toBe(true);
+		expect(isDisabled(lock)).toBe(true);
+		await expectTooltip(lock, t("fields.sensitiveLockedLabel"));
+	});
+
+	it("AC-0002-89 on a narrow screen, tapping a card's title opens its sheet and the card has no inputs", async () => {
+		setScreen("narrow");
+		await openExisting([field({ label: "Objetivo", type: "text" })]);
+		const card = idleCard("Objetivo");
+		expect(within(card).queryAllByRole("textbox", { hidden: true })).toEqual(
+			[],
+		);
+
+		tapCard(card);
+
+		await screen.findByRole("dialog", { name: t("fields.panelTitle") });
+		expect(selectedCards()).toEqual([cardOf("Objetivo")]);
+		expect(within(card).queryAllByRole("textbox", { hidden: true })).toEqual(
+			[],
+		);
+	});
+
+	it("AC-0002-90 Escape in a card's title input, then Salvar, sends the original label", async () => {
+		setScreen("wide");
+		const objetivo = field({ label: "Objetivo", type: "text" });
+		const tpl = await openExisting([objetivo]);
+		renameTemplate("Ficha 2");
+		const title = typeTitle(idleCard("Objetivo"), "Meta");
+		fireEvent.keyDown(title, { key: "Escape" });
+
+		await saveEdited(tpl);
+
+		const sent = sentFields().find((f) => f.id === objetivo.id);
+		expect(sent?.label).toBe("Objetivo");
+	});
+
+	it("AC-0002-91 a card's inputs are named Rótulo de Objetivo and Texto de ajuda de Objetivo", async () => {
+		setScreen("wide");
+		await openExisting([
+			field({
+				label: "Objetivo",
+				type: "text",
+				helpText: "Conte o que você espera",
+			}),
+		]);
+		const card = idleCard("Objetivo");
+
+		expect(
+			within(card).getByRole("textbox", { name: "Rótulo de Objetivo" }),
+		).toBe(inlineTitle(card));
+		expect(
+			within(card).getByRole("textbox", { name: "Texto de ajuda de Objetivo" }),
+		).toBe(inlineHelp(card));
+	});
+
+	it("AC-0002-92 an idle card with a label error marks its title input invalid, described by the message", async () => {
+		setScreen("wide");
+		renderApp(
+			<FormEditor
+				initialDraft={{
+					type: "client",
+					fields: [
+						...systemInputs,
+						{ label: "", type: "text" },
+						{ label: "", type: "text" },
+					],
+				}}
+			/>,
+		);
+
+		fireEvent.click(save());
+
+		await screen.findByRole("dialog", { name: t("fields.panelTitle") });
+		expect(cards()[3]?.getAttribute("aria-current")).toBe("true");
+		expect(cards()[4]?.getAttribute("aria-current")).toBeNull();
+		const title = within(cards()[4] as HTMLElement).getByRole("textbox", {
+			name: t("fields.inlineLabel", { name: t("fields.types.text") }),
+			hidden: true,
+		});
+		expect(title.getAttribute("aria-invalid")).toBe("true");
+		const message = tValidation("fieldLabel.required");
+		const described = (title.getAttribute("aria-describedby") ?? "")
+			.split(" ")
+			.some((id) =>
+				document.getElementById(id)?.textContent?.includes(message),
+			);
+		expect(described).toBe(true);
+	});
+
+	it("AC-0002-93 help text edited on the card is sent on Salvar", async () => {
+		setScreen("wide");
+		const objetivo = field({
+			label: "Objetivo",
+			type: "text",
+			helpText: "Conte o que você espera",
+		});
+		const tpl = await openExisting([objetivo]);
+		const help = inlineHelp(idleCard("Objetivo"));
+		clickInput(help);
+		fireEvent.change(help, { target: { value: "Diga sua meta" } });
+
+		await saveEdited(tpl);
+
+		const sent = sentFields().find((f) => f.id === objetivo.id);
+		expect(sent?.helpText).toBe("Diga sua meta");
+	});
+
+	it("AC-0002-94 while saving, a card's title input is read-only", async () => {
+		setScreen("wide");
+		const tpl = await openExisting([
+			field({ label: "Objetivo", type: "text" }),
+		]);
+		renameTemplate("Ficha 2");
+		on("POST", previewUrl(tpl.id), never);
+
+		fireEvent.click(save());
+
+		await waitFor(() =>
+			expect(inlineTitle(idleCard("Objetivo")).readOnly).toBe(true),
+		);
 	});
 });

@@ -315,8 +315,11 @@ export function FieldList({
 								selected={key === open && showPanel}
 								panelId={panelId}
 								dragId={key}
+								wide={wide}
+								saving={disabled}
 								cardRef={cardRefOf(key)}
 								onActivate={() => openCard(key)}
+								onChange={(next) => setRow(index, next)}
 							/>
 						);
 					})}
