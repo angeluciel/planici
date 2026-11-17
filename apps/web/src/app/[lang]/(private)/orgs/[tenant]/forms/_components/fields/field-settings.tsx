@@ -3,7 +3,7 @@
 import type { Field, FieldType } from "@planici/schemas";
 import { InfoIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { Menu, MenuItem } from "@/components/ui/menu";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -16,6 +16,7 @@ import { changeType, type DraftField } from "./field-model";
 import { FieldOptionsEditor } from "./field-options-editor";
 import { requiredLocked, sensitiveLockOf } from "./field-protection";
 import { FieldTypeSelect } from "./field-type-select";
+import { RemoveFieldDialog } from "./remove-field-dialog";
 
 type Props = {
 	field: DraftField;
@@ -25,8 +26,8 @@ type Props = {
 	baseId: string;
 	index: number;
 	count: number;
-	// narrow screens: the sheet also edits the label, description and options
-	narrow: boolean;
+	// records with an answer to this field; removing one with answers asks first
+	answers: number;
 	onChange: (next: DraftField) => void;
 	onMove: (to: number) => void;
 	onRemove: () => void;
@@ -71,7 +72,8 @@ function SwitchRow({
 }
 
 // The content of "Configurações do campo" (SPEC-0002 §4.6 step 4), in the
-// popover on wide screens and in the sheet on narrow ones. The locks are the
+// popover on wide screens and in the sheet on narrow ones: the label, the
+// description and the options first, then the settings. The locks are the
 // row's: §4.2, §4.3, R3, R4 and R8.
 export function FieldSettings({
 	field,
@@ -80,7 +82,7 @@ export function FieldSettings({
 	baseId,
 	index,
 	count,
-	narrow,
+	answers,
 	onChange,
 	onMove,
 	onRemove,
@@ -91,6 +93,7 @@ export function FieldSettings({
 	const requiredFixed = requiredLocked(field);
 	const helpOn = field.helpText !== null && field.helpText !== undefined;
 	const sensitiveOn = lock !== null || field.sensitive === true;
+	const [confirming, setConfirming] = useState(false);
 
 	const ids = {
 		required: `${baseId}-required`,
@@ -101,8 +104,8 @@ export function FieldSettings({
 		sensitiveLock: `${baseId}-sensitive-lock`,
 		sensitiveError: `${baseId}-sensitive-error`,
 		typeError: `${baseId}-type-error`,
-		warning: narrow ? `${baseId}-sheet-warning` : `${baseId}-warning`,
-		optionsError: `${baseId}-sheet-options-error`,
+		warning: `${baseId}-warning`,
+		optionsError: `${baseId}-options-error`,
 	};
 	let lockCopy: string | null = null;
 	if (lock === "type") lockCopy = t("sensitiveLockedType");
@@ -138,25 +141,23 @@ export function FieldSettings({
 
 	return (
 		<div className="flex flex-col gap-1">
-			{narrow && (
-				<div className="flex flex-col gap-2 pb-2">
-					<FieldTextInputs
-						field={field}
-						errors={errors}
-						baseId={`${baseId}-sheet`}
-						onChange={onChange}
+			<div className="flex flex-col gap-2 pb-2">
+				<FieldTextInputs
+					field={field}
+					errors={errors}
+					baseId={baseId}
+					onChange={onChange}
+				/>
+				{field.type === "select" && (
+					<FieldOptionsEditor
+						options={field.options ?? []}
+						groupError={errors.options}
+						groupErrorId={ids.optionsError}
+						errorOf={errors.option}
+						onChange={(options) => onChange({ ...field, options })}
 					/>
-					{field.type === "select" && (
-						<FieldOptionsEditor
-							options={field.options ?? []}
-							groupError={errors.options}
-							groupErrorId={ids.optionsError}
-							errorOf={errors.option}
-							onChange={(options) => onChange({ ...field, options })}
-						/>
-					)}
-				</div>
-			)}
+				)}
+			</div>
 
 			<SwitchRow labelId={ids.required} label={t("required")}>
 				<Switch
@@ -239,7 +240,7 @@ export function FieldSettings({
 				onChange={pickType}
 			/>
 			{errors.type && <ErrorText id={ids.typeError}>{errors.type}</ErrorText>}
-			{narrow && field.replaces && <TypeChangeWarning id={ids.warning} />}
+			{field.replaces && <TypeChangeWarning id={ids.warning} />}
 
 			<Menu label={t("move")} appearance="row">
 				<MenuItem onSelect={() => onMove(index - 1)} disabled={index === 0}>
@@ -256,11 +257,27 @@ export function FieldSettings({
 			{!system && (
 				<button
 					type="button"
-					onClick={onRemove}
+					onClick={() => {
+						if (answers > 0) setConfirming(true);
+						else onRemove();
+					}}
 					className="flex min-h-9 w-full cursor-pointer items-center rounded-md px-1 text-left font-body-sm text-text-status-danger hover:bg-surface-overlay-hovered focus-visible:outline-2 focus-visible:outline-border-focused"
 				>
 					{t("remove")}
 				</button>
+			)}
+
+			{/* inside the panel's tree, so it opens as a nested popup of the
+			    modal panel; Cancel and Escape return focus to "Remover" */}
+			{confirming && (
+				<RemoveFieldDialog
+					count={answers}
+					onCancel={() => setConfirming(false)}
+					onConfirm={() => {
+						setConfirming(false);
+						onRemove();
+					}}
+				/>
 			)}
 		</div>
 	);
