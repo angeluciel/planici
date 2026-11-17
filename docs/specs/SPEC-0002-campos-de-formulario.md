@@ -1,9 +1,9 @@
 ---
 id: SPEC-0002
 title: Campos do modelo de formulário
-status: Implemented # Draft | Review | Approved | Implemented | Superseded
+status: Approved # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.4
+version: 1.9
 owner: Joao Izidoro
 satisfies: [RF-38, RF-39, RN-20, RN-21]
 depends_on: [SPEC-0001]
@@ -150,10 +150,13 @@ accepted.
 
 ### 4.1 Add a field
 1. In the editor (SPEC-0001), the professional presses **[Novo campo]**.
-2. A field row is appended at the end: type "Texto curto", empty label, required off, protected off. Focus moves to
-   the label input.
-3. Each row shows: drag handle, label, type dropdown, "Obrigatório" switch, "Dado protegido" switch, a "⋯" menu
-   (help text, options, move up, move down, remove).
+2. A field card is appended at the end: type "Texto curto", empty label, required off, protected off, "Texto de
+   ajuda" ON with an empty description. It becomes the selected card and its settings panel opens (§4.6). On wide
+   screens, focus moves to the card's label input; on narrow screens, to the label input in the sheet.
+   _(Amended in v1.5, approved 2026-11-16. Before: a row was appended and focus moved to its label.)_
+3. Cards, selection and the settings panel are described in §4.6.
+   _(Amended in v1.5, approved 2026-11-16. Before: each row showed a drag handle, label, type dropdown, both
+   switches and a "⋯" menu.)_
 4. Changes are held in the editor until **[Salvar]** (SPEC-0001 R10).
 
 ### 4.2 Choose a type
@@ -172,17 +175,66 @@ accepted.
 3. When the label stops matching, the switch unlocks and stays ON.
 
 ### 4.4 Reorder
-1. The professional drags a row by its handle, or uses "Mover para cima" / "Mover para baixo" (keyboard
-   accessible; RNF-16–RNF-18).
-2. System fields move like any other field.
-3. The new order is stored on **[Salvar]** (R9).
+_(Amended in v1.5, approved 2026-11-16. Before: rows were dragged by a handle.)_
+
+1. The professional drags a card by pressing anywhere on it outside its inputs, switches and buttons. With a mouse
+   or pen, the drag starts once the pointer moves. On touch, it starts once the card has been held still for
+   300 ms (owner, 2026-11-16); a finger that moves before then scrolls the page. The other cards shift and the gap
+   follows the pointer.
+2. Pressing inside an input, switch or button never starts a drag.
+3. Keyboard users open "Mover" in the settings panel and pick "Mover para cima" or "Mover para baixo" (RNF-18).
+4. System fields move like any other field.
+5. The new order is stored on **[Salvar]** (R9).
 
 ### 4.5 Remove
 1. **"Remover"** is not offered on system fields (R3).
-2. For a custom field without answers, the row disappears from the draft.
+2. For a custom field without answers, the card disappears from the draft.
 3. For a custom field with answers, the editor first says "Este campo tem respostas em N cadastros. Ele sairá da
-   próxima versão; o que acontece com as respostas é decidido ao aplicar as alterações." On confirm, the row
+   próxima versão; o que acontece com as respostas é decidido ao aplicar as alterações." On confirm, the card
    disappears from the draft. The Apply dialog decides the rest (SPEC-0001 §4.7).
+
+### 4.6 Field cards and settings panel
+
+_(Added in v1.5, approved 2026-11-16. Replaces the row layout of §4.1 step 3 in v1.4.)_
+
+1. Each field is a card. At most one card is **selected**. Clicking or tapping a card, or moving keyboard focus
+   into it, selects it, and the card selected before becomes idle. Every card can be reached with Tab: an idle card
+   takes focus as a whole, with its label as its accessible name, and taking focus selects it (RNF-18).
+2. An **idle** card shows the label as its title, the help text when there is one, and an answer preview for its
+   type that cannot be filled in (Q16): a box with "Resposta" for one-line types, a taller one for "Texto longo",
+   "Sim" and "Não" for `yes_no`, and the options for `select`. A system field also shows the "Sistema" badge.
+3. The **selected** card is highlighted and shows a "⋯" button that opens and closes its settings panel. On wide
+   screens it also shows the label as an editable title, the description input "Adicionar descrição" while "Texto
+   de ajuda" is ON, the answer preview, and the options editor for `select`. On narrow screens the card only
+   displays: the label, the description and the options are edited in the sheet (Q18).
+4. The **settings panel** "Configurações do campo" (Q13) lists, in this order:
+   - "Obrigatório" (switch);
+   - "Texto de ajuda" (switch);
+   - "Dado protegido" (switch, with an info icon that shows the `forms.fields.sensitiveHelp` text);
+   - "Tipo", which shows the current type and opens the type list;
+   - "Mover", which opens "Mover para cima" and "Mover para baixo";
+   - "Remover".
+
+   The rules that applied to the row apply to these controls: the locks of §4.2 and §4.3, R3 (no "Remover" and a
+   fixed type on system fields), R4 (no "Dado protegido" on system fields), R8 and §4.5.
+5. A close button and Escape close the panel, and focus returns to the card's "⋯" button. Selecting another card
+   closes it too (Q14).
+6. On wide screens the panel sits beside the selected card, and the card is highlighted more strongly while the
+   panel is open. On narrow screens, below 1024 px (Q15), the panel opens as a sheet from the bottom of the screen,
+   with the label input at its top (owner, 2026-11-16). Tapping a card on a narrow screen selects it and opens its
+   sheet (Q18). A touch that is held and released without moving counts as a tap; a touch drag
+   (§4.4) does not open the sheet.
+7. "Texto de ajuda" is ON for new fields, and for loaded fields that have help text. Turning it OFF hides the
+   description input and clears the help text from the draft (Q17), so [Salvar] sends `helpText: null`.
+8. When [Salvar] is stopped by field errors (SPEC-0001 §8: focus moves to the first error), the card holding the
+   first error becomes the selected card. If that error belongs to a panel control ("Obrigatório", "Dado
+   protegido", "Tipo"), its panel opens on wide screens. On narrow screens its sheet opens for any error that has
+   a control. Focus moves to the invalid control, and the message is shown under it. Every other card with an
+   error stays highlighted and shows its first message under its title, so no error is shown only by color.
+9. Some errors have no control: a field's id, its `systemKey`, the field as a whole, or options sent for a type
+   that has none. On wide screens, the message goes under the card's title and focus goes to the card. On narrow
+   screens, the message is shown as an error toast, the card is selected and takes focus, and no sheet opens
+   (owner, 2026-11-16).
 
 ## 5. Permissions and tenant isolation
 
@@ -242,6 +294,9 @@ New, non-breaking. Part of the FormTemplate shapes in SPEC-0001 §7.
     requires protection, otherwise off;
   - on an **existing field** (update), each keeps its current value, except that `sensitive` is on whenever the
     type or label now requires protection (R5–R7).
+- **`helpText` in FieldInput** _(stated in v1.5, approved 2026-11-16; the API already behaves this way)_: string
+  or null. On an existing field, omitting it keeps the stored help text, and `null` clears it. On a new field,
+  omitting it or sending `null` means no help text. The editor sends an empty description as `null`.
 - **Semantics of `fields` on update:** the full field list of the next version, in display order. Present ids are
   kept, with their metadata updated. Absent ids are removed from the next version (R10). Entries without an id are
   new fields. Whether a version is published follows SPEC-0001 §3.3.
@@ -252,12 +307,15 @@ New, non-breaking. Part of the FormTemplate shapes in SPEC-0001 §7.
 | Screen | State | Behavior | Copy key |
 | --- | --- | --- | --- |
 | Editor fields | only system fields | Hint "Adicione campos para coletar mais informações" | `forms.fields.onlySystem` |
-| Field row | system field | "Sistema" badge; no Remover; type and fixed switches disabled | `forms.fields.systemBadge` |
-| Field row | protected locked by type | Switch ON + disabled + tooltip | `forms.fields.sensitiveLockedType` |
-| Field row | protected locked by label | Switch ON + disabled + tooltip | `forms.fields.sensitiveLockedLabel` |
-| Field row | type changed on a published field | Warning (4.2 step 4) | `forms.fields.typeChangeWarning` |
-| Field row | validation error | Inline under the input, row highlighted | `validation.*` |
-| Field row | dragging | Placeholder gap, others shift | — |
+| Field card | idle | Label as title, help text if any, answer preview (§4.6 step 2) | `forms.fields.answerPreview` |
+| Field card | selected | Highlighted; "⋯" button; editable label and description on wide screens (§4.6 step 3) | `forms.fields.descriptionPlaceholder`, `forms.fields.menu` |
+| Field card | settings panel open | Stronger highlight; panel beside the card, or a sheet on narrow screens (§4.6 step 6) | `forms.fields.panelTitle`, `forms.fields.close` |
+| Settings panel | system field | "Sistema" badge on the card; no Remover; no Dado protegido; Tipo and fixed switches disabled | `forms.fields.systemBadge` |
+| Settings panel | protected locked by type | Switch ON + disabled + tooltip | `forms.fields.sensitiveLockedType` |
+| Settings panel | protected locked by label | Switch ON + disabled + tooltip | `forms.fields.sensitiveLockedLabel` |
+| Field card | type changed on a published field | Warning inside the card (4.2 step 4) | `forms.fields.typeChangeWarning` |
+| Field card | validation error | First error: its card is selected, its panel or sheet opens when needed, focus and message on the invalid control (§4.6 step 8). No control: message under the title on wide screens, error toast on narrow screens (§4.6 step 9). Other cards with errors: highlighted, first message under the title | `validation.*` |
+| Field card | dragging | Placeholder gap, others shift | — |
 | Remove dialog | field has answers | Explanation (4.5 step 3) | `forms.fields.removeWithAnswers` |
 | Options editor | fewer than 2 options | [Salvar] shows `fieldOptions.required` inline | `validation.fieldOptions.required` |
 | Field list | 100 fields | [Novo campo] disabled + hint | `forms.fields.limitReached` |
@@ -278,13 +336,19 @@ New, non-breaking. Part of the FormTemplate shapes in SPEC-0001 §7.
 | 10 | ~~Should system fields never be protected (R4)?~~ | **Decided (owner, 2026-11-09):** yes. | — |
 | 11 | ~~Should the label check also apply to `date`, `yes_no` and `select` (§3.1)?~~ | **Decided (owner, 2026-11-09):** yes. | — |
 | 12 | ~~Can protection be changed on a field that was removed from the latest version (R15)?~~ | **Decided (owner, 2026-11-09):** not in the MVP. Post-MVP: allow turning protection on for fields of older versions. | — |
+| 13 | ~~What is the settings panel called? The design says "Question options", but "Opções" already names a `select` field's option list.~~ | **Decided (owner, 2026-11-16):** "Configurações do campo" (en-US "Field settings"). | — |
+| 14 | ~~When another card is selected while the panel is open, does the panel close or move to the new card?~~ | **Decided (owner, 2026-11-16):** it closes; the new card's "⋯" opens it. | — |
+| 15 | ~~Below which screen width does the panel become a sheet?~~ | **Decided (owner, 2026-11-16):** below 1024 px, RNF-16's `lg` breakpoint (64rem). Beside the card, the panel needs room for both. The app sidebar still switches at 768 px. | — |
+| 16 | ~~What does the answer preview show?~~ | **Decided (owner, 2026-11-16):** a box with "Resposta" for one-line types, a taller one for "Texto longo", "Sim" and "Não" for `yes_no`, and the options for `select`. It cannot be filled in. | — |
+| 17 | ~~Does turning "Texto de ajuda" OFF clear the help text, or only hide it?~~ | **Decided (owner, 2026-11-16):** it clears it. What is hidden in the editor is not shown to clients either, so it is not stored. | — |
+| 18 | ~~On narrow screens, where are the description input and the `select` options editor? Can the label still be edited in the card?~~ | **Decided (owner, 2026-11-16):** all editing is in the sheet: label, description and options. On narrow screens the card only displays, and tapping it selects it and opens the sheet. | — |
 
 ## 10. Acceptance criteria
 
 ### Agreed criteria
 
 These follow from the RFC or from decisions the owner has taken (forms-overview.md §3 and §9 of this spec).
-The owner approved every criterion below on 2026-11-09.
+The owner approved the criteria below on 2026-11-09, except AC-0002-53 (2026-11-10) and the amended AC-0002-21 (2026-11-16).
 
 ```
 AC-0002-01
@@ -426,11 +490,16 @@ Then  the response is 400 with { "error": "field.unknown", "field": "fields.3.id
 And   the field F in "studio-bia" is unchanged
 ```
 
+_AC-0002-21 amended in v1.5, approved 2026-11-16. Before: "Given the editor with a system field row / When the
+owner opens its "⋯" menu using the keyboard / Then "Mover para cima" and "Mover para baixo" are available and
+"Remover" is not"._
+
 ```
 AC-0002-21
-Given the editor with a system field row
-When  the owner opens its "⋯" menu using the keyboard
-Then  "Mover para cima" and "Mover para baixo" are available and "Remover" is not
+Given the editor with a system field card that is not selected
+When  the owner moves focus to it with Tab, opens its settings panel and then "Mover", using only the keyboard
+Then  "Mover para cima" and "Mover para baixo" are available
+And   the panel offers no "Remover"
 ```
 
 ```
@@ -636,7 +705,7 @@ Then  [Novo campo] is disabled and the hint with copy key forms.fields.limitReac
 
 ```
 AC-0002-50
-Given the editor with a new custom field row
+Given the editor with a new custom field card
 When  the owner picks type "CPF"
 Then  "Dado protegido" is ON and disabled, with the tooltip of copy key forms.fields.sensitiveLockedType
 ```
@@ -664,6 +733,153 @@ Then  the update request sends "Turno" with id T, type "select" and required tru
 And   its options are "Manhã", "Tarde" and "Noite" with their original ids
 ```
 
+### Criteria added in v1.5 (approved 2026-11-16)
+
+From the field card design (owner, 2026-11-16): §4.1, §4.4, §4.6 and the `helpText` rule in §7. A "narrow"
+screen is below 1024 px and a "wide" one is 1024 px or more (Q15).
+
+```
+AC-0002-54
+Given the editor of a client template on a wide screen
+When  the owner presses [Novo campo]
+Then  a "Texto curto" card is appended after the last field and is the selected card
+And   its settings panel is open beside it
+And   "Texto de ajuda" is ON and the card shows an empty "Adicionar descrição" input
+And   focus is on the card's label input
+```
+
+```
+AC-0002-55
+Given the editor of a client template on a narrow screen
+When  the owner presses [Novo campo]
+Then  the settings panel of the new field opens as a sheet
+And   the sheet's first control is the label input, and it has focus
+```
+
+```
+AC-0002-56
+Given a published custom "text" field "Objetivo" with id O and help text "Conte o que você espera"
+When  its owner turns "Texto de ajuda" OFF in its settings panel and presses [Salvar]
+Then  the update request sends the field with id O and helpText null
+```
+
+```
+AC-0002-57
+Given a published custom "text" field "Profissão" without help text
+When  its owner selects its card and opens its settings panel
+Then  "Texto de ajuda" is OFF
+And   the card shows no "Adicionar descrição" input
+```
+
+```
+AC-0002-58
+Given the editor on a wide screen with custom field cards "Profissão" and "Objetivo"
+And   "Profissão" is selected with its settings panel open
+When  the owner clicks the card "Objetivo"
+Then  "Objetivo" is the selected card and "Profissão" is idle
+And   no settings panel is open
+```
+
+```
+AC-0002-59
+Given the editor with the custom field card "Objetivo" selected and its settings panel closed
+When  the owner presses the card's "⋯" button
+Then  the settings panel "Configurações do campo" opens
+And   it lists "Obrigatório", "Texto de ajuda", "Dado protegido", "Tipo", "Mover" and "Remover" in that order
+```
+
+```
+AC-0002-60
+Given the settings panel of the custom field "Objetivo" is open
+And   focus is on a control inside the panel, and neither the "Tipo" list nor the "Mover" list is open
+When  the owner presses Escape
+Then  the panel closes
+And   focus is on the "⋯" button of the card "Objetivo"
+```
+
+```
+AC-0002-61
+Given the editor of an existing template with no records, whose custom fields are "A", "B" and "C", in that order after the system fields
+When  the owner presses the mouse on card "C" outside its inputs and buttons, drags it above card "A", releases it, presses [Salvar] and confirms [Publicar]
+Then  the update request lists the custom fields in the order "C", "A", "B"
+```
+
+```
+AC-0002-62
+Given the editor on a wide screen with custom fields "A", "B" and "C", in that order after the system fields
+And   card "C" is selected
+When  the owner presses the mouse inside the label input of card "C" and moves the pointer above card "A"
+Then  the cards stay in the order "A", "B", "C"
+```
+
+```
+AC-0002-63
+Given the editor on a touch screen, of an existing template with no records, whose custom fields are "A", "B" and "C", in that order after the system fields
+When  the owner touches card "C", holds it still for at least 300 ms, drags it above card "A", lifts the finger, presses [Salvar] and confirms [Publicar]
+Then  the update request lists the custom fields in the order "C", "A", "B"
+```
+
+```
+AC-0002-64
+Given the editor on a touch screen with custom fields "A", "B" and "C", in that order after the system fields
+When  the owner touches card "C" and moves the finger upward before 300 ms have passed
+Then  no card is picked up
+And   the cards stay in the order "A", "B", "C"
+```
+
+```
+AC-0002-65
+Given the editor on a wide screen with custom fields "Profissão" at index 3 and "Objetivo" at index 4
+And   card "Profissão" is selected
+When  the owner presses [Salvar] and the save is stopped by fieldLabel.required at fields.4.label
+Then  card "Objetivo" is the selected card
+And   its label input shows the message of validation.fieldLabel.required and has focus
+```
+
+```
+AC-0002-66
+Given the editor on a narrow screen with custom fields "Profissão" at index 3 and "Objetivo" at index 4
+And   no sheet is open
+When  the owner presses [Salvar] and the save is stopped by fieldLabel.required at fields.4.label
+Then  the sheet of "Objetivo" is open
+And   its label input shows the message of validation.fieldLabel.required and has focus
+```
+
+```
+AC-0002-67
+Given the editor on a wide screen with a custom "yes_no" field at index 3 whose card is idle
+When  the owner presses [Salvar] and the response is 422 with { "error": "fieldRequired.locked", "field": "fields.3.required" }
+Then  the card at index 3 is selected and its settings panel is open
+And   the "Obrigatório" switch shows the message of validation.fieldRequired.locked and has focus
+```
+
+```
+AC-0002-68
+Given a client template with no records and a custom "text" field "Objetivo" (id O) stored with help text "Conte o que você espera"
+When  its owner saves the template with field id O and helpText null
+Then  the response contains "Objetivo" with helpText null
+```
+
+```
+AC-0002-69
+Given the editor on a narrow screen with the custom field card "Objetivo" idle
+When  the owner taps the card "Objetivo"
+Then  "Objetivo" is the selected card
+And   its sheet is open
+```
+
+_AC-0002-70 added in v1.8 from an owner decision, 2026-11-16 (§4.6 step 9). Its wording was approved by the owner
+with the plan, 2026-11-17._
+
+```
+AC-0002-70
+Given the editor on a narrow screen with a custom "text" field at index 3 whose card is idle
+When  the owner presses [Salvar] and the response is 422 with { "error": "fieldOptions.not-allowed", "field": "fields.3.options" }
+Then  an error toast shows the message of validation.fieldOptions.not-allowed
+And   the card at index 3 is selected and has focus
+And   no sheet is open
+```
+
 ### Withdrawn criteria
 
 Withdrawn IDs are never reused.
@@ -673,13 +889,298 @@ Withdrawn IDs are never reused.
 
 ## 11. Implementation plan
 
+### Field-card amendment (v1.7)
+
+Drafted by `/plan` on 2026-11-16 for the v1.5–v1.8 amendment (§4.1, §4.4, §4.6, §7 `helpText`, §8, AC-0002-21 and
+AC-0002-54 to -70). Revised the same day after the plan review (5 required changes). **Approved by the owner on
+2026-11-17.** Only the editor's field list changes. The
+contracts, the database and the API endpoints stay as they are. The original plan (v1.2, implemented in v1.3)
+follows under "Original plan". Where it describes rows, the drag handle or the row menu, this amendment replaces it.
+
+#### Scope
+
+`task-lock.sh` reads the first `scope` block of the file, so this is the lock. The original plan's block is now
+fenced as `text`.
+
+```scope
+packages/i18n/messages/pt-BR.json
+packages/i18n/messages/en-US.json
+apps/web/src/app/*/orgs/*/forms/_components/fields/*
+apps/web/src/app/*/orgs/*/forms/_components/form-editor*
+apps/web/src/app/*/orgs/*/forms/_lib/draft.ts
+apps/web/src/components/ui/select.tsx
+apps/web/src/components/ui/menu.tsx
+apps/web/src/components/ui/switch.tsx
+apps/web/src/components/ui/popover.tsx
+apps/web/src/components/ui/sheet.tsx
+apps/web/src/hooks/use-media-query.ts
+apps/web/tests/form-fields*
+apps/web/tests/forms-harness.tsx
+apps/web/tests/setup.ts
+apps/api/test/e2e/form-fields*
+```
+
+`tests/setup.ts` gets a `matchMedia` stub, because jsdom has none. `forms-harness.tsx` gets the screen-width and
+layout helpers the new tests share. The SPEC-0001 tests (`form-editor`, `form-dialogs`, `forms-list`) are not in
+the lock. If one fails, it goes to the owner as a conflict, not to an edit (original Risks 8).
+`components/ui/toast.tsx` is used as it is, and is not edited.
+
+#### Contracts
+
+None. No schema, request or response shape changes, and no error key is added. §7's `helpText` rule describes what
+`FieldPolicy` already does (`field-policy.ts`: omitted keeps the stored text, `null` clears it).
+
+i18n, both locales (`forms.fields.*`; en-US is **proposed**):
+
+| Key | pt-BR | en-US | Source |
+| --- | --- | --- | --- |
+| `panelTitle` | Configurações do campo | Field settings | §4.6, Q13 |
+| `menu` (copy changes) | Configurações do campo (accessible name of "⋯"; was "Mais ações do campo") | Field settings | §4.6 step 3 |
+| `descriptionPlaceholder` | Adicionar descrição | Add description | §4.6 step 3 |
+| `answerPreview` | Resposta | Answer | §4.6 step 2, Q16 |
+| `previewYes` / `previewNo` | Sim / Não | Yes / No | Q16 |
+| `move` | Mover | Move | §4.6 step 4 |
+| `close` | Fechar | Close | §4.6 step 5 |
+| `sensitiveInfo` | Sobre dado protegido (accessible name of the info icon) | About protected data | §4.6 step 4 |
+| `dragHandle` | removed: there is no handle | — | §4.4 |
+
+The switch keeps `helpText` ("Texto de ajuda") as its label, and that is also the description input's accessible
+name. The card's label input keeps `label` ("Rótulo") as its accessible name.
+
+#### Persistence
+
+None.
+
+#### API
+
+No change. AC-0002-68 gets an E-fld test for behavior that already exists, so it is expected to pass from the
+start.
+
+#### Web
+
+All files are under `forms/_components/fields/` unless named otherwise.
+
+1. **Screen width.** New `src/hooks/use-media-query.ts`, built on `useSyncExternalStore` over `matchMedia`. It
+   reports wide when `matchMedia` is missing (jsdom, older browsers). `useWideScreen()` is
+   `(min-width: 1024px)` (Q15).
+2. **Primitives** (`src/components/ui/`):
+   - New `popover.tsx`, on base-ui Popover: controlled `open`, non-modal, anchored to an element, `side="right"`,
+     `align="start"`, and the default collision handling. It has an `initialFocus` pass-through and an
+     `onOpenChange(open, reason, event)` callback, so the caller can ignore some outside presses.
+   - New `sheet.tsx`, on base-ui Drawer: a bottom sheet that is modal and closes on swipe down, Escape or its close
+     button. It takes a `title` and an `initialFocus` ref.
+   - `select.tsx` and `menu.tsx` get a `row` look: a full-width trigger with the label on the left, then the value
+     and a chevron. The current look stays the default.
+   - `switch.tsx`: locked switches use `readOnly` with `aria-disabled="true"` instead of `disabled` (Decisions 2),
+     with the same dimmed style.
+3. **Cards** (`field-card.tsx` replaces `field-row.tsx`).
+   - The `<li>` is the card. Idle: `tabIndex=0`, and its accessible name is the label, or the type name when the
+     label is empty. Focus or a click selects the card.
+   - Idle content: title, help text when there is one, the type-change warning when the field's type was changed
+     (§4.2 step 4, §8), the answer preview, the "Sistema" badge, and the first error message under the title when
+     the card has errors.
+   - Selected content on wide screens: the label input styled as a title, the description input while help text is
+     on, the type-change warning, the answer preview (the options editor for `select`), and inline errors.
+   - Narrow screens: always the idle content, type-change warning included, plus the "⋯" button and the highlight
+     when selected.
+   - The border shows the state: idle; selected; panel open (stronger); error (danger).
+   - No animation (owner, 2026-11-16: motion comes later, app-wide).
+4. **Answer preview.** New `field-answer-preview.tsx`, `aria-hidden`: a one-line box with "Resposta", a taller box
+   for `long_text`, "Sim" and "Não" for `yes_no`, and the option labels for `select` (Q16).
+5. **Settings.** New `field-settings.tsx`.
+   - The panel content in §4.6 step 4's order:
+     - "Obrigatório";
+     - "Texto de ajuda";
+     - "Dado protegido", with the info icon (`Tooltip`, text `sensitiveHelp`, also linked by
+       `aria-describedby` as today);
+     - "Tipo": the type select, `row` look;
+     - "Mover": a menu with "Mover para cima" and "Mover para baixo", `row` look;
+     - "Remover", with danger text.
+   - The same locks and hiding rules as the row: `sensitiveLockOf`, `requiredLocked`, system fields.
+   - Wide screens: inside `popover.tsx`, anchored to the selected card. It ignores an outside press or a focus-out
+     that lands inside the selected card. Selecting another card closes it (Q14).
+   - Narrow screens: inside `sheet.tsx`, with the label input, the description input and the options editor above
+     the settings (Q18). The type-change warning sits under "Tipo", which is where the type changes on narrow
+     screens.
+   - `field-row-menu.tsx` is deleted.
+6. **Selection** (`field-list.tsx`): `selected` (a row key or none) and `panelOpen`. Nothing is selected on load,
+   and a click on empty space keeps the selection (Decisions 7).
+   - [Novo campo] selects the new row and opens its panel.
+     - Wide: focus goes to the card's label input, and the popover opens without moving focus.
+     - Narrow: the sheet opens with focus on its label input.
+   - "⋯" toggles the panel (`aria-expanded`, `aria-controls`). Opening it from "⋯" moves focus to the first panel
+     control, and closing it (✕, Escape) returns focus to "⋯".
+   - After "Mover para cima" / "Mover para baixo", the card stays selected and focus returns to "Mover". After
+     "Remover", focus goes to the next card, else the previous one, else [Novo campo].
+7. **Help-text switch** (§4.6 step 7), kept in the draft with no extra state:
+   - `helpText: ""` means ON and empty, and `null` means OFF.
+   - `newField()` starts with `""`. A loaded field is ON when its help text is not empty.
+   - OFF sets `null`; ON sets `""` when it was `null`.
+   - `_lib/draft.ts` `toRequestFields` sends `""` as `null` (§7: the editor sends an empty description as `null`).
+8. **Drag** (`use-field-reorder.ts`, rewritten).
+   - Pointer handlers are on the card. A press inside `input`, `textarea`, `button`, `[role=switch]`,
+     `[role=combobox]` or `a` is ignored (§4.4 step 2).
+   - Mouse and pen: the drag starts after 4 px of movement.
+   - Touch: the drag starts after 300 ms held within 8 px. A move before then cancels it, and the card has
+     `touch-action: pan-y` so the page scrolls.
+   - Once a touch drag has started, a non-passive `touchmove` listener calls `preventDefault`. The context menu is
+     suppressed while a touch is held.
+   - Live reordering as today (`indexAt` over the card boxes). It is off while saving.
+   - A held touch that is released without moving counts as a tap (§4.6 step 6). On narrow screens, a click or tap
+     selects the card and opens the sheet.
+9. **First error** (§4.6 step 8).
+   - `form-editor.tsx` `showFieldError` stops focusing by DOM query. It records the first field target of the save:
+     `fieldErrorTarget`, then index and slot. It passes that to `FieldList` as `reveal` with a counter.
+   - `FieldList` selects the card.
+     - Panel slots (`required`, `sensitive`, `type`): the panel opens on wide screens.
+     - Narrow screens: the sheet opens for any slot that has a control.
+   - Focus then moves to the control marked `data-error-slot`.
+   - Slots with no control (§4.6 step 9) are `top`, which covers `id`, `systemKey` and `fields.<i>`, and `options`
+     on a type other than `select`. `fieldSensitive.not-allowed` on a system field is in this group too, because a
+     system field has no "Dado protegido" switch.
+     - Wide screens: the message goes under the card title and the card takes focus.
+     - Narrow screens: `useToast().show(message, "danger")` (sonner, `components/ui/toast.tsx`); the card is selected
+       and takes focus, and no sheet opens (Decisions 3).
+
+#### Tests
+
+W-fld is `apps/web/tests/form-fields.test.tsx`; E-fld is `apps/api/test/e2e/form-fields.e2e-spec.ts`. The existing
+W-fld helpers move to cards:
+- `rowOf` becomes `cardOf`;
+- `openMenuByKeyboard` becomes `openSettingsByKeyboard`;
+- `moveUp` opens "Mover";
+- switch and type queries open the panel first.
+
+The existing tests for AC-0002-01, -10, -14, -22, -25, -48, -49, -50, -53, "§7" and "§8" keep their assertions. Only
+their queries change, and AC-0002-50 checks `aria-disabled` instead of `disabled`. Wide is the default
+(`setup.ts`); narrow tests call a harness helper that sets `matchMedia` to below 1024 px. Drag tests stub the
+cards' `getBoundingClientRect`, and touch tests use fake timers.
+
+| AC | Test | Name |
+| --- | --- | --- |
+| AC-0002-21 | W-fld | "AC-0002-21 tabbing to an idle system card and opening Mover by keyboard offers move up and move down, no Remover" (replaces the row-menu test) |
+| AC-0002-54 | W-fld | "AC-0002-54 Novo campo on a wide screen selects the new card, opens its panel, help text ON, focus on its label" |
+| AC-0002-55 | W-fld | "AC-0002-55 Novo campo on a narrow screen opens the sheet with focus on its label input" |
+| AC-0002-56 | W-fld | "AC-0002-56 turning help text OFF on a published field sends helpText null" |
+| AC-0002-57 | W-fld | "AC-0002-57 a published field without help text opens with help text OFF and no description input" |
+| AC-0002-58 | W-fld | "AC-0002-58 clicking another card selects it and closes the open panel" |
+| AC-0002-59 | W-fld | "AC-0002-59 the ⋯ button opens Configurações do campo with its six items in order" |
+| AC-0002-60 | W-fld | "AC-0002-60 Escape from a panel control closes the panel and returns focus to ⋯" |
+| AC-0002-61 | W-fld | "AC-0002-61 dragging card C above A with the mouse and publishing sends C, A, B" |
+| AC-0002-62 | W-fld | "AC-0002-62 a mouse drag that starts in the label input does not move the card" |
+| AC-0002-63 | W-fld | "AC-0002-63 holding card C for 300 ms on touch, dragging above A and publishing sends C, A, B" |
+| AC-0002-64 | W-fld | "AC-0002-64 a touch that moves before 300 ms picks up no card" |
+| AC-0002-65 | W-fld | "AC-0002-65 a label error on an idle card selects it with the message and focus on its label input" |
+| AC-0002-66 | W-fld | "AC-0002-66 a label error on a narrow screen opens that card's sheet with focus on its label input" |
+| AC-0002-67 | W-fld | "AC-0002-67 a server fieldRequired.locked opens the card's panel with the message and focus on Obrigatório" |
+| AC-0002-68 | E-fld | "AC-0002-68 a save with helpText null clears the stored help text" |
+| AC-0002-69 | W-fld | "AC-0002-69 tapping an idle card on a narrow screen selects it and opens its sheet" |
+| AC-0002-70 | W-fld | "AC-0002-70 an error with no control on a narrow screen shows an error toast and focuses the card, no sheet" |
+
+AC-0002-65 and -66 put an empty label on the card at index 4. Their Given names the card "Objetivo", so the test
+clears its label before [Salvar] (re-check suggestion 2). AC-0002-57 and -59 run on a wide screen (suggestion 3).
+
+**Deferred checks.** None from another spec. Two checks need the running app, so the owner does them before
+Implemented:
+- whether the panel sits beside the card or overlaps it between 1024 and about 1280 px;
+- on a real phone, whether a quick swipe scrolls and a 300 ms hold picks up the card (AC-0002-63 and -64 in jsdom
+  only see pointer events).
+
+#### Sequence
+
+1. i18n keys; `use-media-query`; `popover`, `sheet`, and the `row` looks of `select` and `menu`; `switch`
+   `readOnly`. Checks: `pnpm --filter web lint` and `pnpm --filter web typecheck`.
+2. Failing tests: the W-fld helpers move to cards and the new AC tests are added; E-fld AC-0002-68 is added (passes
+   at once). Checks: `pnpm --filter web test` (the new W-fld tests fail) and
+   `pnpm --filter api test:e2e -- form-fields` (needs Docker; if Docker is missing, say so and do not report it as
+   passing). Also `pnpm --filter api lint` for the e2e file.
+3. Cards, answer preview, settings panel on wide screens, selection, the help-text switch and `draft.ts`. AC-0002-21,
+   -54 and -56 to -60 pass, along with the existing W-fld tests.
+4. Drag rewrite: AC-0002-61 to -64.
+5. First-error reveal on wide screens: AC-0002-65 and -67.
+6. Narrow screens: the sheet and the error toast. AC-0002-55, -66, -69 and -70 pass.
+7. Final checks, all from this turn's output:
+   - `pnpm --filter web test`, `pnpm --filter web lint` and `pnpm --filter web typecheck`;
+   - `pnpm --filter api test:e2e` (E-fld) and `pnpm --filter api test` (U-pol and U-terms). Together they re-verify
+     AC-0002-01 to -53, which `/done` needs before the status goes back to Implemented. Docker is required, so a
+     missing Docker is reported as unrun;
+   - `pnpm --filter api lint`;
+   - then `/review`.
+
+#### Decisions this plan makes
+
+Owner Joao Izidoro confirmed decisions 1–8 as written, 2026-11-16. The plan itself still needs the owner's approval.
+
+1. **Panel primitives.** Wide screens: a base-ui Popover anchored to the card, non-modal, that flips or shifts when
+   there is no room on the right. Narrow screens: a base-ui Drawer bottom sheet. Both are in base-ui 1.8.0, which
+   is already installed.
+2. **Locked switches keep focus.** They are `readOnly` + `aria-disabled` instead of `disabled`. AC-0002-67 needs focus
+   on a locked "Obrigatório", and the lock tooltip is then reachable from the keyboard. Screen readers still hear
+   them as unavailable, and they cannot be toggled.
+3. **Errors with no control** (`id`, `systemKey`, `fields.<i>`, options on a type without options,
+   `fieldSensitive.not-allowed` on a system field). Wide screens: the message goes under the card title and focus goes
+   to the card (re-check suggestion 1). Narrow screens: an error toast (sonner), the card selected and focused, and
+   no sheet. The owner changed this one on 2026-11-16, and spec §4.6 step 9 and AC-0002-70 record it.
+4. **Help-text state lives in the draft** (`""` ON, `null` OFF), and the request sends `""` as `null`. The API never
+   receives `""` from the editor (re-check suggestion 8).
+5. **Idle card name.** It is the label, or the type name while the label is empty (re-check suggestion 6).
+6. **Focus.** "⋯" moves focus into the panel. A new field keeps focus on its label. After "Mover", focus returns to
+   "Mover". After "Remover", focus goes to the next card, the previous one, or [Novo campo] (re-check suggestion 11).
+7. **No selection on load**, and a click on empty space keeps the selection.
+8. **Thresholds.** A mouse drag starts at 4 px. A touch must stay within 8 px to count as held still.
+9. **File changes.** `field-row.tsx` becomes `field-card.tsx`, and `field-row-menu.tsx` is deleted. Added:
+   `field-settings.tsx`, `field-answer-preview.tsx`, `ui/popover.tsx`, `ui/sheet.tsx`, `hooks/use-media-query.ts`.
+
+#### Risks
+
+1. **Popover dismissal.** base-ui closes a popover on an outside press or a focus-out, and clicks in the selected
+   card are outside it. Cheapest check, in step 1: a W-fld spike that clicks the label input with the panel open
+   and asserts the panel stays open.
+2. **base-ui Drawer in jsdom.** It is newer than Dialog, and swipe and animation hooks may need stubs. Same check
+   in step 1: open and close a `sheet` in a test.
+3. **Test churn.** Most W-fld queries change. Keeping every existing assertion unchanged is the guard, and the diff
+   review checks it.
+4. **Layout.** Between 1024 px and about 1280 px, with the app sidebar open, the popover may cover the card.
+   Collision handling keeps it on screen, and the owner checks it on the running app.
+5. **AC-0002-50 wording.** The AC says "disabled". With Decisions 2, the switch is announced as disabled
+   (`aria-disabled`) but stays focusable. If the owner wants native `disabled`, AC-0002-67 must move to a control
+   that can take focus. That would be a spec change.
+6. **Re-check suggestions the owner did not take.** 4 (a held release is a tap) and 5 (click or tap) are
+   implemented as §4.6 step 6 already reads, with no new AC. 7 (other cards' messages) and 9 (px vs rem) are left
+   as written: the code uses `1024px`, and the second error card is not tested.
+7. **Plan review suggestions not taken (follow-ups; the owner picks).** Each is cheap to take later, and none
+   blocks:
+   - P1, drag: ignore presses that come from outside the card through a portal. Also ignore `label`, `select`,
+     `[role=option]` and `[role=menuitem]`.
+   - P2: a `finalFocus` pass-through, so focus returns to "⋯" only on Escape or ✕.
+   - P3: name the spike's file, and cover choosing from "Tipo" and "Mover" with the panel open.
+   - P4: query dialogs by name, because the popover and the sheet are also `role="dialog"`.
+   - P5: a loaded field's help text is `undefined`, which also means OFF; say where new system fields start.
+   - P6: a width-only `matchMedia` stub, without `vi.stubGlobal`.
+   - P7: ignore the click that follows a drag.
+   - P8: jsdom limits (focus-only Tab, tests that pass vacuously before step 4, the AC-0002-65 setup,
+     `aria-invalid` and `tabIndex` on cards).
+   - P9: before `/implement`, name the AC list, keep the original Deferred checks, and land the working-tree
+     changes.
+   - P10: a separate name for the switch and the description input, px vs rem, devices for the phone check, and a
+     `data-readonly` switch style.
+
+#### New dependencies
+
+None. Popover and Drawer come from `@base-ui/react` 1.8.0, which is installed. No animation library (owner,
+2026-11-16).
+
+### Original plan (v1.2, implemented in v1.3)
+
 Drafted by `/plan` on 2026-11-09, checked again on 2026-11-10 against SPEC-0001's plan and the code (no forms code
 exists yet; every path below that SPEC-0001 creates is taken from its plan), and revised on 2026-11-10 after each
 plan review and the owner's decisions. Approved by the owner on 2026-11-11.
 
 ### Scope
 
-```scope
+Locked for v1.2; no longer the lock (the amendment's block above is).
+
+```text
 packages/schemas/src/forms/protected-terms.ts
 packages/schemas/src/index.ts
 packages/i18n/messages/pt-BR.json
@@ -1147,3 +1648,8 @@ acceptance criteria.
 | 1.2 | 2026-11-11 | Implementation plan approved by Joao Izidoro, 2026-11-11 (together with SPEC-0001's plan); behavior sections unchanged |
 | 1.3 | 2026-11-11 | Implemented per §11: `protected-terms` contract and `forms.fields.*` copy, migration `0003` (three CHECK constraints on `form_fields`), `FieldPolicy` rules in the check order with defaults and locks, and the editor's field list (switch, select, menu and tooltip primitives; rows, type select, protection, options editor, row menu, drag and keyboard reorder, remove dialog). All 52 active criteria have passing tests (AC-0002-17 was withdrawn in 0.7). Partly verified, per Deferred checks: AC-0002-16, -19, -23, -24, -26 (SPEC-0004). Passing before step 4 through SPEC-0001's early rules, besides the plan's step 3 list: AC-0002-04, -18, -39 to -42, -46, -51, -52 (E-fld), and -08, -09 in U-terms through the step 1 contract. Learned during implementation, owner-approved and recorded in §11 "Amendments during implementation": the local database rows, the R18 test data, `draft.ts` sending `sensitive: false`, server error placement. No criterion changed. Status stays Approved until the owner accepts the behavior on a running system |
 | 1.4 | 2026-11-11 | Status Implemented: Joao Izidoro tested the behavior on a running system and accepted it, 2026-11-11. Still partly verified, per Deferred checks: AC-0002-16, -19, -23, -24, -26 (SPEC-0004); SPEC-0004 adds `<AC ids> verified with SPEC-0004, <date>` here |
+| 1.5 | 2026-11-16 | Field card design (owner, 2026-11-16), pending owner review. Rows become cards with one selected card and a settings panel, a bottom sheet on narrow screens, with the label input in the sheet (§4.6 added; §4.1 steps 2–3, §4.4 and §8 amended). Owner decisions recorded: the panel opens when a field is added, "Texto de ajuda" is ON by default, the whole card is dragged (touch: hold about 300 ms), "Dado protegido" keeps its name, and the design's "Long answer" switch is dropped ("Texto longo" stays a type). AC-0002-21 amended; AC-0002-50 and §4.5 say "card" instead of "row" (wording only); AC-0002-54 to -64 proposed; Q13–Q18 open. Spec review round 1 (8 required changes, applied the same day): §4.6 step 8 (the first error selects its card and opens its panel or sheet), §7 states what an omitted or `null` `helpText` means (the API already behaves this way), every card reachable with Tab (§4.6 step 1, AC-0002-21), touch drag at 300 ms exactly, Givens fixed in AC-0002-60 to -63 ([Publicar] for reorders, focus before Escape, selected card), §4.6 step 6 says what a tap does on narrow screens, Blocks column fixed for Q13, Q15 and Q18; AC-0002-65 to -69 proposed. Status back to Review and plan_status to Draft: §11 Web describes the v1.4 rows and needs a plan amendment after approval |
+| 1.6 | 2026-11-16 | Owner Joao Izidoro accepted the proposed answers to Q13–Q18 as written, 2026-11-16: panel title "Configurações do campo", selecting another card closes the panel, sheet below 1024 px, answer preview per type, "Texto de ajuda" OFF clears the help text, and on narrow screens all editing is in the sheet. §4.6 steps 2, 3 and 6 now state these answers. AC-0002-21 and AC-0002-54 to -69 are still pending owner review; status stays Review |
+| 1.7 | 2026-11-16 | Approved by Joao Izidoro, 2026-11-16: the field card amendment, AC-0002-21 as amended and AC-0002-54 to -69 as written. The re-check's 11 suggestions were not taken into the spec; the plan lists the ones that affect implementation under Risks. plan_status stays Draft until the §11 amendment is approved |
+| 1.8 | 2026-11-16 | Owner decision from the plan review, 2026-11-16: an error with no control (id, `systemKey`, the field as a whole, options on a type without options) shows as an error toast on narrow screens, with the card selected and focused and no sheet. Wide screens keep the message under the card title. §4.6 step 8 narrowed to errors with a control, step 9 added, AC-0002-70 added; the owner reviews AC-0002-70's wording with the plan |
+| 1.9 | 2026-11-17 | Implementation plan amendment (§11 "Field-card amendment") approved by Joao Izidoro, 2026-11-17, together with AC-0002-70's wording. plan_status Approved. Plan review suggestions P1–P10 stay follow-ups in §11 Risks 7 |
