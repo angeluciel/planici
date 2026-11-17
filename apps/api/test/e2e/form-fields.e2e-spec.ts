@@ -456,6 +456,27 @@ describe('protection and locks', () => {
     expect((await fieldRow(form.fieldId('Objetivo')))?.sensitive).toBe(true);
   });
 
+  it('AC-0002-68 a save with helpText null clears the stored help text', async () => {
+    const form = await seedFicha(
+      withCustom({ label: 'Objetivo', helpText: 'Conte o que você espera' }),
+    );
+    const { inputs } = await inputsOf(form);
+    expect(inputs[3]).toMatchObject({ helpText: 'Conte o que você espera' });
+
+    const response = await saveFields(form, [
+      ...inputs.slice(0, 3),
+      { ...inputs[3]!, helpText: null },
+    ]).expect(200);
+
+    expect((response.body.fields as ReadField[])[3]).toMatchObject({
+      id: form.fieldId('Objetivo'),
+      label: 'Objetivo',
+      helpText: null,
+    });
+    const read = await asAna().read(form.id).expect(200);
+    expect((read.body.fields as ReadField[])[3]?.helpText).toBeNull();
+  });
+
   it('AC-0002-23 turns protection on for a field kept from version 1 without a new version', async () => {
     const form = await seedFicha([
       withCustom({ label: 'Hobby' })[0]!,
