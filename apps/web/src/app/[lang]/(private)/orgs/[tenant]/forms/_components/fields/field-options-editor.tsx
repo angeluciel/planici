@@ -45,6 +45,7 @@ export function FieldOptionsEditor({
 						<li key={index} className="flex items-start gap-2">
 							<Input
 								aria-label={`${t("options")} ${index + 1}`}
+								data-error-slot={`option-${index}`}
 								autoComplete="off"
 								className="min-w-0 flex-1"
 								value={option.label}
@@ -87,6 +88,7 @@ export function FieldOptionsEditor({
 				leadingIcon={PlusIcon}
 				className="w-auto self-start"
 				disabled={options.length >= MAX_OPTIONS}
+				data-error-slot="add-option"
 				onPress={() => onChange([...options, { label: "" }])}
 			/>
 		</fieldset>

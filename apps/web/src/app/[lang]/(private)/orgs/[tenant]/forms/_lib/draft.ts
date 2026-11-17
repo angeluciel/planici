@@ -58,7 +58,8 @@ function toFieldInput(field: Field): FieldInput {
 		type: field.type,
 		required: field.required,
 		...(field.sensitive ? { sensitive: true } : {}),
-		...(field.helpText === null ? {} : { helpText: field.helpText }),
+		// help text is ON only when there is some (SPEC-0002 §4.6 step 7)
+		...(field.helpText ? { helpText: field.helpText } : {}),
 		...(field.options === null
 			? {}
 			: {
@@ -89,11 +90,14 @@ export function blankDraft(type?: FormType): FormDraft {
 // Request shape of the fields. `systemKey` only goes on a create (fields
 // without an id): an update that sends it is rejected (422
 // fieldSystemKey.not-allowed). `sensitive` is sent whenever defined (false turns protection off), never on a system field.
+// An empty description (help text ON, nothing typed) is sent as `null`, which
+// clears the stored text (SPEC-0002 §7).
 export function toRequestFields(fields: readonly FieldInput[]): FieldInput[] {
 	return fields.map((field) => {
 		const { systemKey, sensitive, ...rest } = field;
 		return {
 			...rest,
+			...(rest.helpText === "" ? { helpText: null } : {}),
 			...(sensitive !== undefined && !systemKey ? { sensitive } : {}),
 			...(systemKey && !field.id ? { systemKey } : {}),
 		};

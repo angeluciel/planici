@@ -42,7 +42,7 @@ import { ApplyDialog } from "./apply-dialog";
 import { ArchiveDialog } from "./archive-dialog";
 import { DeleteDialog } from "./delete-dialog";
 import { fieldErrorPath, fieldErrorTarget } from "./fields/field-error-target";
-import { FieldList } from "./fields/field-list";
+import { FieldList, type FieldReveal } from "./fields/field-list";
 import { LeaveDialog } from "./leave-dialog";
 import { PublishDialog } from "./publish-dialog";
 import { SpinnerIcon } from "./spinner-icon";
@@ -238,6 +238,9 @@ function EditorBody({
 	const [banner, setBanner] = useState<Banner>(null);
 	const [dialog, setDialog] = useState<Dialog>(null);
 	const [unarchiving, setUnarchiving] = useState(false);
+	// the first field error of the current save, brought into view by the list
+	const [reveal, setReveal] = useState<FieldReveal | null>(null);
+	const revealed = useRef(false);
 
 	const { form, dirty, guard } = useFormDraft(
 		template
@@ -305,13 +308,15 @@ function EditorBody({
 			type: "server",
 			message,
 		});
-		requestAnimationFrame(() =>
-			document
-				.querySelector<HTMLElement>(
-					"li[aria-invalid=true] input, li[aria-invalid=true] [role=combobox]",
-				)
-				?.focus(),
-		);
+		if (target.kind === "row" && !revealed.current) {
+			revealed.current = true;
+			setReveal((previous) => ({
+				index: target.index,
+				slot: target.slot,
+				message,
+				nonce: (previous?.nonce ?? 0) + 1,
+			}));
+		}
 		return true;
 	}
 
@@ -444,6 +449,7 @@ function EditorBody({
 
 	const submit = form.handleSubmit(async (values) => {
 		setBanner(null);
+		revealed.current = false;
 		if (current) await update(current, values);
 		else await create(values);
 	});
@@ -695,6 +701,8 @@ function EditorBody({
 					original={current?.fields ?? []}
 					text={text}
 					errors={errors.fields}
+					disabled={saving}
+					reveal={reveal}
 				/>
 			)}
 

@@ -9,8 +9,9 @@ export type DraftField = FieldInput & { replaces?: Field };
 
 export const MAX_FIELDS = 100;
 
+// help text starts ON and empty (§4.6 step 7): "" is ON, null or absent is OFF
 export function newField(): DraftField {
-	return { label: "", type: "text", required: false };
+	return { label: "", type: "text", required: false, helpText: "" };
 }
 
 function optionsOf(field: Field) {
