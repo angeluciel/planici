@@ -10,6 +10,8 @@ import {
 	type RowErrors,
 	slotHasControl,
 } from "./field-card-errors";
+import { FieldInlineInput } from "./field-inline-input";
+import { withLabel } from "./field-updates";
 
 export {
 	isPanelSlot,
@@ -41,14 +43,20 @@ type Props = {
 	selected: boolean;
 	panelId: string;
 	dragId: string;
+	// wide screens edit an idle card's title and help text in place
+	wide: boolean;
+	// while the editor saves, those inputs are read-only
+	saving: boolean;
 	cardRef: (element: HTMLLIElement | null) => void;
 	onActivate: () => void;
+	onChange: (next: DraftField) => void;
 };
 
-// One field of the list. It only displays: the label, description and every
-// setting are edited in the panel (SPEC-0002 §4.6 step 2). A button covers the
-// card: it is the card's tab stop, and a click, Enter or Space on it opens the
-// panel. Focus alone selects nothing (§4.6 step 1).
+// One field of the list (SPEC-0002 §4.6 step 2). A button covers the card: it
+// is the card's tab stop, and a click, Enter or Space on it opens the panel.
+// Focus alone selects nothing (§4.6 step 1). On wide screens an idle card's
+// title and help text are edited in place (§4.6 step 12), and come after the
+// button in tab order (Q21). Everything else is edited in the panel.
 export function FieldCard({
 	field,
 	errors,
@@ -56,14 +64,21 @@ export function FieldCard({
 	selected,
 	panelId,
 	dragId,
+	wide,
+	saving,
 	cardRef,
 	onActivate,
+	onChange,
 }: Readonly<Props>) {
 	const t = useTranslations("forms.fields");
 	const system = Boolean(field.systemKey);
 	const typeName = t(`types.${field.type}`);
 	const title = field.label || typeName;
 	const helpText = field.helpText ?? "";
+	const helpOn = field.helpText !== null && field.helpText !== undefined;
+	// the selected card sits behind the panel, which edits the same text
+	const inline = wide && !selected;
+	const errorId = `${baseId}-card-error`;
 	const drag = useSortableCard(dragId);
 	const { setNodeRef } = drag;
 	const nodeRef = useCallback(
@@ -106,7 +121,7 @@ export function FieldCard({
 				aria-haspopup="dialog"
 				aria-expanded={selected}
 				aria-controls={selected ? panelId : undefined}
-				aria-describedby={underTitle ? `${baseId}-card-error` : undefined}
+				aria-describedby={underTitle ? errorId : undefined}
 				// a drag starts with this press; the button gets focus on the click
 				// only, so a drag neither focuses nor selects the card (§4.4 step 3)
 				onMouseDown={(event) => event.preventDefault()}
@@ -119,19 +134,47 @@ export function FieldCard({
 			<div className="pointer-events-none relative z-10 flex flex-col gap-2">
 				<div className="flex items-start gap-2">
 					<div className="flex min-w-0 flex-1 flex-col gap-1">
-						<p
-							className={`wrap-break-word font-body-md font-semibold ${
-								field.label ? "text-text-bold" : "text-text-secondary"
-							}`}
-						>
-							{title}
-						</p>
-						{helpText && <p className="text-text-secondary">{helpText}</p>}
+						{inline ? (
+							<>
+								<FieldInlineInput
+									errorSlot="label"
+									value={field.label}
+									name={t("inlineLabel", { name: title })}
+									placeholder={typeName}
+									invalid={Boolean(errors.label)}
+									describedBy={errors.label ? errorId : undefined}
+									readOnly={saving}
+									className="font-body-md font-semibold text-text-bold placeholder:text-text-secondary"
+									onChange={(label) => onChange(withLabel(field, label))}
+								/>
+								{helpOn && (
+									<FieldInlineInput
+										errorSlot="helpText"
+										value={helpText}
+										name={t("inlineHelpText", { name: title })}
+										placeholder={t("descriptionPlaceholder")}
+										invalid={Boolean(errors.helpText)}
+										describedBy={errors.helpText ? errorId : undefined}
+										readOnly={saving}
+										className="text-text-secondary placeholder:text-text-disabled"
+										onChange={(next) => onChange({ ...field, helpText: next })}
+									/>
+								)}
+							</>
+						) : (
+							<>
+								<p
+									className={`wrap-break-word font-body-md font-semibold ${
+										field.label ? "text-text-bold" : "text-text-secondary"
+									}`}
+								>
+									{title}
+								</p>
+								{helpText && <p className="text-text-secondary">{helpText}</p>}
+							</>
+						)}
 						{underTitle && (
-							<p
-								id={`${baseId}-card-error`}
-								className="font-medium text-text-status-danger"
-							>
+							<p id={errorId} className="font-medium text-text-status-danger">
 								{underTitle}
 							</p>
 						)}

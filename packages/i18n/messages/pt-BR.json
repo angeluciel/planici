@@ -549,6 +549,8 @@
 			"label": "Rótulo",
 			"type": "Tipo",
 			"helpText": "Texto de ajuda",
+			"inlineLabel": "Rótulo de {name}",
+			"inlineHelpText": "Texto de ajuda de {name}",
 			"options": "Opções",
 			"addOption": "Adicionar opção",
 			"panelTitle": "Configurações do campo",
