@@ -3,7 +3,7 @@ id: SPEC-0003
 title: Preenchimento de cadastro a partir de modelo
 status: Approved # Draft | Review | Approved | Implemented | Superseded
 plan_status: Draft # Draft | Approved
-version: 1.0
+version: 1.2
 owner: Joao Izidoro
 satisfies: [RF-40, RF-41, RF-42, RN-01, RN-02, RN-20, RN-21, RNF-07]
 depends_on: [SPEC-0001, SPEC-0002]
@@ -1001,8 +1001,35 @@ Then  "Diagnóstico" shows "••••••" again
 
 ## 11. Implementation plan
 
-Drafted by `/plan` on 2026-11-10 against SPEC-0001's and SPEC-0002's plans (both still Draft). No forms code exists
-yet, so every path those plans create is taken from them. `plan_status: Draft` until the owner approves it.
+Drafted by `/plan` on 2026-11-10 against SPEC-0001's and SPEC-0002's plans, before any forms code existed. Revised by
+`/plan` on 2026-11-18 against the code of SPEC-0001 and SPEC-0002, both Implemented (Revision against the code).
+`plan_status: Draft` until the owner approves it.
+
+### Revision against the code (2026-11-18)
+
+Risks 1 asked for this check before `/implement`. G-1 to G-4 hold in the code, so Persistence, the locks and
+Decisions 5 and 6 are unchanged. The rest are names, paths and helpers that now exist:
+
+| # | The 2026-11-10 draft assumed | The code has | Changed here |
+| --- | --- | --- | --- |
+| C-1 | the record tables in SPEC-0001's schema | `form_records` and `form_record_values` in `apps/api/src/database/schema/form-records.ts`; `form_record_values` has `updated_at` and no `created_at` | Persistence |
+| C-2 | `FieldValueCipher` provided with `FIELD_VALUES_KEY` | the class in `@shared/crypto/field-value.cipher.ts` (`encrypt(value, context)`, `decrypt(sealed, context)`, `CURRENT_FIELD_VALUE_KEY_VERSION`); `FormsModule` provides it under its own `FIELD_VALUE_CIPHER` token and does not export it; `FIELD_VALUES_KEY` is the env var | API |
+| C-3 | G-1 to G-4 in SPEC-0001's plan only | in the code: the cipher seals `JSON.stringify(value)`; a `select` answer is its option id (`lostOptionAnswers`); fixtures store `yes_no` only when `true`; delete, archive, unarchive and update call `lockById` (`for update`) first; `repointAll` raises `revision` and sets `updated_at` in one statement before answers are deleted | Risks 1 closed |
+| C-4 | a shared `ValidationError` and `DomainError` with a key | `ValidationError(code, field?)` (422) lives in `@shared/http/zod-validation.pipe.ts` beside `ZodBody`; `DomainError` has `code`, `status` (default 400) and `field` | API |
+| C-5 | a transaction type | `TenantScope.run(tenantId, work: (tx: TenantTransaction) => …)` in `modules/tenants/infrastructure/persistence/tenant-scope.ts`; it sets `app.current_tenant`, but no RLS policy reads it, so every query filters by `tenant_id` | API, Persistence |
+| C-6 | fixtures that sign up an owner themselves | `createTestApp(options?)` in `test/setup/test-app.ts` builds `AppModule`; `test/utils/forms-fixtures.ts` has `signUpOwner`, `formsApi`, `seedForm`, `seedRecord`, `storedValue`, `recordRows`, `CLIENT_SYSTEM_INPUTS`, `SERVICE_SYSTEM_INPUTS`; e2e tests use the `/v1` prefix | Tests |
+| C-7 | a `latestVersion` in the template read | `FormTemplateSchema.version` is the latest version; the version read is `{ version, fields }` | Contracts, Web |
+| C-8 | SPEC-0001's `.toast.created` | no such key; `forms.toast.*` covers templates only | Web, Copy |
+| C-9 | adapters that reject with `{ status, error, field }` | `@/lib/api/*` return `{ ok: true, … } \| ApiFailure` (`{ ok: false, error, field? }`); `getForm(id)` and `getFormVersion(id, version)` | Web |
+| C-10 | an `Input` with an error prop; `select.tsx` options by id | `Input` takes `status="error"` with `help`; `Select` takes `{ value, label }` options, is controlled, and has no empty choice; no `textarea.tsx` | Web, Decision 13 |
+| C-11 | a "Descartar" dialog in SPEC-0001's code | `useLeaveGuard({ dirty, messageKey })` in `@/hooks/use-leave-guard.ts`; the dialog is `LeaveDialog({ guard, discardKey })` in the forms route's `_components/leave-dialog.tsx`; the page's own navigation goes through `guard.navigate` | Web, Decision 14 |
+| C-12 | `Intl` for numbers and dates | no formatting helper yet; next-intl's `useFormatter` follows the active locale | Web, Decision 7 |
+| C-13 | an error-key helper | `useFieldError()` in `@/lib/form.ts` maps a key through `validation.*` | Web |
+| C-14 | no web test script; a mocked `@/lib/api/forms` | `pnpm --filter web test`; `tests/forms-harness.tsx` fakes the transport (`on`, `callsTo`, `never`) and renders with the real messages (`renderApp`) | Tests, Sequence |
+| C-15 | §3.1's 11 types | `FIELD_TYPES` also has `duration` and `money`, which are system-only (`SYSTEM_ONLY_FIELD_TYPES`) | Contracts |
+| C-16 | `orgs/[tenant]/_components/` | it does not exist yet; `/clients` is a stub page and `/services` has no route | Web |
+
+None of these changes a criterion. The scope block is unchanged.
 
 ### Scope
 
@@ -1067,7 +1094,8 @@ New, non-breaking. Consumers: `apps/api` (`RecordsModule`, then the SPEC-0004 an
     Completeness is checked first, then the parts in that order (Decision 3).
   - A value of the wrong JSON type gives `value.invalid` at `values.<fieldId>`, also for an address part.
   - `isBlankValue(value)`: `null`, an empty or whitespace-only string, or an address whose parts are all blank (R3).
-  - `customValueSchema(field)` picks the schema by type, with the field's options for `select`.
+  - `customValueSchema(field)` picks the schema by type for the custom types only; `duration` and `money` are
+    system-only (C-15) and never reach it. For `select` it uses the field's options.
     `recordValuesSchema(fields)` builds the object schema the web form uses. It reports every issue, at paths
     `values.<fieldId>` and `values.<fieldId>.<part>`, and adds `value.required` for required fields. The API runs
     `customValueSchema` per field, in the order of Decision 3.
@@ -1083,12 +1111,13 @@ New, non-breaking. Consumers: `apps/api` (`RecordsModule`, then the SPEC-0004 an
     attributes and SPEC-0004's consent fields pass through and are parsed later, in SPEC-0004 §6 order. The first
     issue follows the order of Decision 12 (Risks 4).
 - `responses.ts`: `RecordValueSchema` (string, number, boolean or address), `RecordFormRefSchema` (`{ id, name,
-  version, latestVersion, status }`) and `RecordBaseSchema` (`form`, `revision`, `values` keyed by field id,
+  version, latestVersion, status }`; `latestVersion` is the template's `version`, C-7) and `RecordBaseSchema` (`form`, `revision`, `values` keyed by field id,
   `missingRequired`, `createdAt`, `updatedAt`). The entity adds `id`, its system attributes and `status`
   (SPEC-0004 §7, SPEC-0005 §7).
-- `errors.ts`: `RECORD_ERROR_CODES`, the 24 new keys of §6. `email.invalid` already exists. SPEC-0004 reuses
+- `errors.ts`: `RECORD_ERROR_CODES`, the 24 new keys of §6, as an append-only `as const` list like
+  `FORM_ERROR_CODES`. None of them exists yet; `email.invalid` already does. SPEC-0004 reuses
   `phone.invalid` from here for `client.phone`.
-- `src/index.ts` re-exports. i18n: `validation.*` for the 24 keys and the `clients.*` and `services.*` keys of §8, in
+- `records/index.ts` re-exports the folder, and `src/index.ts` re-exports `records/index.js`, as for `forms`. i18n: `validation.*` for the 24 keys and the `clients.*` and `services.*` keys of §8, in
   both locales (Copy).
 
 ### Persistence
@@ -1098,7 +1127,7 @@ No schema change and no migration. The plan reads and writes SPEC-0001's tables:
 `form_record_values`. There is nothing to roll back.
 
 - **Values.** One `form_record_values` row per custom field with a value (R3, R5), with `tenant_id`, `key_version`
-  1 and `value_ciphertext`. The cipher is `FieldValueCipher` (AES-256-GCM, a new 12-byte nonce per row), with the
+  `CURRENT_FIELD_VALUE_KEY_VERSION` (1) and `value_ciphertext`; `updated_at` takes its default (C-1). The cipher is `FieldValueCipher` (AES-256-GCM, a new 12-byte nonce per row), with the
   associated data that SPEC-0001's plan fixes (`key_version`, `tenant_id`, `form_record_id`, `field_id`). The
   plaintext is the UTF-8 JSON of the normalised contract value (G-1). A `select` value is its option id. A
   `yes_no` value is stored only when it is `true` (Decision 6, G-2). The owner decided both on 2026-11-10, and
@@ -1126,14 +1155,16 @@ Layout, as in `tenants`: `domain/` (`record-check.ts`, `record-version.ts`, `err
 (`RecordFormReader`, `RecordRepository`), `infrastructure/persistence/` (Drizzle adapters and mappers over
 SPEC-0001's tables), `application/record.service.ts` and `records.module.ts`.
 
-- `RecordsModule` provides its own `FieldValueCipher` from `@shared/crypto/field-value.cipher.ts` with
-  `FIELD_VALUES_KEY`, and exports `RecordService`. `app.module.ts` imports it, so the e2e tests can resolve the
+- `RecordsModule` provides its own cipher under a `RECORD_VALUE_CIPHER` token in its `ports/`: `new
+  FieldValueCipher(config.getOrThrow('FIELD_VALUES_KEY'))` from `@shared/crypto/field-value.cipher.ts`, as
+  `FormsModule.forRoot` does for its own token (C-2). It imports `TenantsModule` and exports `RecordService`. `app.module.ts` imports it, so the e2e tests can resolve the
   service before SPEC-0004 imports the module.
 - It never imports `FormsModule`. It reads the template tables through `RecordFormReader`, so `FormsModule.forRoot`
   stays as SPEC-0001's plan fixes it (Decision 1).
 - `RecordService` is an application service, not a CQRS handler, because it runs inside the caller's transaction.
-  Every method takes the tenant id. Errors are `DomainError` subclasses with status, key and field; value errors
-  use the shared `ValidationError` (422). No message carries an input value, and the module logs nothing (R10).
+  Every method takes the tenant id; the write methods take the caller's `TenantTransaction` (C-5). Errors are
+  `DomainError` subclasses with `status`, `code` and `field`; value errors use `ValidationError` from
+  `@shared/http/zod-validation.pipe.ts` (422, C-4). No message carries an input value, and the module logs nothing (R10).
 
 | Method | What it does | §6 step | Errors | ACs |
 | --- | --- | --- | --- | --- |
@@ -1155,6 +1186,10 @@ How the methods work:
   always present). A `yes_no` field is never required (SPEC-0002 R8).
 - **`values` in a read** hold the linked version's custom fields with a row, plus `false` for every `yes_no` field
   without one (§7).
+- **One connection per call.** Inside a create or update, every query of `openForCreate`, `openForUpdate`, the
+  draft methods, `RecordFormReader`, `RecordRepository` and `read` runs on the caller's `tx`. None of them borrows
+  a connection from the pool while the caller's transaction is open (Risks 10). Only `read` without a `tx` uses the
+  pool.
 - **Tenant isolation.** Every query filters by `tenant_id`. A field id of another tenant is "not in the version"
   (400, AC-0003-38). Another tenant's record is `null` or `RecordNotFoundError` (AC-0003-22, -63).
 
@@ -1188,17 +1223,23 @@ Their plans build on these points. A change to any of them amends this plan and 
 
 ### Web (`apps/web/src/app/[lang]/(private)/orgs/[tenant]/_components/records/`)
 
-No routes and no BFF here. SPEC-0004 and SPEC-0005 own `/clients/new?form=:id`, `/clients/[clientId]`,
+The folder is new (C-16): `orgs/[tenant]/_components/` does not exist yet, and both entity routes sit under
+`orgs/[tenant]/`. No routes and no BFF here. SPEC-0004 and SPEC-0005 own `/clients/new?form=:id`, `/clients/[clientId]`,
 `/clients/[clientId]/edit` and the `/services` equivalents, and mount these components there.
 
 - `record-adapter.ts`: what an entity passes in.
-  - `create(body)`, `read(id)` and `update(id, body)`, which reject with the API's `{ status, error, field }`.
+  - `create(body)`, `read(id)` and `update(id, body)`, which resolve to `{ ok: true, record }` or an `ApiFailure`
+    (`{ ok: false, error, field? }`), as every `@/lib/api/*` function does (C-9). SPEC-0004 and SPEC-0005 add the
+    `records` resource to the BFF's `api()` helper with their routes.
   - `viewHref(id)`, `editHref(id)`, `listHref`.
   - `systemFields`: per system key, the request attribute (`name`, `email`, `phone`; `name`, `durationMinutes`,
     `priceCents`), its input component, its schema and its view formatter.
   - `onSaveError(error)`: optional; returns `true` when the entity handled the error itself.
-  - Templates and versions load through SPEC-0001's `@/lib/api/forms` (form read, version read), used unchanged.
-- `record-form.tsx` with `use-record-form.ts` (react-hook-form, `zodResolver`), for new and edit:
+  - Templates and versions load through `getForm(id)` and `getFormVersion(id, version)` of `@/lib/api/forms`, used
+    unchanged. A new record uses `getForm`, whose `version` is the latest (C-7); an edit uses `getFormVersion` with
+    the record's `form.version`.
+- `record-form.tsx` with `use-record-form.ts` (react-hook-form with `zodResolver`, as the login and register forms
+  do; the template editor validates by hand), for new and edit. Error keys show through `useFieldError()` (C-13):
   - Loading: a 3-row skeleton (`.form.loading`). Load failure: `.form.loadError` with retry. A missing or archived
     template, or a template of the other type (Decision 9): `.form.unavailable` with a link to `listHref`. Edit
     of an unknown record: `.form.notFound`.
@@ -1207,8 +1248,9 @@ No routes and no BFF here. SPEC-0004 and SPEC-0005 own `/clients/new?form=:id`, 
   - [Salvar] validates with `recordValuesSchema(fields)`, the system-field schemas and the `extraFields` schema:
     every error inline, the summary `.form.errorSummary` with the count, focus on the first invalid field, and no
     request.
-  - Saving: [Salvar] disabled with a spinner (`.form.saving`). Success: SPEC-0001's toast (`.toast.created` or
-    `.toast.saved`), then `viewHref`.
+  - Saving: [Salvar] disabled with a spinner (`.form.saving`). Success: `useToast().show` with the new
+    `{entity}.toast.created` or `{entity}.toast.saved` (C-8), then `viewHref` through `guard.navigate`, after the form
+    is reset so the guard does not ask.
   - 409 `record.form-changed` (§4.4): reload the latest version (new record) or the record and its version (edit,
     taking the new revision). `remap-values.ts` keeps typed values whose field still exists, drops the rest and
     any `select` choice whose option is gone. Banner `.form.formChanged`.
@@ -1220,11 +1262,11 @@ No routes and no BFF here. SPEC-0004 and SPEC-0005 own `/clients/new?form=:id`, 
     `extraFields` input), whatever its status, so 409 `clientEmail.taken` shows under E-mail; else
     `.form.saveError`. A `field` with no input (`formVersion`, `revision`, `values`), no `field`, a 500 or a
     network failure all end in `.form.saveError`. Typed values are kept in every case.
-  - Leaving with typed input: SPEC-0001's shared `use-leave-guard.ts` (G-7, decided by the owner on 2026-11-10),
-    reused as is with `{entity}.form.discard`. It confirms in-app link clicks, uses `beforeunload` for tab close and
+  - Leaving with typed input: `useLeaveGuard({ dirty, messageKey: "{entity}.form.discard" })` (G-7, C-11), reused as
+    is, with `LeaveDialog` imported from the forms route (Decision 14). It confirms in-app link clicks, uses `beforeunload` for tab close and
     reload, and covers the browser's back and forward buttons: while the form is dirty it keeps a guard entry on top
-    of the history and listens for `popstate` (SPEC-0001 plan, Web; owner, 2026-11-11). [Cancelar] shows the same
-    confirmation (SPEC-0001's `dialog.tsx`) before going to `listHref`; with nothing typed it goes straight there.
+    of the history and listens for `popstate` (SPEC-0001 plan, Web; owner, 2026-11-11). [Cancelar] calls
+    `guard.navigate` to `listHref`, so it shows the same confirmation; with nothing typed it goes straight there.
   - Edit shows protected values in plain text (R9). `extraFields` renders above [Salvar].
 - `record-view.tsx`:
   - Loading skeleton (`.view.loading`); load failure `.view.loadError` with retry; `.view.notFound`.
@@ -1234,11 +1276,15 @@ No routes and no BFF here. SPEC-0004 and SPEC-0005 own `/clients/new?form=:id`, 
     component, so leaving the page masks again (R9).
   - `.view.version` with the template name linking to `/forms/:formId`; `.view.olderVersion` when `version` is
     below `latestVersion`; `.view.missingRequired` next to each field in `missingRequired`; [Editar] to `editHref`.
-- `field-inputs/`: one input per §3.1 type. `masks.ts` formats phone, CPF and CEP while typing. The number input
-  accepts "72,5" and "72.5" (Decision 7). `date` uses `<input type="date">`. `yes_no` uses the existing checkbox,
-  `select` SPEC-0002's `select.tsx`, `long_text` a new `components/ui/textarea.tsx`. `address` is a group of seven
-  inputs, with a UF select of `BRAZIL_STATES`.
-- `format-value.ts`: the §3.1 "shown as" column. Number and date by the active locale through `Intl` (Decision 7),
+- `field-inputs/`: one input per custom §3.1 type, on `Input` with `status="error"` and `help` for its message
+  (C-10). `masks.ts` formats phone, CPF and CEP while typing. The number input accepts "72,5" and "72.5"
+  (Decision 7). `date` uses `<input type="date">`. `yes_no` uses `Checkbox`, `select` uses `Select` with the
+  version's options mapped to `{ value: id, label }` and, when the field is optional, a first "—" choice that
+  clears the value (Decision 13), and `long_text` a new `components/ui/textarea.tsx`. `address` is a group of seven
+  inputs, with a UF `Select` of `BRAZIL_STATES`. System fields, including `duration` and `money`, use the adapter's
+  `systemFields` inputs.
+- `format-value.ts`: the §3.1 "shown as" column. Number and date by the active locale through next-intl's
+  `useFormatter` (Decision 7, C-12),
   `yes_no` "Sim" / "Não", `select` the option's current label from the version read, phone `(11) 98765-4321`, CPF
   `000.000.000-00`, address on one line followed by the CEP.
 - No Figma frame is referenced by this spec, so the pages use the existing token layers and components. The visual
@@ -1314,11 +1360,16 @@ Files:
   `PATCH /v1/forms/:formId` (metadata, "Manter existentes", "Atualizar todos"), read through `RecordService` and
   `GET /v1/forms/:formId/versions/:version`.
 - **W-form** `apps/web/tests/record-form.test.tsx` and **W-view** `apps/web/tests/record-view.test.tsx`: the
-  components with a fake `RecordAdapter`, a test `systemFields` config and a mocked `@/lib/api/forms`.
-- Fixtures: `apps/api/test/utils/records-fixtures.ts` signs up the owner and creates the tenant with supertest, as
-  `tenants.e2e-spec.ts` does (`test/utils/ApiClient.ts` is an empty file, and no plan fills it). It creates and
-  changes templates with supertest through SPEC-0001's forms API, uses SPEC-0001's `forms-fixtures.ts` unchanged
-  where seeding is quicker, and wraps `RecordService` calls in `TenantScope.run`.
+  components with the record harness below.
+- Fixtures (C-6): `apps/api/test/utils/records-fixtures.ts` builds on `forms-fixtures.ts`, used unchanged:
+  `signUpOwner` for each tenant, `formsApi` to create and change templates through SPEC-0001's API, `seedRecord`
+  where seeding is quicker, and `storedValue` and `recordRows` for the stored rows. It adds `recordService(ctx)`,
+  which resolves `RecordService` from `ctx.app`, and `inTenant(ctx, tenantId, work)`, which wraps a call in
+  `TenantScope.run`. The app comes from `createTestApp()` (`test/setup/test-app.ts`).
+- Web fixtures: `apps/web/tests/record-harness.tsx` reuses `forms-harness.tsx` (`renderApp`, `on`, `callsTo`,
+  `never`, `template`, `field`, the three `vi.mock` factories) and adds a fake `RecordAdapter`, the test
+  `systemFields` config for both entities, and `tClients` and `tServices` translators. The template and version
+  reads go through the faked transport, not a module mock (C-14).
 
 Every test name starts with its AC ID, e.g. `it('AC-0003-04 rejects a CPF with wrong check digits', …)`. A test of a
 partly verified criterion says so in its name. Both record types are covered: I-rec and I-mig run each case with a
@@ -1450,8 +1501,10 @@ Checks outside the AC table:
   failure show `.form.saveError` (Web).
 - **R7 race** (I-rec, named `R7 …`). A second pool client holds the template row `for update`, as SPEC-0001's update
   does, and sets `latest_version` to 3. A create with `formVersion` 2 started meanwhile waits, and after the commit
-  it gets 409 `record.form-changed`. The e2e pool has 2 connections (`test/setup/env.ts`), enough for the two
-  transactions; the test runs nothing else meanwhile.
+  it gets 409 `record.form-changed`. The holder's client comes from `ctx.pool`, which is the app's own pool
+  (`app.get(PG_POOL)`, `test/setup/test-app.ts`), capped at 2 connections (`DATABASE_POOL_MAX`,
+  `test/setup/env.ts`). The holder takes one and the create's `TenantScope.run` the other, so the test runs nothing
+  else meanwhile, and the create path must use no third connection (API, "One connection per call").
 
 ### Deferred checks
 
@@ -1475,9 +1528,8 @@ their routes and run W-form and W-view against their adapters (What SPEC-0004 an
 
 ### Sequence
 
-0. **Prerequisites.** SPEC-0001 and SPEC-0002 `Implemented` (`task-lock.sh` checks `depends_on`). G-1 to G-4,
-   which change SPEC-0001's code, were decided on 2026-11-10 and are in SPEC-0001's plan, ahead of its persistence
-   step (SPEC-0001 plan, Sequence step 0). Risks 1 checks that its code follows them.
+0. **Prerequisites.** SPEC-0001 and SPEC-0002 `Implemented` (both are; `task-lock.sh` checks `depends_on`). G-1 to
+   G-4 are in their code (C-3). The owner checks the DDD list (Risks 6).
 1. **Contracts.** U-val and U-req first, confirmed failing because the module is missing. Then
    `packages/schemas/src/records/*`, the export, the copy in both locales; build the package. AC-0003-54 to -56,
    -60, -64 to -66, -86 and -87 pass here.
@@ -1485,12 +1537,15 @@ their routes and run W-form and W-view against their adapters (What SPEC-0004 an
    AC as mapped. Confirm each fails because the behavior is missing.
 3. **API, part 1.** `RecordsModule` with domain errors, `record-version.ts`, `record-check.ts`, the ports, the
    Drizzle adapters, the cipher provider, and the import in `app.module.ts`. U-chk passes.
-4. **API, part 2**, two commits.
+4. **API, part 2**, two commits. Gate before 4a (Risks 7): read `@nestjs/observe`'s error capture as installed and
+   confirm it sends no request body or error message that could hold a value. If it does, stop and ask the owner.
    - **4a** create and read: AC-0003-02 to -14, -20 (create and read), -23, -31 to -38, -41, -44, -67, -69, -72,
      -75, -76, -79, -88, and the R7 race.
    - **4b** update: AC-0003-20 (update), -22, -26, -30, -42, -43, -59, -62, -63, -68, -71. Then I-mig: AC-0003-15,
      -16, -17, -24, -25, -45, -73, -74, -81, -84, -85, -89 and the option-removal support check (API part).
-5. **Web, part 1.** `textarea.tsx`, `field-inputs/`, `masks.ts`, `format-value.ts`, `remap-values.ts`,
+5. **Web, part 1.** Gate first (Risks 5): SPEC-0004's plan is drafted against "What SPEC-0004 and SPEC-0005 rely
+   on" (`RecordAdapter`, `systemFields`, `extraFields`, `onSaveError`). A mismatch amends this plan before the
+   components are built. Then `textarea.tsx`, `field-inputs/`, `masks.ts`, `format-value.ts`, `remap-values.ts`,
    `record-adapter.ts`.
 6. **Web, part 2**, three commits.
    - **6a** fill-in for a new record: AC-0003-01, -21, -28, -47 to -49, -51, -77, -78, -80, -90, -91, -93,
@@ -1499,8 +1554,7 @@ their routes and run W-form and W-view against their adapters (What SPEC-0004 an
    - **6c** view: AC-0003-15, -16 (view part), -18, -25, -27, -29, -46, -50, -52, -70, -84, -85, -92, -95, -96 and
      the option-removal support check (view part).
 7. **Checks.** `pnpm --filter @planici/schemas build`, `pnpm lint`, `pnpm typecheck`, `pnpm --filter api test`,
-   `pnpm --filter api test:e2e`, `pnpm --filter web exec vitest run`. `apps/web` has no `test` script; see the
-   owner action in SPEC-0001's plan, Sequence step 8.
+   `pnpm --filter api test:e2e`, `pnpm --filter web test` (C-14).
 
 ### Decisions this plan makes (owner to confirm with the plan)
 
@@ -1540,13 +1594,20 @@ The spec leaves these open.
 
     The envelope schemas check the object fields first and run the `formId`-on-update and key checks after them,
     so the first issue follows this order whatever the property order of the request.
+13. **An optional `select` offers a first "—" choice** that clears the value (`null`). `Select` has no empty choice
+    of its own (C-10), and without one a chosen option could never be cleared. A required `select` shows no "—" and
+    starts with no choice. The "—" reuses `{entity}.view.empty`. Changing `select.tsx` instead would put SPEC-0002's
+    component in this lock.
+14. **`LeaveDialog` is imported from the forms route** (`orgs/[tenant]/forms/_components/leave-dialog.tsx`), not
+    moved. Moving it to `components/ui` would put SPEC-0001's files in this lock; a later refactor can move it, with
+    behavior unchanged.
 
 ### Gaps and conflicts for the owner
 
 Found while drafting against SPEC-0001's record storage and SPEC-0001, SPEC-0002 and SPEC-0004. This plan edits none
 of those files. The owner decided G-1 to G-7 on 2026-11-10, each as proposed, and the decisions are written into
 SPEC-0001's plan at the sections named below. This plan's Persistence, Decisions 5 and 6, the R7 race check and
-Risks 8 build on them. G-8 and G-9 are still open.
+Risks 8 build on them. G-8 is decided with this plan's approval; G-9 is still open.
 
 | # | Where | Gap or conflict | Proposal or decision |
 | --- | --- | --- | --- |
@@ -1557,15 +1618,13 @@ Risks 8 build on them. G-8 and G-9 are still open.
 | G-5 | SPEC-0001 plan, Deferred checks, AC-0001-10 | It named SPEC-0003 to check "the new-client page". The page's route belongs to SPEC-0004, which also adds the consent checkbox to it (SPEC-0004 §4.3). | **Decided (owner, 2026-11-10):** SPEC-0003 checks the fill-in form opened with the template id and records AC-0001-10 as partly verified (Tests); SPEC-0004 checks the `/clients/new` route. SPEC-0001's Deferred checks row now names both. |
 | G-6 | SPEC-0001 plan, Boundary | It said SPEC-0003's plan "builds the record read/write API", while SPEC-0003 §2 puts the endpoints in SPEC-0004 and SPEC-0005. | **Decided (owner, 2026-11-10):** "API" means the in-process `RecordService` (Boundary above). SPEC-0001's Boundary now says so. |
 | G-7 | SPEC-0001 plan, Web; this spec §8 | §8 asks for "Descartar cadastro?" when leaving a dirty fill-in page. SPEC-0001's link interception lived inside `use-form-draft`, outside this lock. | **Decided (owner, 2026-11-10):** SPEC-0001 builds the shared hook `apps/web/src/hooks/use-leave-guard.ts`, and the caller passes the copy key. `use-form-draft` uses it with `forms.editor.unsaved`; this plan's fill-in form uses it with `{entity}.form.discard` (Web). This plan only imports the hook, so its scope does not change. |
-| G-8 | This spec §6 step 5; SPEC-0004 §6 | §6 step 5 lists the system-attribute rules after the custom values. SPEC-0004 §6 checks name, e-mail and phone before them. | **Open.** Proposal: SPEC-0004's order wins for clients; the two-phase service allows it (Decision 2). SPEC-0005 has no order yet. |
+| G-8 | This spec §6 step 5; SPEC-0004 §6 | §6 step 5 lists the system-attribute rules after the custom values. SPEC-0004 §6 checks name, e-mail and phone before them. | **Decided with plan approval.** SPEC-0004's order wins for clients: entity checks, then the custom values (`checkValues`), as "What SPEC-0004 and SPEC-0005 rely on", point 3, fixes it. The two-phase service allows it (Decision 2). SPEC-0005 has no order yet, and its plan picks one within Decision 2. Approving this plan decides G-8. |
 | G-9 | SPEC-0005 status | SPEC-0005 is Draft, with provisional criteria. The service side of every deferred criterion, and the `/services` pages, wait for it. | **Open.** Proposal: no change here. The service is type-agnostic and tested with service templates. SPEC-0003 stays partly verified for services until SPEC-0005 ships. |
 
 ### Risks
 
-1. **SPEC-0001's implementation departs from G-1 to G-4.** The owner decided them and they are in SPEC-0001's plan
-   (2026-11-10), but if the code differs, this plan's encoding, counts or locks disagree with it. Cheapest check: at
-   SPEC-0001's `/done`, compare the cipher plaintext, the `yes_no` rows, the delete lock and the order of the
-   "Atualizar todos" statements with its plan, and amend this plan before `/implement SPEC-0003`.
+1. ~~SPEC-0001's implementation departs from G-1 to G-4.~~ **Closed (2026-11-18):** the code follows them (C-3).
+   A later change to the cipher plaintext, the `yes_no` rows or the lock order amends this plan.
 2. **Most API criteria are only partly verified until SPEC-0004 and SPEC-0005** (§2). HTTP-only behavior (the pipe on
    each controller, guards, 201 and 200, logs over HTTP) can still break there. Cheapest check: SPEC-0004's plan
    maps every row of Deferred checks; the service keeps controllers thin.
@@ -1575,20 +1634,25 @@ Risks 8 build on them. G-8 and G-9 are still open.
    adjacent pair of Decision 12 (Tests); a mismatch is fixed in the envelope schemas, never in the test.
 5. **The component interface is shared** with SPEC-0004 and SPEC-0005 (`RecordAdapter`, `systemFields`,
    `extraFields`). Cheapest check: draft SPEC-0004's plan against "What SPEC-0004 and SPEC-0005 rely on" before
-   step 5 here.
+   step 5 here (Sequence, step 5 gate).
 6. **Anatel's DDD list** is copied by hand (67 codes). The owner checks it against Anatel's published list before
    step 1. A later change to the list amends the contract, not this plan.
 7. **Values leaving the process.** The module logs nothing and its errors carry keys only. `@nestjs/observe`
    (`app.module.ts`) ships traces and captured errors off the process; a grep of version 0.1.8's HTTP agent found no
    request-body capture. Cheapest check: AC-0003-20's log capture, and reading Observe's error capture before
-   step 4. SPEC-0004 R13 names Sentry; the API uses Observe, which is SPEC-0004's to reconcile.
+   step 4 (Sequence, step 4 gate). SPEC-0004 R13 names Sentry; the API uses Observe, which is SPEC-0004's to reconcile.
 8. **Deadlocks.** A create locks the template (`for share`) and then inserts. An update locks only its record.
    "Atualizar todos" locks the template, then the records. No lock cycle, and the R7 race test runs the create path.
 9. **E2e needs Docker** (Testcontainers). Without it, step 7 runs only the unit and web tests, and says so.
+10. **Pool starvation in the R7 race test.** Both of its transactions share the app's pool of 2 connections
+    (`ctx.pool` is `app.get(PG_POOL)`). If `openForCreate`, `RecordFormReader` or `read` borrowed a connection outside
+    the caller's `tx`, the create would wait for a free connection while the holder waits for the test, and the test
+    would hang until its timeout. The rule under API, "One connection per call", prevents it; the race test is the
+    check.
 
 ### New dependencies
 
-None. Masks, CPF check digits and the DDD list are written here. `Intl`, `node:crypto`, react-hook-form,
+None. Masks, CPF check digits and the DDD list are written here. next-intl, `node:crypto`, react-hook-form,
 `@hookform/resolvers`, `@base-ui/react` and Drizzle are already in use.
 
 ## 12. Changelog
@@ -1606,3 +1670,5 @@ None. Masks, CPF check digits and the DDD list are written here. `Intl`, `node:c
 | 0.9 | 2026-11-09 | R10 trace names the RFC §6 section correctly ("Auditoria e Monitoramento"); no behavior change |
 | 0.10 | 2026-11-09 | Owner decisions (SPEC-0003 review round 2): check order (§6); `yes_no` with no value is false everywhere and `null` means no value (R3, §3.1, §4.2, §7); a system field's id in `values` gets 422 `value.unknown-field` (R5); `missingRequired` includes system fields and R6 covers fields turned required; R3 and the §3.1 limits accepted (§9 Q6: Anatel DDD list, lowercase UF stored uppercase); record audit events out of scope; template unavailable on save (§4.1 step 7, §8); dropped `select` choices on reload (§4.4); lists hide all custom values (R9). Review fixes: RN-01 and RNF-07 in `satisfies`; Dependencies note (§2); `formId.required`, `formId.not-allowed` and `recordRevision.invalid` (§6); `gherkin` and `scope` fences. AC-0003-06, -10, -22, -26 and -44 reworded and AC-0003-63 to -96 added, pending owner review |
 | 1.0 | 2026-11-09 | Approved by Joao Izidoro, 2026-11-09, with all 96 criteria agreed |
+| 1.1 | 2026-11-18 | Implementation plan revised by `/plan` against the code of SPEC-0001 and SPEC-0002, both Implemented (§11 "Revision against the code", C-1 to C-16). G-1 to G-4 hold in the code, so Risks 1 is closed. Names and paths updated (record tables file, cipher token, `ValidationError`, `TenantTransaction`, fixtures, `getForm` and `getFormVersion`, `ApiFailure` results, `Input` and `Select` APIs, `useLeaveGuard` and `LeaveDialog`, `useFieldError`, `useFormatter`, the web test script). New Decisions 13 (an optional `select` has a "—" choice) and 14 (`LeaveDialog` imported, not moved). Every criterion is mapped (Tests, Deferred checks); none changed; scope unchanged. plan_status Draft |
+| 1.2 | 2026-11-18 | Plan review (2026-11-18): required changes 1–3 applied. 1: the R7 race test and Risks 9 now say `ctx.pool` is the app's own 2-connection pool; new rule "One connection per call" (API) and Risks 10 (pool starvation). 2: G-8 marked "decided with plan approval", since rely-on point 3 already fixes the client order. 3: the Risks 7 (Observe error capture) and Risks 5 (SPEC-0004 plan against the rely-on list) checks are now gates at the start of Sequence steps 4 and 5. Should-fix items (Decision 7 names `Intl` instead of `useFormatter`; the wrong-type path of an address part) stay follow-ups. plan_status Draft |
