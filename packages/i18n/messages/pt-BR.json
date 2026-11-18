@@ -551,6 +551,7 @@
 			"helpText": "Texto de ajuda",
 			"inlineLabel": "Rótulo de {name}",
 			"inlineHelpText": "Texto de ajuda de {name}",
+			"requiredMark": "obrigatório",
 			"options": "Opções",
 			"addOption": "Adicionar opção",
 			"panelTitle": "Configurações do campo",

@@ -35,6 +35,20 @@ export function TypeChangeWarning({ id }: Readonly<{ id?: string }>) {
 	);
 }
 
+// The red "*" after a required field's title (§4.6 step 2). Assistive
+// technology skips it and reads the card's description instead (Q25).
+function RequiredMark() {
+	return (
+		<span
+			aria-hidden="true"
+			data-required-mark=""
+			className="shrink-0 text-text-status-danger"
+		>
+			*
+		</span>
+	);
+}
+
 type Props = {
 	field: DraftField;
 	errors: RowErrors;
@@ -75,6 +89,10 @@ export function FieldCard({
 	const helpOn = field.helpText !== null && field.helpText !== undefined;
 	const inline = wide && !selected;
 	const errorId = `${baseId}-card-error`;
+	// card-specific: `${baseId}-required` names the panel's "Obrigatório" switch,
+	// and the open card and its panel share baseId
+	const requiredId = `${baseId}-card-required`;
+	const required = field.required === true;
 	const drag = useSortableCard(dragId);
 	const { setNodeRef } = drag;
 	const nodeRef = useCallback(
@@ -89,6 +107,12 @@ export function FieldCard({
 	const underTitle = placed.find(
 		({ slot }) => !selected || !slotHasControl(slot, field, wide),
 	)?.message;
+
+	// the message under the title first, then the requirement (§11 Web 4)
+	const describedBy =
+		[underTitle ? errorId : null, required ? requiredId : null]
+			.filter(Boolean)
+			.join(" ") || undefined;
 
 	const outline = selected
 		? "outline-border-brand-selected"
@@ -115,7 +139,7 @@ export function FieldCard({
 				aria-haspopup="dialog"
 				aria-expanded={selected}
 				aria-controls={selected ? panelId : undefined}
-				aria-describedby={underTitle ? errorId : undefined}
+				aria-describedby={describedBy}
 				onMouseDown={(event) => event.preventDefault()}
 				onClick={(event) => {
 					event.currentTarget.focus();
@@ -128,19 +152,22 @@ export function FieldCard({
 					<div className="flex min-w-0 flex-1 flex-col gap-1">
 						{inline ? (
 							<>
-								<FieldInlineInput
-									errorSlot="label"
-									value={field.label}
-									name={t("inlineLabel", { name: title })}
-									placeholder={typeName}
-									invalid={Boolean(errors.label)}
-									describedBy={errors.label ? errorId : undefined}
-									readOnly={saving}
-									selectOnFocus={selectOnFocus}
-									onSelected={onSelected}
-									className="font-body-md font-semibold text-text-bold placeholder:text-text-secondary"
-									onChange={(label) => onChange(withLabel(field, label))}
-								/>
+								<div className="flex min-w-0 items-start gap-0.5 font-body-md font-semibold">
+									<FieldInlineInput
+										errorSlot="label"
+										value={field.label}
+										name={t("inlineLabel", { name: title })}
+										placeholder={typeName}
+										invalid={Boolean(errors.label)}
+										describedBy={errors.label ? errorId : undefined}
+										readOnly={saving}
+										selectOnFocus={selectOnFocus}
+										onSelected={onSelected}
+										className="min-w-0 font-body-md font-semibold text-text-bold placeholder:text-text-secondary"
+										onChange={(label) => onChange(withLabel(field, label))}
+									/>
+									{required && <RequiredMark />}
+								</div>
 								{helpOn && (
 									<FieldInlineInput
 										errorSlot="helpText"
@@ -163,6 +190,7 @@ export function FieldCard({
 									}`}
 								>
 									{title}
+									{required && <RequiredMark />}
 								</p>
 								{helpText && <p className="text-text-secondary">{helpText}</p>}
 							</>
@@ -171,6 +199,11 @@ export function FieldCard({
 							<p id={errorId} className="font-medium text-text-status-danger">
 								{underTitle}
 							</p>
+						)}
+						{required && (
+							<span id={requiredId} className="sr-only">
+								{t("requiredMark")}
+							</span>
 						)}
 					</div>
 					{system && (
