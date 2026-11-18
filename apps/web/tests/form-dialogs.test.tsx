@@ -369,8 +369,12 @@ describe("Delete dialog from the list", () => {
 
 		fireEvent.click(
 			within(listItem).getByRole("button", {
-				name: new RegExp(t("actions.delete"), "i"),
+				name: t("list.actionsFor", { name: "Ficha" }),
 			}),
+		);
+		const menu = await screen.findByRole("menu");
+		fireEvent.click(
+			within(menu).getByRole("menuitem", { name: t("actions.delete") }),
 		);
 		const dialog = await screen.findByRole("dialog");
 		fireEvent.change(within(dialog).getByRole("textbox"), {

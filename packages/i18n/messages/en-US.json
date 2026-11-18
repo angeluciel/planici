@@ -448,7 +448,8 @@
 			"archivedBadge": "Archived",
 			"showArchived": "Show archived",
 			"fieldCount": "{count, plural, one {# field} other {# fields}}",
-			"recordCount": "{count, plural, one {# record} other {# records}}"
+			"recordCount": "{count, plural, one {# record} other {# records}}",
+			"actionsFor": "Actions for {name}"
 		},
 		"actions": {
 			"new": "New",
