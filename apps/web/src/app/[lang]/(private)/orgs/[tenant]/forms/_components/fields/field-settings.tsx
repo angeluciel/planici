@@ -80,10 +80,12 @@ function SwitchRow({
 			<label
 				htmlFor={switchId}
 				id={labelId}
-				className="flex flex-1 cursor-pointer select-none items-center gap-1.5"
+				className="flex flex-1 cursor-pointer select-none items-center gap-1.5 align-bottom"
 			>
-				<div className="size-5 text-icon">{Icon && <Icon />}</div>
-				<span>{label}</span>
+				<div className="size-5 text-icon flex items-center justify-center">
+					{Icon && <Icon size={20} />}
+				</div>
+				<span className="text-text-bold">{label}</span>
 			</label>
 			{extra}
 			{children}
@@ -164,7 +166,7 @@ export function FieldSettings({
 
 	return (
 		<div className="flex flex-col gap-1">
-			<div className="flex flex-col gap-2 pb-2">
+			<div className="flex flex-col gap-1 pb-2">
 				{showTextInputs && (
 					<FieldTextInputs
 						field={field}
