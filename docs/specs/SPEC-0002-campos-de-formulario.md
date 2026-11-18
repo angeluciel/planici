@@ -1,9 +1,9 @@
 ---
 id: SPEC-0002
 title: Campos do modelo de formulário
-status: Implemented # Draft | Review | Approved | Implemented | Superseded
+status: Approved # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.33
+version: 1.40
 owner: Joao Izidoro
 satisfies: [RF-38, RF-39, RN-20, RN-21]
 depends_on: [SPEC-0001]
@@ -219,7 +219,9 @@ another card closed the panel (Q14); clicks outside the panel did not close it. 
 step 12 added in v1.19 (owner, 2026-11-17), approved 2026-11-17: on wide screens an idle card's title and help
 text are edited in place. Before: cards only displayed on every screen. Steps 4, 7, 8 and 12 amended in v1.26
 (owner, 2026-11-18), approved 2026-11-18: on wide screens the panel has no label or description input, and
-those are edited only in place on an idle card. Before: the panel held both inputs on every screen.)_
+those are edited only in place on an idle card. Before: the panel held both inputs on every screen. Steps 2
+and 4 amended in v1.34 (owner request, 2026-11-18), approved 2026-11-18: a required field's card marks its title with
+a red "*". Before: a card did not show whether its field was required.)_
 
 1. Each field is a card. Every card can be reached with Tab. It takes focus as a whole, with its label as its
    accessible name, or the type name while the label is empty. On wide screens, Tab then reaches the card's title
@@ -228,7 +230,13 @@ those are edited only in place on an idle card. Before: the panel held both inpu
 2. A card shows the label as its title, the help text when there is one, and an answer preview for its type that
    cannot be filled in (Q16): a box with "Resposta" for one-line types, a taller one for "Texto longo", "Sim" and
    "Não" for `yes_no`, and the options for `select`. A system field also shows the "Sistema" badge, and a field whose
-   published type was changed shows the warning of §4.2 step 4. On wide screens, an idle card's title and help text
+   published type was changed shows the warning of §4.2 step 4. A required field's title is followed by a red "*",
+   on every screen, whether the card is idle or selected, and for system fields that are always required too. The
+   "*" follows the draft: it appears or disappears as soon as "Obrigatório" is turned ON or OFF, before any save.
+   Assistive technology does not read the "*". Instead, the card keeps its label as its accessible name (step 1),
+   and its accessible description includes "obrigatório" (en-US "required"), copy `forms.fields.requiredMark`
+   (Q25). The title input is not marked required, because it edits the label, which R2 requires on every field. A `yes_no` field is
+   never required (R8), so it never shows the "*". On wide screens, an idle card's title and help text
    are edited in place (step 12), and everything else is edited in the panel. On narrow screens, cards only display.
 3. Clicking or tapping a card, or pressing Enter or Space while the card itself has focus, **selects** it and opens its
    **settings panel** "Configurações do campo" (Q13). A card is selected exactly while its panel is open, so at most
@@ -238,7 +246,8 @@ those are edited only in place on an idle card. Before: the panel held both inpu
 4. The panel holds every editing control of the field, except the label and the description on wide screens:
    there, they are edited only in place on an idle card (step 12), and the panel shows neither (owner, 2026-11-18).
    The panel's controls, in this order:
-   - the label input, on narrow screens only;
+   - the label input, on narrow screens only, which shows no "*" even when the field is required, because
+     "Obrigatório" is in the same sheet (Q26);
    - the description input "Adicionar descrição", on narrow screens only, while "Texto de ajuda" is ON;
    - the options editor, for `select`;
    - "Obrigatório" (switch);
@@ -395,6 +404,7 @@ New, non-breaking. Part of the FormTemplate shapes in SPEC-0001 §7.
 | Editor fields | only system fields | Hint "Adicione campos para coletar mais informações" | `forms.fields.onlySystem` |
 | Field card | idle | Label as title, help text if any, answer preview (§4.6 step 2). On wide screens the title and help text are inputs edited in place, named "Rótulo de <name>" and "Texto de ajuda de <name>", with the type name as the title's placeholder while the label is empty and "Adicionar descrição" while the description is empty; read-only while the editor saves (§4.6 step 12) | `forms.fields.answerPreview`, `forms.fields.inlineLabel`, `forms.fields.inlineHelpText`, `forms.fields.types.*`, `forms.fields.descriptionPlaceholder` |
 | Field card | selected | Highlighted while its settings panel is open (§4.6 step 3) | — |
+| Field card | required | Red "*" after the title, idle or selected, on every screen. The "*" is hidden from assistive technology; the card's accessible name stays its label, and its accessible description includes "obrigatório" (en-US "required"). The title input is not marked required (§4.6 step 2, Q25). The narrow sheet's label input shows no "*" (§4.6 step 4, Q26) | `forms.fields.requiredMark` |
 | Settings panel | open | Beside the card, or a sheet on narrow screens (§4.6 step 6). On narrow screens, label, description and options inputs, then the settings; on wide screens, the options input then the settings, with no label or description input (§4.6 step 4). While it is open on a wide screen, its card shows the title and help text as text (§4.6 step 12). The rest of the page does not respond, and a click outside only closes the panel (§4.6 steps 5 and 10) | `forms.fields.panelTitle`, `forms.fields.close`, `forms.fields.descriptionPlaceholder` |
 | Settings panel | system field | "Sistema" badge on the card; no Remover; no Dado protegido; Tipo and fixed switches disabled | `forms.fields.systemBadge` |
 | Settings panel | protected locked by type | Switch ON + disabled + tooltip | `forms.fields.sensitiveLockedType` |
@@ -434,6 +444,8 @@ New, non-breaking. Part of the FormTemplate shapes in SPEC-0001 §7.
 | 22 | ~~After Enter or Escape in an idle card's title or help-text input, where is focus?~~ | **Decided (owner, 2026-11-17):** it stays in the input. | — |
 | 23 | ~~The owner decided, for wide screens, that a new field's label starts as "Texto curto" with its whole text selected (2026-11-18). Does the same apply on narrow screens, in the sheet's label input?~~ | **Decided (owner, 2026-11-18):** yes. A field's starting values do not depend on screen width, as "Texto de ajuda" OFF does not. The sheet's label input shows "Texto curto", fully selected. | — |
 | 24 | ~~A new field keeps its "Texto curto" label when its type is changed before it is renamed (no rule changes a label on a type change, §4.2). Should an untouched label follow the type instead?~~ | **Decided (owner, 2026-11-18):** no. The label stays as typed or as prefilled. | — |
+| 25 | ~~How does assistive technology learn that a card's field is required, now that the "*" is only visual (§4.6 step 2)?~~ | **Decided (owner, 2026-11-18):** as proposed. The card keeps its label as its accessible name (§4.6 step 1), and its accessible description includes "obrigatório" (en-US "required"), copy `forms.fields.requiredMark`. The title input is not marked required: it edits the label, which R2 requires on every field, so the mark would say nothing about the field. Changing the name instead would rename every card that existing criteria find by its label. | — |
+| 26 | ~~Should the "*" also appear on the label input of the narrow-screen sheet?~~ | **Decided (owner, 2026-11-18):** as proposed. No. The sheet already shows the "Obrigatório" switch right under the label input, so a second marker would repeat it. | — |
 
 ## 10. Acceptance criteria
 
@@ -1270,6 +1282,49 @@ When  the owner presses [Novo campo] and turns "Texto de ajuda" ON in the new fi
 Then  the sheet shows an empty description input whose placeholder is the copy of forms.fields.descriptionPlaceholder
 ```
 
+### Criteria added in v1.34 (approved 2026-11-18)
+
+From the required marker on field cards (owner request, 2026-11-18): §4.6 step 2, §8 (Field card, required), Q25
+and Q26.
+
+```
+AC-0002-101
+Given a client template with the custom "text" field "Profissão", not required
+When  the owner opens its editor on a wide screen
+Then  the card "Nome completo" shows a red "*" right after its title input
+And   the card "Profissão" shows no "*"
+```
+
+```
+AC-0002-102
+Given the editor of a client template on a narrow screen with the custom "text" field "Profissão", required
+And   no sheet is open
+Then  the card "Profissão" shows a red "*" right after the title "Profissão"
+```
+
+```
+AC-0002-103
+Given the editor on a wide screen with the custom "text" field "Profissão", not required, and its settings panel open
+When  the owner turns "Obrigatório" ON
+Then  the card "Profissão" shows a red "*" right after its title, before any save
+```
+
+```
+AC-0002-104
+Given the editor on a wide screen with the custom "text" field "Profissão", required, and its settings panel open
+When  the owner turns "Obrigatório" OFF
+Then  the card "Profissão" shows no "*"
+```
+
+```
+AC-0002-105
+Given a client template with the custom "text" field "Profissão", required
+When  the owner opens its editor on a wide screen
+Then  the card "Profissão" keeps "Profissão" as its accessible name
+And   its accessible description includes the copy of forms.fields.requiredMark
+And   the "*" is hidden from assistive technology
+```
+
 ### Withdrawn criteria
 
 Withdrawn IDs are never reused.
@@ -1278,6 +1333,150 @@ Withdrawn IDs are never reused.
   exist; template versions replaced them (D-10, R10–R11).
 
 ## 11. Implementation plan
+
+### Required-marker amendment (v1.36)
+
+Drafted by `/plan` on 2026-11-18 for the v1.34–v1.35 amendment, approved in v1.36 (§4.6 steps 2 and 4; §8 "Field
+card, required"; Q25, Q26; AC-0002-101 to -105). Revised after the plan review, with the owner's pick of 2026-11-18
+(v1.38). **Approved by the owner on 2026-11-18.** Only the field card
+and one copy key change. Contracts, database and API stay as they are. It builds on the wide-screen panel amendment
+below (implemented) and keeps its card structure: a cover button that carries the card's name, a content layer that
+ignores the pointer, and an inline title box on idle wide cards.
+
+Starting point. Nothing of v1.34 is built. The working tree holds the owner's uncommitted editor-header edits
+(`form-editor.tsx`, `field-list.tsx`, `forms-list.tsx`, `new/page.tsx`, `toast.tsx`, both message files), with
+the web suite green (112 passed, 2 todo). They are outside this amendment and are committed before `/implement`
+locks the scope (Risks 1).
+
+#### Scope
+
+`task-lock.sh` reads the first `scope` block of the file, so this block is the lock while this amendment is
+implemented.
+
+```scope
+apps/web/src/app/*/orgs/*/forms/_components/fields/field-card/field-card.tsx
+apps/web/tests/form-fields*
+packages/i18n/messages/*.json
+docs/specs/SPEC-0002-campos-de-formulario.md
+```
+
+Not in scope:
+- `field-list.tsx`, `field-settings.tsx` and the sheet's `field-text-inputs.tsx`. The list already passes the
+  draft field, `required` included, to each card on every change, so the "*" follows "Obrigatório" with no new
+  state (§4.6 step 2). The sheet's label input shows no "*" (Q26), so it is untouched.
+- `packages/schemas`. `required` is already on `Field` and `FieldInput`.
+- The fill form of SPEC-0003. Its "*" (SPEC-0003 §4.1 step 2) is that spec's work.
+
+The SPEC-0001 tests (`form-editor.test.tsx`, `form-dialogs.test.tsx`, `forms-list.test.tsx`) are not in scope, and
+they must still pass.
+
+#### Contracts
+
+None.
+
+#### Persistence
+
+None.
+
+#### API
+
+None.
+
+#### Web
+
+All paths are under `apps/web/src/app/[lang]/(private)/orgs/[tenant]/forms/_components/fields/field-card/`.
+
+1. **Mark** (`field-card.tsx`). A local `RequiredMark` renders `<span aria-hidden="true" data-required-mark>*</span>`
+   in `text-text-status-danger`, the token validation messages already use (Decisions 2). It renders only while
+   `field.required` is true. `yes_no` fields never have `required: true` (R8), so they need no extra check.
+2. **Read-only title** (narrow screens, and the selected card on wide screens). The mark goes inside the title `<p>`,
+   right after `{title}`, so it wraps with the last word (AC-0002-102 to -104).
+3. **Inline title box** (idle card, wide screens). The box is a `textarea` and holds no children, so the box and the
+   mark sit in a `flex items-baseline gap-0.5` row. The box keeps `field-sizing-content`, so the mark sits right
+   after the text (AC-0002-101, -105). The row ignores the pointer like the rest of the content layer, so a click
+   beside the text still reaches the cover button (§4.6 step 3).
+4. **Accessible description** (Q25). The card renders `<span id={`${baseId}-card-required`} className="sr-only">`
+   with `forms.fields.requiredMark` while the field is required. The id is card-specific, like `-card-error`,
+   because `${baseId}-required` already names the panel's "Obrigatório" switch (`field-settings.tsx`) and the
+   card and its open panel share `baseId` (Risks 5). The cover button's `aria-describedby` lists `errorId` first,
+   while a message is under the title as today, then the required id, joined with a space; it stays unset when
+   neither applies. The card's `aria-label` and the cover button's name stay `title` (§4.6 step 1). The inline title box
+   gets no `required` or `aria-required` (§4.6 step 2).
+5. **Copy** (`packages/i18n/messages/pt-BR.json`, `en-US.json`). `forms.fields.requiredMark`: "obrigatório",
+   en-US "required". Lower case, because it is read after the label.
+
+#### Tests
+
+All in `apps/web/tests/form-fields.test.tsx`, in a new block `// ---- required marker (SPEC-0002 v1.34)` after the
+v1.26 block. Two helpers join the file: `requiredMark(card)` returns the card's `[data-required-mark]` element or
+null, and `description(element)` returns the text of the elements its `aria-describedby` lists. "Red" is checked as
+the `text-text-status-danger` class; the rendered color is a manual check (Deferred checks).
+
+| AC | Test name |
+| --- | --- |
+| AC-0002-101 | "AC-0002-101 on a wide screen, a required card shows a red * after its title input and an optional one shows none" |
+| AC-0002-102 | "AC-0002-102 on a narrow screen, a required card shows a red * after its title" |
+| AC-0002-103 | "AC-0002-103 turning Obrigatório ON shows the * on the card before any save" |
+| AC-0002-104 | "AC-0002-104 turning Obrigatório OFF removes the * from the card" |
+| AC-0002-105 | "AC-0002-105 a required card keeps its label as its name, is described as required, and hides the * from assistive technology" |
+| AC-0002-105 | "AC-0002-105 a required card with a message under its title is described by the message, then as required" |
+
+AC-0002-103 and -104 also assert that no PATCH or preview request was sent, and that the "Obrigatório" switch is
+found by that name while the required field's panel is open (Risks 5). AC-0002-105 asserts the inline title box has
+neither `required` nor `aria-required`. Its second test saves a required "Profissão" whose first error has no
+control (as AC-0002-76 does, wide screen) and asserts the cover button's `aria-describedby` lists the error id, then
+the required id, and that its description holds the message followed by the copy of `forms.fields.requiredMark`.
+
+#### Deferred checks
+
+- The "*" is red on screen (AC-0002-101 to -104): jsdom computes no colors, so the owner checks it in the running
+  app, in light and dark themes.
+- No AC waits on another spec.
+
+#### Sequence
+
+1. Failing tests: the six tests above, plus the two helpers. Run: they fail on the missing mark and description.
+2. Copy: `forms.fields.requiredMark` in both message files.
+3. Card: steps 1–4 of Web. Run the web suite, Biome and `tsc --noEmit`.
+
+#### Decisions this plan makes
+
+1. The description sits on the cover button, not on the `li`, because the cover button is the card's tab stop and
+   carries the same name (§4.6 step 1). A screen reader reads it when the card takes focus.
+2. "Red" is the `text-status-danger` token, so the mark matches validation messages in both themes instead of
+   adding a color.
+3. The mark is one shared element for both title branches, so the idle and the selected card cannot drift.
+
+#### Risks
+
+1. **The lock blocks the owner's pending edits.** `field-list.tsx` and `form-editor.tsx` have uncommitted changes
+   outside this scope. Cheapest check: commit them before `/implement`, so the lock starts on a clean tree.
+2. **Tests find cards by `aria-label`** (`cardOf`, `idleCard`, `coverButton`). If the requirement leaked into the
+   name, every test that finds a required card by its label would fail. Decisions 1 keeps it in the description;
+   the existing suite run in Sequence 3 proves it.
+3. **The flex row around the inline title box** could change its width or the click target beside it. AC-0002-95's
+   neighbours (the click-outside-the-box tests of v1.19) cover the click target; run them after step 3.
+4. **`aria-describedby` for errors.** A message under the title already describes the cover button through
+   `errorId`. No existing test reads the cover button's `aria-describedby`: AC-0002-70 and -76 find the message by
+   its text or in the toast, and the tests that read `aria-describedby` read the inline text boxes. So nothing
+   would catch a join that drops one of the two ids. The test "AC-0002-105 a required card with a message under its
+   title is described by the message, then as required" covers it, and Web 4 fixes the order: `errorId` first, then
+   the required id.
+5. **The required id must not collide with the panel's.** `${baseId}-required` already names the "Obrigatório"
+   switch through `aria-labelledby` (`field-settings.tsx`), and the open card and its panel share `baseId`. Reusing
+   it would put the id twice in the page and could name the switch "obrigatório" from the card's sr-only text,
+   breaking `switchIn(card, t("fields.required"))` and the switch's real name. Web 4 uses `${baseId}-card-required`.
+   AC-0002-103 and -104 find the switch by "Obrigatório" while a required field's panel is open, so they prove the
+   switch keeps its name.
+
+#### New dependencies
+
+None.
+
+#### Spec finding (not taken; the owner picks)
+
+1. AC-0002-102 has no When, like AC-0002-101 and -105 had before v1.35. The approved text is unchanged here; a
+   v1.37 amendment could add "When the owner opens its editor on a narrow screen".
 
 ### Wide-screen panel amendment (v1.28)
 
@@ -2758,3 +2957,10 @@ acceptance criteria.
 | 1.31 | 2026-11-18 | Plan approved by Joao Izidoro, 2026-11-18: §11 "Wide-screen panel amendment (v1.28)" as revised in 1.30, with Decisions 7 as written (the owner's uncommitted switch-row edit is finished in this amendment, Web 5). plan_status Approved. Plan review should-fix items 3–10 stay follow-ups |
 | 1.32 | 2026-11-18 | Wide-screen panel amendment implemented per §11 "Wide-screen panel amendment (v1.28)". Built: a new field starts with the label "Texto curto" (`forms.fields.types.text`) and "Texto de ajuda" OFF, sent as `helpText: null`, and its label text is selected on its first focus. On wide screens, [Novo campo] opens no panel and focuses the new card's title box; a first save error on the label or the description opens no panel and focuses that card's title or help-text box, marked invalid and described by the message under the title; a selected card keeps such a message under its title. The popover has no label or description input, while the narrow sheet keeps both. A card focus queued in the list now waits until its control is rendered. The owner's switch-row edit was finished (Decisions 7): each switch has its own id and the label no longer repeats its id; the unused imports went. All criteria in scope have passing W-fld tests: AC-0002-54, -55, -59, -62, -65, -82, -83, -88, -92 and -95 to -100, with AC-0002-10, -72 and the §8 test retargeted; AC-0002-01 to -53 and the other v1.5–v1.19 criteria still pass. Deferred checks unchanged: AC-0002-16, -19, -23, -24, -26 (SPEC-0004). Two W-fld helpers left unused by the rewrite (`labelInput`, `shownType`) were removed. Status stays Approved until the owner accepts the behavior on a running system. Review should-fix items 1–5 stay follow-ups |
 | 1.33 | 2026-11-18 | Status Implemented: Joao Izidoro accepted the wide-screen panel amendment on a running system, 2026-11-18. Still partly verified, per Deferred checks: AC-0002-16, -19, -23, -24, -26 (SPEC-0004) |
+| 1.34 | 2026-11-18 | Required marker on field cards (owner request, 2026-11-18), pending owner approval. A required field's card title is followed by a red "*" on every screen, idle or selected, for system fields that are always required too; it follows the draft as "Obrigatório" changes, before any save. Learned while reviewing the editor UI: a card did not show whether its field was required, while SPEC-0003 §4.1 step 2 already marks required fields with "*" on the fill form. Changed: §4.6 step 2, §8 (Field card, required, copy key `forms.fields.requiredMark`). Added Q25 (how assistive technology reads the requirement; proposed: accessible description, name unchanged) and Q26 (no marker on the narrow sheet's label input). AC-0002-101 to -105 proposed. No contract or API change. Status Review and plan_status Draft until the owner approves and `/plan` writes the plan amendment |
+| 1.35 | 2026-11-18 | Spec review of v1.34: required changes 1–4 applied with the owner's pick, 2026-11-18; still pending owner approval. AC-0002-101 and -105 now have a When (the owner opens the editor). The title input is no longer marked required (option a): it edits the label, which R2 requires on every field, so the mark said nothing about the field; removed from Q25 and AC-0002-105. §4.6 step 2 and the §8 row now state the accessible description with `forms.fields.requiredMark` ("obrigatório" / "required"), so AC-0002-105 traces to behavior and not to Q25. Q26's answer is stated in §4.6 step 4 (the narrow sheet's label input shows no "*"). Q25 and Q26 wait for the owner's decision at approval. Should-fix items 1–7 stay follow-ups |
+| 1.36 | 2026-11-18 | Approved by Joao Izidoro, 2026-11-18: the v1.34 required-marker amendment with the v1.35 review fixes, including §4.6 steps 2 and 4, the §8 "Field card, required" row and AC-0002-101 to -105 as written. Q25 and Q26 decided by the owner as proposed (the requirement is read from the card's accessible description, name unchanged, title input not marked required; no "*" on the narrow sheet's label input). plan_status stays Draft until `/plan` writes the plan amendment and the owner approves it. Spec review should-fix items 1–7 stay follow-ups |
+| 1.37 | 2026-11-18 | `/plan` wrote §11 "Required-marker amendment (v1.36)" for the v1.34–v1.36 amendment. Its scope block is now the first in the file. Web only: a shared red "*" after the card title in both title branches, an sr-only `forms.fields.requiredMark` text in the cover button's accessible description, and the new copy key. No contract, database or API change. The rendered color is a manual check. plan_status Draft until the owner approves |
+| 1.38 | 2026-11-18 | Plan review of "Required-marker amendment (v1.36)": required changes 1–3 applied with the owner's pick, 2026-11-18. Web 4: the sr-only id is `${baseId}-card-required`, because `${baseId}-required` already names the panel's "Obrigatório" switch and the open card and its panel share `baseId` (new Risks 5). Web 4 and Risks 4 now agree on the order, `errorId` first, then the required id; Risks 4 no longer claims AC-0002-70 and -76 read the cover button's `aria-describedby`, and a second AC-0002-105 test checks the joined description. Scope narrowed to `field-card.tsx` in the field-card folder. plan_status Draft until the owner approves. Plan review should-fix items 1–7 stay follow-ups |
+| 1.39 | 2026-11-18 | Plan approved by Joao Izidoro, 2026-11-18: §11 "Required-marker amendment (v1.36)" as revised in 1.38. plan_status Approved. Plan review should-fix items 1–7 stay follow-ups |
+| 1.40 | 2026-11-18 | Required-marker amendment implemented per §11 "Required-marker amendment (v1.36)". Built: a shared red "*" (`text-status-danger`, hidden from assistive technology) after a required field's card title, inside the read-only title and after the inline title box on idle wide cards; an sr-only `forms.fields.requiredMark` ("obrigatório" / "required") with id `${baseId}-card-required` in the cover button's description, after the error id; the copy key in both locales. AC-0002-101 to -105 verified by six W-fld tests. Deviation from Web 3: the inline title row uses `items-start`, because the title box's `self-start` overrides the row's alignment (review should-fix 1). Deferred: the rendered red color, checked by the owner on a running system. No AC deferred to another spec. Status stays Approved until the owner accepts the behavior on a running system. Review should-fix items 1–3 stay follow-ups |
