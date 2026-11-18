@@ -25,5 +25,10 @@ export default defineConfig({
 		include: ["tests/**/*.test.{ts,tsx}"],
 		setupFiles: ["./tests/setup.ts"],
 		clearMocks: true,
+		coverage: {
+			provider: "v8",
+			include: ["src/**/*.{ts,tsx}"],
+			reporter: ["text", "html", "lcov"],
+		},
 	},
 });
