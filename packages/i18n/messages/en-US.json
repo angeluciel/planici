@@ -144,7 +144,8 @@
 		},
 		"formType": {
 			"invalid": "Choose the template type.",
-			"immutable": "The template type can't be changed."
+			"immutable": "The template type can't be changed.",
+			"mismatch": "This template is for another kind of record."
 		},
 		"includeArchived": {
 			"invalid": "Invalid filter."
@@ -158,7 +159,8 @@
 			"not-found": "Template not found.",
 			"in-use": "This template's records changed. Review before continuing.",
 			"records-have-history": "This template's records changed. Review before continuing.",
-			"status-unchanged": "This template's status already changed. Reload the page."
+			"status-unchanged": "This template's status already changed. Reload the page.",
+			"archived": "This template is archived."
 		},
 		"formRevision": {
 			"required": "Couldn't save. Reload the template and try again."
@@ -172,7 +174,9 @@
 			"required": "Type the template name to confirm."
 		},
 		"formVersion": {
-			"not-found": "Version not found."
+			"not-found": "Version not found.",
+			"required": "Template version missing.",
+			"invalid": "Invalid template version."
 		},
 		"fieldLabel": {
 			"required": "Enter the field label.",
@@ -219,6 +223,52 @@
 		},
 		"fieldId": {
 			"duplicate": "This field appears twice. Reload the template."
+		},
+		"formId": {
+			"required": "Choose a template.",
+			"not-allowed": "A record's template cannot be changed.",
+			"invalid": "This template is not available."
+		},
+		"record": {
+			"form-changed": "The template was updated. Review the fields and save again.",
+			"revision-conflict": "This record was changed in another window."
+		},
+		"recordRevision": {
+			"required": "Record revision missing.",
+			"invalid": "Invalid record revision."
+		},
+		"values": {
+			"invalid": "Invalid record values."
+		},
+		"value": {
+			"required": "Fill in this field.",
+			"unknown-field": "This field is not part of the template.",
+			"invalid": "Invalid value.",
+			"max": "Text is too long."
+		},
+		"number": {
+			"invalid": "Enter a number with up to 2 decimal places."
+		},
+		"date": {
+			"invalid": "Enter a valid date between 1900 and 2100."
+		},
+		"option": {
+			"invalid": "Choose one of the options."
+		},
+		"phone": {
+			"invalid": "Enter a phone number with a valid area code."
+		},
+		"cpf": {
+			"invalid": "Invalid CPF."
+		},
+		"cep": {
+			"invalid": "Invalid CEP."
+		},
+		"uf": {
+			"invalid": "Invalid state."
+		},
+		"address": {
+			"incomplete": "Fill in the whole address or leave it blank."
 		}
 	},
 	"auth": {
@@ -581,6 +631,106 @@
 				"duration": "Duration (minutes)",
 				"money": "Amount (R$)"
 			}
+		}
+	},
+	"clients": {
+		"form": {
+			"loading": "Loading…",
+			"loadError": "Could not load the template.",
+			"unavailable": "This template is not available.",
+			"notFound": "Record not found.",
+			"saving": "Saving…",
+			"errorSummary": "Fix {count, plural, one {# field} other {# fields}}",
+			"formChanged": "The template was updated. Review the fields and save again.",
+			"revisionConflict": "This record was changed in another window. Reload to see the current version.",
+			"saveError": "Could not save. Try again.",
+			"discard": "Discard this record?",
+			"newTitle": "New client",
+			"subtitle": "Template: {name}",
+			"save": "Save",
+			"cancel": "Cancel",
+			"edit": "Edit",
+			"reload": "Reload",
+			"retry": "Try again",
+			"back": "Back",
+			"discardConfirm": "Discard",
+			"discardStay": "Keep editing",
+			"address": {
+				"cep": "CEP",
+				"street": "Street",
+				"number": "Number",
+				"complement": "Complement",
+				"district": "District",
+				"city": "City",
+				"state": "State"
+			}
+		},
+		"toast": {
+			"created": "Client created",
+			"saved": "Changes saved"
+		},
+		"view": {
+			"loading": "Loading…",
+			"loadError": "Could not load the record.",
+			"notFound": "Record not found.",
+			"reveal": "Show",
+			"hide": "Hide",
+			"olderVersion": "This record uses an earlier version of the template",
+			"version": "Template: {name} · Version {version}",
+			"missingRequired": "Needs filling in",
+			"yes": "Yes",
+			"no": "No",
+			"empty": "—"
+		}
+	},
+	"services": {
+		"form": {
+			"loading": "Loading…",
+			"loadError": "Could not load the template.",
+			"unavailable": "This template is not available.",
+			"notFound": "Record not found.",
+			"saving": "Saving…",
+			"errorSummary": "Fix {count, plural, one {# field} other {# fields}}",
+			"formChanged": "The template was updated. Review the fields and save again.",
+			"revisionConflict": "This record was changed in another window. Reload to see the current version.",
+			"saveError": "Could not save. Try again.",
+			"discard": "Discard this record?",
+			"newTitle": "New service",
+			"subtitle": "Template: {name}",
+			"save": "Save",
+			"cancel": "Cancel",
+			"edit": "Edit",
+			"reload": "Reload",
+			"retry": "Try again",
+			"back": "Back",
+			"discardConfirm": "Discard",
+			"discardStay": "Keep editing",
+			"address": {
+				"cep": "CEP",
+				"street": "Street",
+				"number": "Number",
+				"complement": "Complement",
+				"district": "District",
+				"city": "City",
+				"state": "State"
+			}
+		},
+		"toast": {
+			"created": "Service created",
+			"saved": "Changes saved"
+		},
+		"view": {
+			"loading": "Loading…",
+			"loadError": "Could not load the record.",
+			"notFound": "Record not found.",
+			"reveal": "Show",
+			"hide": "Hide",
+			"olderVersion": "This record uses an earlier version of the template",
+			"version": "Template: {name} · Version {version}",
+			"missingRequired": "Needs filling in",
+			"yes": "Yes",
+			"no": "No",
+			"empty": "—"
 		}
 	}
 }
