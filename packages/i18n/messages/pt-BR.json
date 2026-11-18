@@ -144,7 +144,8 @@
 		},
 		"formType": {
 			"invalid": "Escolha o tipo do modelo.",
-			"immutable": "O tipo do modelo não pode ser alterado."
+			"immutable": "O tipo do modelo não pode ser alterado.",
+			"mismatch": "Este modelo é de outro tipo de cadastro."
 		},
 		"includeArchived": {
 			"invalid": "Filtro inválido."
@@ -158,7 +159,8 @@
 			"not-found": "Modelo não encontrado.",
 			"in-use": "Os cadastros deste modelo mudaram. Revise antes de continuar.",
 			"records-have-history": "Os cadastros deste modelo mudaram. Revise antes de continuar.",
-			"status-unchanged": "O status deste modelo já foi alterado. Recarregue a página."
+			"status-unchanged": "O status deste modelo já foi alterado. Recarregue a página.",
+			"archived": "Este modelo está arquivado."
 		},
 		"formRevision": {
 			"required": "Não foi possível salvar. Recarregue o modelo e tente novamente."
@@ -172,7 +174,9 @@
 			"required": "Digite o nome do modelo para confirmar."
 		},
 		"formVersion": {
-			"not-found": "Versão não encontrada."
+			"not-found": "Versão não encontrada.",
+			"required": "Versão do modelo ausente.",
+			"invalid": "Versão do modelo inválida."
 		},
 		"fieldLabel": {
 			"required": "Informe o rótulo do campo.",
@@ -219,6 +223,52 @@
 		},
 		"fieldId": {
 			"duplicate": "Este campo aparece duas vezes. Recarregue o modelo."
+		},
+		"formId": {
+			"required": "Escolha um modelo.",
+			"not-allowed": "O modelo de um cadastro não pode ser trocado.",
+			"invalid": "Este modelo não está disponível."
+		},
+		"record": {
+			"form-changed": "O modelo foi atualizado. Revise os campos e salve novamente.",
+			"revision-conflict": "Este cadastro foi alterado em outra janela."
+		},
+		"recordRevision": {
+			"required": "Revisão do cadastro ausente.",
+			"invalid": "Revisão do cadastro inválida."
+		},
+		"values": {
+			"invalid": "Valores do cadastro inválidos."
+		},
+		"value": {
+			"required": "Preencha este campo.",
+			"unknown-field": "Este campo não faz parte do modelo.",
+			"invalid": "Valor inválido.",
+			"max": "Texto longo demais."
+		},
+		"number": {
+			"invalid": "Informe um número com até 2 casas decimais."
+		},
+		"date": {
+			"invalid": "Informe uma data válida entre 1900 e 2100."
+		},
+		"option": {
+			"invalid": "Escolha uma das opções."
+		},
+		"phone": {
+			"invalid": "Informe um telefone com DDD válido."
+		},
+		"cpf": {
+			"invalid": "CPF inválido."
+		},
+		"cep": {
+			"invalid": "CEP inválido."
+		},
+		"uf": {
+			"invalid": "UF inválida."
+		},
+		"address": {
+			"incomplete": "Preencha o endereço completo ou deixe-o em branco."
 		}
 	},
 	"auth": {
@@ -581,6 +631,106 @@
 				"duration": "Duração (minutos)",
 				"money": "Valor (R$)"
 			}
+		}
+	},
+	"clients": {
+		"form": {
+			"loading": "Carregando…",
+			"loadError": "Não foi possível carregar o modelo.",
+			"unavailable": "Este modelo não está disponível.",
+			"notFound": "Cadastro não encontrado.",
+			"saving": "Salvando…",
+			"errorSummary": "Corrija {count, plural, one {# campo} other {# campos}}",
+			"formChanged": "O modelo foi atualizado. Revise os campos e salve novamente.",
+			"revisionConflict": "Este cadastro foi alterado em outra janela. Recarregue para ver a versão atual.",
+			"saveError": "Não foi possível salvar. Tente novamente.",
+			"discard": "Descartar cadastro?",
+			"newTitle": "Novo cliente",
+			"subtitle": "Modelo: {name}",
+			"save": "Salvar",
+			"cancel": "Cancelar",
+			"edit": "Editar",
+			"reload": "Recarregar",
+			"retry": "Tentar novamente",
+			"back": "Voltar",
+			"discardConfirm": "Descartar",
+			"discardStay": "Continuar editando",
+			"address": {
+				"cep": "CEP",
+				"street": "Logradouro",
+				"number": "Número",
+				"complement": "Complemento",
+				"district": "Bairro",
+				"city": "Cidade",
+				"state": "UF"
+			}
+		},
+		"toast": {
+			"created": "Cliente cadastrado",
+			"saved": "Alterações salvas"
+		},
+		"view": {
+			"loading": "Carregando…",
+			"loadError": "Não foi possível carregar o cadastro.",
+			"notFound": "Cadastro não encontrado.",
+			"reveal": "Mostrar",
+			"hide": "Ocultar",
+			"olderVersion": "Este cadastro usa uma versão anterior do modelo",
+			"version": "Modelo: {name} · Versão {version}",
+			"missingRequired": "Preenchimento pendente",
+			"yes": "Sim",
+			"no": "Não",
+			"empty": "—"
+		}
+	},
+	"services": {
+		"form": {
+			"loading": "Carregando…",
+			"loadError": "Não foi possível carregar o modelo.",
+			"unavailable": "Este modelo não está disponível.",
+			"notFound": "Cadastro não encontrado.",
+			"saving": "Salvando…",
+			"errorSummary": "Corrija {count, plural, one {# campo} other {# campos}}",
+			"formChanged": "O modelo foi atualizado. Revise os campos e salve novamente.",
+			"revisionConflict": "Este cadastro foi alterado em outra janela. Recarregue para ver a versão atual.",
+			"saveError": "Não foi possível salvar. Tente novamente.",
+			"discard": "Descartar cadastro?",
+			"newTitle": "Novo serviço",
+			"subtitle": "Modelo: {name}",
+			"save": "Salvar",
+			"cancel": "Cancelar",
+			"edit": "Editar",
+			"reload": "Recarregar",
+			"retry": "Tentar novamente",
+			"back": "Voltar",
+			"discardConfirm": "Descartar",
+			"discardStay": "Continuar editando",
+			"address": {
+				"cep": "CEP",
+				"street": "Logradouro",
+				"number": "Número",
+				"complement": "Complemento",
+				"district": "Bairro",
+				"city": "Cidade",
+				"state": "UF"
+			}
+		},
+		"toast": {
+			"created": "Serviço cadastrado",
+			"saved": "Alterações salvas"
+		},
+		"view": {
+			"loading": "Carregando…",
+			"loadError": "Não foi possível carregar o cadastro.",
+			"notFound": "Cadastro não encontrado.",
+			"reveal": "Mostrar",
+			"hide": "Ocultar",
+			"olderVersion": "Este cadastro usa uma versão anterior do modelo",
+			"version": "Modelo: {name} · Versão {version}",
+			"missingRequired": "Preenchimento pendente",
+			"yes": "Sim",
+			"no": "Não",
+			"empty": "—"
 		}
 	}
 }
