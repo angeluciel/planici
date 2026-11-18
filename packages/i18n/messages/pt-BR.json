@@ -465,8 +465,8 @@
 		},
 		"editor": {
 			"type": "Tipo",
-			"name": "Nome",
-			"description": "Descrição",
+			"name": "Nome do formulário",
+			"description": "Descrição (opcional)",
 			"typeClient": "Cliente",
 			"typeClientHint": "Pessoa ou empresa",
 			"typeService": "Serviço",

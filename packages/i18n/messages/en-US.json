@@ -465,8 +465,8 @@
 		},
 		"editor": {
 			"type": "Type",
-			"name": "Name",
-			"description": "Description",
+			"name": "Form title",
+			"description": "Description (optional)",
 			"typeClient": "Client",
 			"typeClientHint": "Person or company",
 			"typeService": "Service",

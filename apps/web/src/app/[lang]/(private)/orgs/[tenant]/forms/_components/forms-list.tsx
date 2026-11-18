@@ -36,7 +36,6 @@ export function FormsList() {
 	);
 	const latest = useRef(0);
 
-	// `quiet` refreshes after an action without bringing the skeleton back
 	const load = useCallback(
 		async (quiet: boolean) => {
 			latest.current += 1;

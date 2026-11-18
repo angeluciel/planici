@@ -27,48 +27,33 @@ import { type DraftField, MAX_FIELDS, newField } from "./field-model";
 import { FieldReorder } from "./field-reorder";
 import { FieldSettings } from "./field-settings";
 
-// The first field error of a save, which the list brings into view (SPEC-0002
-// §4.6 steps 8 and 9). `nonce` changes on every save, so the same error is
-// shown again when it comes back.
 export type FieldReveal = {
 	index: number;
 	slot: FieldErrorSlot;
-	// the validation key
 	message: string;
 	nonce: number;
 };
 
 type Props = {
 	form: UseFormReturn<FormDraft>;
-	// the saved template's fields, to tell published fields from new ones
 	original: readonly Field[];
-	// translates a validation key; undefined when there is no copy for it
 	text: (key: string | undefined) => string | undefined;
-	// what `errors.fields` holds, so the list re-renders when it changes
 	errors: FieldErrors<FormDraft>["fields"];
-	// while saving: cards cannot be dragged
 	disabled?: boolean;
 	reveal?: FieldReveal | null;
 };
 
-// the control the panel focuses when it opens: the label input, or the
-// control of an error
 type PanelFocus = FieldErrorSlot | "label";
 
-// where focus goes when the panel closes: the card's cover button, or, after a
-// removal, the card now at that place
 type CloseFocus = { kind: "card" } | { kind: "removed"; index: number };
 
 const COVER = "[data-card-activate]";
 
-// a control inside a card to focus once it is rendered: its cover button, or,
-// on wide screens, its title or help-text box (§4.1 step 2, §4.6 step 8)
 type CardFocus = { key: string; selector: string };
 
 function slotSelector(slot: PanelFocus): string {
 	if (typeof slot === "object")
 		return `[data-error-slot="option-${slot.option}"]`;
-	// the first option, or "Adicionar opção" when there is none
 	if (slot === "options") {
 		return '[data-error-slot^="option-"], [data-error-slot="add-option"]';
 	}
@@ -102,26 +87,19 @@ export function FieldList({
 	const values = (useWatch({ control, name: "fields" }) ?? []) as DraftField[];
 
 	const listRef = useRef<HTMLUListElement>(null);
-	// holds [Novo campo]; Button takes no ref
 	const addRef = useRef<HTMLDivElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
 	const cardEls = useRef(new Map<string, HTMLLIElement>());
-	// one stable ref callback per card, so the drag's node ref is not reset on
-	// every render
 	const cardRefs = useRef(
 		new Map<string, (element: HTMLLIElement | null) => void>(),
 	);
 	const panelFocus = useRef<PanelFocus>("label");
-	// the card whose panel was opened last, to return focus to it
 	const lastOpen = useRef<string | null>(null);
 	const closeFocus = useRef<CloseFocus>({ kind: "card" });
-	// a card control to focus once it is rendered (see CardFocus)
 	const pendingFocus = useRef<CardFocus | null>(null);
 
-	// the row key of the card whose panel is open (§4.6 step 3)
 	const [open, setOpen] = useState<string | null>(null);
 	const [addedNew, setAddedNew] = useState(false);
-	// the row key of a new field whose label is selected on its first focus
 	const [selectKey, setSelectKey] = useState<string | null>(null);
 
 	const count = values.length;
@@ -147,9 +125,6 @@ export function FieldList({
 		(key && cardEls.current.get(key)?.querySelector<HTMLElement>(COVER)) ||
 		null;
 
-	// Every way of opening a panel: click, tap, Enter, Space, a held touch, [Novo
-	// campo] and the first error of a save. The card is brought into view first,
-	// because the page cannot scroll while the panel is open (Q19).
 	function openCard(key: string, focus: PanelFocus = "label") {
 		cardEls.current.get(key)?.scrollIntoView?.({ block: "nearest" });
 		panelFocus.current = focus;
@@ -158,15 +133,10 @@ export function FieldList({
 		setOpen(key);
 	}
 
-	// Escape, the close button, or a click outside: closing deselects (§4.6 step 5)
 	function closePanel() {
 		setOpen(null);
 	}
 
-	// [Novo campo] (§4.1 step 2). The row key exists only once `append` has
-	// run. On wide screens no panel opens and the new card's title box takes
-	// focus; on narrow screens its sheet opens on the label input. Either way the
-	// label's text is selected on that focus.
 	// biome-ignore lint/correctness/useExhaustiveDependencies: runs when a row is appended
 	useEffect(() => {
 		if (!addedNew) return;
@@ -179,10 +149,6 @@ export function FieldList({
 		else openCard(key);
 	}, [addedNew, rows.length]);
 
-	// The first error of a save (§4.6 steps 8 and 9). One with a control opens
-	// the card's panel on it. One without stays on the card, unselected, with a
-	// toast on narrow screens. A layout effect, so the panel opens before the
-	// message is painted under the card title.
 	// biome-ignore lint/correctness/useExhaustiveDependencies: runs once per save
 	useLayoutEffect(() => {
 		if (!reveal) return;
@@ -204,9 +170,6 @@ export function FieldList({
 		};
 	}, [reveal]);
 
-	// Kept until its control is rendered: a new card renders one render after
-	// the append, once `useWatch` holds its value, and an error's card shows its
-	// boxes once its panel has closed. Dropped when the card is gone.
 	useEffect(() => {
 		const target = pendingFocus.current;
 		if (!target) return;
@@ -265,7 +228,6 @@ export function FieldList({
 		move(from, to);
 	}
 
-	// from the panel, after the dialog when the field has answers (§4.6 step 11)
 	function removeRow(index: number) {
 		closeFocus.current = { kind: "removed", index };
 		remove(index);
