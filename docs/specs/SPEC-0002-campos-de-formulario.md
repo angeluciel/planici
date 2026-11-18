@@ -1,9 +1,9 @@
 ---
 id: SPEC-0002
 title: Campos do modelo de formulário
-status: Approved # Draft | Review | Approved | Implemented | Superseded
+status: Implemented # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.32
+version: 1.33
 owner: Joao Izidoro
 satisfies: [RF-38, RF-39, RN-20, RN-21]
 depends_on: [SPEC-0001]
@@ -2757,3 +2757,4 @@ acceptance criteria.
 | 1.30 | 2026-11-18 | Plan review of "Wide-screen panel amendment (v1.28)": required changes 1–2 applied with the owner's pick, 2026-11-18. Web 2 and Risks 3: the effect after the append reads the new row's key from `rows.at(-1)`, and `pendingFocus` stays queued until its element is found and focused, because the new card renders one render after the append. Tests and Sequence 1: each test says whether it fails first, and why, or passes at once on today's code (AC-0002-10, -59, -62, -72, -95). Should-fix items 3–10 listed under "Plan review follow-ups". plan_status stays Draft |
 | 1.31 | 2026-11-18 | Plan approved by Joao Izidoro, 2026-11-18: §11 "Wide-screen panel amendment (v1.28)" as revised in 1.30, with Decisions 7 as written (the owner's uncommitted switch-row edit is finished in this amendment, Web 5). plan_status Approved. Plan review should-fix items 3–10 stay follow-ups |
 | 1.32 | 2026-11-18 | Wide-screen panel amendment implemented per §11 "Wide-screen panel amendment (v1.28)". Built: a new field starts with the label "Texto curto" (`forms.fields.types.text`) and "Texto de ajuda" OFF, sent as `helpText: null`, and its label text is selected on its first focus. On wide screens, [Novo campo] opens no panel and focuses the new card's title box; a first save error on the label or the description opens no panel and focuses that card's title or help-text box, marked invalid and described by the message under the title; a selected card keeps such a message under its title. The popover has no label or description input, while the narrow sheet keeps both. A card focus queued in the list now waits until its control is rendered. The owner's switch-row edit was finished (Decisions 7): each switch has its own id and the label no longer repeats its id; the unused imports went. All criteria in scope have passing W-fld tests: AC-0002-54, -55, -59, -62, -65, -82, -83, -88, -92 and -95 to -100, with AC-0002-10, -72 and the §8 test retargeted; AC-0002-01 to -53 and the other v1.5–v1.19 criteria still pass. Deferred checks unchanged: AC-0002-16, -19, -23, -24, -26 (SPEC-0004). Two W-fld helpers left unused by the rewrite (`labelInput`, `shownType`) were removed. Status stays Approved until the owner accepts the behavior on a running system. Review should-fix items 1–5 stay follow-ups |
+| 1.33 | 2026-11-18 | Status Implemented: Joao Izidoro accepted the wide-screen panel amendment on a running system, 2026-11-18. Still partly verified, per Deferred checks: AC-0002-16, -19, -23, -24, -26 (SPEC-0004) |

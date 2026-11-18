@@ -80,7 +80,7 @@ export function FieldInlineInput({
 			// only as wide as its text, so a click beside it reaches the card's
 			// cover button; the content layer around it ignores the pointer. No
 			// `outline-none` here: it would hide the focus ring.
-			className={`pointer-events-auto field-sizing-content min-w-[2ch] max-w-full self-start resize-none rounded-sm wrap-break-word focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focused ${
+			className={`pointer-events-auto field-sizing-content min-w-[2ch] max-w-full self-start resize-none rounded-sm wrap-break-word outline-none ${
 				className ?? ""
 			}`}
 		/>
