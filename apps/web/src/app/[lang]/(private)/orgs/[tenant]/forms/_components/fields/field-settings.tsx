@@ -9,11 +9,9 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useState } from "react";
-import { tr } from "zod/v4/locales";
 import { Menu, MenuItem } from "@/components/ui/menu";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
 import {
 	FieldTextInputs,
 	type RowErrors,
@@ -38,7 +36,11 @@ type Props = {
 	onChange: (next: DraftField) => void;
 	onMove: (to: number) => void;
 	onRemove: () => void;
-	showTextInputs: boolean;
+	// the label and description inputs, on narrow screens only (§4.6 step 4)
+	showTextInputs?: boolean;
+	// a new field's label selects its text on its first focus (§4.1 step 2)
+	selectOnFocus?: boolean;
+	onSelected?: () => void;
 };
 
 function ErrorText({
@@ -56,27 +58,34 @@ function ErrorText({
 	);
 }
 
-// `label` names the switch; `extra` sits after it and is not part of the name
+// `label` names the switch, and a click on it toggles the switch; `extra` sits
+// after it and is not part of the name
 function SwitchRow({
 	labelId,
+	switchId,
 	label,
 	extra,
 	children,
 	Icon,
 }: Readonly<{
 	labelId: string;
+	switchId: string;
 	label: string;
 	extra?: ReactNode;
 	children: ReactNode;
 	Icon?: LucideIcon;
 }>) {
 	return (
-		<div className="flex py-1 items-center transition-colors duration-100 ease-out gap-1.5 px-2 font-body-sm hover:bg-surface-overlay-hovered rounded-md">
-			<div className="size-5 text-icon">{Icon && <Icon />}</div>
-			<span className="flex flex-1 items-center gap-1">
-				<span id={labelId}>{label}</span>
-				{extra}
-			</span>
+		<div className="flex items-center gap-1.5 rounded-md px-2 py-1 font-body-sm transition-colors duration-100 ease-out hover:bg-surface-overlay-hovered">
+			<label
+				htmlFor={switchId}
+				id={labelId}
+				className="flex flex-1 cursor-pointer select-none items-center gap-1.5"
+			>
+				<div className="size-5 text-icon">{Icon && <Icon />}</div>
+				<span>{label}</span>
+			</label>
+			{extra}
 			{children}
 		</div>
 	);
@@ -94,6 +103,8 @@ export function FieldSettings({
 	onMove,
 	onRemove,
 	showTextInputs = true,
+	selectOnFocus,
+	onSelected,
 }: Readonly<Props>) {
 	const t = useTranslations("forms.fields");
 	const system = Boolean(field.systemKey);
@@ -105,9 +116,12 @@ export function FieldSettings({
 
 	const ids = {
 		required: `${baseId}-required`,
+		requiredSwitch: `${baseId}-required-switch`,
 		requiredError: `${baseId}-required-error`,
 		help: `${baseId}-help`,
+		helpSwitch: `${baseId}-help-switch`,
 		sensitive: `${baseId}-sensitive`,
+		sensitiveSwitch: `${baseId}-sensitive-switch`,
 		sensitiveHelp: `${baseId}-sensitive-help`,
 		sensitiveLock: `${baseId}-sensitive-lock`,
 		sensitiveError: `${baseId}-sensitive-error`,
@@ -137,6 +151,7 @@ export function FieldSettings({
 
 	const sensitiveSwitch = (
 		<Switch
+			id={ids.sensitiveSwitch}
 			data-error-slot="sensitive"
 			aria-labelledby={ids.sensitive}
 			aria-describedby={sensitiveDescribedBy}
@@ -155,6 +170,8 @@ export function FieldSettings({
 						field={field}
 						errors={errors}
 						baseId={baseId}
+						selectOnFocus={selectOnFocus}
+						onSelected={onSelected}
 						onChange={onChange}
 					/>
 				)}
@@ -173,8 +190,10 @@ export function FieldSettings({
 				labelId={ids.required}
 				label={t("required")}
 				Icon={AsteriskIcon}
+				switchId={ids.requiredSwitch}
 			>
 				<Switch
+					id={ids.requiredSwitch}
 					data-error-slot="required"
 					aria-labelledby={ids.required}
 					aria-describedby={errors.required ? ids.requiredError : undefined}
@@ -194,8 +213,10 @@ export function FieldSettings({
 				labelId={ids.help}
 				label={t("helpText")}
 				Icon={TextAlignStartIcon}
+				switchId={ids.helpSwitch}
 			>
 				<Switch
+					id={ids.helpSwitch}
 					aria-labelledby={ids.help}
 					checked={helpOn}
 					onCheckedChange={(checked) =>
@@ -212,6 +233,7 @@ export function FieldSettings({
 				<>
 					<SwitchRow
 						labelId={ids.sensitive}
+						switchId={ids.sensitiveSwitch}
 						label={t("sensitive")}
 						extra={
 							<Tooltip content={t("sensitiveHelp")}>

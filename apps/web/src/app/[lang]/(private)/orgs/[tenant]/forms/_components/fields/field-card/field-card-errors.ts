@@ -13,14 +13,18 @@ export type RowErrors = {
 	option: (index: number) => string | undefined;
 };
 
-// Where a message can be shown next to a control. Errors without one (§4.6
-// step 9) go under the card title on wide screens and to a toast on narrow
-// ones: the card as a whole, options on a type that has none, and
-// "Dado protegido" on a system field, which has no such switch.
+// Where a message can be shown next to a control in the panel or sheet.
+// Errors without one (§4.6 step 9) go under the card title on wide screens and
+// to a toast on narrow ones: the card as a whole, options on a type that has
+// none, and "Dado protegido" on a system field, which has no such switch. On
+// wide screens the label and the description have no control in the panel
+// either: they are edited only on the idle card (§4.6 steps 4, 8 and 12).
 export function slotHasControl(
 	slot: FieldErrorSlot,
 	field: Pick<DraftField, "type" | "systemKey">,
+	wide = false,
 ): boolean {
+	if (wide && (slot === "label" || slot === "helpText")) return false;
 	if (typeof slot === "object") return field.type === "select";
 	if (slot === "top") return false;
 	if (slot === "options") return field.type === "select";

@@ -47,19 +47,24 @@ export function CardTextInput({
 	);
 }
 
-// The label and description inputs, on the selected card (wide screens) or at
-// the top of the sheet (narrow screens).
+// The label and description inputs at the top of the sheet (narrow screens
+// only; §4.6 step 4).
 export function FieldTextInputs({
 	field,
 	errors,
 	baseId,
 	labelRef,
+	selectOnFocus,
+	onSelected,
 	onChange,
 }: Readonly<{
 	field: DraftField;
 	errors: RowErrors;
 	baseId: string;
 	labelRef?: Ref<HTMLInputElement>;
+	// a new field's label selects its text on its first focus (§4.1 step 2)
+	selectOnFocus?: boolean;
+	onSelected?: () => void;
 	onChange: (next: DraftField) => void;
 }>) {
 	const t = useTranslations("forms.fields");
@@ -76,6 +81,11 @@ export function FieldTextInputs({
 				value={field.label}
 				error={errors.label}
 				errorId={`${baseId}-label-error`}
+				onFocus={(event) => {
+					if (!selectOnFocus) return;
+					event.currentTarget.select();
+					onSelected?.();
+				}}
 				onChange={(event) => onChange(withLabel(field, event.target.value))}
 			/>
 			{helpOn && (

@@ -45,6 +45,9 @@ type Props = {
 	wide: boolean;
 	saving: boolean;
 	cardRef: (element: HTMLLIElement | null) => void;
+	// a new field's title box selects its text on its first focus (§4.1 step 2)
+	selectOnFocus?: boolean;
+	onSelected?: () => void;
 	onActivate: () => void;
 	onChange: (next: DraftField) => void;
 };
@@ -59,6 +62,8 @@ export function FieldCard({
 	wide,
 	saving,
 	cardRef,
+	selectOnFocus,
+	onSelected,
 	onActivate,
 	onChange,
 }: Readonly<Props>) {
@@ -82,7 +87,7 @@ export function FieldCard({
 
 	const placed = placedErrors(field, errors);
 	const underTitle = placed.find(
-		({ slot }) => !selected || !slotHasControl(slot, field),
+		({ slot }) => !selected || !slotHasControl(slot, field, wide),
 	)?.message;
 
 	const outline = selected
@@ -131,6 +136,8 @@ export function FieldCard({
 									invalid={Boolean(errors.label)}
 									describedBy={errors.label ? errorId : undefined}
 									readOnly={saving}
+									selectOnFocus={selectOnFocus}
+									onSelected={onSelected}
 									className="font-body-md font-semibold text-text-bold placeholder:text-text-secondary"
 									onChange={(label) => onChange(withLabel(field, label))}
 								/>

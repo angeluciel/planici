@@ -1,5 +1,5 @@
 // W-fld: SPEC-0002 AC-0002-01, -10, -14, -21, -22, -25, -48, -49, -50, -53 to -67,
-// -69 to -76 (field cards and the modal settings panel inside SPEC-0001's
+// -69 to -76, -95 to -100 (field cards and the modal settings panel inside SPEC-0001's
 // editor; network faked by forms-harness).
 import {
 	act,
@@ -197,18 +197,6 @@ async function switchIn(card: HTMLElement, name: string) {
 	return within(await openSettings(card)).getByRole("switch", { name });
 }
 
-/** The label textbox in the open panel, which must be the panel of `label`. */
-function labelInput(label: string): HTMLInputElement {
-	const input = within(panel()).queryByRole("textbox", {
-		name: t("fields.label"),
-	}) as HTMLInputElement | null;
-	if (!input) throw new Error("the open panel has no label textbox");
-	if (input.value !== label) {
-		throw new Error(`the open panel edits "${input.value}", not "${label}"`);
-	}
-	return input;
-}
-
 const isOn = (el: HTMLElement) =>
 	el.getAttribute("aria-checked") === "true" ||
 	(el as HTMLInputElement).checked === true;
@@ -216,11 +204,6 @@ const isDisabled = (el: HTMLElement) =>
 	el.hasAttribute("disabled") ||
 	el.getAttribute("aria-disabled") === "true" ||
 	el.hasAttribute("data-disabled");
-
-const shownType = (control: HTMLElement) =>
-	control instanceof HTMLSelectElement
-		? (control.selectedOptions[0]?.text ?? "")
-		: (control.textContent ?? "");
 
 /** Hover or focus the control, then look for the tooltip copy. */
 async function expectTooltip(control: HTMLElement, copy: string) {
@@ -551,17 +534,16 @@ describe("FormEditor field list (W-fld)", () => {
 		expect(isOn(before)).toBe(true);
 		expect(isDisabled(before)).toBe(true);
 
-		fireEvent.change(labelInput("Alergia"), {
-			target: { value: "Preferência de horário" },
-		});
+		// the wide-screen panel has no label input: the label changes in the card's title box
+		await closePanel();
+		typeTitle(cardOf("Alergia"), "Preferência de horário");
 
-		await waitFor(() => {
-			const after = within(panel()).getByRole("switch", {
-				name: t("fields.sensitive"),
-			});
-			expect(isDisabled(after)).toBe(false);
-			expect(isOn(after)).toBe(true);
-		});
+		const after = await switchIn(
+			cardOf("Preferência de horário"),
+			t("fields.sensitive"),
+		);
+		expect(isDisabled(after)).toBe(false);
+		expect(isOn(after)).toBe(true);
 	});
 
 	it("AC-0002-14 moving D up twice with the keyboard menu sends A, D, B, C with system rows by id only", async () => {
@@ -815,11 +797,8 @@ describe("FormEditor field list (W-fld)", () => {
 			body: preview({ schemaChanged: false }),
 		});
 		on("PATCH", `/api/forms/${tpl.id}`, { status: 200, body: tpl });
-		// the error opened the panel of "B"; close it, then open the panel of "A"
-		await closePanel();
-		await openSettings(cardOf("A"));
-		fireEvent.change(labelInput("A"), { target: { value: "A2" } });
-		await closePanel();
+		// the error opens no panel on a wide screen: edit "A" in its title box
+		typeTitle(cardOf("A"), "A2");
 		fireEvent.click(save());
 
 		await waitFor(() =>
@@ -849,7 +828,7 @@ describe("FormEditor field list (W-fld)", () => {
 		);
 	});
 
-	it("AC-0002-54 Novo campo on a wide screen opens the new card's panel with help text ON and focus on its label", async () => {
+	it("AC-0002-54 Novo campo on a wide screen opens no panel and focuses the new card's title with Texto curto selected", async () => {
 		renderApp(<FormEditor type="client" />);
 		const before = cards().length;
 
@@ -858,32 +837,23 @@ describe("FormEditor field list (W-fld)", () => {
 		const all = cards();
 		expect(all).toHaveLength(before + 1);
 		const card = all.at(-1) as HTMLElement;
-		expect(card.getAttribute("aria-current")).toBe("true");
-		const dialog = await screen.findByRole("dialog", {
-			name: t("fields.panelTitle"),
-		});
+		expect(panelOrNull()).toBeNull();
+		expect(selectedCards()).toEqual([]);
+		expect(cardLabel(card)).toBe(t("fields.types.text"));
+		const title = inlineTitle(card);
+		await waitFor(() => expect(document.activeElement).toBe(title));
+		expect(title.value).toBe(t("fields.types.text"));
+		expect(title.selectionStart).toBe(0);
+		expect(title.selectionEnd).toBe(title.value.length);
 		expect(
-			shownType(
-				within(dialog).getByRole("combobox", { name: t("fields.type") }),
-			),
-		).toContain(t("fields.types.text"));
-		expect(
-			isOn(within(dialog).getByRole("switch", { name: t("fields.helpText") })),
-		).toBe(true);
-		const description = within(dialog).getByRole("textbox", {
-			name: t("fields.helpText"),
-		}) as HTMLInputElement;
-		expect(description.value).toBe("");
-		expect(description.getAttribute("placeholder")).toBe(
-			t("fields.descriptionPlaceholder"),
-		);
-		const label = within(dialog).getByRole("textbox", {
-			name: t("fields.label"),
-		});
-		await waitFor(() => expect(document.activeElement).toBe(label));
+			within(card).queryByRole("textbox", {
+				name: t("fields.inlineHelpText", { name: cardLabel(card) }),
+				hidden: true,
+			}),
+		).toBeNull();
 	});
 
-	it("AC-0002-55 Novo campo on a narrow screen opens the sheet with focus on its label input", async () => {
+	it("AC-0002-55 Novo campo on a narrow screen opens the sheet with focus on its label input, Texto curto selected and help text OFF", async () => {
 		setScreen("narrow");
 		renderApp(<FormEditor type="client" />);
 
@@ -894,7 +864,7 @@ describe("FormEditor field list (W-fld)", () => {
 		});
 		const label = within(sheet).getByRole("textbox", {
 			name: t("fields.label"),
-		});
+		}) as HTMLInputElement;
 		// the first stop of Tab inside the sheet, not only the first textbox
 		const tabbable = Array.from(
 			sheet.querySelectorAll<HTMLElement>(
@@ -916,6 +886,15 @@ describe("FormEditor field list (W-fld)", () => {
 				Node.DOCUMENT_POSITION_FOLLOWING,
 		).toBeTruthy();
 		await waitFor(() => expect(document.activeElement).toBe(label));
+		expect(label.value).toBe(t("fields.types.text"));
+		expect(label.selectionStart).toBe(0);
+		expect(label.selectionEnd).toBe(label.value.length);
+		expect(
+			isOn(within(sheet).getByRole("switch", { name: t("fields.helpText") })),
+		).toBe(false);
+		expect(
+			within(sheet).queryByRole("textbox", { name: t("fields.helpText") }),
+		).toBeNull();
 	});
 
 	it("AC-0002-56 turning help text OFF on a published field sends helpText null", async () => {
@@ -979,7 +958,7 @@ describe("FormEditor field list (W-fld)", () => {
 		expect(selectedCards()).toEqual([]);
 	});
 
-	it("AC-0002-59 clicking a card outside its title and help-text inputs opens Configurações do campo with label, description and the six items in order", async () => {
+	it("AC-0002-59 clicking a card outside its title and help-text inputs opens Configurações do campo with the six items in order and no label or description input", async () => {
 		await openExisting([
 			field({
 				label: "Objetivo",
@@ -997,8 +976,6 @@ describe("FormEditor field list (W-fld)", () => {
 		});
 		expect(cardOf("Objetivo").getAttribute("aria-current")).toBe("true");
 		const items = [
-			within(dialog).getByRole("textbox", { name: t("fields.label") }),
-			within(dialog).getByRole("textbox", { name: t("fields.helpText") }),
 			within(dialog).getByRole("switch", { name: t("fields.required") }),
 			within(dialog).getByRole("switch", { name: t("fields.helpText") }),
 			within(dialog).getByRole("switch", { name: t("fields.sensitive") }),
@@ -1012,6 +989,12 @@ describe("FormEditor field list (W-fld)", () => {
 					Node.DOCUMENT_POSITION_FOLLOWING,
 			).toBeTruthy();
 		}
+		expect(
+			within(dialog).queryByRole("textbox", { name: t("fields.label") }),
+		).toBeNull();
+		expect(
+			within(dialog).queryByRole("textbox", { name: t("fields.helpText") }),
+		).toBeNull();
 	});
 
 	it("AC-0002-60 Escape closes the panel, deselects the card and returns focus to it", async () => {
@@ -1076,16 +1059,16 @@ describe("FormEditor field list (W-fld)", () => {
 		expect(document.activeElement).toBe(document.body);
 	});
 
-	it("AC-0002-62 a mouse drag that starts in the panel's label input does not move the card", async () => {
+	it("AC-0002-62 a mouse drag that starts on the panel's title does not move the card", async () => {
 		await openExisting(abc());
 		stubCardLayout();
 		await openSettings(cardOf("C"));
-		const input = labelInput("C");
+		const title = within(panel()).getByText(t("fields.panelTitle"));
 
-		pointer("pointerDown", input, "mouse", centerOf(5));
-		pointer("pointerMove", input, "mouse", centerOf(5) - 10);
-		pointer("pointerMove", input, "mouse", centerOf(3));
-		pointer("pointerUp", input, "mouse", centerOf(3));
+		pointer("pointerDown", title, "mouse", centerOf(5));
+		pointer("pointerMove", title, "mouse", centerOf(5) - 10);
+		pointer("pointerMove", title, "mouse", centerOf(3));
+		pointer("pointerUp", title, "mouse", centerOf(3));
 
 		expect(cardOf("C").getAttribute("aria-current")).toBe("true");
 		expect(customLabels()).toEqual(["A", "B", "C"]);
@@ -1136,30 +1119,30 @@ describe("FormEditor field list (W-fld)", () => {
 		expect(customLabels()).toEqual(["A", "B", "C"]);
 	});
 
-	it("AC-0002-65 a label error on a wide screen opens that card's panel with the message and focus on its label input", async () => {
+	it("AC-0002-65 a label error on a wide screen focuses that card's title input, invalid and described by the message, with no panel", async () => {
 		await openExisting([
 			field({ label: "Profissão", type: "text" }),
 			field({ label: "Objetivo", type: "text" }),
 		]);
-		await openSettings(cardOf("Objetivo"));
-		fireEvent.change(labelInput("Objetivo"), { target: { value: "" } });
-		await closePanel();
-		expect(panelOrNull()).toBeNull();
+		const title = typeTitle(cardOf("Objetivo"), "");
+		act(() => title.blur());
+		expect(document.activeElement).not.toBe(title);
 
 		fireEvent.click(save());
 
-		const dialog = await screen.findByRole("dialog", {
-			name: t("fields.panelTitle"),
+		await waitFor(() => {
+			expect(panelOrNull()).toBeNull();
+			expect(document.activeElement).toBe(title);
 		});
-		expect(cards()[4]?.getAttribute("aria-current")).toBe("true");
-		const input = within(dialog).getByRole("textbox", {
-			name: t("fields.label"),
-		});
-		expect(
-			within(dialog).getByText(tValidation("fieldLabel.required")),
-		).toBeTruthy();
-		await waitFor(() => expect(document.activeElement).toBe(input));
-		expect(cards()[3]?.getAttribute("aria-current")).toBeNull();
+		expect(selectedCards()).toEqual([]);
+		expect(title.getAttribute("aria-invalid")).toBe("true");
+		const message = tValidation("fieldLabel.required");
+		const described = (title.getAttribute("aria-describedby") ?? "")
+			.split(" ")
+			.some((id) =>
+				document.getElementById(id)?.textContent?.includes(message),
+			);
+		expect(described).toBe(true);
 	});
 
 	it("AC-0002-66 a label error on a narrow screen opens that card's sheet with focus on its label input", async () => {
@@ -1273,14 +1256,15 @@ describe("FormEditor field list (W-fld)", () => {
 		expect(customLabels()).toEqual(["A", "B", "C"]);
 	});
 
-	it("AC-0002-72 Tab from the panel's last control (✕) moves to its label input", async () => {
+	it("AC-0002-72 Tab from the panel's last control (✕) moves to its first control", async () => {
 		await openExisting([field({ label: "Objetivo", type: "text" })]);
 		const dialog = await openSettings(cardOf("Objetivo"));
 		const close = within(dialog).getByRole("button", {
 			name: t("fields.close"),
 		});
-		const label = within(dialog).getByRole("textbox", {
-			name: t("fields.label"),
+		// on a wide screen the first control of a "text" field is "Obrigatório"
+		const first = within(dialog).getByRole("switch", {
+			name: t("fields.required"),
 		});
 		act(() => close.focus());
 		expect(document.activeElement).toBe(close);
@@ -1297,7 +1281,7 @@ describe("FormEditor field list (W-fld)", () => {
 		if (!guard) throw new Error("no focus guard after the panel");
 		act(() => guard.focus());
 
-		await waitFor(() => expect(document.activeElement).toBe(label));
+		await waitFor(() => expect(document.activeElement).toBe(first));
 	});
 
 	it("AC-0002-73 clicking [Salvar] while a panel is open sends nothing and only closes the panel", async () => {
@@ -1517,29 +1501,40 @@ describe("FormEditor field list (W-fld)", () => {
 		expect(panelOrNull()).toBeNull();
 	});
 
-	it("AC-0002-82 a new card closed with Escape shows an empty help-text input with the description placeholder", async () => {
+	it("AC-0002-82 help text turned ON in a new card's panel shows an empty help-text input with the description placeholder", async () => {
 		setScreen("wide");
 		renderApp(<FormEditor type="client" />);
 		fireEvent.click(screen.getByRole("button", { name: t("fields.add") }));
-		await screen.findByRole("dialog", { name: t("fields.panelTitle") });
+		const card = cards().at(-1) as HTMLElement;
+
+		const help = await switchIn(card, t("fields.helpText"));
+		expect(isOn(help)).toBe(false);
+		fireEvent.click(help);
+		await waitFor(() =>
+			expect(
+				isOn(
+					within(panel()).getByRole("switch", { name: t("fields.helpText") }),
+				),
+			).toBe(true),
+		);
 		await closePanel();
 
-		const card = cards().at(-1) as HTMLElement;
-		const help = inlineHelp(card);
-		expect(help.value).toBe("");
-		expect(help.getAttribute("placeholder")).toBe(
+		const input = inlineHelp(card);
+		expect(input.value).toBe("");
+		expect(input.getAttribute("placeholder")).toBe(
 			t("fields.descriptionPlaceholder"),
 		);
 	});
 
-	it("AC-0002-83 a new card closed with Escape shows an empty title input with the type name as placeholder", async () => {
+	it("AC-0002-83 clearing a new card's title shows the type name as placeholder", async () => {
 		setScreen("wide");
 		renderApp(<FormEditor type="client" />);
 		fireEvent.click(screen.getByRole("button", { name: t("fields.add") }));
-		await screen.findByRole("dialog", { name: t("fields.panelTitle") });
-		await closePanel();
+		const card = cards().at(-1) as HTMLElement;
 
-		const title = inlineTitle(cards().at(-1) as HTMLElement);
+		const title = inlineTitle(card);
+		fireEvent.change(title, { target: { value: "" } });
+
 		expect(title.value).toBe("");
 		expect(title.getAttribute("placeholder")).toBe(t("fields.types.text"));
 	});
@@ -1618,8 +1613,6 @@ describe("FormEditor field list (W-fld)", () => {
 		setScreen("wide");
 		renderApp(<FormEditor type="client" />);
 		fireEvent.click(screen.getByRole("button", { name: t("fields.add") }));
-		await screen.findByRole("dialog", { name: t("fields.panelTitle") });
-		await closePanel();
 		const card = cards().at(-1) as HTMLElement;
 		fireEvent.change(inlineTitle(card), {
 			target: { value: "CPF do responsável" },
@@ -1630,13 +1623,7 @@ describe("FormEditor field list (W-fld)", () => {
 		const dialog = await screen.findByRole("dialog", {
 			name: t("fields.panelTitle"),
 		});
-		expect(
-			(
-				within(dialog).getByRole("textbox", {
-					name: t("fields.label"),
-				}) as HTMLInputElement
-			).value,
-		).toBe("CPF do responsável");
+		expect(within(card).getByText("CPF do responsável")).toBeTruthy();
 		const lock = within(dialog).getByRole("switch", {
 			name: t("fields.sensitive"),
 		});
@@ -1695,7 +1682,7 @@ describe("FormEditor field list (W-fld)", () => {
 		).toBe(inlineHelp(card));
 	});
 
-	it("AC-0002-92 an idle card with a label error marks its title input invalid, described by the message", async () => {
+	it("AC-0002-92 two label errors on a wide screen focus the first card's title input and mark the second invalid, with no panel", async () => {
 		setScreen("wide");
 		renderApp(
 			<FormEditor
@@ -1712,13 +1699,13 @@ describe("FormEditor field list (W-fld)", () => {
 
 		fireEvent.click(save());
 
-		await screen.findByRole("dialog", { name: t("fields.panelTitle") });
-		expect(cards()[3]?.getAttribute("aria-current")).toBe("true");
-		expect(cards()[4]?.getAttribute("aria-current")).toBeNull();
-		const title = within(cards()[4] as HTMLElement).getByRole("textbox", {
-			name: t("fields.inlineLabel", { name: t("fields.types.text") }),
-			hidden: true,
+		const first = inlineTitle(cards()[3] as HTMLElement);
+		await waitFor(() => {
+			expect(panelOrNull()).toBeNull();
+			expect(document.activeElement).toBe(first);
 		});
+		expect(selectedCards()).toEqual([]);
+		const title = inlineTitle(cards()[4] as HTMLElement);
 		expect(title.getAttribute("aria-invalid")).toBe("true");
 		const message = tValidation("fieldLabel.required");
 		const described = (title.getAttribute("aria-describedby") ?? "")
@@ -1759,6 +1746,152 @@ describe("FormEditor field list (W-fld)", () => {
 
 		await waitFor(() =>
 			expect(inlineTitle(idleCard("Objetivo")).readOnly).toBe(true),
+		);
+	});
+
+	// ---- wide-screen panel without text inputs (SPEC-0002 v1.26)
+
+	it("AC-0002-95 while its panel is open on a wide screen, a card shows its title and help text as text", async () => {
+		setScreen("wide");
+		await openExisting([
+			field({
+				label: "Objetivo",
+				type: "text",
+				helpText: "Conte o que você espera",
+			}),
+		]);
+		const card = idleCard("Objetivo");
+		expect(panelOrNull()).toBeNull();
+
+		fireEvent.click(coverButton(card));
+
+		await screen.findByRole("dialog", { name: t("fields.panelTitle") });
+		expect(within(card).getByText("Objetivo")).toBeTruthy();
+		expect(within(card).getByText("Conte o que você espera")).toBeTruthy();
+		expect(within(card).queryAllByRole("textbox", { hidden: true })).toEqual(
+			[],
+		);
+	});
+
+	it("AC-0002-96 typing after Novo campo replaces Texto curto in the new card's title", async () => {
+		setScreen("wide");
+		renderApp(<FormEditor type="client" />);
+
+		fireEvent.click(screen.getByRole("button", { name: t("fields.add") }));
+
+		const card = cards().at(-1) as HTMLElement;
+		const title = inlineTitle(card);
+		await waitFor(() => expect(document.activeElement).toBe(title));
+		// a browser replaces the selected text with what is typed
+		const start = title.selectionStart ?? 0;
+		const end = title.selectionEnd ?? 0;
+		fireEvent.change(title, {
+			target: {
+				value: `${title.value.slice(0, start)}Profissão${title.value.slice(end)}`,
+			},
+		});
+		expect(title.value).toBe("Profissão");
+	});
+
+	it("AC-0002-97 an untouched new field is sent with label Texto curto and helpText null", async () => {
+		setScreen("wide");
+		const tpl = await openExisting([]);
+
+		fireEvent.click(screen.getByRole("button", { name: t("fields.add") }));
+		expect(panelOrNull()).toBeNull();
+		await reorderAndPublish(tpl);
+
+		const sent = sentFields().at(-1);
+		expect(sent).toMatchObject({
+			label: t("fields.types.text"),
+			type: "text",
+			helpText: null,
+		});
+	});
+
+	it("AC-0002-98 two untouched new fields stop Salvar with fieldLabel.duplicate on the second card's title input", async () => {
+		setScreen("wide");
+		on("POST", "/api/forms", {
+			status: 422,
+			body: { error: "fieldLabel.duplicate", field: "fields.4.label" },
+		});
+		renderApp(<FormEditor type="client" />);
+		renameTemplate("Anamnese inicial");
+		const add = screen.getByRole("button", { name: t("fields.add") });
+		fireEvent.click(add);
+		fireEvent.click(add);
+		act(() => (document.activeElement as HTMLElement | null)?.blur());
+
+		fireEvent.click(save());
+
+		await waitFor(() => expect(callsTo("POST", "/api/forms")).toHaveLength(1));
+		const title = inlineTitle(cards()[4] as HTMLElement);
+		await waitFor(() => {
+			expect(panelOrNull()).toBeNull();
+			expect(document.activeElement).toBe(title);
+		});
+		expect(selectedCards()).toEqual([]);
+		expect(title.getAttribute("aria-invalid")).toBe("true");
+		const message = tValidation("fieldLabel.duplicate");
+		const described = (title.getAttribute("aria-describedby") ?? "")
+			.split(" ")
+			.some((id) =>
+				document.getElementById(id)?.textContent?.includes(message),
+			);
+		expect(described).toBe(true);
+	});
+
+	it("AC-0002-99 a help-text error on a wide screen focuses that card's help-text input with no panel", async () => {
+		setScreen("wide");
+		const tpl = await openExisting([
+			field({ label: "Profissão", type: "text" }),
+			field({
+				label: "Objetivo",
+				type: "text",
+				helpText: "Conte o que você espera",
+			}),
+		]);
+		failPreview(tpl.id, "fieldHelpText.max", "fields.4.helpText");
+		renameTemplate("Ficha 2");
+
+		fireEvent.click(save());
+
+		const help = inlineHelp(cardOf("Objetivo"));
+		await waitFor(() => {
+			expect(panelOrNull()).toBeNull();
+			expect(document.activeElement).toBe(help);
+		});
+		expect(selectedCards()).toEqual([]);
+		expect(help.getAttribute("aria-invalid")).toBe("true");
+		const message = tValidation("fieldHelpText.max");
+		const described = (help.getAttribute("aria-describedby") ?? "")
+			.split(" ")
+			.some((id) =>
+				document.getElementById(id)?.textContent?.includes(message),
+			);
+		expect(described).toBe(true);
+	});
+
+	it("AC-0002-100 turning help text ON in a new field's sheet shows an empty description input", async () => {
+		setScreen("narrow");
+		renderApp(<FormEditor type="client" />);
+		fireEvent.click(screen.getByRole("button", { name: t("fields.add") }));
+		const sheet = await screen.findByRole("dialog", {
+			name: t("fields.panelTitle"),
+		});
+		const help = within(sheet).getByRole("switch", {
+			name: t("fields.helpText"),
+		});
+		expect(isOn(help)).toBe(false);
+
+		fireEvent.click(help);
+
+		const description = (await within(sheet).findByRole("textbox", {
+			name: t("fields.helpText"),
+		})) as HTMLInputElement;
+		expect(description.value).toBe("");
+		expect(description.getAttribute("placeholder")).toBe(
+			t("fields.descriptionPlaceholder"),
 		);
 	});
 });
