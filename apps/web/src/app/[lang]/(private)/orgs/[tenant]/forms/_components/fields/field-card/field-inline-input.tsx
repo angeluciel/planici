@@ -12,6 +12,9 @@ type Props = {
 	describedBy?: string;
 	readOnly?: boolean;
 	errorSlot: "label" | "helpText";
+	// selects its text when it takes focus, then calls onSelected (§4.1 step 2)
+	selectOnFocus?: boolean;
+	onSelected?: () => void;
 	// typography of the text it replaces
 	className?: string;
 	onChange: (value: string) => void;
@@ -33,6 +36,8 @@ export function FieldInlineInput({
 	describedBy,
 	readOnly,
 	errorSlot,
+	selectOnFocus,
+	onSelected,
 	className,
 	onChange,
 }: Readonly<Props>) {
@@ -62,8 +67,11 @@ export function FieldInlineInput({
 			readOnly={readOnly}
 			data-error-slot={errorSlot}
 			autoComplete="off"
-			onFocus={() => {
+			onFocus={(event) => {
 				snapshot.current = value;
+				if (!selectOnFocus) return;
+				event.currentTarget.select();
+				onSelected?.();
 			}}
 			onChange={(event) =>
 				onChange(event.target.value.replace(LINE_BREAKS, " "))

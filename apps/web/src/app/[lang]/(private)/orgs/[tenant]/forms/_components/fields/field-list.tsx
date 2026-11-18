@@ -61,6 +61,10 @@ type CloseFocus = { kind: "card" } | { kind: "removed"; index: number };
 
 const COVER = "[data-card-activate]";
 
+// a control inside a card to focus once it is rendered: its cover button, or,
+// on wide screens, its title or help-text box (§4.1 step 2, §4.6 step 8)
+type CardFocus = { key: string; selector: string };
+
 function slotSelector(slot: PanelFocus): string {
 	if (typeof slot === "object")
 		return `[data-error-slot="option-${slot.option}"]`;
@@ -111,12 +115,14 @@ export function FieldList({
 	// the card whose panel was opened last, to return focus to it
 	const lastOpen = useRef<string | null>(null);
 	const closeFocus = useRef<CloseFocus>({ kind: "card" });
-	// a card's cover button to focus once the list is rendered
-	const pendingFocus = useRef<string | null>(null);
+	// a card control to focus once it is rendered (see CardFocus)
+	const pendingFocus = useRef<CardFocus | null>(null);
 
 	// the row key of the card whose panel is open (§4.6 step 3)
 	const [open, setOpen] = useState<string | null>(null);
 	const [addedNew, setAddedNew] = useState(false);
+	// the row key of a new field whose label is selected on its first focus
+	const [selectKey, setSelectKey] = useState<string | null>(null);
 
 	const count = values.length;
 	const atLimit = count >= MAX_FIELDS;
@@ -157,13 +163,20 @@ export function FieldList({
 		setOpen(null);
 	}
 
-	// a new card opens its panel (§4.6, Novo campo)
+	// [Novo campo] (§4.1 step 2). The row key exists only once `append` has
+	// run. On wide screens no panel opens and the new card's title box takes
+	// focus; on narrow screens its sheet opens on the label input. Either way the
+	// label's text is selected on that focus.
 	// biome-ignore lint/correctness/useExhaustiveDependencies: runs when a row is appended
 	useEffect(() => {
 		if (!addedNew) return;
 		setAddedNew(false);
 		const key = rows.at(-1)?.rowKey;
-		if (key) openCard(key);
+		if (!key) return;
+		setSelectKey(key);
+		if (wide)
+			pendingFocus.current = { key, selector: '[data-error-slot="label"]' };
+		else openCard(key);
 	}, [addedNew, rows.length]);
 
 	// The first error of a save (§4.6 steps 8 and 9). One with a control opens
@@ -177,20 +190,36 @@ export function FieldList({
 		const field = values[reveal.index];
 		if (!key || !field) return;
 		const { slot } = reveal;
-		if (slotHasControl(slot, field)) {
+		if (slotHasControl(slot, field, wide)) {
 			openCard(key, slot);
 			return;
 		}
 		if (!wide) toast.show(text(reveal.message) ?? reveal.message, "danger");
 		setOpen(null);
-		pendingFocus.current = key;
+		// on wide screens the label and the description are edited on the card
+		const onCard = wide && (slot === "label" || slot === "helpText");
+		pendingFocus.current = {
+			key,
+			selector: onCard ? `[data-error-slot="${slot}"]` : COVER,
+		};
 	}, [reveal]);
 
+	// Kept until its control is rendered: a new card renders one render after
+	// the append, once `useWatch` holds its value, and an error's card shows its
+	// boxes once its panel has closed. Dropped when the card is gone.
 	useEffect(() => {
-		const key = pendingFocus.current;
-		if (!key) return;
+		const target = pendingFocus.current;
+		if (!target) return;
+		if (!rows.some((row) => row.rowKey === target.key)) {
+			pendingFocus.current = null;
+			return;
+		}
+		const element = cardEls.current
+			.get(target.key)
+			?.querySelector<HTMLElement>(target.selector);
+		if (!element) return;
 		pendingFocus.current = null;
-		coverOf(key)?.focus();
+		element.focus();
 	});
 
 	function focusInPanel(): HTMLElement | boolean {
@@ -281,6 +310,8 @@ export function FieldList({
 				onMove={(to) => moveTo(openIndex, to)}
 				onRemove={() => removeRow(openIndex)}
 				showTextInputs={!wide}
+				selectOnFocus={open === selectKey}
+				onSelected={() => setSelectKey(null)}
 			/>
 		</div>
 	);
@@ -319,6 +350,8 @@ export function FieldList({
 								wide={wide}
 								saving={disabled}
 								cardRef={cardRefOf(key)}
+								selectOnFocus={key === selectKey}
+								onSelected={() => setSelectKey(null)}
 								onActivate={() => openCard(key)}
 								onChange={(next) => setRow(index, next)}
 							/>
@@ -337,7 +370,7 @@ export function FieldList({
 					className="w-auto"
 					disabled={atLimit}
 					onPress={() => {
-						append(newField(), { shouldFocus: false });
+						append(newField(t("types.text")), { shouldFocus: false });
 						setAddedNew(true);
 					}}
 				/>
