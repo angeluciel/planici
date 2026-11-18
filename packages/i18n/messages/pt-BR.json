@@ -448,7 +448,8 @@
 			"archivedBadge": "Arquivado",
 			"showArchived": "Mostrar arquivados",
 			"fieldCount": "{count, plural, one {# campo} other {# campos}}",
-			"recordCount": "{count, plural, one {# cadastro} other {# cadastros}}"
+			"recordCount": "{count, plural, one {# cadastro} other {# cadastros}}",
+			"actionsFor": "Ações de {name}"
 		},
 		"actions": {
 			"new": "Novo",

@@ -2,20 +2,22 @@
 
 import type { FormTemplateSummary, FormType } from "@planici/schemas";
 import { FORM_TYPES } from "@planici/schemas";
+import { EllipsisVerticalIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Menu, MenuItem } from "@/components/ui/menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { Link } from "@/i18n/navigation";
 import { archiveForm, listForms, unarchiveForm } from "@/lib/api/forms";
+import { cn } from "@/lib/utils";
 import { ArchiveDialog } from "./archive-dialog";
 import { DeleteDialog } from "./delete-dialog";
 import { EmptyState } from "./empty-state";
-import { SpinnerIcon } from "./spinner-icon";
 
 type Status = "loading" | "error" | "ready";
 type Dialog =
@@ -198,7 +200,7 @@ function TypeGroup({
 			</h2>
 
 			{forms.length === 0 ? (
-				<div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border-input p-4">
+				<div className="flex flex-wrap items-center justify-between gap-3 rounded-md bg-surface-sunken p-4">
 					<p className="font-body-sm text-text-secondary">
 						{t("list.empty", { type })}
 					</p>
@@ -216,13 +218,14 @@ function TypeGroup({
 						return (
 							<li
 								key={form.id}
-								className="flex flex-wrap items-start justify-between gap-3 rounded-md border border-border-input p-4"
+								className="relative flex items-start gap-3 rounded-md bg-surface-raised hover:bg-surface-raised-hovered p-4 shadow-raised"
 							>
 								<div className="flex min-w-0 flex-1 flex-col gap-1">
 									<div className="flex flex-wrap items-center gap-2">
+										{/* the ::after overlay makes the whole card open the template */}
 										<Link
 											href={`${base}/${form.id}`}
-											className="font-body-sm font-medium text-text-link hover:underline focus-visible:outline-2 focus-visible:outline-border-focused"
+											className="font-body-sm font-medium text-text-link after:absolute after:inset-0 after:rounded-md hover:underline focus-visible:outline-2 focus-visible:outline-border-focused"
 										>
 											{form.name}
 										</Link>
@@ -232,47 +235,65 @@ function TypeGroup({
 											</span>
 										)}
 									</div>
+
+									{/* lozenges */}
+									<div className="flex gap-1">
+										<span
+											className={cn(
+												"font-body-xs font-semibold rounded-xs py-0.5 px-1 w-fit",
+												form.fieldCount
+													? "bg-background-accent-green-bold text-text-inverse"
+													: "border border-border-disabled text-text-disabled",
+											)}
+										>
+											{t("list.fieldCount", { count: form.fieldCount })}
+										</span>
+										<span
+											className={cn(
+												"font-body-xs font-semibold rounded-xs py-0.5 px-1 w-fit text-text-inverse",
+												form.fieldCount
+													? "bg-background-accent-green-subtle text-text-inverse"
+													: "border border-border-disabled text-text-disabled",
+											)}
+										>
+											{t("list.recordCount", { count: form.recordCount })}
+										</span>
+									</div>
+
 									{form.description && (
 										<p className="line-clamp-2 font-body-sm text-text-secondary">
 											{form.description}
 										</p>
 									)}
-									<p className="font-body-xs text-text-secondary">
-										{t("list.fieldCount", { count: form.fieldCount })}
-										{" · "}
-										{t("list.recordCount", { count: form.recordCount })}
-									</p>
 								</div>
-								<div className="flex gap-2">
-									{archived ? (
-										<Button
-											variant="subtle"
-											text={t("actions.unarchive")}
-											aria-label={`${t("actions.unarchive")} ${form.name}`}
-											className="w-auto"
-											leadingIcon={
-												unarchiving.has(form.id) ? SpinnerIcon : undefined
-											}
-											disabled={unarchiving.has(form.id)}
-											aria-busy={unarchiving.has(form.id)}
-											onPress={() => onUnarchive(form)}
-										/>
-									) : (
-										<Button
-											variant="subtle"
-											text={t("actions.archive")}
-											aria-label={`${t("actions.archive")} ${form.name}`}
-											className="w-auto"
-											onPress={() => onArchive(form)}
-										/>
-									)}
-									<Button
-										variant="subtle"
-										text={t("actions.delete")}
-										aria-label={`${t("actions.delete")} ${form.name}`}
-										className="w-auto"
-										onPress={() => onDelete(form)}
-									/>
+
+								{/* above the link's overlay, so the menu gets the click */}
+								<div className="relative z-10">
+									<Menu
+										label={t("list.actionsFor", { name: form.name })}
+										trigger={
+											<EllipsisVerticalIcon
+												aria-hidden="true"
+												className="size-4"
+											/>
+										}
+									>
+										{archived ? (
+											<MenuItem
+												disabled={unarchiving.has(form.id)}
+												onSelect={() => onUnarchive(form)}
+											>
+												{t("actions.unarchive")}
+											</MenuItem>
+										) : (
+											<MenuItem onSelect={() => onArchive(form)}>
+												{t("actions.archive")}
+											</MenuItem>
+										)}
+										<MenuItem onSelect={() => onDelete(form)}>
+											{t("actions.delete")}
+										</MenuItem>
+									</Menu>
 								</div>
 							</li>
 						);
