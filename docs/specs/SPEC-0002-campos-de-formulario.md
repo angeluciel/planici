@@ -3,7 +3,7 @@ id: SPEC-0002
 title: Campos do modelo de formulário
 status: Approved # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.25
+version: 1.32
 owner: Joao Izidoro
 satisfies: [RF-38, RF-39, RN-20, RN-21]
 depends_on: [SPEC-0001]
@@ -150,11 +150,20 @@ accepted.
 
 ### 4.1 Add a field
 1. In the editor (SPEC-0001), the professional presses **[Novo campo]**.
-2. A field card is appended at the end: type "Texto curto", empty label, required off, protected off, "Texto de
-   ajuda" ON with an empty description. It becomes the selected card: the page scrolls to it and its settings panel
-   opens (§4.6 step 3). Focus moves to the label input in the panel, which is a sheet on narrow screens.
+2. A field card is appended at the end: type "Texto curto", label "Texto curto" (the type name, in the editor's
+   language), required off, protected off, "Texto de ajuda" OFF (owner, 2026-11-18). The page scrolls to it.
+   - On wide screens the card stays idle and no panel opens. Focus moves to the card's title input, with its whole
+     text selected, so typing replaces it (§4.6 step 12).
+   - On narrow screens it becomes the selected card and its sheet opens (§4.6 step 3). Focus moves to the sheet's
+     label input, with its whole text selected. (owner, 2026-11-18, §9 Q23)
+
+   A label left as "Texto curto" is saved as written. Two new fields left that way share a label and stop
+   [Salvar] under R2.
    _(Amended in v1.5, approved 2026-11-16. Before: a row was appended and focus moved to its label. Amended in v1.12,
-   approved 2026-11-17. Before: on wide screens, focus moved to the card's label input.)_
+   approved 2026-11-17. Before: on wide screens, focus moved to the card's label input. Amended in v1.26 (owner,
+   2026-11-18), approved 2026-11-18. Before: the label was empty, "Texto de ajuda" was ON with an empty
+   description, and on every screen the card was selected and its panel opened with focus on the panel's label
+   input.)_
 3. Cards, selection and the settings panel are described in §4.6.
    _(Amended in v1.5, approved 2026-11-16. Before: each row showed a drag handle, label, type dropdown, both
    switches and a "⋯" menu.)_
@@ -208,7 +217,9 @@ screen, and the rest of the page does not respond while it is open. Before: focu
 the selected card edited its label and description and showed a "⋯" button that opened the panel; selecting
 another card closed the panel (Q14); clicks outside the panel did not close it. Steps 1, 2, 3 and 10 amended and
 step 12 added in v1.19 (owner, 2026-11-17), approved 2026-11-17: on wide screens an idle card's title and help
-text are edited in place. Before: cards only displayed on every screen.)_
+text are edited in place. Before: cards only displayed on every screen. Steps 4, 7, 8 and 12 amended in v1.26
+(owner, 2026-11-18), approved 2026-11-18: on wide screens the panel has no label or description input, and
+those are edited only in place on an idle card. Before: the panel held both inputs on every screen.)_
 
 1. Each field is a card. Every card can be reached with Tab. It takes focus as a whole, with its label as its
    accessible name, or the type name while the label is empty. On wide screens, Tab then reaches the card's title
@@ -224,10 +235,11 @@ text are edited in place. Before: cards only displayed on every screen.)_
    one card is selected. The selected card is highlighted. Every other card is **idle**. When the card is not fully
    in view, the page first scrolls to it, because the page cannot scroll while the panel is open (Q19). On wide
    screens, a click inside an idle card's title or help-text input edits it instead (step 12).
-4. The panel holds every editing control of the field. On wide screens, the label and the description can also be
-   edited in place on an idle card (step 12). The panel's controls, in this order:
-   - the label input;
-   - the description input "Adicionar descrição", while "Texto de ajuda" is ON;
+4. The panel holds every editing control of the field, except the label and the description on wide screens:
+   there, they are edited only in place on an idle card (step 12), and the panel shows neither (owner, 2026-11-18).
+   The panel's controls, in this order:
+   - the label input, on narrow screens only;
+   - the description input "Adicionar descrição", on narrow screens only, while "Texto de ajuda" is ON;
    - the options editor, for `select`;
    - "Obrigatório" (switch);
    - "Texto de ajuda" (switch);
@@ -246,13 +258,18 @@ text are edited in place. Before: cards only displayed on every screen.)_
    sheet from the bottom of the screen, with the label input at its top (owner, 2026-11-16), and the same rules
    apply (Q18). A touch that is held and released without moving counts as a tap. A touch drag (§4.4) opens no
    panel.
-7. "Texto de ajuda" is ON for new fields, and for loaded fields that have help text. Turning it OFF hides the
-   description input and clears the help text from the draft (Q17), so [Salvar] sends `helpText: null`.
+7. "Texto de ajuda" is OFF for new fields (owner, 2026-11-18), and ON for loaded fields that have help text.
+   Turning it OFF hides the description input and clears the help text from the draft (Q17), so [Salvar] sends
+   `helpText: null`. On wide screens, turning it ON in the panel adds an empty description input to the card, which
+   can be edited once the panel is closed (step 12).
 8. When [Salvar] is stopped by field errors (SPEC-0001 §8: focus moves to the first error), and the first error
    belongs to a control (the label, the description, the options, "Obrigatório", "Dado protegido" or "Tipo"), the
    page scrolls to the card holding it and that card's settings panel opens, on every screen (step 3). Focus moves
-   to the invalid control, and the message is shown under it. Every other card with an error is highlighted and
-   shows its first message under its title, so no error is shown only by color.
+   to the invalid control, and the message is shown under it. On wide screens, an error on the label or the
+   description is the exception: no panel opens and no card is selected; focus moves to that card's title or
+   help-text input, which is marked invalid, and the message is shown under the card's title (step 12; owner,
+   2026-11-18). Every other card with an error is highlighted and shows its first message under its title, so no
+   error is shown only by color.
 9. Some errors have no control: a field's id, its `systemKey`, the field as a whole, or options sent for a type
    that has none. No panel opens and no card is selected. On wide screens, the message goes under the card's title
    and focus goes to the card. On narrow screens, the message is shown as an error toast and focus goes to the card
@@ -281,23 +298,27 @@ text are edited in place. Before: cards only displayed on every screen.)_
    - An idle card shows its title as an input holding the label. While "Texto de ajuda" is ON, it shows its help
      text as an input holding the description. Both look like the card's text. While the label is empty, the title
      input shows the type name as its placeholder (Q20). While the description is empty, its input shows
-     "Adicionar descrição". While "Texto de ajuda" is OFF, the card shows no description input, and the description
-     is edited in the panel after turning the switch ON.
+     "Adicionar descrição". While "Texto de ajuda" is OFF, the card shows no description input. Turning the switch
+     ON in the panel adds it to the card (step 7).
+   - These are the only places the label and the description are edited on wide screens (step 4). While a card's
+     panel is open, that card shows its title and help text as text, not as inputs. They can be edited again once
+     the panel is closed (owner, 2026-11-18).
+   - A new field's title input takes focus with its whole text selected (§4.1 step 2).
    - Each input has its own accessible name (RNF-18), so the inputs of different cards can be told apart: the
      title input is "Rótulo de <name>" and the help-text input is "Texto de ajuda de <name>", where <name> is the
      label, or the type name while the label is empty. A focused input shows a visible focus indicator.
    - Clicking either input, or moving focus to it with Tab, puts the cursor in it. No card is selected and no panel
      opens.
-   - Typing changes the draft as the panel's inputs do. The label check of §4.3 runs on each change, and the panel
-     shows the new text when it opens. R2 is checked on [Salvar], as for the panel.
+   - Typing changes the draft. The label check of §4.3 runs on each change, and the panel shows its result when
+     it opens. R2 is checked on [Salvar].
    - Enter keeps the text and does not save the template. Moving focus out of the input also keeps it. Escape
      restores the text the input had when it took focus, both in the input and in the draft, and the label check of
      §4.3 runs again on the restored label. After Enter or Escape, focus stays in the input (Q22).
    - A press inside either input never starts a drag (§4.4 step 1).
    - While the editor saves, the inputs are read-only, like the editor's other inputs (SPEC-0001 §8).
-   - Step 8 is unchanged: when the first error of a save is on the label or the description, the card's panel opens
-     with focus on the panel's input. An idle card with an error on its label or description marks that input as
-     invalid, and the input is described by the message under the title.
+   - When the first error of a save is on the label or the description, no panel opens and focus moves to the
+     card's title or help-text input (step 8). An idle card with an error on its label or description marks that
+     input as invalid, and the input is described by the message under the title.
    - On narrow screens, the card shows its title and help text as text, and a tap anywhere on it selects it and
      opens the sheet (step 3, Q18).
 
@@ -374,12 +395,12 @@ New, non-breaking. Part of the FormTemplate shapes in SPEC-0001 §7.
 | Editor fields | only system fields | Hint "Adicione campos para coletar mais informações" | `forms.fields.onlySystem` |
 | Field card | idle | Label as title, help text if any, answer preview (§4.6 step 2). On wide screens the title and help text are inputs edited in place, named "Rótulo de <name>" and "Texto de ajuda de <name>", with the type name as the title's placeholder while the label is empty and "Adicionar descrição" while the description is empty; read-only while the editor saves (§4.6 step 12) | `forms.fields.answerPreview`, `forms.fields.inlineLabel`, `forms.fields.inlineHelpText`, `forms.fields.types.*`, `forms.fields.descriptionPlaceholder` |
 | Field card | selected | Highlighted while its settings panel is open (§4.6 step 3) | — |
-| Settings panel | open | Beside the card, or a sheet on narrow screens (§4.6 step 6). Label, description and options inputs, then the settings (§4.6 step 4). The rest of the page does not respond, and a click outside only closes the panel (§4.6 steps 5 and 10) | `forms.fields.panelTitle`, `forms.fields.close`, `forms.fields.descriptionPlaceholder` |
+| Settings panel | open | Beside the card, or a sheet on narrow screens (§4.6 step 6). On narrow screens, label, description and options inputs, then the settings; on wide screens, the options input then the settings, with no label or description input (§4.6 step 4). While it is open on a wide screen, its card shows the title and help text as text (§4.6 step 12). The rest of the page does not respond, and a click outside only closes the panel (§4.6 steps 5 and 10) | `forms.fields.panelTitle`, `forms.fields.close`, `forms.fields.descriptionPlaceholder` |
 | Settings panel | system field | "Sistema" badge on the card; no Remover; no Dado protegido; Tipo and fixed switches disabled | `forms.fields.systemBadge` |
 | Settings panel | protected locked by type | Switch ON + disabled + tooltip | `forms.fields.sensitiveLockedType` |
 | Settings panel | protected locked by label | Switch ON + disabled + tooltip | `forms.fields.sensitiveLockedLabel` |
 | Field card | type changed on a published field | Warning inside the card, and under "Tipo" in the panel (4.2 step 4) | `forms.fields.typeChangeWarning` |
-| Field card | validation error | First error with a control: its card's panel or sheet opens, with focus and the message on the invalid control (§4.6 step 8). No control: no card is selected, the message goes under the title on wide screens or into an error toast on narrow screens, and the card takes focus (§4.6 step 9). Other cards with errors: highlighted, first message under the title; on wide screens, an idle card's title or help-text input that holds an error is marked invalid and described by that message (§4.6 step 12) | `validation.*` |
+| Field card | validation error | First error with a control: its card's panel or sheet opens, with focus and the message on the invalid control (§4.6 step 8). On wide screens, a first error on the label or description opens no panel: focus goes to that card's title or help-text input, marked invalid and described by the message under the title (§4.6 steps 8 and 12). No control: no card is selected, the message goes under the title on wide screens or into an error toast on narrow screens, and the card takes focus (§4.6 step 9). Other cards with errors: highlighted, first message under the title; on wide screens, an idle card's title or help-text input that holds an error is marked invalid and described by that message (§4.6 step 12) | `validation.*` |
 | Field card | dragging | Placeholder gap, others shift | — |
 | Remove dialog | field has answers | Explanation (4.5 step 3) | `forms.fields.removeWithAnswers` |
 | Options editor | fewer than 2 options | [Salvar] shows `fieldOptions.required` inline | `validation.fieldOptions.required` |
@@ -406,11 +427,13 @@ New, non-breaking. Part of the FormTemplate shapes in SPEC-0001 §7.
 | 15 | ~~Below which screen width does the panel become a sheet?~~ | **Decided (owner, 2026-11-16):** below 1024 px, RNF-16's `lg` breakpoint (64rem). Beside the card, the panel needs room for both. The app sidebar still switches at 768 px. | — |
 | 16 | ~~What does the answer preview show?~~ | **Decided (owner, 2026-11-16):** a box with "Resposta" for one-line types, a taller one for "Texto longo", "Sim" and "Não" for `yes_no`, and the options for `select`. It cannot be filled in. | — |
 | 17 | ~~Does turning "Texto de ajuda" OFF clear the help text, or only hide it?~~ | **Decided (owner, 2026-11-16):** it clears it. What is hidden in the editor is not shown to clients either, so it is not stored. | — |
-| 18 | ~~On narrow screens, where are the description input and the `select` options editor? Can the label still be edited in the card?~~ | **Decided (owner, 2026-11-16):** all editing is in the sheet: label, description and options. On narrow screens the card only displays, and tapping it selects it and opens the sheet. **Extended in v1.12 (owner, 2026-11-17):** wide screens too: all editing is in the panel. **Narrowed in v1.19 (owner, 2026-11-17), approved 2026-11-17:** on wide screens an idle card's title and help text are edited in place (§4.6 step 12). On narrow screens the card still only displays. | — |
+| 18 | ~~On narrow screens, where are the description input and the `select` options editor? Can the label still be edited in the card?~~ | **Decided (owner, 2026-11-16):** all editing is in the sheet: label, description and options. On narrow screens the card only displays, and tapping it selects it and opens the sheet. **Extended in v1.12 (owner, 2026-11-17):** wide screens too: all editing is in the panel. **Narrowed in v1.19 (owner, 2026-11-17), approved 2026-11-17:** on wide screens an idle card's title and help text are edited in place (§4.6 step 12). On narrow screens the card still only displays. **Narrowed in v1.26 (owner, 2026-11-18), approved 2026-11-18:** on wide screens the label and description are edited only in place; the panel has neither input (§4.6 step 4). Narrow screens are unchanged. | — |
 | 19 | ~~Does the page scroll while a settings panel is open?~~ | **Decided (owner, 2026-11-17):** no. The panel stays beside its card, and a panel taller than the screen scrolls on its own. Before a panel opens, the page scrolls its card into view (§4.6 step 3). On narrow screens the sheet already covers the page. | — |
 | 20 | ~~While the label is empty, what does an idle card's title input show on wide screens?~~ | **Decided (owner, 2026-11-17):** the type name as its placeholder, as the card title shows it today. | — |
 | 21 | ~~On wide screens, in what order does Tab reach a card and its inputs?~~ | **Decided (owner, 2026-11-17):** the card, then its title input, then its help-text input, then the next card. | — |
 | 22 | ~~After Enter or Escape in an idle card's title or help-text input, where is focus?~~ | **Decided (owner, 2026-11-17):** it stays in the input. | — |
+| 23 | ~~The owner decided, for wide screens, that a new field's label starts as "Texto curto" with its whole text selected (2026-11-18). Does the same apply on narrow screens, in the sheet's label input?~~ | **Decided (owner, 2026-11-18):** yes. A field's starting values do not depend on screen width, as "Texto de ajuda" OFF does not. The sheet's label input shows "Texto curto", fully selected. | — |
+| 24 | ~~A new field keeps its "Texto curto" label when its type is changed before it is renamed (no rule changes a label on a type change, §4.2). Should an untouched label follow the type instead?~~ | **Decided (owner, 2026-11-18):** no. The label stays as typed or as prefilled. | — |
 
 ## 10. Acceptance criteria
 
@@ -811,22 +834,27 @@ screen is below 1024 px and a "wide" one is 1024 px or more (Q15).
 
 _AC-0002-54 amended in v1.12, approved 2026-11-17. Before: the card showed the "Adicionar descrição" input, and focus was on the card's label input._
 
+_AC-0002-54 amended in v1.26 (owner, 2026-11-18), approved 2026-11-18. Before: "Then a "Texto curto" card is appended after the last field and is the selected card / And its settings panel is open beside it / And "Texto de ajuda" is ON and the panel shows an empty "Adicionar descrição" input / And focus is on the panel's label input"._
+
 ```
 AC-0002-54
 Given the editor of a client template on a wide screen
 When  the owner presses [Novo campo]
-Then  a "Texto curto" card is appended after the last field and is the selected card
-And   its settings panel is open beside it
-And   "Texto de ajuda" is ON and the panel shows an empty "Adicionar descrição" input
-And   focus is on the panel's label input
+Then  a "Texto curto" card is appended after the last field
+And   no settings panel is open and no card is selected
+And   focus is on the new card's title input, which shows "Texto curto" with its whole text selected
+And   the card shows no help-text input
 ```
+
+_AC-0002-55 amended in v1.26 (owner, 2026-11-18, §9 Q23), approved 2026-11-18. Before: "And the sheet's first control is the label input, and it has focus"._
 
 ```
 AC-0002-55
 Given the editor of a client template on a narrow screen
 When  the owner presses [Novo campo]
 Then  the settings panel of the new field opens as a sheet
-And   the sheet's first control is the label input, and it has focus
+And   the sheet's first control is the label input, which shows "Texto curto" with its whole text selected and has focus
+And   "Texto de ajuda" is OFF and the sheet shows no "Adicionar descrição" input
 ```
 
 ```
@@ -861,12 +889,15 @@ _AC-0002-59 amended in v1.12, approved 2026-11-17. Before: "Given the editor wit
 
 _AC-0002-59 amended in v1.19, approved 2026-11-17. Before: "When the owner clicks the card "Objetivo"", because the card had no inputs (§4.6 step 12)._
 
+_AC-0002-59 amended in v1.26 (owner, 2026-11-18), approved 2026-11-18. Before: "And the panel shows the label input, the "Adicionar descrição" input, "Obrigatório", …"._
+
 ```
 AC-0002-59
 Given the editor on a wide screen with the custom "text" field "Objetivo", help text "Conte o que você espera", and no settings panel open
 When  the owner clicks the card "Objetivo" outside its title and help-text inputs
 Then  "Objetivo" is the selected card and its settings panel "Configurações do campo" is open beside it
-And   the panel shows the label input, the "Adicionar descrição" input, "Obrigatório", "Texto de ajuda", "Dado protegido", "Tipo", "Mover" and "Remover" in that order
+And   the panel shows "Obrigatório", "Texto de ajuda", "Dado protegido", "Tipo", "Mover" and "Remover" in that order
+And   the panel shows no label input and no "Adicionar descrição" input
 ```
 
 _AC-0002-60 amended in v1.12, approved 2026-11-17. Before: "Then the panel closes / And focus is on the "⋯" button of the card "Objetivo""._
@@ -889,11 +920,13 @@ Then  the update request lists the custom fields in the order "C", "A", "B"
 
 _AC-0002-62 amended in v1.12, approved 2026-11-17. Before: "And card "C" is selected / When the owner presses the mouse inside the label input of card "C" and moves the pointer above card "A""._
 
+_AC-0002-62 amended in v1.26 (owner, 2026-11-18), approved 2026-11-18, because the wide-screen panel has no label input. Before: "When the owner presses the mouse inside the panel's label input …"._
+
 ```
 AC-0002-62
 Given the editor on a wide screen with custom fields "A", "B" and "C", in that order after the system fields
 And   the settings panel of card "C" is open
-When  the owner presses the mouse inside the panel's label input and moves the pointer above card "A"
+When  the owner presses the mouse on the panel's title "Configurações do campo" and moves the pointer above card "A"
 Then  the cards stay in the order "A", "B", "C"
 ```
 
@@ -914,13 +947,15 @@ And   the cards stay in the order "A", "B", "C"
 
 _AC-0002-65 amended in v1.12, approved 2026-11-17. Before: "And card "Profissão" is selected … Then card "Objetivo" is the selected card / And its label input shows …", with the label input on the card._
 
+_AC-0002-65 amended in v1.26 (owner, 2026-11-18), approved 2026-11-18. Before: "Then the settings panel of card "Objetivo" is open / And the panel's label input shows the message of validation.fieldLabel.required and has focus"._
+
 ```
 AC-0002-65
 Given the editor on a wide screen with custom fields "Profissão" at index 3 and "Objetivo" at index 4
 And   no settings panel is open
 When  the owner presses [Salvar] and the save is stopped by fieldLabel.required at fields.4.label
-Then  the settings panel of card "Objetivo" is open
-And   the panel's label input shows the message of validation.fieldLabel.required and has focus
+Then  no settings panel is open and no card is selected
+And   the title input of the card at index 4 has focus, is marked invalid and is described by the message of validation.fieldLabel.required under its title
 ```
 
 ```
@@ -1070,17 +1105,21 @@ Then  the card's title input shows "Objetivo" and has focus
 And   no settings panel is open
 ```
 
+_AC-0002-82 amended in v1.26 (owner, 2026-11-18), approved 2026-11-18, because a new field no longer opens its panel and starts with "Texto de ajuda" OFF. Before: "When the owner presses [Novo campo] and then closes the new field's settings panel with Escape"._
+
 ```
 AC-0002-82
 Given the editor of a client template on a wide screen
-When  the owner presses [Novo campo] and then closes the new field's settings panel with Escape
+When  the owner presses [Novo campo], clicks the new card outside its title input, turns "Texto de ajuda" ON in its settings panel and closes the panel with Escape
 Then  the new card shows an empty help-text input whose placeholder is the copy of forms.fields.descriptionPlaceholder
 ```
+
+_AC-0002-83 amended in v1.26 (owner, 2026-11-18), approved 2026-11-18, because a new field's label now starts as "Texto curto". Before: "When the owner presses [Novo campo] and then closes the new field's settings panel with Escape"._
 
 ```
 AC-0002-83
 Given the editor of a client template on a wide screen
-When  the owner presses [Novo campo] and then closes the new field's settings panel with Escape
+When  the owner presses [Novo campo] and deletes the whole text of the new card's title input
 Then  the new card's title input is empty and shows "Texto curto" as its placeholder
 ```
 
@@ -1120,13 +1159,15 @@ And   no card is selected
 And   the title input of the card "Objetivo" does not have focus
 ```
 
+_AC-0002-88 amended in v1.26 (owner, 2026-11-18), approved 2026-11-18, because the wide-screen panel has no label input, and because a new field's title input now starts with "Texto curto". Before: "When the owner types "CPF do responsável" into the card's title input … / And the panel's label input shows "CPF do responsável""._
+
 ```
 AC-0002-88
 Given the editor on a wide screen with a new custom "text" field card idle and no settings panel open
-When  the owner types "CPF do responsável" into the card's title input and then clicks the card outside its inputs
+When  the owner replaces the text in the card's title input with "CPF do responsável" and then clicks the card outside its inputs
 Then  the card's settings panel is open
-And   the panel's label input shows "CPF do responsável"
-And   its "Dado protegido" switch is ON and disabled, with the tooltip of copy key forms.fields.sensitiveLockedLabel
+And   the card's title shows "CPF do responsável"
+And   the panel's "Dado protegido" switch is ON and disabled, with the tooltip of copy key forms.fields.sensitiveLockedLabel
 ```
 
 ```
@@ -1152,13 +1193,14 @@ Then  the title input's accessible name is the copy of forms.fields.inlineLabel 
 And   the help-text input's accessible name is the copy of forms.fields.inlineHelpText for "Objetivo" ("Texto de ajuda de Objetivo")
 ```
 
+_AC-0002-92 amended in v1.26 (owner, 2026-11-18), approved 2026-11-18. Before: "Then the settings panel of the card at index 3 is open / And the card at index 4 is not selected / And its title input is marked invalid …"._
+
 ```
 AC-0002-92
 Given the editor on a wide screen with custom "text" fields at index 3 and index 4, both with an empty label, and no settings panel open
 When  the owner presses [Salvar] and the save is stopped by fieldLabel.required at fields.3.label and at fields.4.label
-Then  the settings panel of the card at index 3 is open
-And   the card at index 4 is not selected
-And   its title input is marked invalid and is described by the message of validation.fieldLabel.required
+Then  no settings panel is open and the title input of the card at index 3 has focus
+And   the title input of the card at index 4 is marked invalid and is described by the message of validation.fieldLabel.required
 ```
 
 ```
@@ -1175,6 +1217,59 @@ When  the owner presses [Salvar] and the request has not returned yet
 Then  the title input of the card "Objetivo" is read-only
 ```
 
+### Criteria added in v1.26 (approved 2026-11-18)
+
+From the wide-screen panel without text inputs (owner, 2026-11-18): §4.1 step 2, and §4.6 steps 4, 7, 8 and 12.
+AC-0002-54, -55, -59, -62, -65, -82, -83, -88 and -92 were amended for the same change. AC-0002-100 was added in
+v1.27 from the spec review.
+
+```
+AC-0002-95
+Given the editor on a wide screen with the custom "text" field "Objetivo", help text "Conte o que você espera", and no settings panel open
+When  the owner clicks the card "Objetivo" outside its title and help-text inputs
+Then  its settings panel is open
+And   the card shows "Objetivo" and "Conte o que você espera" as text, with no title input and no help-text input
+```
+
+```
+AC-0002-96
+Given the editor of a client template on a wide screen
+When  the owner presses [Novo campo] and types "Profissão"
+Then  the new card's title input shows "Profissão"
+```
+
+```
+AC-0002-97
+Given the editor on a wide screen of an existing template with no records
+When  the owner presses [Novo campo], presses [Salvar] and confirms [Publicar]
+Then  the update request sends the new field with label "Texto curto", type "text" and helpText null
+```
+
+```
+AC-0002-98
+Given the editor of a new client template on a wide screen with no custom fields
+When  the owner presses [Novo campo] twice and presses [Salvar]
+Then  the response is 422 with { "error": "fieldLabel.duplicate", "field": "fields.4.label" }
+And   no settings panel is open and no card is selected
+And   the title input of the card at index 4 has focus, is marked invalid and is described by the message of validation.fieldLabel.duplicate under its title
+```
+
+```
+AC-0002-99
+Given the editor on a wide screen with custom fields "Profissão" at index 3 and "Objetivo" at index 4, "Objetivo" with help text
+And   no settings panel is open
+When  the owner presses [Salvar] and the save is stopped by fieldHelpText.max at fields.4.helpText
+Then  no settings panel is open and no card is selected
+And   the help-text input of the card at index 4 has focus, is marked invalid and is described by the message of validation.fieldHelpText.max under its title
+```
+
+```
+AC-0002-100
+Given the editor of a client template on a narrow screen
+When  the owner presses [Novo campo] and turns "Texto de ajuda" ON in the new field's sheet
+Then  the sheet shows an empty description input whose placeholder is the copy of forms.fields.descriptionPlaceholder
+```
+
 ### Withdrawn criteria
 
 Withdrawn IDs are never reused.
@@ -1183,6 +1278,234 @@ Withdrawn IDs are never reused.
   exist; template versions replaced them (D-10, R10–R11).
 
 ## 11. Implementation plan
+
+### Wide-screen panel amendment (v1.28)
+
+Drafted by `/plan` on 2026-11-18 for the v1.26–v1.27 amendment, approved in v1.28 (§4.1 step 2; §4.6 steps 4, 7, 8
+and 12; §8; Q18, Q23, Q24; AC-0002-54, -55, -59, -62, -65, -82, -83, -88 and -92 amended; AC-0002-95 to -100
+added). Revised after the plan review, with the owner's pick of 2026-11-18 (v1.30). **Approved by the owner on
+2026-11-18**, with Decisions 7 as written (the switch-row edit is finished here). Only the editor's field list changes. Contracts, database, API and copy stay as
+they are. It builds on the editing-in-place amendment below (implemented), and keeps its structure: display cards
+with a cover button and inline title and help-text boxes, the modal popover, and the one-open-card state in the
+list.
+
+Starting point. Part of this amendment was built before the spec allowed it:
+- Commit b50aa4d already hides the label and description inputs in the wide popover (`showTextInputs={!wide}` in
+  `field-list.tsx`). That makes 8 W-fld tests fail: AC-0002-10, -54, -59, -62, -65, -72, -88 and "§8 after a server
+  field error, fixing another row and pressing Salvar sends the request".
+- An uncommitted edit to `field-settings.tsx` turns each switch row's text into a `<label>` (Decisions 7).
+- Nothing else in v1.26 is built.
+
+#### Scope
+
+`task-lock.sh` reads the first `scope` block of the file, so this block is the lock while this amendment is
+implemented.
+
+```scope
+apps/web/src/app/*/orgs/*/forms/_components/fields/*
+apps/web/tests/form-fields*
+docs/specs/SPEC-0002-campos-de-formulario.md
+```
+
+Not in scope:
+- `packages/i18n`. The prefilled label is `forms.fields.types.text` ("Texto curto", en-US "Short text"), which
+  already exists. No key is added or removed.
+- `popover.tsx` and `sheet.tsx`. `initialFocus` already takes a function, and its `true` fallback gives base-ui's
+  default, the first tabbable control (Decisions 6).
+- `form-editor.tsx`. It already turns the first field error of a save, from the schema or from a 422, into the
+  list's `reveal`. The list decides what to do with it.
+- `packages/schemas`. `FieldInput.helpText` is already `.nullish()`, and `null` already means OFF (§7).
+
+The SPEC-0001 tests (`form-editor.test.tsx`, `form-dialogs.test.tsx`, `forms-list.test.tsx`) are not in scope, and
+they must still pass.
+
+#### Contracts
+
+None. A new field is sent with `helpText: null`, as a field whose switch was turned OFF is (AC-0002-56, -68).
+
+#### Persistence
+
+None.
+
+#### API
+
+None. The 422 of AC-0002-98 is the existing `fieldLabel.duplicate` of the create path. Labels are checked for
+duplicates only on the server (AC-0002-11).
+
+#### Web
+
+All paths are under `apps/web/src/app/[lang]/(private)/orgs/[tenant]/forms/_components/fields/`.
+
+1. **New field** (`field-model.ts`). `newField(label)` takes the label and returns `{ label, type: "text",
+   required: false, helpText: null }`: the type name as the label, and help text OFF (§4.1 step 2, §4.6 step 7). The
+   comment that says help text starts ON goes.
+2. **List** (`field-list.tsx`):
+   - [Novo campo] appends `newField(t("types.text"))` and sets `addedNew`, as now. The click handler cannot keep the
+     new row's key, because `append` creates it.
+   - The effect that runs after the append reads the key from `rows.at(-1).rowKey` and stores it as `selectKey`, the
+     input to select on its first focus (Web 4). Then:
+     - Wide screens: no panel opens. The new card's title box, `[data-error-slot="label"]` inside the card, is
+       queued for focus (AC-0002-54).
+     - Narrow screens: `openCard(key)` as now, so the sheet opens on its label input (AC-0002-55).
+   - `pendingFocus` holds `{ key, selector }` instead of a key, so it can focus a card's title or help-text box as
+     well as its cover button. The cover button stays the default.
+   - `pendingFocus` is cleared only once its element is found and focused, or once its card is no longer in the
+     list. Today the effect clears it before the lookup. That drops the new card's focus, because the card is not
+     rendered in the render that follows the append. `values` comes from `useWatch`, and react-hook-form updates it
+     only in `useFieldArray`'s own effect after that render, so the list skips the row (it has no value yet). A
+     target that is not found yet stays queued for the next render.
+   - `reveal`: the slot check passes `wide` (Web 3). On wide screens, a label or help-text error now has no panel
+     control. It takes the no-control branch with no toast, as today on wide screens, and focuses
+     `[data-error-slot="<slot>"]` inside the card instead of the cover button (AC-0002-65, -92, -98, -99). Every
+     other slot is unchanged, and so is the narrow screen.
+   - `selectOnFocus` goes to the new row's card on wide screens, and to `FieldSettings` on narrow screens.
+     `onSelected` clears `selectKey`.
+   - `showTextInputs={!wide}` stays.
+3. **Errors and card** (`field-card/field-card-errors.ts`, `field-card/field-card.tsx`):
+   - `slotHasControl(slot, field, wide)`: on wide screens, `label` and `helpText` have no control in the panel.
+   - The card passes `wide`. A selected card on a wide screen then keeps a label or help-text message under its
+     title, because the panel has no input to show it under (§4.6 step 8: no error is shown only by color).
+   - The card forwards `selectOnFocus` and `onSelected` to its title box.
+   - `isPanelSlot` is only re-exported and is not used. It stays: removing it is outside this amendment.
+4. **Select on first focus** (`field-card/field-inline-input.tsx`, `field-card/field-text-inputs.tsx`). Both take
+   optional `selectOnFocus` and `onSelected`. While `selectOnFocus` is set, focus calls `select()` on the input and
+   then `onSelected()`. This works the same whether the list focuses the card's title box or base-ui focuses the
+   sheet's label input. The inline box still takes its Escape snapshot on focus.
+5. **Panel content** (`field-settings.tsx`):
+   - It passes `selectOnFocus` and `onSelected` to `FieldTextInputs` (narrow screens only, through
+     `showTextInputs`).
+   - It finishes the owner's uncommitted switch-row edit (Decisions 7). The row's `<label>` keeps `id={labelId}`,
+     and the inner `<span>` loses it, so the id is no longer duplicated.
+   - Each switch gets its own id: `-required-switch`, `-help-switch` and `-sensitive-switch`. Today the help switch
+     carries the required one's id, the required switch has none, and `sensitiveSwitch` repeats the `sensitive`
+     label id.
+   - The unused imports `tr` (`zod/v4/locales`) and `cn` go. They are the two lint warnings in this file today.
+
+#### Tests
+
+All in W-fld (`apps/web/tests/form-fields.test.tsx`). `labelInput(label)` finds the panel's "Rótulo" textbox, so it
+now works only on narrow screens. Wide-screen tests use the existing `inlineTitle(card)` and `inlineHelp(card)`. The
+selection is checked with `selectionStart === 0` and `selectionEnd === value.length`.
+
+The last column says what each test does on today's code, before Web 2–5. **Fails first** tests must fail for the
+reason given. **Passes at once** tests pass on today's code, because commit b50aa4d or an earlier amendment already
+built that part. They are written and run, but the fail-first rule does not apply to them.
+
+| AC | Test | Before Web 2–5 |
+| --- | --- | --- |
+| AC-0002-54 | renamed "AC-0002-54 Novo campo on a wide screen opens no panel and focuses the new card's title with Texto curto selected" | Fails first: a panel opens, and the label starts empty |
+| AC-0002-55 | renamed "AC-0002-55 Novo campo on a narrow screen opens the sheet with focus on its label input, Texto curto selected and help text OFF" | Fails first: the label input is empty, and "Texto de ajuda" is ON |
+| AC-0002-59 | renamed "AC-0002-59 clicking a card outside its title and help-text inputs opens Configurações do campo with the six items in order and no label or description input" | Passes at once: b50aa4d already hides the panel's label and description inputs |
+| AC-0002-62 | renamed "AC-0002-62 a mouse drag that starts on the panel's title does not move the card" | Passes at once: no drag starts while a panel is open (§4.4 step 2), wherever the press starts |
+| AC-0002-65 | renamed "AC-0002-65 a label error on a wide screen focuses that card's title input, invalid and described by the message, with no panel" | Fails first: the error opens the card's panel |
+| AC-0002-72 | renamed "AC-0002-72 Tab from the panel's last control (✕) moves to its first control". The AC is unchanged. On a wide screen the first control of a "text" field is "Obrigatório" | Passes at once: b50aa4d already makes "Obrigatório" the first control |
+| AC-0002-82 | renamed "AC-0002-82 help text turned ON in a new card's panel shows an empty help-text input with the description placeholder". It checks that the switch is OFF before turning it ON | Fails first: a new field starts with "Texto de ajuda" ON |
+| AC-0002-83 | renamed "AC-0002-83 clearing a new card's title shows the type name as placeholder" | Fails first: a panel opens after [Novo campo], so the selected card has no title box |
+| AC-0002-88 | name kept; replaces the title box's text and reads the card's title | Fails first: a panel opens after [Novo campo], so the card has no title box |
+| AC-0002-92 | renamed "AC-0002-92 two label errors on a wide screen focus the first card's title input and mark the second invalid, with no panel" | Fails first: the first error opens the panel of the card at index 3 |
+| AC-0002-95 | "AC-0002-95 while its panel is open on a wide screen, a card shows its title and help text as text" | Passes at once: v1.25 already shows the selected card's title and help text as text |
+| AC-0002-96 | "AC-0002-96 typing after Novo campo replaces Texto curto in the new card's title" | Fails first: a panel opens after [Novo campo], so the card has no title box |
+| AC-0002-97 | "AC-0002-97 an untouched new field is sent with label Texto curto and helpText null" | Fails first: the panel that opens after [Novo campo] takes the first [Salvar] (AC-0002-73), and the label starts empty |
+| AC-0002-98 | "AC-0002-98 two untouched new fields stop Salvar with fieldLabel.duplicate on the second card's title input" | Fails first: the labels start empty, so [Salvar] stops on fieldLabel.required and sends no request |
+| AC-0002-99 | "AC-0002-99 a help-text error on a wide screen focuses that card's help-text input with no panel" | Fails first: the error opens the card's panel |
+| AC-0002-100 | "AC-0002-100 turning help text ON in a new field's sheet shows an empty description input". It checks that the switch is OFF before turning it ON | Fails first: a new field starts with "Texto de ajuda" ON |
+
+These ACs are unchanged, but their test bodies change:
+- **AC-0002-10:** the label is changed in the card's title box instead of the panel. Passes at once: v1.25 already
+  has the title box.
+- **"§8 after a server field error, fixing another row and pressing Salvar sends the request":** the error no
+  longer opens a panel, so the test edits "A" in place and drops the first `closePanel()`. Fails first: the label
+  error opens the panel of "B", and the message is shown nowhere.
+- **AC-0002-50:** expected to pass unchanged, because `chooseFieldType` opens the panel itself. Re-run it.
+
+Every other W-fld test is re-run with no assertion changed. Fake timers and the drag helpers stay as they are.
+
+#### Deferred checks
+
+None added. AC-0002-16, -19, -23, -24 and -26 stay deferred to SPEC-0004.
+
+#### Sequence
+
+0. **The owner commits or sets aside the uncommitted `field-settings.tsx` edit**, depending on their pick for
+   Decisions 7, and commits the spec changes of v1.26–v1.30 before `/implement`. The spec file is in scope, so the
+   spec commit is optional.
+1. **Failing tests.** The `test-author` subagent rewrites the amended tests and the changed bodies, and adds
+   AC-0002-95 to -100, as listed under Tests. Only the tests marked "Fails first" must fail before Web 2–5, each for
+   the reason given there, not for a missing helper. The tests marked "Passes at once" are written and run, and they
+   pass.
+2. **Web 1–5**, in one step, so that typecheck passes at its end.
+3. **Checks:** `pnpm --filter web lint`, `typecheck` and `test`. The API is unchanged.
+4. `/review`, then `/done`, with these manual checks for the owner:
+   1. On a wide screen, [Novo campo] selects "Texto curto" in the new card's title, and typing replaces it.
+   2. On a phone-width screen, the sheet's label input shows "Texto curto" selected.
+   3. Clicking the words "Obrigatório", "Texto de ajuda" and "Dado protegido" toggles their switches (Decisions 7,
+      Risks 1).
+   4. After a label error on a wide screen, the focused title box shows its focus ring.
+
+#### Decisions this plan makes
+
+1. **The label is filled from the type name in the editor's language**, as the spec says (§4.1 step 2). An en-US
+   editor saves "Short text".
+2. **"Select on first focus" is a flag on the input**, cleared on its first focus. It does not depend on when
+   base-ui moves focus, and it does not select the text again on later focus.
+3. **A wide-screen label or help-text error goes through the no-control branch.** The panel has no control for it
+   on wide screens. That branch already selects no card and shows no toast on wide screens. Only its focus target
+   changes, from the card to the card's box.
+4. **A selected wide card keeps a label or help-text message under its title.** The spec does not name this case
+   (a panel opened by click on a card that already has such an error). Hiding the message would leave it shown
+   only by color, which §4.6 step 8 rules out.
+5. **No new copy key.**
+6. **Panel focus on open, wide screens:** the first tabbable control. That is the first option for `select`, else
+   "Obrigatório", as AC-0002-72 already says ("the panel's first control"). This is base-ui's default when
+   `initialFocus` finds no label input.
+7. **The uncommitted switch-row edit is finished in this amendment** (Web 5). It is visual, except that clicking
+   the label text toggles the switch, which no criterion covers. The owner picked this with the plan approval,
+   2026-11-18.
+
+#### Risks
+
+1. **base-ui `Switch` and `id`.** `<label htmlFor>` toggles only a labelable element. If base-ui puts `id` on the
+   hidden checkbox, a label click may toggle that checkbox without updating the switch. If it does not forward
+   `id` at all, the label does nothing. `aria-labelledby` still names the switch, so the criteria pass either way.
+   Cheapest check: manual check 3, or a quick W-fld assertion that `label.control` is set and a click on it flips
+   `aria-checked`. If it fails, the label wraps the switch instead of pointing at it.
+2. **AC-0002-98 depends on the create request's 422** reaching `reveal`, as the preview's 422 does in the §8 tests.
+   If the create path shows a toast instead, Web 2 has to route that 422 too, and `form-editor.tsx` leaves the
+   "Not in scope" list. Cheapest check: the AC-0002-98 test in Sequence 1 shows where the message lands.
+3. **Focus right after the append.** The new card's box exists only one render after the append, once `useWatch`
+   has the new row's value (Web 2). A `pendingFocus` cleared before its element is found drops the focus without
+   any error. Web 2 keeps it queued until the element is focused. React's development double effects then focus
+   the same box twice, which is harmless. Cheapest check: if AC-0002-54 still fails on focus after Web 2, the
+   target was dropped.
+4. **AC-0002-72** keeps relying on base-ui's focus guard (Risks 5 of the modal panel amendment). Only its target
+   changes, from the label input to "Obrigatório".
+
+#### New dependencies
+
+None.
+
+#### Spec review follow-ups (not taken; the owner picks)
+
+Should-fix items 5–14 of the v1.26 spec review stay follow-ups. Decisions 1, 4 and 6 above answer items 5, 6 and 8
+for the implementation, without changing the spec.
+
+#### Plan review follow-ups (not taken; the owner picks)
+
+From the plan review of 2026-11-18. Required changes 1 and 2 were applied in v1.30.
+3. The AC-0002-96 test sets the value with `fireEvent.change`, which passes whether or not the text was selected.
+   Either add a helper that types over the current selection, or defer AC-0002-96 to manual check 1.
+4. Risks 1 can be closed: base-ui 1.8 puts `id` on the hidden checkbox, whose change calls `onCheckedChange`, so a
+   label click toggles the switch and `readOnly` blocks it.
+5. Risks 2 is answered by the code: the create path reaches `setReveal` through `showFailure` and `showFieldError`
+   in `form-editor.tsx`. State this, so that the file stays out of scope.
+6. Make Web 5 its own step and commit, so that the Decisions 7 pick can be committed or dropped on its own.
+7. The 1.29 changelog row calls Decisions 7 "the owner's pick", while Decisions 7 and Sequence 0 say the owner
+   picks at approval.
+8. The §8 test should also drop `openSettings(cardOf("A"))` and the second `closePanel()`, because an open panel
+   turns A's title box into text.
+9. Not in scope should say that `tests/forms-harness.tsx` and `tests/setup.ts` are not needed.
+10. Sequence 4 should list the manual checks still open from earlier amendments (editing in place 1–7, modal panel
+    1–5).
 
 ### Editing-in-place amendment (v1.21)
 
@@ -2427,3 +2750,10 @@ acceptance criteria.
 | 1.23 | 2026-11-17 | Plan review of "Editing-in-place amendment (v1.21)": 4 required changes applied with the owner's picks, 2026-11-17. Web 1: the inline editor is an auto-growing textarea that wraps like the card's text (Decisions 6), it does not take `focus:outline-none` so its focus ring shows, Enter is cancelled so no line break is typed, and pasted line breaks become spaces; the AC-0002-79 helper, manual check 2 and Risks 3 now describe a textarea's Enter. Web 2: an input is described by the message under the title only while its own error is set. Deferred checks: AC-0002-79, -85 and -87 are finished by manual checks 2, 6 and 4, and manual check 6 (Tab order) was added. Should-fix items also taken: i18n before the failing tests (Sequence 1), the text box's spacing matches the text, Escape is left alone during IME composition and while read-only, and the inline helpers pass `{ hidden: true }`. Follow-ups not taken: drop or justify `data-error-slot` on the inline inputs; Sequence 0 should name v1.19–v1.23. plan_status stays Draft |
 | 1.24 | 2026-11-17 | Plan approved by Joao Izidoro, 2026-11-17: §11 "Editing-in-place amendment (v1.21)" as revised in 1.23. plan_status Approved. Sequence step 0 (the owner commits the spec changes) is optional, because the spec file is in scope |
 | 1.25 | 2026-11-17 | Editing-in-place amendment implemented per §11 "Editing-in-place amendment (v1.21)". Built: on wide screens, an idle card shows its title and help text as auto-growing one-line text boxes that edit the draft in place, without selecting the card or opening the panel. They are named "Rótulo de <name>" and "Texto de ajuda de <name>" (new keys `forms.fields.inlineLabel` and `forms.fields.inlineHelpText` in pt-BR and en-US), with the type name or "Adicionar descrição" as placeholder. Enter types no line break, pasted line breaks become spaces, Escape restores the text from when the box took focus (not during IME composition or while read-only), and focus stays in the box. The boxes are read-only while the editor saves. Each is marked invalid, and described by the message under the title, only for its own error. The selected card and every card on a narrow screen keep plain text. A click elsewhere on the card still opens the panel, and a press inside a box starts no drag. All 19 criteria in scope have passing tests (W-fld 58/58): AC-0002-59 and AC-0002-77 to -94. AC-0002-79, -85 and -87 are also finished by §11 manual checks 2, 6 and 4. AC-0002-01 to -76 and the §4.4, §4.6, §7 and §8 tests still pass. Choices that change no criterion: the text box adds `min-w-[2ch]`, `rounded-sm`, a 2 px focus-ring offset and `autoComplete="off"`, and leaves out `w-auto`, which `field-sizing-content` makes unneeded. Review PASS with 3 should-fix follow-ups for the AC-0002-59 test. Deferred checks unchanged: AC-0002-16, -19, -23, -24, -26 (SPEC-0004). Status stays Approved until the owner accepts the behavior on a running system and does the §11 manual checks 1–7 of this amendment |
+| 1.26 | 2026-11-18 | Wide-screen panel without text inputs (owner, 2026-11-18), pending owner approval. On wide screens the settings panel no longer shows the label or the description input; they are edited only in place on an idle card, and the selected card shows them as text while its panel is open. Learned from commit b50aa4d, which removed both inputs from the popover while v1.25 still required them, so 8 W-fld tests fail. Owner decisions, 2026-11-18: while a panel is open the card's title and help text stay read-only; [Novo campo] on a wide screen opens no panel and focuses the new card's title input; a new field's label starts as "Texto curto", fully selected so typing replaces it; new fields start with "Texto de ajuda" OFF on every screen; a first save error on the label or description focuses the card's input with no panel. Changed: §4.1 step 2, §4.6 steps 4, 7, 8 and 12, §8 (panel open, validation error), Q18 (narrowed). Added Q23 (the prefill on narrow screens; AC-0002-55 assumed until decided) and Q24 (the label is kept on a type change). AC-0002-54, -55, -59, -62, -65, -82, -83, -88 and -92 amended; AC-0002-95 to -99 proposed. No contract or API change. Status Review and plan_status Draft until the owner approves and `/plan` writes the plan amendment |
+| 1.27 | 2026-11-18 | Spec review of v1.26: required changes 1–3 applied with the owner's pick, 2026-11-18; still pending owner approval. AC-0002-100 added: the narrow-screen sheet shows the description input once "Texto de ajuda" is turned ON, because no criterion covered it after AC-0002-54 and -59 moved to wide screens. AC-0002-88 now replaces the title text instead of typing into it, because a new field's title starts as "Texto curto". AC-0002-98 names a new template and states the 422 response with `fields.4.label`, the cleared selection and the invalid title input. Required change 4 (Q23, which blocks AC-0002-55) and Q24 wait for the owner's decision at approval. Should-fix items 5–14 stay follow-ups |
+| 1.28 | 2026-11-18 | Approved by Joao Izidoro, 2026-11-18: the v1.26 wide-screen panel amendment with the v1.27 review fixes, including AC-0002-54, -55, -59, -62, -65, -82, -83, -88 and -92 as amended and AC-0002-95 to -100 as written. Q23 and Q24 decided by the owner as proposed (the "Texto curto" prefill, fully selected, also applies in the narrow sheet; a type change keeps the label). The "pending" notes now read "approved 2026-11-18". plan_status stays Draft until `/plan` writes the plan amendment and the owner approves it. Should-fix items 5–14 stay follow-ups |
+| 1.29 | 2026-11-18 | `/plan` wrote §11 "Wide-screen panel amendment (v1.28)" for the v1.26–v1.28 amendment. Its scope block is now the first in the file. Web only: new fields start as "Texto curto" with help text OFF, [Novo campo] and label or help-text errors focus the card's box on wide screens, the text is selected on first focus, and the owner's uncommitted switch-row edit is finished (Decisions 7, the owner's pick). plan_status stays Draft until the owner approves the plan |
+| 1.30 | 2026-11-18 | Plan review of "Wide-screen panel amendment (v1.28)": required changes 1–2 applied with the owner's pick, 2026-11-18. Web 2 and Risks 3: the effect after the append reads the new row's key from `rows.at(-1)`, and `pendingFocus` stays queued until its element is found and focused, because the new card renders one render after the append. Tests and Sequence 1: each test says whether it fails first, and why, or passes at once on today's code (AC-0002-10, -59, -62, -72, -95). Should-fix items 3–10 listed under "Plan review follow-ups". plan_status stays Draft |
+| 1.31 | 2026-11-18 | Plan approved by Joao Izidoro, 2026-11-18: §11 "Wide-screen panel amendment (v1.28)" as revised in 1.30, with Decisions 7 as written (the owner's uncommitted switch-row edit is finished in this amendment, Web 5). plan_status Approved. Plan review should-fix items 3–10 stay follow-ups |
+| 1.32 | 2026-11-18 | Wide-screen panel amendment implemented per §11 "Wide-screen panel amendment (v1.28)". Built: a new field starts with the label "Texto curto" (`forms.fields.types.text`) and "Texto de ajuda" OFF, sent as `helpText: null`, and its label text is selected on its first focus. On wide screens, [Novo campo] opens no panel and focuses the new card's title box; a first save error on the label or the description opens no panel and focuses that card's title or help-text box, marked invalid and described by the message under the title; a selected card keeps such a message under its title. The popover has no label or description input, while the narrow sheet keeps both. A card focus queued in the list now waits until its control is rendered. The owner's switch-row edit was finished (Decisions 7): each switch has its own id and the label no longer repeats its id; the unused imports went. All criteria in scope have passing W-fld tests: AC-0002-54, -55, -59, -62, -65, -82, -83, -88, -92 and -95 to -100, with AC-0002-10, -72 and the §8 test retargeted; AC-0002-01 to -53 and the other v1.5–v1.19 criteria still pass. Deferred checks unchanged: AC-0002-16, -19, -23, -24, -26 (SPEC-0004). Two W-fld helpers left unused by the rewrite (`labelInput`, `shownType`) were removed. Status stays Approved until the owner accepts the behavior on a running system. Review should-fix items 1–5 stay follow-ups |
