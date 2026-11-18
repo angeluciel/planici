@@ -59,7 +59,7 @@ export function ToastProvider({
 					closeButtonAriaLabel: t("close"),
 					classNames: {
 						toast:
-							"flex w-full items-start gap-2 rounded-md border-2 border-border-input bg-surface-overlay px-3 py-2 shadow-overlay",
+							"flex w-full items-start gap-2 rounded-md border-2 bg-surface-overlay px-3 py-2 shadow-overlay",
 						title: "flex-1 font-body-sm text-text-primary",
 						closeButton:
 							"text-icon-subtle hover:bg-surface-overlay-hovered focus-visible:outline-2 focus-visible:outline-border-focused",

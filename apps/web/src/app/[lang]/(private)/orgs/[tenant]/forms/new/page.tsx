@@ -12,8 +12,6 @@ function one(value: string | string[] | undefined): string | undefined {
 	return Array.isArray(value) ? value[0] : value;
 }
 
-// /forms/new?type=client|service&from=clients|services
-// `from` locks the type and says where [Salvar] and [Cancelar] go (§4.3)
 export default async function NewFormPage({
 	searchParams,
 }: Readonly<{

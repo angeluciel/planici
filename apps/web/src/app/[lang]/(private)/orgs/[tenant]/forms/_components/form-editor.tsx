@@ -17,7 +17,6 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { type FieldPath, useWatch } from "react-hook-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -30,6 +29,7 @@ import {
 	unarchiveForm,
 	updateForm,
 } from "@/lib/api/forms";
+import { cn } from "@/lib/utils";
 import {
 	blankDraft,
 	draftFromTemplate,
@@ -260,10 +260,10 @@ function EditorBody({
 		formState: { errors },
 	} = form;
 	const draftType = useWatch({ control, name: "type" });
+	const name = useWatch({ control, name: "name" });
 	const typeLocked = Boolean(current) || Boolean(from);
 	const base = `/orgs/${tenant}`;
 	const leaveTarget = from ? `${base}/${from}` : `${base}/forms`;
-	const name = useWatch({ control, name: "name" });
 
 	const text = useCallback(
 		(key: string | undefined) =>
@@ -454,8 +454,6 @@ function EditorBody({
 		else await create(values);
 	});
 
-	// Runs the publish (and the migration, for Apply). Resolves null when the
-	// dialog should close or the failure was handled here, else an error code.
 	async function publish(
 		pending: SaveBody,
 		migration?: { mode: MigrationMode; confirmName?: string },
@@ -506,22 +504,13 @@ function EditorBody({
 	const descriptionError = errors.description?.message;
 	const typeError = errors.type?.message;
 	const descriptionId = `${baseId}-description`;
-
-	let headerText = null;
-	if (current) {
-		headerText = current.name;
-	} else if (name) {
-		headerText = name;
-	} else {
-		headerText = t("actions.new");
-	}
+	const nameId = `${baseId}-name`;
+	const headerText = current?.name || name || t("actions.new");
 
 	return (
 		<form
 			noValidate
 			onSubmit={(event) => {
-				// server errors sit on unregistered paths; handleSubmit would skip
-				// onValid while any remain, so they are dropped before it validates
 				form.clearErrors("fields");
 				return submit(event);
 			}}
@@ -529,7 +518,8 @@ function EditorBody({
 		>
 			<header className="flex flex-wrap items-start justify-between gap-3">
 				<div className="flex flex-col gap-1">
-					<h1 className="font-heading-md text-text-bold">{headerText}</h1>
+					{/* the title input is the visible heading; this keeps one for assistive tech */}
+					<h1 className="sr-only">{headerText}</h1>
 					{current && (
 						<div className="flex flex-wrap items-center gap-2">
 							<span className="rounded-sm bg-background-accent-gray-subtler px-2 font-body-xs text-text-accent-gray-bolder">
@@ -584,12 +574,63 @@ function EditorBody({
 				</div>
 			)}
 
+			<div className="flex flex-col gap-2">
+				<div className="flex flex-col">
+					<input
+						id={nameId}
+						readOnly={saving}
+						autoComplete="off"
+						placeholder={t("editor.name")}
+						aria-label={t("editor.name")}
+						aria-invalid={nameError ? true : undefined}
+						aria-describedby={nameError ? `${nameId}-error` : undefined}
+						className={cn(
+							"font-heading-lg outline-none w-full",
+							nameError ? "text-text-status-danger" : "text-text-bold",
+						)}
+						{...register("name")}
+					/>
+					{nameError && (
+						<p
+							id={`${nameId}-error`}
+							role="alert"
+							className="font-body-sm font-medium text-text-status-danger"
+						>
+							{text(nameError)}
+						</p>
+					)}
+				</div>
+
+				<div className="flex flex-col">
+					<textarea
+						id={descriptionId}
+						readOnly={saving}
+						aria-invalid={descriptionError ? true : undefined}
+						aria-describedby={
+							descriptionError ? `${descriptionId}-error` : undefined
+						}
+						className="field-sizing-content min-h-[calc(1lh+1rem)] w-full resize-none py-2 font-body-sm text-text-primary outline-none"
+						placeholder={t("editor.description")}
+						{...register("description")}
+					/>
+					{descriptionError && (
+						<p
+							id={`${descriptionId}-error`}
+							role="alert"
+							className="font-body-sm font-medium text-text-status-danger"
+						>
+							{text(descriptionError)}
+						</p>
+					)}
+				</div>
+			</div>
+
 			<fieldset
 				className="flex flex-col gap-2"
 				disabled={saving}
 				aria-describedby={typeError ? `${baseId}-type-error` : undefined}
 			>
-				<legend className="pb-1 font-body-sm text-text-primary">
+				<legend className="mb-2 font-heading-xs text-text-secondary">
 					{t("editor.type")}
 				</legend>
 				{typeLocked ? (
@@ -650,45 +691,6 @@ function EditorBody({
 					</p>
 				)}
 			</fieldset>
-
-			<Input
-				label={t("editor.name")}
-				readOnly={saving}
-				autoComplete="off"
-				status={nameError ? "error" : "default"}
-				help={text(nameError)}
-				className="min-w-0"
-				{...register("name")}
-			/>
-
-			<div className="flex flex-col">
-				<label
-					htmlFor={descriptionId}
-					className="pb-1 font-body-sm text-text-primary"
-				>
-					{t("editor.description")}
-				</label>
-				<textarea
-					id={descriptionId}
-					rows={3}
-					readOnly={saving}
-					aria-invalid={descriptionError ? true : undefined}
-					aria-describedby={
-						descriptionError ? `${descriptionId}-error` : undefined
-					}
-					className="w-full rounded-md border-2 border-border-input bg-transparent px-2 py-2 font-body-sm text-text-bold focus:border-border-focused focus:outline-none"
-					{...register("description")}
-				/>
-				{descriptionError && (
-					<p
-						id={`${descriptionId}-error`}
-						role="alert"
-						className="font-body-sm font-medium text-text-status-danger"
-					>
-						{text(descriptionError)}
-					</p>
-				)}
-			</div>
 
 			{/* field list: SPEC-0002 */}
 			{draftType === "" ? (
