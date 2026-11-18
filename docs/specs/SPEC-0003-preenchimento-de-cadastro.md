@@ -2,8 +2,8 @@
 id: SPEC-0003
 title: Preenchimento de cadastro a partir de modelo
 status: Approved # Draft | Review | Approved | Implemented | Superseded
-plan_status: Draft # Draft | Approved
-version: 1.2
+plan_status: Approved # Draft | Approved
+version: 1.3
 owner: Joao Izidoro
 satisfies: [RF-40, RF-41, RF-42, RN-01, RN-02, RN-20, RN-21, RNF-07]
 depends_on: [SPEC-0001, SPEC-0002]
@@ -1003,7 +1003,7 @@ Then  "Diagnóstico" shows "••••••" again
 
 Drafted by `/plan` on 2026-11-10 against SPEC-0001's and SPEC-0002's plans, before any forms code existed. Revised by
 `/plan` on 2026-11-18 against the code of SPEC-0001 and SPEC-0002, both Implemented (Revision against the code).
-`plan_status: Draft` until the owner approves it.
+Approved by Joao Izidoro on 2026-11-18 (1.3).
 
 ### Revision against the code (2026-11-18)
 
@@ -1672,3 +1672,4 @@ None. Masks, CPF check digits and the DDD list are written here. next-intl, `nod
 | 1.0 | 2026-11-09 | Approved by Joao Izidoro, 2026-11-09, with all 96 criteria agreed |
 | 1.1 | 2026-11-18 | Implementation plan revised by `/plan` against the code of SPEC-0001 and SPEC-0002, both Implemented (§11 "Revision against the code", C-1 to C-16). G-1 to G-4 hold in the code, so Risks 1 is closed. Names and paths updated (record tables file, cipher token, `ValidationError`, `TenantTransaction`, fixtures, `getForm` and `getFormVersion`, `ApiFailure` results, `Input` and `Select` APIs, `useLeaveGuard` and `LeaveDialog`, `useFieldError`, `useFormatter`, the web test script). New Decisions 13 (an optional `select` has a "—" choice) and 14 (`LeaveDialog` imported, not moved). Every criterion is mapped (Tests, Deferred checks); none changed; scope unchanged. plan_status Draft |
 | 1.2 | 2026-11-18 | Plan review (2026-11-18): required changes 1–3 applied. 1: the R7 race test and Risks 9 now say `ctx.pool` is the app's own 2-connection pool; new rule "One connection per call" (API) and Risks 10 (pool starvation). 2: G-8 marked "decided with plan approval", since rely-on point 3 already fixes the client order. 3: the Risks 7 (Observe error capture) and Risks 5 (SPEC-0004 plan against the rely-on list) checks are now gates at the start of Sequence steps 4 and 5. Should-fix items (Decision 7 names `Intl` instead of `useFormatter`; the wrong-type path of an address part) stay follow-ups. plan_status Draft |
+| 1.3 | 2026-11-18 | Plan approved by Joao Izidoro, 2026-11-18: §11 as revised in 1.1 and 1.2. This also decides G-8 (SPEC-0004's check order for clients), Decisions 1–14 and the proposed copy. G-9 stays open. Plan review should-fix items (Decision 7 naming; the wrong-type path of an address part) stay follow-ups. Before step 1 the owner checks the DDD list (Risks 6). plan_status Approved |
