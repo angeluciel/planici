@@ -551,6 +551,7 @@
 			"helpText": "Help text",
 			"inlineLabel": "Label for {name}",
 			"inlineHelpText": "Help text for {name}",
+			"requiredMark": "required",
 			"options": "Options",
 			"addOption": "Add option",
 			"panelTitle": "Field settings",

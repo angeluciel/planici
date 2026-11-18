@@ -1,5 +1,5 @@
 // W-fld: SPEC-0002 AC-0002-01, -10, -14, -21, -22, -25, -48, -49, -50, -53 to -67,
-// -69 to -76, -95 to -100 (field cards and the modal settings panel inside SPEC-0001's
+// -69 to -76, -95 to -105 (field cards and the modal settings panel inside SPEC-0001's
 // editor; network faked by forms-harness).
 import {
 	act,
@@ -1892,6 +1892,147 @@ describe("FormEditor field list (W-fld)", () => {
 		expect(description.value).toBe("");
 		expect(description.getAttribute("placeholder")).toBe(
 			t("fields.descriptionPlaceholder"),
+		);
+	});
+
+	// ---- required marker (SPEC-0002 v1.34)
+	// Contract (plan section 11, Required-marker amendment): the mark is
+	// <span aria-hidden="true" data-required-mark>*</span> in
+	// text-text-status-danger. On the read-only title it sits inside the title
+	// <p> after the text; on an idle wide card it is the next sibling of the
+	// inline title box. The cover button's aria-describedby lists the error id
+	// (when a message is under the title), then a card-specific required id whose
+	// text is forms.fields.requiredMark.
+
+	/** The card's "*" element, or null. */
+	const requiredMark = (card: HTMLElement) =>
+		card.querySelector<HTMLElement>("[data-required-mark]");
+
+	/** The text of the elements the element's aria-describedby lists, in order. */
+	const description = (element: HTMLElement) =>
+		(element.getAttribute("aria-describedby") ?? "")
+			.split(" ")
+			.filter(Boolean)
+			.map((id) => document.getElementById(id)?.textContent ?? "")
+			.join(" ");
+
+	it("AC-0002-101 on a wide screen, a required card shows a red * after its title input and an optional one shows none", async () => {
+		setScreen("wide");
+		await openExisting([field({ label: "Profissão", type: "text" })]);
+
+		const system = requiredMark(idleCard("Nome completo"));
+		expect(system).not.toBeNull();
+		expect(system?.textContent).toBe("*");
+		expect(system?.classList.contains("text-text-status-danger")).toBe(true);
+		expect(inlineTitle(idleCard("Nome completo")).nextElementSibling).toBe(
+			system,
+		);
+		expect(requiredMark(idleCard("Profissão"))).toBeNull();
+	});
+
+	it("AC-0002-102 on a narrow screen, a required card shows a red * after its title", async () => {
+		setScreen("narrow");
+		await openExisting([
+			field({ label: "Profissão", type: "text", required: true }),
+		]);
+
+		const card = idleCard("Profissão");
+		const mark = requiredMark(card);
+		expect(mark).not.toBeNull();
+		expect(mark?.textContent).toBe("*");
+		expect(mark?.classList.contains("text-text-status-danger")).toBe(true);
+		const title = mark?.parentElement as HTMLElement;
+		expect(title.tagName).toBe("P");
+		expect(title.textContent).toBe("Profissão*");
+		expect(mark?.previousSibling?.textContent).toBe("Profissão");
+	});
+
+	it("AC-0002-103 turning Obrigatório ON shows the * on the card before any save", async () => {
+		setScreen("wide");
+		const tpl = await openExisting([
+			field({ label: "Profissão", type: "text" }),
+			field({ label: "Objetivo", type: "text", required: true }),
+		]);
+		expect(requiredMark(cardOf("Profissão"))).toBeNull();
+		// the required field's panel is open: the switch keeps its own name
+		await switchIn(cardOf("Objetivo"), t("fields.required"));
+		await closePanel();
+
+		const toggle = await switchIn(cardOf("Profissão"), t("fields.required"));
+		expect(isOn(toggle)).toBe(false);
+		fireEvent.click(toggle);
+
+		await waitFor(() => expect(isOn(toggle)).toBe(true));
+		const mark = requiredMark(cardOf("Profissão"));
+		expect(mark).not.toBeNull();
+		expect(mark?.textContent).toBe("*");
+		expect(mark?.parentElement?.tagName).toBe("P");
+		expect(mark?.parentElement?.textContent).toBe("Profissão*");
+		expect(callsTo("PATCH", `/api/forms/${tpl.id}`)).toHaveLength(0);
+		expect(callsTo("POST", previewUrl(tpl.id))).toHaveLength(0);
+	});
+
+	it("AC-0002-104 turning Obrigatório OFF removes the * from the card", async () => {
+		setScreen("wide");
+		const tpl = await openExisting([
+			field({ label: "Profissão", type: "text", required: true }),
+		]);
+		expect(requiredMark(cardOf("Profissão"))).not.toBeNull();
+		const toggle = await switchIn(cardOf("Profissão"), t("fields.required"));
+		expect(isOn(toggle)).toBe(true);
+		expect(requiredMark(cardOf("Profissão"))).not.toBeNull();
+
+		fireEvent.click(toggle);
+
+		await waitFor(() => expect(isOn(toggle)).toBe(false));
+		expect(requiredMark(cardOf("Profissão"))).toBeNull();
+		expect(callsTo("PATCH", `/api/forms/${tpl.id}`)).toHaveLength(0);
+		expect(callsTo("POST", previewUrl(tpl.id))).toHaveLength(0);
+	});
+
+	it("AC-0002-105 a required card keeps its label as its name, is described as required, and hides the * from assistive technology", async () => {
+		setScreen("wide");
+		await openExisting([
+			field({ label: "Profissão", type: "text", required: true }),
+		]);
+
+		const card = idleCard("Profissão");
+		expect(card.getAttribute("aria-label")).toBe("Profissão");
+		const cover = coverButton(card);
+		expect(description(cover)).toBe(t("fields.requiredMark"));
+		const mark = requiredMark(card);
+		expect(mark?.getAttribute("aria-hidden")).toBe("true");
+		const title = inlineTitle(card);
+		expect(title.hasAttribute("required")).toBe(false);
+		expect(title.hasAttribute("aria-required")).toBe(false);
+	});
+
+	it("AC-0002-105 a required card with a message under its title is described by the message, then as required", async () => {
+		setScreen("wide");
+		const tpl = await openExisting([
+			field({ label: "Profissão", type: "text", required: true }),
+		]);
+		failPreview(tpl.id, "fieldOptions.not-allowed", "fields.3.options");
+		renameTemplate("Ficha 2");
+
+		fireEvent.click(save());
+
+		const message = await screen.findByText(
+			tValidation("fieldOptions.not-allowed"),
+		);
+		const card = cards()[3] as HTMLElement;
+		expect(card.contains(message)).toBe(true);
+		const cover = coverButton(card);
+		const ids = (cover.getAttribute("aria-describedby") ?? "").split(" ");
+		expect(ids).toHaveLength(2);
+		expect(document.getElementById(ids[0] as string)?.textContent).toContain(
+			tValidation("fieldOptions.not-allowed"),
+		);
+		expect(document.getElementById(ids[1] as string)?.textContent).toBe(
+			t("fields.requiredMark"),
+		);
+		expect(description(cover)).toBe(
+			`${message.textContent} ${t("fields.requiredMark")}`,
 		);
 	});
 });
