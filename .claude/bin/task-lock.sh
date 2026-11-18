@@ -57,7 +57,7 @@ start)
 	paths=$(awk '/^```scope[[:space:]]*$/ {f=1; next} f && /^```/ {exit} f && NF {gsub(/^[[:space:]]+|[[:space:]]+$/, ""); print}' "$f")
 	[ -n "$paths" ] || fail "no \`\`\`scope block in $rel's Implementation plan."
 
-	all_acs=$(grep -oE "AC-${spec#SPEC-}-[0-9]{2}" "$f" | sort -u)
+	all_acs=$(grep -oE "AC-${spec#SPEC-}-[0-9]{2,}" "$f" | sort -u)
 	if [ $# -gt 0 ]; then
 		for ac in "$@"; do grep -qx "$ac" <<<"$all_acs" || fail "$ac is not defined in $rel."; done
 		acs=$(printf '%s\n' "$@")
