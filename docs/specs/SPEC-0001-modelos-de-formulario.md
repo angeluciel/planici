@@ -3,7 +3,7 @@ id: SPEC-0001
 title: Modelos de formulário
 status: Implemented # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.4
+version: 1.5
 owner: Joao Izidoro
 satisfies: [RF-37, RF-39, RF-40, RN-01, RN-02, RN-20, RN-21, RN-24, RN-25]
 depends_on: []
@@ -1721,3 +1721,4 @@ acceptance criteria.
 | 1.2 | 2026-11-11 | Implemented per §11: contracts, tables and migration `0002`, field value cipher, the forms API (list, create, read, version read, preview, update with publish and Apply, archive, unarchive, delete), and the web list, editor and dialogs. All 79 criteria have passing tests. Partly verified, per Deferred checks: AC-0001-10, -12, -14, -20, -23, -24, -26, -27, -28, -31, -32, -33 (SPEC-0004, SPEC-0003 for -10), -34, -57, -58 (first scheduling or payments spec), and §4.7 step 4 (SPEC-0004). Learned during implementation, owner-approved 2026-11-11 and recorded in §11 "Amendments during implementation": in-app leave dialog and leave-guard history, `sonner` toasts, the `initialDraft` and `systemFieldPresence` test seams, early SPEC-0002 rules kept, archived delete dialog, `systemField.missing` on create without `fields`, the vitest `client-only` stub, per-version `client.phone` count; copy keys `forms.editor.discard` and `common.notifications` added. No criterion changed. Status stays Approved until the owner accepts the behavior on a running system |
 | 1.3 | 2026-11-11 | Status Implemented: Joao Izidoro tested the behavior on a running system and accepted it, 2026-11-11. Still partly verified, per Deferred checks: AC-0001-10, -12, -14, -20, -23, -24, -26, -27, -28, -31, -32, -33, -34, -57, -58 and §4.7 step 4; each verifying spec adds `<AC ids> verified with SPEC-XXXX, <date>` here |
 | 1.4 | 2026-11-18 | AC-0001-10 partly verified with SPEC-0003, 2026-11-18: the fill-in form opened with the new template's id shows its name (SPEC-0003 W-form). The `/clients/new` route and its "Criar novo modelo" entry stay SPEC-0004's |
+| 1.5 | 2026-11-19 | AC-0001-10, -12, -14, -20, -23, -24, -26, -27, -28, -31, -32, -33 and §4.7 step 4 verified with SPEC-0004, 2026-11-19 (E-tpl, W-list, W-cform: the client API reads and the `/clients` route and its "Criar novo modelo" entry; §4.7 step 4 with the real `ClientPhonePresence`). AC-0001-34, -57 and -58 stay with the first scheduling or payments spec (owner waiver). Test setup in `forms.e2e-spec.ts` adjusted for the default "Cliente" template every tenant now has (SPEC-0004 R11): AC-0001-02, -05, -19, -42, -52 and one §6 test remove it first, AC-0001-48 seeds 199, AC-0001-59 reuses it; no assertion changed |
