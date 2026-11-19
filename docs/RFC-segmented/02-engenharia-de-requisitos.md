@@ -200,7 +200,7 @@
   </tr>
   <tr>
     <td>RF-09</td>
-    <td><strong>Busca e filtro de clientes</strong><br>O profissional pode buscar clientes por nome, e-mail ou telefone.</td>
+    <td><strong>Busca e filtro de clientes</strong><br>O profissional pode buscar clientes por nome, e-mail ou telefone, filtrar por status e por modelo, ordenar por nome ou e-mail e ver quantos clientes foram encontrados.</td>
     <td>MVP</td>
   </tr>
   <tr>
