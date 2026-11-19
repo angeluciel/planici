@@ -15,6 +15,11 @@ import {
   type RecordHistoryReader,
 } from '@modules/forms/ports/record-history.reader.js';
 import {
+  CLIENT_HISTORY_READER,
+  type ClientHistoryReader,
+} from '@modules/clients/ports/client-history.reader.js';
+import { CLIENT_CONSENT_VERSION } from '@modules/clients/ports/client-consent-version.js';
+import {
   SYSTEM_FIELD_PRESENCE,
   type SystemFieldPresence,
 } from '@modules/forms/ports/system-field-presence.js';
@@ -65,6 +70,10 @@ export type TestAppOptions = {
   systemFieldPresence?: SystemFieldPresence;
   // replaces the RecordHistoryReader provider; the real adapter runs when omitted
   recordHistory?: RecordHistoryReader;
+  // replaces the ClientHistoryReader provider (SPEC-0004 R7); the zero adapter runs when omitted
+  clientHistory?: ClientHistoryReader;
+  // replaces the current consent text version (SPEC-0004 R12); the shared constant applies when omitted
+  consentTextVersion?: string;
 };
 
 export async function createTestApp(
@@ -97,6 +106,18 @@ export async function createTestApp(
     builder
       .overrideProvider(SYSTEM_FIELD_PRESENCE)
       .useValue(options.systemFieldPresence);
+  }
+
+  if (options.clientHistory) {
+    builder
+      .overrideProvider(CLIENT_HISTORY_READER)
+      .useValue(options.clientHistory);
+  }
+
+  if (options.consentTextVersion) {
+    builder
+      .overrideProvider(CLIENT_CONSENT_VERSION)
+      .useValue(options.consentTextVersion);
   }
 
   const moduleRef = await builder.compile();
