@@ -111,9 +111,10 @@ Collections that can grow without bound (clients, services, appointments)
 use cursor pagination with `limit` and `after`:
 - `limit`: optional integer, 1-100, default 50. Anything else returns `422 { "error": "limit.invalid", "field": "limit" }`.
 - `after`: optional opaque cursor from a previous response's `nextCursor`. Omit for the first page.
-- Response: the named array plus `nextCursor` (string, or `null` on the last page). Example: `{ "clients": [...], "nextCursor": "eyJr..."}`. These is no total count, no page number and no other envelope.
-- Each endpoint documents one fixed, stable sort that always ends with `id` as a tie-breaker, so pages never repeat or skip items.
-- The cursor is bound to the filters it was issued with. Sending it with a different filter (for example a new q), or sending a malformed or tampered cursor, returns `422 { "error": "cursor.invalid", "field": "after" }`. Clients restart from the first page when filters change.
+- Response: the named array plus `nextCursor` (string, or `null` on the last page). Example: `{ "clients": [...], "nextCursor": "eyJr..."}`. There is no page number and no other envelope.
+- Total: only when the endpoint's spec asks for it, the response also carries `total`, the number of items matching the filters regardless of `limit` and `after`, on every page. Example: `{ "clients": [...], "nextCursor": "eyJr...", "total": 120 }`. Otherwise there is no total count.
+- Sort: each endpoint documents a stable sort that always ends with `id` as a tie-breaker, in the same direction, so pages never repeat or skip items. An endpoint may instead document a closed set of sorts chosen with `sort` (a leading `-` means descending, for example `sort=-name`); the first one listed is the default. Any other value returns `422` with an endpoint-specific key, for example `{ "error": "clientSort.invalid", "field": "sort" }`.
+- The cursor is bound to the filters and the sort it was issued with. Sending it with a different filter (for example a new q) or a different sort, or sending a malformed or tampered cursor, returns `422 { "error": "cursor.invalid", "field": "after" }`. Clients restart from the first page when filters or sort change.
 - Clients must treat the cursor as opaque and never build or parse it.
 
 ## Auth
