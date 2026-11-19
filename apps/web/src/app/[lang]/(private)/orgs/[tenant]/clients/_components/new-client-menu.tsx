@@ -36,12 +36,9 @@ export function NewClientMenu() {
 	}, []);
 
 	return (
-		<Menu
-			label={t("new.button")}
-			trigger={<PlusIcon aria-hidden="true" className="size-4" />}
-		>
+		<Menu label={t("new.button")} appearance="button">
 			<MenuItem
-				onSelect={() => router.push(`/orgs/${tenant}/forms/new?from=clients`)}
+				onSelect={() => router.push(`/orgs/${tenant}/forms/new?type=client`)}
 			>
 				{t("new.createTemplate")}
 			</MenuItem>
