@@ -256,7 +256,8 @@
 			"invalid": "Escolha uma das opções."
 		},
 		"phone": {
-			"invalid": "Informe um telefone com DDD válido."
+			"invalid": "Informe um telefone com DDD válido.",
+			"required": "Informe o telefone."
 		},
 		"cpf": {
 			"invalid": "CPF inválido."
@@ -269,6 +270,41 @@
 		},
 		"address": {
 			"incomplete": "Preencha o endereço completo ou deixe-o em branco."
+		},
+		"consentAttested": {
+			"required": "Confirme o consentimento do titular para salvar.",
+			"not-allowed": "O consentimento já foi registrado."
+		},
+		"consentTextVersion": {
+			"required": "Versão do texto de consentimento ausente.",
+			"not-allowed": "O consentimento já foi registrado."
+		},
+		"consentText": {
+			"outdated": "O texto de consentimento foi atualizado."
+		},
+		"clientName": {
+			"required": "Informe o nome do cliente.",
+			"max": "Use no máximo 120 caracteres."
+		},
+		"clientEmail": {
+			"taken": "Já existe um cliente com este e-mail."
+		},
+		"client": {
+			"not-found": "Cliente não encontrado.",
+			"has-history": "Clientes com histórico não podem ser excluídos.",
+			"status-unchanged": "O status deste cliente já foi alterado."
+		},
+		"clientSearch": {
+			"min": "Digite ao menos 2 caracteres para buscar."
+		},
+		"clientStatus": {
+			"invalid": "Filtro de status inválido."
+		},
+		"limit": {
+			"invalid": "Limite inválido."
+		},
+		"cursor": {
+			"invalid": "Recarregue a lista."
 		}
 	},
 	"auth": {
@@ -663,11 +699,16 @@
 				"district": "Bairro",
 				"city": "Cidade",
 				"state": "UF"
-			}
+			},
+			"consent": "Declaro que obtive do titular, de forma específica e destacada, o consentimento para o tratamento dos dados pessoais registrados neste cadastro, inclusive dados de saúde, quando houver, para as finalidades do atendimento, conforme a LGPD.",
+			"consentOutdated": "O texto de consentimento foi atualizado. Leia e confirme novamente."
 		},
 		"toast": {
 			"created": "Cliente cadastrado",
-			"saved": "Alterações salvas"
+			"saved": "Alterações salvas",
+			"inactivated": "Cliente inativado",
+			"reactivated": "Cliente reativado",
+			"deleted": "Cliente excluído"
 		},
 		"view": {
 			"loading": "Carregando…",
@@ -681,6 +722,58 @@
 			"yes": "Sim",
 			"no": "Não",
 			"empty": "—"
+		},
+		"list": {
+			"title": "Clientes",
+			"loading": "Carregando clientes…",
+			"empty": "Nenhum cliente cadastrado.",
+			"emptyFilter": "Nenhum cliente com este filtro.",
+			"noResults": "Nenhum cliente encontrado para “{q}”.",
+			"searchHint": "Digite ao menos 2 caracteres para buscar.",
+			"error": "Não foi possível carregar os clientes.",
+			"loadMoreError": "Não foi possível carregar mais clientes.",
+			"loadingMore": "Carregar mais",
+			"search": "Buscar por nome, e-mail ou telefone",
+			"status": {
+				"active": "Ativos",
+				"inactive": "Inativos",
+				"all": "Todos"
+			},
+			"inactiveBadge": "Inativo",
+			"columns": {
+				"name": "Nome",
+				"email": "E-mail",
+				"phone": "Telefone",
+				"form": "Modelo"
+			}
+		},
+		"new": {
+			"button": "Novo",
+			"createTemplate": "Criar novo modelo",
+			"noTemplates": "Crie um modelo para cadastrar clientes"
+		},
+		"inactivate": {
+			"action": "Inativar",
+			"confirm": "Inativar {name}? O cliente sai da lista principal, mas o histórico é mantido.",
+			"confirmButton": "Inativar",
+			"inProgress": "Inativando…",
+			"error": "Não foi possível inativar o cliente."
+		},
+		"reactivate": {
+			"action": "Reativar",
+			"inProgress": "Reativando…",
+			"error": "Não foi possível reativar o cliente."
+		},
+		"status": {
+			"unchanged": "O status deste cliente já foi alterado."
+		},
+		"delete": {
+			"action": "Excluir",
+			"confirm": "Excluir {name} permanentemente? Esta ação não pode ser desfeita.",
+			"confirmLabel": "Digite o nome do cliente para confirmar",
+			"inProgress": "Excluindo…",
+			"error": "Não foi possível excluir o cliente.",
+			"hasHistory": "Clientes com histórico não podem ser excluídos"
 		}
 	},
 	"services": {
