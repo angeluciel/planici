@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, eq, ne } from 'drizzle-orm';
+import { and, asc, eq, ne, sql } from 'drizzle-orm';
 import { DRIZZLE } from '@src/database/database.constants.js';
 import type { Database } from '@src/database/database.module.js';
 import { tenantMemberships, tenants } from '@src/database/schema/index.js';
@@ -89,6 +89,10 @@ export class DrizzleTenantRepository implements TenantRepository {
           userId: ownerId,
           role: 'owner',
         });
+
+        // R11: every tenant has "Cliente" from the moment it exists, in this
+        // same transaction (SPEC-0004 plan, Decision 4)
+        await tx.execute(sql`select planici_seed_client_template(${row.id})`);
 
         return toDomain(row);
       });

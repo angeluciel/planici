@@ -19,6 +19,7 @@ import {
   signUpOwner,
   type Session,
 } from '../utils/forms-fixtures.js';
+import { withoutDefaultTemplate } from '../utils/clients-fixtures.js';
 
 // E-crud: create, list, read and tenant isolation (SPEC-0001 plan, Tests)
 
@@ -84,6 +85,8 @@ describe('create', () => {
   });
 
   it('AC-0001-02 rejects a create request without a type and stores nothing', async () => {
+    // every tenant starts with "Cliente" (SPEC-0004 R11); this test counts from none
+    await withoutDefaultTemplate(ctx, ana);
     const { type: _type, ...withoutType } = createClientBody('Ficha');
 
     const response = await asAna().create(withoutType).expect(422);
@@ -113,6 +116,7 @@ describe('create', () => {
   });
 
   it('AC-0001-05 rejects a name taken by an archived template, ignoring case and accents', async () => {
+    await withoutDefaultTemplate(ctx, ana);
     await seedForm(db(), {
       tenantId: ana.tenantId,
       name: 'Anamnese',
@@ -135,6 +139,7 @@ describe('create', () => {
   });
 
   it('AC-0001-19 rejects a create request with 101 fields', async () => {
+    await withoutDefaultTemplate(ctx, ana);
     const response = await asAna()
       .create({
         type: 'client',
@@ -148,6 +153,7 @@ describe('create', () => {
   });
 
   it('§6 rejects a create request without a fields key as systemField.missing', async () => {
+    await withoutDefaultTemplate(ctx, ana);
     const { fields: _fields, ...withoutFields } = createClientBody('Ficha');
 
     const response = await asAna().create(withoutFields).expect(422);
@@ -171,7 +177,8 @@ describe('create', () => {
   });
 
   it('AC-0001-48 rejects the 201st template, archived ones included, and keeps 200', async () => {
-    await seedManyForms(ctx.pool, ana.tenantId, 200, 60);
+    // the tenant already holds the seeded "Cliente" (SPEC-0004 R11): 199 more make 200
+    await seedManyForms(ctx.pool, ana.tenantId, 199, 60);
 
     const response = await asAna()
       .create(createClientBody('Ficha'))
@@ -214,6 +221,7 @@ describe('list', () => {
   });
 
   it('AC-0001-52 sorts by name ignoring case and accents, grouped by type', async () => {
+    await withoutDefaultTemplate(ctx, ana);
     for (const name of ['Ética', 'anamnese', 'Ficha']) {
       await seedForm(db(), { tenantId: ana.tenantId, name, type: 'client' });
     }
@@ -234,7 +242,7 @@ describe('list', () => {
   });
 
   it('AC-0001-59 filters by type', async () => {
-    await seedForm(db(), { tenantId: ana.tenantId, name: 'Cliente' });
+    // the "Cliente" of this list is the one every tenant starts with (SPEC-0004 R11)
     await seedForm(db(), { tenantId: ana.tenantId, name: 'Ficha' });
     await seedForm(db(), {
       tenantId: ana.tenantId,
@@ -336,6 +344,7 @@ describe('tenant isolation', () => {
   });
 
   it('AC-0001-42 does not create in a tenant the caller has no membership in', async () => {
+    await withoutDefaultTemplate(ctx, bia);
     const response = await asAna()
       .create(createClientBody('Ficha'))
       .set('X-Tenant-Id', bia.tenantId)

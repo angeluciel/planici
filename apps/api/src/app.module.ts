@@ -11,13 +11,20 @@ import { ConfigService } from '@nestjs/config';
 import { TenantsModule } from './modules/tenants/tenants.module.js';
 import { FormsModule } from './modules/forms/forms.module.js';
 import { RecordsModule } from './modules/records/records.module.js';
-import { ZeroSystemFieldPresence } from './modules/forms/infrastructure/adapters/zero-system-field-presence.js';
+import { ClientsModule } from './modules/clients/clients.module.js';
+import { ClientPhonePresence } from './modules/clients/infrastructure/client-phone.presence.js';
+import { PgDatabase } from 'drizzle-orm/pg-core';
 import { Pool } from 'pg';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule({
   // pg-pool runs `new this.Promise(...)`; observe's proxy wraps native
   // constructors as plain functions, so every traced query threw a TypeError
-  skipInstrumentation: (instance) => instance instanceof Pool,
+  //
+  // The Drizzle instance is skipped so the raw DrizzleQueryError, whose message
+  // holds the query parameters (client data, SPEC-0004 R13), is never captured
+  // above the repository, which rethrows it as ClientPersistenceError.
+  skipInstrumentation: (instance) =>
+    instance instanceof Pool || instance instanceof PgDatabase,
 });
 
 @Module({
@@ -27,9 +34,9 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule({
     MailModule,
     AuthModule,
     TenantsModule,
-    // SPEC-0004's plan passes its clients adapter instead of the zero one
-    FormsModule.forRoot({ systemFieldPresence: ZeroSystemFieldPresence }),
+    FormsModule.forRoot({ systemFieldPresence: ClientPhonePresence }),
     RecordsModule,
+    ClientsModule,
     // per-IP route limit
     ThrottlerModule.forRoot({
       throttlers: [{ name: 'default', ttl: 60_000, limit: 60 }],
