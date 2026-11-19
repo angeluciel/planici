@@ -37,6 +37,7 @@ import type {
 	RecordAdapter,
 	RecordData,
 	RecordRequest,
+	RecordResult,
 } from "./record-adapter";
 import { remapValues } from "./remap-values";
 
@@ -548,10 +549,12 @@ export function useRecordForm(props: Readonly<RecordFormProps>) {
 						formVersion: load.template.version,
 						...body,
 					};
-		const result =
-			props.mode === "create"
-				? await adapter.create(request)
-				: await adapter.update(props.recordId, request);
+		// an adapter that throws instead of resolving an ApiFailure must not leave
+		// the form saving forever: it ends in the save error like a network failure
+		const result: RecordResult = await (props.mode === "create"
+			? adapter.create(request)
+			: adapter.update(props.recordId, request)
+		).catch(() => ({ ok: false, error: "network.unavailable" }) as const);
 
 		if (!result.ok) {
 			setSaving(false);
