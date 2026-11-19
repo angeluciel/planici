@@ -409,3 +409,41 @@ describe("W-view (services) system field formats", () => {
 		);
 	});
 });
+
+describe("W-view actions prop (SPEC-0004 G-1)", () => {
+	it("SPEC-0004 G-1 renders `actions` with the loaded record and a reload that re-reads it", async () => {
+		const h = fakeAdapter("clients");
+		const sys = systemFieldsOf("clients");
+		const rec = record("clients", { name: "Ana Souza" });
+		serveVersion(rec.form.version, sys);
+		h.state.read = async () => ({ ok: true, record: rec });
+
+		renderApp(
+			<RecordView
+				adapter={h.adapter}
+				recordId={RECORD_ID}
+				actions={(loaded, reload) => (
+					<div>
+						<span>{`actions for ${String(loaded.name)}`}</span>
+						<button type="button" onClick={reload}>
+							reload-now
+						</button>
+					</div>
+				)}
+			/>,
+		);
+
+		await screen.findByText("actions for Ana Souza");
+		expect(h.log.reads).toHaveLength(1);
+
+		// the stored client changes elsewhere; reload shows the new read
+		h.state.read = async () => ({
+			ok: true,
+			record: record("clients", { name: "Ana Lima" }),
+		});
+		fireEvent.click(screen.getByRole("button", { name: "reload-now" }));
+
+		await screen.findByText("actions for Ana Lima");
+		expect(h.log.reads).toHaveLength(2);
+	});
+});

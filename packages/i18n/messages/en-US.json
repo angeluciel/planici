@@ -256,7 +256,8 @@
 			"invalid": "Choose one of the options."
 		},
 		"phone": {
-			"invalid": "Enter a phone number with a valid area code."
+			"invalid": "Enter a phone number with a valid area code.",
+			"required": "Enter the phone number."
 		},
 		"cpf": {
 			"invalid": "Invalid CPF."
@@ -269,6 +270,41 @@
 		},
 		"address": {
 			"incomplete": "Fill in the whole address or leave it blank."
+		},
+		"consentAttested": {
+			"required": "Confirm the data subject's consent to save.",
+			"not-allowed": "Consent has already been recorded."
+		},
+		"consentTextVersion": {
+			"required": "Consent text version is missing.",
+			"not-allowed": "Consent has already been recorded."
+		},
+		"consentText": {
+			"outdated": "The consent text has been updated."
+		},
+		"clientName": {
+			"required": "Enter the client's name.",
+			"max": "Use at most 120 characters."
+		},
+		"clientEmail": {
+			"taken": "A client with this e-mail already exists."
+		},
+		"client": {
+			"not-found": "Client not found.",
+			"has-history": "Clients with history cannot be deleted.",
+			"status-unchanged": "This client's status has already been changed."
+		},
+		"clientSearch": {
+			"min": "Type at least 2 characters to search."
+		},
+		"clientStatus": {
+			"invalid": "Invalid status filter."
+		},
+		"limit": {
+			"invalid": "Invalid limit."
+		},
+		"cursor": {
+			"invalid": "Reload the list."
 		}
 	},
 	"auth": {
@@ -663,11 +699,16 @@
 				"district": "District",
 				"city": "City",
 				"state": "State"
-			}
+			},
+			"consent": "I declare that I obtained from the data subject, in a specific and prominent way, consent to the processing of the personal data recorded in this registration, including health data, where applicable, for the purposes of the service, in accordance with the LGPD.",
+			"consentOutdated": "The consent text has been updated. Read it and confirm again."
 		},
 		"toast": {
 			"created": "Client created",
-			"saved": "Changes saved"
+			"saved": "Changes saved",
+			"inactivated": "Client inactivated",
+			"reactivated": "Client reactivated",
+			"deleted": "Client deleted"
 		},
 		"view": {
 			"loading": "Loading…",
@@ -681,6 +722,58 @@
 			"yes": "Yes",
 			"no": "No",
 			"empty": "—"
+		},
+		"list": {
+			"title": "Clients",
+			"loading": "Loading clients…",
+			"empty": "No clients yet.",
+			"emptyFilter": "No clients match this filter.",
+			"noResults": "No clients found for “{q}”.",
+			"searchHint": "Type at least 2 characters to search.",
+			"error": "Could not load clients.",
+			"loadMoreError": "Could not load more clients.",
+			"loadingMore": "Load more",
+			"search": "Search by name, e-mail or phone",
+			"status": {
+				"active": "Active",
+				"inactive": "Inactive",
+				"all": "All"
+			},
+			"inactiveBadge": "Inactive",
+			"columns": {
+				"name": "Name",
+				"email": "E-mail",
+				"phone": "Phone",
+				"form": "Template"
+			}
+		},
+		"new": {
+			"button": "New",
+			"createTemplate": "Create new template",
+			"noTemplates": "Create a template to register clients"
+		},
+		"inactivate": {
+			"action": "Inactivate",
+			"confirm": "Inactivate {name}? The client leaves the main list, but the history is kept.",
+			"confirmButton": "Inactivate",
+			"inProgress": "Inactivating…",
+			"error": "Could not inactivate the client."
+		},
+		"reactivate": {
+			"action": "Reactivate",
+			"inProgress": "Reactivating…",
+			"error": "Could not reactivate the client."
+		},
+		"status": {
+			"unchanged": "This client's status has already been changed."
+		},
+		"delete": {
+			"action": "Delete",
+			"confirm": "Permanently delete {name}? This action cannot be undone.",
+			"confirmLabel": "Type the client's name to confirm",
+			"inProgress": "Deleting…",
+			"error": "Could not delete the client.",
+			"hasHistory": "Clients with history cannot be deleted"
 		}
 	},
 	"services": {

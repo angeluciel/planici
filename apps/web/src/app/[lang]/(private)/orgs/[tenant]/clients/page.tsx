@@ -1,3 +1,5 @@
+import { ClientsList } from "./_components/clients-list";
+
 export default function ClientsPage() {
-	return <div>Hello, this is the clients page</div>;
+	return <ClientsList />;
 }

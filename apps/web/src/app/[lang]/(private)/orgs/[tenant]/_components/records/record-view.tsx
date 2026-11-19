@@ -3,7 +3,13 @@
 import type { Field } from "@planici/schemas";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+	type ReactNode,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,7 +34,14 @@ const NAME = "\u0000";
 export function RecordView({
 	adapter,
 	recordId,
-}: Readonly<{ adapter: RecordAdapter; recordId: string }>) {
+	// the entity's own actions next to [Editar] (SPEC-0003 §11, G-1); `reload`
+	// reads the record again without the loading state
+	actions,
+}: Readonly<{
+	adapter: RecordAdapter;
+	recordId: string;
+	actions?: (record: RecordData, reload: () => void) => ReactNode;
+}>) {
 	const t = useTranslations(adapter.entity);
 	const { tenant } = useParams<{ tenant: string }>();
 	const formatValue = useFormatFieldValue(adapter.entity);
@@ -36,11 +49,13 @@ export function RecordView({
 	const [attempt, setAttempt] = useState(0);
 	const latest = useRef(adapter);
 	latest.current = adapter;
+	const quiet = useRef(false);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: `attempt` re-runs the load on retry
 	useEffect(() => {
 		let live = true;
-		setState({ status: "loading" });
+		if (!quiet.current) setState({ status: "loading" });
+		quiet.current = false;
 
 		void (async () => {
 			const read = await latest.current.read(recordId);
@@ -73,6 +88,10 @@ export function RecordView({
 	}, [recordId, attempt]);
 
 	const retry = useCallback(() => setAttempt((n) => n + 1), []);
+	const reload = useCallback(() => {
+		quiet.current = true;
+		setAttempt((n) => n + 1);
+	}, []);
 
 	if (state.status === "loading") {
 		return (
@@ -156,14 +175,17 @@ export function RecordView({
 					</Link>
 					{after}
 				</p>
-				<Link
-					href={adapter.editHref(record.id)}
-					className={buttonVariants({ variant: "primary" }).root({
-						class: "w-auto",
-					})}
-				>
-					{t("form.edit")}
-				</Link>
+				<div className="flex flex-wrap items-center gap-2">
+					{actions?.(record, reload)}
+					<Link
+						href={adapter.editHref(record.id)}
+						className={buttonVariants({ variant: "primary" }).root({
+							class: "w-auto",
+						})}
+					>
+						{t("form.edit")}
+					</Link>
+				</div>
 			</header>
 
 			{record.form.version < record.form.latestVersion && (
