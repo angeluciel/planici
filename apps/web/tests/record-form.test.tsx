@@ -672,5 +672,22 @@ describe.each(ENTITIES)("W-form (%s)", (entity) => {
 			for (const [label, typed] of VALID_SYSTEM[entity])
 				expect(input(label).value).toBe(typed);
 		});
+
+		it("routing an adapter that rejects shows the save error, keeps the typed values and enables Salvar again", async () => {
+			serveTemplateOf(entityTemplate(entity, []));
+			h.state.create = async () => {
+				throw new Error("boom");
+			};
+			await openNew(entity, h);
+			fillSystem(entity);
+
+			fireEvent.click(saveButton(entity));
+
+			await screen.findByText(tr("form.saveError"));
+			for (const [label, typed] of VALID_SYSTEM[entity])
+				expect(input(label).value).toBe(typed);
+			const save = saveButton(entity) as HTMLButtonElement;
+			expect(save.disabled).toBe(false);
+		});
 	});
 });
