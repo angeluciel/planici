@@ -150,27 +150,35 @@ Table occupation_config {
 // ================== Core entities
 Table clients {
   id              uuid        [primary key, default: `gen_random_uuid()`]
-  tenant_id       uuid        [not null, ref: > tenants.id]
+  tenant_id       text        [not null, ref: > tenants.id]
+  form_record_id  uuid        [not null, unique, ref: - form_records.id]
+  // one-to-one with the record; deleting the record deletes the client (SPEC-0004 R7)
 
   name            text        [not null]
-  email           text
+  name_key        text        [not null]
+  // name lowercased, accents stripped, whitespace collapsed: sort and search key (R9, R10)
+  email           text        [not null]
+  // lowercased; unique per tenant, inactive clients included (R5)
   phone           text
-  avatar_url      text
+  // digits only
   status          record_status [not null, default: 'active']
+  // 'suspended' is the contract's `inactive`; 'deleted' is never stored (a delete is physical)
 
-  notes           text
-  custom_fields   jsonb       [not null, default: '{}']
-  // fallback for ad-hoc fields not covered by attached forms
-  preferences     jsonb       [not null, default: '{}']
-  // e.g.: { notification_channel: 'whatsapp', whatsapp_phone: '+5511...' }
+  consent_attested_by  uuid        [not null, ref: > users.id]
+  consent_attested_at  timestamptz [not null]
+  consent_text_version text        [not null]
+  // R12: the professional's attestation, given once when the client is created
 
   created_at      timestamptz [not null, default: `now()`]
   updated_at      timestamptz [not null, default: `now()`]
 
   Indexes {
-    tenant_id     [name: 'idx_clients_tenant_id']
-    (tenant_id, email) [name: 'idx_clients_tenant_email']
+    (tenant_id, email)                       [unique, name: 'idx_clients_tenant_email']
+    (tenant_id, status, name_key, id)        [name: 'idx_clients_tenant_status_name']
   }
+  // check: status in ('active', 'suspended')
+  // avatar_url is post-MVP; notes and custom values are custom fields (form_record_values);
+  // preferences has no spec (SPEC-0004 plan, Persistence)
 }
 
 Table services {
