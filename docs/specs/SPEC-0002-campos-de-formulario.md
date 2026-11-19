@@ -3,7 +3,7 @@ id: SPEC-0002
 title: Campos do modelo de formulário
 status: Implemented # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.41
+version: 1.42
 owner: Joao Izidoro
 satisfies: [RF-38, RF-39, RN-20, RN-21]
 depends_on: [SPEC-0001]
@@ -2965,3 +2965,4 @@ acceptance criteria.
 | 1.39 | 2026-11-18 | Plan approved by Joao Izidoro, 2026-11-18: §11 "Required-marker amendment (v1.36)" as revised in 1.38. plan_status Approved. Plan review should-fix items 1–7 stay follow-ups |
 | 1.40 | 2026-11-18 | Required-marker amendment implemented per §11 "Required-marker amendment (v1.36)". Built: a shared red "*" (`text-status-danger`, hidden from assistive technology) after a required field's card title, inside the read-only title and after the inline title box on idle wide cards; an sr-only `forms.fields.requiredMark` ("obrigatório" / "required") with id `${baseId}-card-required` in the cover button's description, after the error id; the copy key in both locales. AC-0002-101 to -105 verified by six W-fld tests. Deviation from Web 3: the inline title row uses `items-start`, because the title box's `self-start` overrides the row's alignment (review should-fix 1). Deferred: the rendered red color, checked by the owner on a running system. No AC deferred to another spec. Status stays Approved until the owner accepts the behavior on a running system. Review should-fix items 1–3 stay follow-ups |
 | 1.41 | 2026-11-18 | Status Implemented: Joao Izidoro accepted the required-marker amendment on a running system, 2026-11-18, which also covers the deferred check of the rendered red color. Still partly verified, per Deferred checks: AC-0002-16, -19, -23, -24, -26 (SPEC-0004). The API e2e suite was not run for this amendment, which changed no API behavior |
+| 1.42 | 2026-11-19 | AC-0002-16, -19, -23, -24, -26 verified with SPEC-0004, 2026-11-19 (E-tpl through `/v1/clients`; AC-0002-23's masking in W-cview) |
