@@ -2,7 +2,9 @@
 
 import { Popover as BasePopover } from "@base-ui/react/popover";
 import { XIcon } from "lucide-react";
-import type { ReactNode, RefObject } from "react";
+import type { ComponentProps, ReactNode, RefObject } from "react";
+
+type PositionerProps = ComponentProps<typeof BasePopover.Positioner>;
 
 type FocusTarget =
 	| boolean
@@ -11,12 +13,12 @@ type FocusTarget =
 
 type PopoverProps = {
 	open: boolean;
-	// called for Escape, the close button and a click on the page outside
 	onClose: () => void;
-	// the element the popup sits beside
 	anchor: RefObject<Element | null> | (() => Element | null);
+	side?: PositionerProps["side"];
+	align?: PositionerProps["align"];
+	sideOffset?: number;
 	title: ReactNode;
-	// accessible name of the close button
 	closeLabel: string;
 	id?: string;
 	initialFocus?: FocusTarget;
@@ -28,6 +30,9 @@ export function Popover({
 	open,
 	onClose,
 	anchor,
+	side = "right",
+	align = "start",
+	sideOffset = 16,
 	title,
 	closeLabel,
 	id,
@@ -57,9 +62,9 @@ export function Popover({
 				/>
 				<BasePopover.Positioner
 					anchor={anchor}
-					side="right"
-					align="start"
-					sideOffset={16}
+					side={side}
+					align={align}
+					sideOffset={sideOffset}
 					className="z-40"
 				>
 					<BasePopover.Popup

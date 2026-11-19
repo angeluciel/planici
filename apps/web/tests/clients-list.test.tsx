@@ -94,8 +94,7 @@ const retryButton = () =>
 	screen.findByRole("button", { name: tc("form.retry") });
 
 async function chooseStatus(label: string) {
-	press(screen.getByRole("combobox"));
-	press(await screen.findByRole("option", { name: label }));
+	press(await screen.findByRole("radio", { name: label }));
 }
 
 // ------------------------------------------------------------- [Novo] menu
@@ -256,6 +255,14 @@ describe("List states", () => {
 		renderApp(<ClientsList />);
 		await screen.findByText("Bruno Lima");
 		expect(screen.queryByText(tc("list.inactiveBadge"))).toBeNull();
+		// the status filter is on the page with "Ativos" chosen by default
+		expect(
+			(
+				screen.getByRole("radio", {
+					name: tc("list.status.active"),
+				}) as HTMLInputElement
+			).checked,
+		).toBe(true);
 
 		await chooseStatus(tc("list.status.inactive"));
 

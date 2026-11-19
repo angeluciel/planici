@@ -740,6 +740,9 @@
 				"all": "All"
 			},
 			"inactiveBadge": "Inactive",
+			"filter": {
+				"status": "Status"
+			},
 			"columns": {
 				"name": "Name",
 				"email": "E-mail",

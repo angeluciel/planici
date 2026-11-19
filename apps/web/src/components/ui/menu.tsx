@@ -1,18 +1,53 @@
 "use client";
 
 import { Menu as BaseMenu } from "@base-ui/react/menu";
-import { ChevronRightIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import { buttonVariants } from "./button";
 
-const TRIGGER = {
+type Appearance = "icon" | "row" | "button";
+
+const TRIGGER: Record<Appearance, string> = {
 	icon: "flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-icon-subtle hover:bg-surface-hovered focus-visible:outline-2 focus-visible:outline-border-focused data-popup-open:bg-surface-pressed",
 	row: "flex min-h-9 w-full cursor-pointer items-center gap-2 rounded-md px-1 font-body-sm text-text-primary hover:bg-surface-overlay-hovered focus-visible:outline-2 focus-visible:outline-border-focused data-popup-open:bg-surface-overlay-hovered",
-} as const;
+	button: buttonVariants({ variant: "primary" }).root({
+		class:
+			"w-auto link-button link-button-primary data-popup-open:bg-background-brand-bold-pressed",
+	}),
+};
+
+function TriggerContent({
+	appearance,
+	label,
+	trigger,
+}: Readonly<{ appearance: Appearance; label: string; trigger?: ReactNode }>) {
+	if (appearance === "row")
+		return (
+			<>
+				<span>{label}</span>
+				<ChevronRightIcon
+					aria-hidden="true"
+					className="ml-auto size-4 text-icon-subtle"
+				/>
+			</>
+		);
+	if (appearance === "button")
+		return (
+			<>
+				{trigger}
+				<span>{label}</span>
+				<ChevronDownIcon aria-hidden="true" className="size-4" />
+			</>
+		);
+	return trigger;
+}
 
 // Action menu: the trigger is a button with the caller's accessible name; the
 // popup is role="menu" and arrow keys move between its items.
 // `icon` look: `trigger` is the icon. `row` look: a full-width list row that
 // shows `label` and a chevron (settings panels); `trigger` is ignored.
+// `button` look: a primary button that shows `trigger` (a leading icon),
+// `label` and a down chevron.
 export function Menu({
 	label,
 	trigger,
@@ -21,7 +56,7 @@ export function Menu({
 }: Readonly<{
 	label: string;
 	trigger?: ReactNode;
-	appearance?: "icon" | "row";
+	appearance?: Appearance;
 	children: ReactNode;
 }>) {
 	return (
@@ -37,17 +72,11 @@ export function Menu({
 					event.currentTarget.click();
 				}}
 			>
-				{appearance === "row" ? (
-					<>
-						<span>{label}</span>
-						<ChevronRightIcon
-							aria-hidden="true"
-							className="ml-auto size-4 text-icon-subtle"
-						/>
-					</>
-				) : (
-					trigger
-				)}
+				<TriggerContent
+					appearance={appearance}
+					label={label}
+					trigger={trigger}
+				/>
 			</BaseMenu.Trigger>
 			<BaseMenu.Portal>
 				<BaseMenu.Positioner
