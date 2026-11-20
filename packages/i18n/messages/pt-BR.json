@@ -300,6 +300,9 @@
 		"clientStatus": {
 			"invalid": "Filtro de status inválido."
 		},
+		"clientSort": {
+			"invalid": "Ordenação inválida."
+		},
 		"limit": {
 			"invalid": "Limite inválido."
 		},
@@ -725,6 +728,7 @@
 		},
 		"list": {
 			"title": "Clientes",
+			"count": "{count, plural, one {# cliente} other {# clientes}}",
 			"loading": "Carregando clientes…",
 			"empty": "Nenhum cliente cadastrado.",
 			"emptyFilter": "Nenhum cliente com este filtro.",
@@ -732,7 +736,7 @@
 			"searchHint": "Digite ao menos 2 caracteres para buscar.",
 			"error": "Não foi possível carregar os clientes.",
 			"loadMoreError": "Não foi possível carregar mais clientes.",
-			"loadingMore": "Carregar mais",
+			"loadingMore": "Carregando mais clientes…",
 			"search": "Buscar por nome, e-mail ou telefone",
 			"status": {
 				"active": "Ativos",
@@ -741,19 +745,25 @@
 			},
 			"inactiveBadge": "Inativo",
 			"filter": {
-				"status": "Status"
+				"status": "Status",
+				"form": "Modelo",
+				"allForms": "Todos os modelos",
+				"archivedForm": "{name} (arquivado)"
 			},
-			"columns": {
-				"name": "Nome",
-				"email": "E-mail",
-				"phone": "Telefone",
-				"form": "Modelo"
-			}
+			"sort": {
+				"label": "Ordenar por",
+				"nameAsc": "Nome (A–Z)",
+				"nameDesc": "Nome (Z–A)",
+				"updatedAt": "Última atualização"
+			},
+			"end": "Isso é tudo! Não há mais clientes por aqui.",
+			"loadedCount": "{loaded} de {total} clientes carregados"
 		},
 		"new": {
 			"button": "Novo",
 			"createTemplate": "Criar novo modelo",
-			"noTemplates": "Crie um modelo para cadastrar clientes"
+			"noTemplates": "Crie um modelo para cadastrar clientes",
+			"floating": "Novo cliente"
 		},
 		"inactivate": {
 			"action": "Inativar",

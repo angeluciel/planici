@@ -4,14 +4,14 @@ import { z } from "zod";
 import { parseUpstream, readBody, route } from "../_lib/http";
 import { clientsApi } from "./_lib/clients";
 
-// GET /api/clients?q&status&limit&after
+// GET /api/clients?q&status&formId&sort&limit&after
 // the API validates the query (422 clientSearch.min, clientStatus.invalid,
 // limit.invalid, cursor.invalid); nothing else is forwarded
 export const GET = route(async (request) => {
 	const incoming = request.nextUrl.searchParams;
 	const query = new URLSearchParams();
 
-	for (const key of ["q", "status", "limit", "after"]) {
+	for (const key of ["q", "status", "formId", "sort", "limit", "after"]) {
 		const value = incoming.get(key);
 		if (value !== null) query.set(key, value);
 	}

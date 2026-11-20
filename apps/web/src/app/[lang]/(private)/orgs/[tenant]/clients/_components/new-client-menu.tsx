@@ -1,42 +1,35 @@
 "use client";
 
 import { Menu as BaseMenu } from "@base-ui/react/menu";
-import type { FormTemplateSummary } from "@planici/schemas";
 import { PlusIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
 import { Menu, MenuItem } from "@/components/ui/menu";
 import { useRouter } from "@/i18n/navigation";
-import { listForms } from "@/lib/api/forms";
+import { useClientTemplates } from "./use-client-templates";
 
 // [Novo] (SPEC-0004 §4.2): "Criar novo modelo", a divider, then every active
-// client template in the order the API returns them.
-export function NewClientMenu() {
+// client template in the order the API returns them. `floating` is the narrow
+// screens' round button (SPEC-0006 §4.6).
+export function NewClientMenu({
+	appearance,
+}: Readonly<{ appearance: "button" | "floating" }>) {
 	const t = useTranslations("clients");
 	const router = useRouter();
 	const { tenant } = useParams<{ tenant: string }>();
-	const [templates, setTemplates] = useState<FormTemplateSummary[] | null>(
-		null,
-	);
-
-	useEffect(() => {
-		let live = true;
-		void listForms({ type: "client" }).then((result) => {
-			if (!live || !result.ok) return;
-			setTemplates(
-				result.forms.filter(
-					(form) => form.type === "client" && form.status === "active",
-				),
-			);
-		});
-		return () => {
-			live = false;
-		};
-	}, []);
+	const query = useClientTemplates();
+	const templates = query.data?.filter((form) => form.status === "active");
 
 	return (
-		<Menu label={t("new.button")} appearance="button">
+		<Menu
+			label={appearance === "floating" ? t("new.floating") : t("new.button")}
+			appearance={appearance}
+			trigger={
+				appearance === "floating" ? (
+					<PlusIcon aria-hidden="true" className="size-6" />
+				) : undefined
+			}
+		>
 			<MenuItem
 				onSelect={() => router.push(`/orgs/${tenant}/forms/new?from=clients`)}
 			>

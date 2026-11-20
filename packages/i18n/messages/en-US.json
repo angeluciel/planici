@@ -300,6 +300,9 @@
 		"clientStatus": {
 			"invalid": "Invalid status filter."
 		},
+		"clientSort": {
+			"invalid": "Invalid sort."
+		},
 		"limit": {
 			"invalid": "Invalid limit."
 		},
@@ -725,6 +728,7 @@
 		},
 		"list": {
 			"title": "Clients",
+			"count": "{count, plural, one {# client} other {# clients}}",
 			"loading": "Loading clients…",
 			"empty": "No clients yet.",
 			"emptyFilter": "No clients match this filter.",
@@ -732,7 +736,7 @@
 			"searchHint": "Type at least 2 characters to search.",
 			"error": "Could not load clients.",
 			"loadMoreError": "Could not load more clients.",
-			"loadingMore": "Load more",
+			"loadingMore": "Loading more clients…",
 			"search": "Search by name, e-mail or phone",
 			"status": {
 				"active": "Active",
@@ -741,19 +745,25 @@
 			},
 			"inactiveBadge": "Inactive",
 			"filter": {
-				"status": "Status"
+				"status": "Status",
+				"form": "Template",
+				"allForms": "All templates",
+				"archivedForm": "{name} (archived)"
 			},
-			"columns": {
-				"name": "Name",
-				"email": "E-mail",
-				"phone": "Phone",
-				"form": "Template"
-			}
+			"sort": {
+				"label": "Sort by",
+				"nameAsc": "Name (A–Z)",
+				"nameDesc": "Name (Z–A)",
+				"updatedAt": "Last updated"
+			},
+			"end": "That's all! No more clients here.",
+			"loadedCount": "{loaded} of {total} clients loaded"
 		},
 		"new": {
 			"button": "New",
 			"createTemplate": "Create new template",
-			"noTemplates": "Create a template to register clients"
+			"noTemplates": "Create a template to register clients",
+			"floating": "New client"
 		},
 		"inactivate": {
 			"action": "Inactivate",
