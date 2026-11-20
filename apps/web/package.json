@@ -23,8 +23,6 @@
 		"@planici/schemas": "workspace:*",
 		"@planici/utils": "workspace:*",
 		"@tanstack/react-query": "^5.108.0",
-		"@tanstack/react-table": "^9.3.1",
-		"@tanstack/react-virtual": "^3.14.26",
 		"axios": "^1.20.0",
 		"clsx": "^2.1.1",
 		"input-otp": "^1.5.0",
