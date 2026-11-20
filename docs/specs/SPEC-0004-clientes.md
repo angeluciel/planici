@@ -1,9 +1,9 @@
 ---
 id: SPEC-0004
 title: Cadastro de clientes
-status: Approved # Draft | Review | Approved | Implemented | Superseded
+status: Implemented # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.7
+version: 1.8
 owner: Joao Izidoro
 satisfies: [RF-07, RF-08, RF-09, RN-02, RN-04, RN-05, RN-24, RN-25]
 depends_on: [SPEC-0001, SPEC-0002, SPEC-0003]
@@ -1380,3 +1380,4 @@ None. The cursor, search normalisation and SQL function use what the code alread
 | 1.5 | 2026-11-19 | Implemented per §11. Built: client contracts (`packages/schemas/src/clients/`, `pagination.ts`, `ClientConsentTextSchema`) and copy; table `clients` (`0004`) and the "Cliente" seed and backfill functions (`0005`), seeded in `createWithOwner`'s transaction; `ClientsModule` (list with search and HMAC-signed cursor, create, read, update with consent in the §6 order, inactivate, reactivate, delete), `ClientPhonePresence` for `FormsModule`, Drizzle skipped by Observe and client query errors wrapped with fixed messages; the BFF, `@/lib/api/clients`, the `/clients` list, [Novo] menu, fill-in with consent, edit and view pages with actions (`RecordView` `actions`, G-1). All 75 criteria have passing tests (U-req, U-cur, U-search, E-cl, E-list, E-life, E-def, E-rec, E-tpl, W-list, W-cform, W-cview). Partly verified, per Deferred checks: AC-0004-15, -33, -71 (fake history reader; first scheduling or payments spec) and -74 (Observe and logs; no Sentry). Owner decision during implementation: AC-0001-32's test reads "unchanged" as the client data, with `form.status` "archived" (2026-11-19). Review: one blocking item (consent response shape outside `packages/schemas`), fixed; re-check PASS. Status stays Approved until the owner accepts the behavior on a running system |
 | 1.6 | 2026-11-19 | Amended by SPEC-0006 (approved by Joao Izidoro, 2026-11-19): R10 is the default of four sorts; §4.1 step 2 drops the Modelo column and step 5 covers the template filter; §6 list check order and `cursor.invalid` row; §7 "List" adds `formId`, `sort` and `total`; §8 "success" and "empty under the chosen filter" rows. Each place carries the note "amended by SPEC-0006". No criterion of this spec changes. |
 | 1.7 | 2026-11-20 | Amended by SPEC-0006 v1.7 (approved by Joao Izidoro, 2026-11-20). Rewritten notes: R10 (three sorts `name`, `-name`, `-updatedAt`), §4.1 step 2 (rows and cards with a template badge, template filter on wide screens), §7 "List" (`sort` values), §8 "success" row. New notes: §4.1 step 6 and §8 "loading more" and "loading more failed" rows (infinite scroll), §4.2 step 1 (floating [Novo] on narrow screens), §7 "Client" (`updatedAt` is the last update time, changed on inactivation and reactivation), §7 "ClientSummary" (adds `updatedAt`), §11 Decision 9. AC-0004-63 superseded by AC-0006-45. Status stays Approved. |
+| 1.8 | 2026-11-20 | Status Implemented: Joao Izidoro accepts the behavior on a running system, 2026-11-20, as implemented per §11 (1.5), so SPEC-0006, which `depends_on` this spec, can start `/implement` (SPEC-0006 §11, G-5). The parts marked "amended by SPEC-0006" (v1.6, v1.7) describe SPEC-0006's behavior and are built and verified by SPEC-0006. |
