@@ -70,6 +70,7 @@ describe('constants and error codes', () => {
       'clientStatus.invalid',
       'limit.invalid',
       'cursor.invalid',
+      'clientSort.invalid',
     ]);
   });
 });
@@ -362,6 +363,7 @@ describe('list query', () => {
     expect(parse(ListClientsQuerySchema, {})).toEqual({
       q: undefined,
       status: 'active',
+      sort: 'name',
       limit: 50,
       after: undefined,
     });
@@ -454,6 +456,73 @@ describe('list query', () => {
         limit: '5',
       }),
     ).toEqual(expected('cursor.invalid', 'after'));
+  });
+});
+
+describe('list query, SPEC-0006', () => {
+  it('AC-0006-07 rejects a malformed formId with formId.invalid', () => {
+    expect(reject(ListClientsQuerySchema, { formId: 'not-an-id' })).toEqual(
+      expected('formId.invalid', 'formId'),
+    );
+  });
+
+  it('AC-0006-25 rejects sort "phone" with clientSort.invalid', () => {
+    expect(reject(ListClientsQuerySchema, { sort: 'phone' })).toEqual(
+      expected('clientSort.invalid', 'sort'),
+    );
+  });
+
+  it('AC-0006-53 rejects sort "updatedAt" with clientSort.invalid', () => {
+    expect(reject(ListClientsQuerySchema, { sort: 'updatedAt' })).toEqual(
+      expected('clientSort.invalid', 'sort'),
+    );
+  });
+
+  it('AC-0006-27 checks q before formId and sort', () => {
+    expect(
+      reject(ListClientsQuerySchema, {
+        q: 'a',
+        formId: 'not-an-id',
+        sort: 'phone',
+      }),
+    ).toEqual(expected('clientSearch.min', 'q'));
+  });
+
+  it('AC-0006-42 checks formId before sort', () => {
+    expect(
+      reject(ListClientsQuerySchema, { formId: 'not-an-id', sort: 'phone' }),
+    ).toEqual(expected('formId.invalid', 'formId'));
+  });
+
+  it('§6 reports status, then formId, then sort, then limit, then after', () => {
+    const bad = {
+      status: 'x',
+      formId: 'not-an-id',
+      sort: 'phone',
+      limit: '0',
+      after: '',
+    };
+    expect(reject(ListClientsQuerySchema, bad)).toEqual(
+      expected('clientStatus.invalid', 'status'),
+    );
+    expect(reject(ListClientsQuerySchema, { ...bad, status: 'all' })).toEqual(
+      expected('formId.invalid', 'formId'),
+    );
+    expect(
+      reject(ListClientsQuerySchema, {
+        ...bad,
+        status: 'all',
+        formId: randomUUID(),
+      }),
+    ).toEqual(expected('clientSort.invalid', 'sort'));
+    expect(
+      reject(ListClientsQuerySchema, {
+        ...bad,
+        status: 'all',
+        formId: randomUUID(),
+        sort: '-name',
+      }),
+    ).toEqual(expected('limit.invalid', 'limit'));
   });
 });
 

@@ -1,4 +1,8 @@
-import type { ClientStatus, ClientStatusFilter } from '@planici/schemas';
+import type {
+  ClientSort,
+  ClientStatus,
+  ClientStatusFilter,
+} from '@planici/schemas';
 import type { Database } from '@src/database/database.module.js';
 import type { TenantTransaction } from '@modules/tenants/infrastructure/persistence/tenant-scope.js';
 import type { ClientSearch } from '../domain/client-search.js';
@@ -19,9 +23,12 @@ export type StoredClient = {
   consentAttestedBy: string;
   consentAttestedAt: Date;
   consentTextVersion: string;
+  /** The client's last update time (SPEC-0006 R9). */
+  updatedAt: Date;
 };
 
-export type NewClient = Omit<StoredClient, 'id' | 'status'> & {
+/** `updatedAt` is the database's `now()` on insert. */
+export type NewClient = Omit<StoredClient, 'id' | 'status' | 'updatedAt'> & {
   nameKey: string;
 };
 
@@ -34,15 +41,26 @@ export type ClientListRow = {
   formId: string;
   formName: string;
   status: ClientStatus;
+  updatedAt: Date;
+  /**
+   * What the next cursor carries for this row under the requested sort:
+   * `name_key`, or the exact `updated_at` text (SPEC-0006 plan, G-6).
+   */
+  sortKey: string;
 };
 
 export type ClientListFilter = {
   status: ClientStatusFilter;
   search: ClientSearch | null;
-  after: { nameKey: string; id: string } | null;
+  /** The template filter (SPEC-0006 R1), or null for every template. */
+  formId: string | null;
+  sort: ClientSort;
+  after: { key: string; id: string } | null;
   /** Rows to fetch: the page size plus one. */
   take: number;
 };
+
+export type ClientCountFilter = Omit<ClientListFilter, 'after' | 'take'>;
 
 /**
  * Reads and writes `clients`. Every query filters by `tenant_id`. A failure
@@ -86,14 +104,18 @@ export interface ClientRepository {
     },
   ): Promise<void>;
 
+  /** Returns the stored last update time (SPEC-0006 R9). */
   setStatus(
     tx: TenantTransaction,
     tenantId: string,
     clientId: string,
     status: ClientStatus,
-  ): Promise<void>;
+  ): Promise<Date>;
 
   list(tenantId: string, filter: ClientListFilter): Promise<ClientListRow[]>;
+
+  /** The number of clients `list` would return without the cursor and the limit (SPEC-0006 R3). */
+  count(tenantId: string, filter: ClientCountFilter): Promise<number>;
 
   /** Deletes the `form_records` row; the cascade removes the client and its values. */
   deleteRecord(

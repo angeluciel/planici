@@ -20,6 +20,8 @@ export const CLIENT_ERROR_CODES = [
 	"clientStatus.invalid",
 	"limit.invalid",
 	"cursor.invalid",
+	// SPEC-0006 §6
+	"clientSort.invalid",
 ] as const;
 
 export type ClientErrorCode = (typeof CLIENT_ERROR_CODES)[number];

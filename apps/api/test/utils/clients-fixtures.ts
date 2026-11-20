@@ -211,6 +211,11 @@ export type SeedClientInput = {
   email: string;
   phone?: string | null;
   status?: 'active' | 'inactive';
+  /**
+   * The stored last update time (SPEC-0006 R9), any text Postgres reads as
+   * `timestamptz`, microseconds included; `now()` when omitted.
+   */
+  updatedAt?: string;
 };
 
 /**
@@ -233,8 +238,10 @@ export async function seedClient(
      )
      insert into clients
        (tenant_id, form_record_id, name, name_key, email, phone, status,
-        consent_attested_by, consent_attested_at, consent_text_version)
-     select $3, record.id, $4, $5, $6, $7, $8::record_status, $9::uuid, now(), '1'
+        consent_attested_by, consent_attested_at, consent_text_version,
+        updated_at)
+     select $3, record.id, $4, $5, $6, $7, $8::record_status, $9::uuid, now(), '1',
+            coalesce($10::timestamptz, now())
        from record
      returning id, form_record_id`,
     [
@@ -247,10 +254,23 @@ export async function seedClient(
       input.phone ?? null,
       input.status === 'inactive' ? 'suspended' : 'active',
       input.userId,
+      input.updatedAt ?? null,
     ],
   );
   if (!rows[0]) throw new Error('seedClient found no template to link to');
   return { id: rows[0].id as string, formRecordId: rows[0].form_record_id };
+}
+
+/** Sets the last update time of every client of a tenant to `at` (SPEC-0006 AC-0006-54). */
+export async function setUpdatedAt(
+  pool: Pool,
+  tenantId: string,
+  at: string,
+): Promise<void> {
+  await pool.query(
+    'update clients set updated_at = $2::timestamptz where tenant_id = $1',
+    [tenantId, at],
+  );
 }
 
 /** `count` active clients "Cliente 001" ... "Cliente NNN", in name order. */

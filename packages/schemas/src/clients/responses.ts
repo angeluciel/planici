@@ -32,11 +32,15 @@ export const ClientSummarySchema = z.object({
 	formId: z.string(),
 	formName: z.string(),
 	status: ClientStatusSchema,
+	// SPEC-0006 R9: the client's last update time
+	updatedAt: z.iso.datetime(),
 });
 
 export const ClientListResponseSchema = z.object({
 	clients: z.array(ClientSummarySchema),
 	nextCursor: z.string().nullable(),
+	// SPEC-0006 R3: matching clients, regardless of limit and after
+	total: z.number().int().nonnegative(),
 });
 
 // GET /api/clients/consent (web BFF): the deployed attestation text and its
