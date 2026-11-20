@@ -2,8 +2,8 @@
 id: SPEC-0006
 title: Lista de clientes — filtro por modelo, total e ordenação
 status: Approved # Draft | Review | Approved | Implemented | Superseded
-plan_status: Draft # Draft | Approved
-version: 1.7
+plan_status: Approved # Draft | Approved
+version: 1.10
 owner: Joao Izidoro
 satisfies: [RF-09, RN-02]
 depends_on: [SPEC-0001, SPEC-0003, SPEC-0004]
@@ -832,25 +832,11 @@ And   it equals the updatedAt of "Ana Souza" in the list
 
 ## 11. Implementation plan
 
-> **Needs revision (v1.5).** The behavior amendments of v1.4 (infinite scroll, closing block) and v1.5 (wide-screen
-> rows, narrow-screen cards, `-updatedAt` sort, `updatedAt` in `ClientSummary`, back-to-top) are not planned yet.
-> Owner technical choice (2026-11-19): TanStack Query only, no Table and no Virtual. Once v1.5 is approved, `/plan`
-> revises this section:
-> - one client-list hook on `useInfiniteQuery`, shared by both layouts; search, status, template filter and sort in
->   the query key; next page fetched as the end of the list comes near; a failed page keeps the loaded pages;
-> - separate components for the wide-screen row and the narrow-screen card, each layout passing its own sort and
->   template filter;
-> - API: the `-updatedAt` keyset on `(updated_at, id)` descending, the email sorts removed, and whether an index on
->   `(tenant_id, status, updated_at, id)` is needed at MVP sizes;
-> - the `@tanstack/react-table` and `@tanstack/react-virtual` packages removed by the owner with pnpm (G-3).
->
-> The approval of v1.3 no longer applies; `plan_status` is Draft. The text below is the v1.3 plan, kept as the base
-> for the revision.
-
-Drafted by `/plan` on 2026-11-19 against the code SPEC-0004 built (spec v1.6, `status: Approved`; its code is
-committed, but the spec is not yet `Implemented`, see G-5). Revised in v1.2 after the plan review and the
-count-cost research. Approved by the owner on 2026-11-19 (v1.3), with G-1 to G-4 decided as proposed; G-5 is an
-owner action before `/implement`.
+Drafted by `/plan` on 2026-11-20 for spec v1.7, against the code SPEC-0004 built (`status: Approved`, not yet
+`Implemented`, see G-5) and the working tree after commit `a11cb9d`. It replaces the v1.3 plan: v1.3's contract,
+count and cursor decisions carry over where still valid, and they are restated here so this section stands alone.
+Owner technical choice (2026-11-19): TanStack Query only, through one shared `useInfiniteQuery` hook. No Table and
+no Virtual; the owner removed both packages with pnpm. Approved by the owner on 2026-11-20 (v1.10), with G-1, G-2, G-4 and G-6 to G-9 decided as proposed; G-3 is met, and G-5 is an owner action before `/implement`.
 
 ```scope
 packages/schemas/src/clients/*
@@ -860,8 +846,11 @@ apps/api/src/modules/clients/*
 apps/api/test/utils/clients-fixtures.ts
 apps/api/test/e2e/clients-list*
 apps/web/src/app/*/orgs/*/clients/_components/*
+apps/web/src/app/*/orgs/_components/shell.tsx
 apps/web/src/app/api/clients/route.ts
 apps/web/src/lib/api/clients.ts
+apps/web/src/lib/query/*
+apps/web/src/components/ui/menu.tsx
 apps/web/tests/clients-list.test.tsx
 apps/web/tests/clients-harness.tsx
 docs/specs/SPEC-0006-lista-de-clientes.md
@@ -869,16 +858,17 @@ docs/specs/SPEC-0006-lista-de-clientes.md
 
 ### Owner decisions
 
-G-1 to G-4 decided as proposed (Joao Izidoro, 2026-11-19). G-3 and G-5 are preconditions the owner completes before
-`/implement` (Sequence step 0).
-
 | # | Gap | Decision |
 | --- | --- | --- |
-| G-1 | The Modelo control needs archived client templates; the [Novo] menu fetches only active ones. Two fetches, or one? | One fetch in the list page, `GET /api/forms?type=client&includeArchived=true`. The page passes the templates to the menu, which keeps only the active ones (it already filters by `status`). The W-list test of AC-0004-02 asserts that no forms request carries `includeArchived=true`. That assertion becomes "the menu lists only the active templates", which the test already checks. AC-0004-02 itself does not change. |
-| G-2 | AC-0006-40 and the narrow-screen part of AC-0006-41 depend on layout. The repo has no browser test runner, and jsdom has no media queries. | Checked by hand at `/review`, at 375 px and at 1280 px wide. The sort logic of AC-0006-41 is tested in W-list. |
-| G-3 | `task-lock.sh check` compares the base commit with the working tree, so any uncommitted file outside the scope blocks the lock. Uncommitted today: `docs/RFC-segmented/02-engenharia-de-requisitos.md`, `docs/architecture/api-convention.md`, `docs/specs/SPEC-0004-clientes.md`, `docs/specs/SPEC-0006-lista-de-clientes.md` (untracked), `apps/web/package.json` and `pnpm-lock.yaml`. The W-list suite also has one failing test (AC-0001-10, the `?type=client` link, §9 Q11). The list polish is already committed (`6eefdb1`). | Before the lock, the owner makes these commits, each on its own: (a) the doc changes (RFC, convention, SPEC-0004, SPEC-0006); (b) the one-line link fix restoring AC-0001-10; (c) the TanStack packages, or removes them with pnpm (see New dependencies). Then the tree is clean and W-list starts green. |
-| G-4 | Index for the e-mail sort. | None now. `idx_clients_tenant_email (tenant_id, email)` serves `status=all`. With a status filter, Postgres filters one tenant's clients, which is fine at MVP sizes. If it turns out slow, add an index in a later migration. |
-| G-5 | SPEC-0004 is `status: Approved`. Its 1.5 changelog keeps it Approved "until the owner accepts the behavior on a running system". `task-lock.sh start` refuses a `depends_on` spec that is not `Implemented`, so `/implement` cannot lock. | The owner accepts SPEC-0004 on a running system and sets it to `Implemented` (version bump and changelog line) before `/implement`, as SPEC-0004's G-6 did for SPEC-0003. Only the owner can do this. |
+| G-1 | The Modelo control needs archived client templates, and the [Novo] menu needs the active ones. | **Decided as proposed (owner, 2026-11-20).** One request through Query: a `useClientTemplates()` hook (`GET /api/forms?type=client&includeArchived=true`) used by both the Modelo control and the menu. Both use the same query key, so the page sends one request. The menu keeps only the active ones; it already filters by `status`. The W-list test of AC-0004-02 asserts that no forms request carries `includeArchived=true`. That assertion becomes "the menu lists only the active templates", which the test already checks. AC-0004-02 itself does not change. Replaces v1.3's G-1 (templates passed as a prop). |
+| G-2 | Layout (R10) decides the request: narrow sends no sort and no template filter. jsdom has no `matchMedia`. | **Decided as proposed (owner, 2026-11-20).** The page reads the layout through `use-layout.ts` (Web), on `matchMedia("(min-width: 768px)")`. 48rem is 768px at the 16px root; the existing hook and the harness's `mediaMatches` read px. The layout is part of the list's query key, so a layout change always reloads from the first page and returns to the top, even when sort and template filter are the defaults on both sides (R8, §4.6 step 6). W-list stubs `matchMedia` through a clients-harness helper that can also fire `change`, so every layout AC that sets screen width is tested in W-list (40, 41, 59–64, 67). Only the look is checked by hand at `/review`, at 375px and 1280px: full width, the badge on the right, the floating button's position. |
+| G-3 | `task-lock.sh check` compares the base commit with the working tree, so any uncommitted file outside the scope blocks the lock. | Met on 2026-11-20: the docs (`567ae92`), the package removal (`d015ad2`) and the AC-0001-10 link fix (`30d0a5e`) are committed. The only change left is this plan in this file, which is in the scope; the owner commits it after approving the plan. |
+| G-4 | Indexes for the new sorts. | Decided for v1.3 (no e-mail index); decided as proposed (owner, 2026-11-20) for `-updatedAt`: none now. With a status filter, Postgres reads one tenant's rows of that status and sorts the top 51 by `updated_at`, which is cheap at MVP sizes. The measurement in Risks covers it. If its p95 passes 20 ms, add `(tenant_id, status, updated_at, id)` in a later migration. |
+| G-5 | SPEC-0004 is `status: Approved`. `task-lock.sh start` refuses a `depends_on` spec that is not `Implemented`. | Precondition. The owner accepts SPEC-0004 on a running system and sets it to `Implemented` (version bump and changelog line) before `/implement`. Only the owner can do this. |
+| G-6 | `updated_at` is `timestamptz` with microseconds. A create stores `now()` with microseconds, while edits and status changes store a JS `Date`, in milliseconds. A cursor that carries a JS `Date` would cut the microseconds, and the keyset would then skip or repeat rows, against R4's "full stored precision". | **Decided as proposed (owner, 2026-11-20).** The `-updatedAt` cursor carries the exact value as text: the query selects `to_char(updated_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')` as the row's sort key. The keyset compares `(updated_at, id) < ($key::timestamptz, $id::uuid)`. No migration. Rejected: a migration that truncates every stored `updated_at` to milliseconds, which leaves a fragile rule for every future write. |
+| G-7 | Query defaults conflict with the spec. Retries are automatic requests (§4.5 step 3, AC-0006-45). Refetching on focus re-runs every loaded page. A cached list would come back mid-scroll on a new visit (Q18, AC-0006-68). | **Decided as proposed (owner, 2026-11-20).** For the list query: `retry: false`, `refetchOnWindowFocus: false`, `gcTime: 0` (leaving the page drops the pages, so the next visit starts at the top with the first page), no `placeholderData` (skeleton rows on any change, AC-0006-33). The templates query keeps the defaults, except `retry: false` (AC-0006-15: hidden on failure, at once). |
+| G-8 | No `QueryClientProvider` exists. A separate TanStack Query refactor (proposed earlier as its own session, not started here) may add one. | **Decided as proposed (owner, 2026-11-20).** `apps/web/src/lib/query/query-provider.tsx` exports `createQueryClient()` and a `QueryProvider` that holds one client from it per browser session (`useState`); the provider is mounted in the private `shell.tsx`. The tests build their client with the same `createQueryClient()` and add no test-only defaults, so the per-query options of G-7 are what the tests exercise. If the refactor lands a provider first, reuse it, add the factory if it lacks one, and drop this file from the scope. |
+| G-9 | §4.5 step 1 says the next page loads when the last loaded row comes into view. The owner's request said "as the user approaches the bottom". | **Decided as proposed (owner, 2026-11-20).** An `IntersectionObserver` on the last loaded row, `rootMargin: "0px"`, as the spec says; keyboard focus within that row triggers it too. Loading earlier, for example 400px before the end, is a one-line change, but it is a spec change to §4.5 step 1. |
 
 ### Contracts (`packages/schemas/src/clients/`)
 
@@ -886,19 +876,24 @@ G-1 to G-4 decided as proposed (Joao Izidoro, 2026-11-19). G-3 and G-5 are preco
   `limit`, `after`.
   - `formId`: `RecordFormIdSchema.optional()` (records contract; malformed → `formId.invalid`).
   - `sort`: `z.enum(CLIENT_SORTS, { error: "clientSort.invalid" }).default("name")`, with
-    `CLIENT_SORTS = ["name", "-name", "email", "-email"] as const` and `type ClientSort`.
-- `responses.ts`: `ClientListResponseSchema` adds `total: z.number().int().nonnegative()`.
+    `CLIENT_SORTS = ["name", "-name", "-updatedAt"] as const` and `type ClientSort`.
+- `responses.ts`:
+  - `ClientSummarySchema` adds `updatedAt: z.iso.datetime()` (the type `RecordBaseSchema` uses).
+  - `ClientListResponseSchema` adds `total: z.number().int().nonnegative()`.
+  - `ClientResponse` keeps its shape; only the meaning of `updatedAt` changes (R9, Q30).
 - `errors.ts`: append `"clientSort.invalid"` to `CLIENT_ERROR_CODES`. `formId.invalid` already exists in
   `RECORD_ERROR_CODES` and is reused (§9 Q14).
-- i18n: `validation.clientSort.invalid` in pt-BR and en-US.
-- Additive. The only consumer is `apps/web`. Its BFF parses the response with `ClientListResponseSchema`, so web
-  fixtures must carry `total`.
+- Additive, non-breaking. The only consumer is `apps/web`. Its BFF parses the response with
+  `ClientListResponseSchema`, so web fixtures must carry `total` and `updatedAt`.
 
 ### Persistence
 
-No table, column, index or migration change (G-4). Nothing to roll back. The template filter uses the existing join
-`clients → form_records (form_id) → forms`, which already carries `tenant_id` on every join. A template of
-another tenant, an unknown id or a service template therefore matches no row (R2), with no extra lookup.
+No table, column, index or migration change (G-4, G-6). Nothing to roll back.
+- The template filter uses the existing join `clients → form_records (form_id) → forms`, which carries `tenant_id`
+  on every join. Another tenant's template, an unknown id and a service template therefore match no row (R2), with
+  no extra lookup.
+- `clients.updated_at` already behaves as R9 says: `defaultNow()` on insert; `updateAttributes` (called on every
+  client edit) and `setStatus` set it.
 
 ### API (`apps/api/src/modules/clients/`)
 
@@ -908,81 +903,179 @@ another tenant, an unknown id or a service template therefore matches no row (R2
 
 - `domain/client-cursor.ts`:
   - `CursorFilter` gains `formId` (`''` when none) and `sort`. `decodeCursor` rejects any difference in them (R5).
-  - `CursorPosition` becomes `{ key, id }`, where `key` is the last row's `name_key` for the name sorts and its
-    `email` for the e-mail sorts.
-  - The payload stays `{ f, n, i }`; `f` now holds four fields. Cursors issued before the deploy fail with 422
-    `cursor.invalid` (Risks).
+  - `CursorPosition` becomes `{ key, id }`. `key` is the last row's `name_key` for the name sorts, and its exact
+    `updated_at` text for `-updatedAt` (G-6).
+  - The payload becomes `{ f, k, i }`. Cursors issued before the deploy fail with 422 `cursor.invalid` (Risks).
 - `ports/client.repository.ts`:
+  - `StoredClient` gains `updatedAt: Date`.
+  - `ClientListRow` gains `updatedAt: Date` and `sortKey: string`, the value the next cursor carries.
   - `ClientListFilter` gains `formId: string | null` and `sort: ClientSort`. `after` becomes `{ key, id } | null`.
   - New `count(tenantId, filter: Omit<ClientListFilter, 'after' | 'take'>): Promise<number>`.
+  - `setStatus` returns the stored `updatedAt` (`returning`).
 - `infrastructure/persistence/client.drizzle.repository.ts`:
-  - `list`: when `formId` is set, add `eq(formRecords.formId, formId)`. Order by `(name_key, id)` or `(email, id)`,
-    ascending or descending as `sort` says. The keyset compares with `>` when ascending and `<` when descending.
+  - `columns` gains `updatedAt`, so `find` and `lockById` read it.
+  - `list`:
+    - When `formId` is set, add `eq(formRecords.formId, formId)`.
+    - The sort maps to an order and a keyset:
+
+      | Sort | Order | Keyset |
+      | --- | --- | --- |
+      | `name` | `name_key`, `id` ascending | `(name_key, id) > (key, id)` |
+      | `-name` | both descending | `<` |
+      | `-updatedAt` | `updated_at`, `id` descending | `(updated_at, id) < (key::timestamptz, id::uuid)` |
+
+    - It selects `updated_at` and the `sortKey` expression of G-6.
   - `count`: `count(*)::int` with the same joins and conditions as `list`, without the keyset and the limit.
-  - Both go through `guardQuery`.
+  - All of them go through `guardQuery`.
 - `queries/list-clients/list-clients.handler.ts`:
-  - Build the cursor filter from `status`, the search key, `formId` and `sort`.
-  - **Single-page rule.** Run `list` first. If there is no `after` and `list` returned `limit` rows or fewer, the
-    page holds every match, so `total` is the number of rows and `count` does not run. Otherwise run `count` after
-    `list`, sequentially, not with `Promise.all`.
-  - This skips the second scan for searches with up to 50 matches, where it costs most. The total stays exact and
-    comes from the same snapshot as the rows. A request holds one pool connection, not two.
-  - AC-0006-17 exercises the derived branch, AC-0006-16 the `count` branch.
-  - Return `total`. The `nextCursor` key follows the sort.
-- ACs: 01–07, 16–18, 22–27, 34, 42.
+  - Builds the cursor filter from `status`, the search key, `formId` and `sort`.
+  - **Single-page rule** (v1.3, kept). It runs `list` first. If there is no `after` and `list` returned `limit` rows
+    or fewer, the page holds every match: `total` is the number of rows and `count` does not run. Otherwise it runs
+    `count` after `list`, sequentially, not with `Promise.all`. A request holds one pool connection, and the total
+    comes from the same snapshot as the rows.
+  - Maps `updatedAt` with `toISOString()`. Returns `total`. `nextCursor` comes from the last row's `sortKey`.
+- `application/present-client.ts`: `updatedAt` comes from the client row (`client.updatedAt.toISOString()`), not
+  from the record. `createdAt` still comes from the record. The comment points to SPEC-0006 R9 and amended Decision 9.
+- `commands/inactivate-client` and `reactivate-client` handlers present `{ ...client, status, updatedAt }`, with the
+  `updatedAt` that `setStatus` returns. Today they present the row read before the update, which would report the
+  old time. Create and update already re-read the row after writing.
+- ACs: 01–07, 16–18, 22–27, 34, 42, 53–57, 69.
 
 ### Web
 
 - `apps/web/src/app/api/clients/route.ts`: forward `formId` and `sort` too.
-- `apps/web/src/lib/api/clients.ts`: `listClients` takes `formId?` and `sort?`.
-- `clients/_components/clients-list.tsx`:
-  - **Templates.** Fetch the client templates once (G-1). Show the Modelo control (the existing `Select`, `field`
-    look, label `clients.list.filter.form`) only when there are 2 or more. Its options are `allForms` followed by
-    the templates in API order, which is by `name_key`, then `id`, within a type (SPEC-0001 §11, `GET /v1/forms`).
-    Archived templates are labelled with `archivedForm`. The control is hidden while the templates load and when
-    the fetch fails.
-  - **List state.** State `formId` (null) and `sort` (null means the default, so the first request has no `sort`,
-    AC-0006-32). Any change of q, status, formId or sort restarts from the first page. "Carregar mais" sends all
-    of them with the cursor.
-  - **Empty check.** The "is there any client at all" request (SPEC-0004 Decision 6) also runs when a `formId` is
-    chosen.
-  - **Total.** Show `clients.list.count` above the table in the success state only. Every response replaces the
-    shown total, "Carregar mais" included (§4.3 step 2). Today `loadMore` copies the previous page state, so it must
-    take `total` from its own response.
-  - **Columns.** Drop the Modelo column.
-  - **Sorting.**
-    - The Nome and E-mail headers render a `<button>` inside the `<th>`. The `<th>` carries `aria-sort`, and the
-      button's accessible name adds `clients.list.sort.ascending` / `descending` for the current column.
-    - Header rules follow §4.4. Pressing Nome while the sort is null sends `-name`.
-    - Telefone stays plain text. On narrow screens only the Nome header is rendered (the existing `md:` classes).
-- `new-client-menu.tsx`: takes the templates as a prop instead of fetching them (G-1).
-- Extract the sortable header into `clients/_components/sort-header.tsx` if `clients-list.tsx` passes about 350
-  lines.
-- i18n:
+- `apps/web/src/lib/api/clients.ts`: `ListClientsParams` gains `formId?` and `sort?`.
+- `apps/web/src/lib/query/query-provider.tsx` (new, G-8), mounted in `orgs/_components/shell.tsx`.
+- `apps/web/src/components/ui/menu.tsx`: a fourth appearance, `floating`. A round primary trigger that shows only
+  the `trigger` icon, takes `label` as its accessible name, like `icon` does, and positions itself fixed at the
+  bottom right, above the page.
+- In `clients/_components/`:
+  - `use-client-templates.ts` (new): `useQuery` for the client templates (G-1, G-7).
+  - `use-layout.ts` (new): `"wide" | "narrow" | null`, from `useSyncExternalStore` on
+    `matchMedia("(min-width: 768px)")` (G-2):
+    - its server snapshot is `null`, so the server render and the hydration render know no layout;
+    - its client snapshot is `"wide"` or `"narrow"`, and `"wide"` without `matchMedia` (jsdom), as `useMediaQuery`
+      does;
+    - it re-renders on the query's `change` event.
+
+    On a phone, the hydration render therefore has `null`, and the next render has `"narrow"`. Client-side
+    navigation has no hydration, so its first render already has the real layout.
+  - `use-client-list.ts` (new), the shared hook:
+    - Takes `{ layout, q, status, formId, sort }`; the caller passes `formId` and `sort` as `undefined` on narrow
+      screens.
+    - Calls `useInfiniteQuery` with key `["clients", "list", tenant, { layout, q, status, formId, sort }]` and the
+      options of G-7, plus `enabled: layout !== null`. While the layout is unknown, no request is sent and the page
+      shows the skeleton rows. A phone therefore sends one first request, the narrow one, never a wide one first.
+    - `queryFn`:
+      - Calls `listClients` with the inputs and `after: pageParam`, and throws on a failed result.
+      - When the first page is empty, there is no `q`, and a filter is on (`status !== "all"` or a `formId`), it
+        also asks whether the tenant has any client at all (SPEC-0004 Decision 6). This now covers the template
+        filter (§4.2 step 7). It stores `empty: "none" | "filter"` on that page.
+    - `getNextPageParam` returns `nextCursor ?? undefined`.
+    - Returns:
+      - the rows (all pages flattened);
+      - `total`, from the latest page (§4.3 step 2);
+      - `empty`;
+      - the first-page states: `pending`, or `error` with `refetch` as its retry;
+      - the next-page states: `isFetchingNextPage`, `isFetchNextPageError` with `fetchNextPage` as its retry;
+      - `hasNextPage`;
+      - `loadNext()`, which calls `fetchNextPage` only when there is a next page, none is loading, and the last one
+        did not fail. This gives one request at a time and no automatic request after a failure (§4.5 steps 2–3).
+    - A response for an older key is never shown: Query keeps each key's pages apart.
+  - `use-reach-end.ts` (new): a ref callback for the last loaded row or card. It calls `loadNext` when an
+    `IntersectionObserver` reports it in view (G-9), and on `focusin` within it (AC-0006-44).
+  - `clients-list.tsx`, the page:
+    - **State.** `input` and its debounced `q` (as today), `status`, and the wide-screen-only `formId` and `sort`.
+      Those two are kept while the screen is narrow, so going back to wide restores them (§4.6 step 6). `sort` is
+      `null` for the default, so the first request has no `sort` (AC-0006-32).
+    - **Back to the top (R8).** An effect on the query key (`layout`, `q`, `status`, `formId`, `sort`), the first
+      render with a known layout included, calls `window.scrollTo({ top: 0 })`. This covers changes of search,
+      filter, sort and layout, and a new visit (AC-0006-41, -58, -68). Because `layout` is in the key, narrowing with
+      the default sort and no template also reloads the first page and scrolls up.
+    - **Header.** On wide screens, the title and `<NewClientMenu appearance="button" />`. On narrow screens, only the
+      title, with `<NewClientMenu appearance="floating" />` (AC-0006-63).
+    - **Toolbar.**
+      - The search and the status radios, as today.
+      - Wide screens only: the Modelo `Select` and the "Ordenar por" `Select`.
+      - The Modelo control shows when there are 2 or more client templates. Its options are `allForms`, then the
+        templates in API order (`name_key`, then `id`, within a type: SPEC-0001 §11, `GET /v1/forms`). Archived ones
+        are labelled with `archivedForm`. It is hidden while the templates load and when their request fails.
+      - The "Ordenar por" options are `nameAsc`, `nameDesc` and `updatedAt`, mapped to `null`, `-name` and
+        `-updatedAt`.
+    - **Total.** `clients.list.count` above the rows, in the success state only.
+    - **Rows.** `ClientRows` on wide screens, `ClientCards` on narrow ones, then `ListEnd`.
+    - Extract the toolbar into `clients-toolbar.tsx` if `clients-list.tsx` passes about 300 lines.
+  - `client-badges.tsx` (new): the "Inativo" badge (`list.inactiveBadge`) and the template badge (`formName`), in
+    that order, shared by row and card (R6).
+  - `client-rows.tsx` (new), wide screens:
+    - A `<ul>` of full-width rows, with no column headers.
+    - Left: initials (the existing `initials()`, moved here), the name `Link`, the e-mail
+      (`text-text-primary`), and the phone (`maskPhone`, `text-text-secondary`). There is no phone line when the
+      client has no phone.
+    - Right: `ClientBadges`.
+    - The whole row opens the client's page, as today (SPEC-0004 §4.1 step 7), and so does the name link.
+  - `client-cards.tsx` (new), narrow screens:
+    - Cards grouped under letter headings. `letterOf(name)` takes the first character after NFD with marks
+      removed, upper-cased; it returns "#" when that character is not a letter (`\p{L}`).
+    - A heading is rendered only when the letter differs from the previous card's. A page that starts with the
+      last loaded card's letter therefore adds no heading (§4.6 step 7, AC-0006-61).
+    - A card shows initials, the name `Link`, the e-mail, the date and `ClientBadges`.
+    - The date is `useFormatter().dateTime(updatedAt, { day: "2-digit", month: "2-digit", timeZone: zone })`, plus
+      `year: "numeric"` when it is not the current year in `zone`. `zone` is the browser's own,
+      `Intl.DateTimeFormat().resolvedOptions().timeZone`, passed explicitly (Q26). It is needed because next-intl
+      4.14.2's server `NextIntlClientProvider` passes the server's zone when none is configured
+      (`timeZone ?? getTimeZone()`), so the formatter's default would show the server's dates (UTC in production).
+      The year check compares the year of `updatedAt` and of now, both formatted in `zone`. Cards render only after
+      the list request answers in the browser, so `zone` is always the browser's.
+  - `list-end.tsx` (new), below the rows:
+    - While the next page loads: `list.loadingMore` with the spinner.
+    - On a next-page failure: `Alert` with `list.loadMoreError` and a retry `Button` (`form.retry`).
+    - With no next page and at least one row: the closing block, a `<div aria-hidden="true">` empty illustration
+      slot (Q15) and the `list.end` message.
+    - A polite `aria-live` region with `list.loadedCount` after each next page (AC-0006-50).
+  - `new-client-menu.tsx`: takes `appearance: "button" | "floating"` and reads `useClientTemplates()` instead of
+    fetching in an effect (G-1). Its items are unchanged. `floating` uses the `plus` icon and the
+    `clients.new.floating` label.
+- i18n (pt-BR and en-US, copy as §8):
   - Add `clients.list.count`, `clients.list.filter.form`, `clients.list.filter.allForms`,
-    `clients.list.filter.archivedForm`, `clients.list.sort.ascending`, `clients.list.sort.descending`.
-  - Remove `clients.list.columns.form`.
-- ACs: 08–15, 19–21, 28–33, 35–41.
+    `clients.list.filter.archivedForm`, `clients.list.sort.label`, `clients.list.sort.nameAsc`,
+    `clients.list.sort.nameDesc`, `clients.list.sort.updatedAt`, `clients.list.end`, `clients.list.loadedCount`,
+    `clients.new.floating`, `validation.clientSort.invalid`.
+  - Change `clients.list.loadingMore` to "Carregando mais clientes…" / "Loading more clients…".
+  - Remove `clients.list.columns.*`; it is used only by today's table.
+- ACs: 08–15, 19–21, 28–33, 35–41, 43–52, 58–68.
 
 ### Tests
 
-API e2e is `apps/api/test/e2e/clients-list.e2e-spec.ts` (Testcontainers; new `describe('SPEC-0006 …')` blocks). It
-uses `clients-fixtures.ts` (seeding clients for a given template) and the existing `archive(id)` helper of
-`apps/api/test/utils/forms-fixtures.ts` (read only, not in scope). API unit tests are `domain/client-cursor.spec.ts` and `domain/client-requests.spec.ts`. Web
-is `apps/web/tests/clients-list.test.tsx` (W-list), with `clients-harness.tsx` (`total` in `ListReply` and
-`EMPTY_LIST`, `formId` and `sort` visible to `serveList` handlers).
+- **API e2e**: `apps/api/test/e2e/clients-list.e2e-spec.ts` (Testcontainers), new `describe('SPEC-0006 …')` blocks.
+  - `clients-fixtures.ts`: `seedClient` gains `updatedAt?: string` (`coalesce($n::timestamptz, now())`), and a new
+    `setUpdatedAt(pool, tenantId, at)` sets every client of a tenant to one time.
+  - It uses the existing `archive(id)` helper of `apps/api/test/utils/forms-fixtures.ts` (read only, not in scope).
+- **API unit**: `domain/client-cursor.spec.ts` and `domain/client-requests.spec.ts`.
+- **Web**: `apps/web/tests/clients-list.test.tsx` (W-list), with `clients-harness.tsx` gaining:
+  - `renderClients(ui, { client })`: the page inside a `QueryClientProvider` whose client comes from the app's
+    `createQueryClient()` (G-8), with no test-only defaults such as `retry: false`. A test may pass its own client to
+    remount the page under the same cache (AC-0006-68). The providers are `NextIntlClientProvider` (pt-BR messages,
+    `timeZone="UTC"`, standing in for the server's zone) and the `ToastProvider`, as `renderApp` does;
+  - `clientRow` with `updatedAt`, and `ListReply` and `EMPTY_LIST` with `total`;
+  - `serveList` handlers that see `formId` and `sort`;
+  - `stubIntersection()`, a fake `IntersectionObserver` (`vi.stubGlobal`) whose `revealLast()` reports the
+    observed element in view;
+  - `useScreen("narrow" | "wide")`, a `matchMedia` override (the `setScreen` pattern of forms-harness) that also
+    fires `change`, plus `restoreClientsScreen()`;
+  - a `window.scrollTo` spy.
 
 | AC | File | Test name |
 | --- | --- | --- |
-| 01 | e2e clients-list | `AC-0006-01 filters by template and reports total 1` |
+| 01 | e2e clients-list | `AC-0006-01 filters by template and reports total 1`; plus `R3 count path: the template filter's total with limit 1` (two "Anamnese" clients, one "Ficha" client, and studio-bia clients; formId of "Anamnese", limit 1 → one row, a nextCursor and total 2, so `count` runs with the `formId` condition) |
 | 02 | e2e clients-list | `AC-0006-02 combines the template filter with q and status` |
 | 03 | e2e clients-list | `AC-0006-03 lists the clients of an archived template` |
 | 04 | e2e clients-list | `AC-0006-04 answers an empty list and total 0 for another tenant's template` |
 | 05 | e2e clients-list | `AC-0006-05 answers an empty list and total 0 for an unknown template id` |
 | 06 | e2e clients-list | `AC-0006-06 answers an empty list and total 0 for a service template` |
 | 07 | e2e clients-list, unit client-requests | `AC-0006-07 rejects a malformed formId with formId.invalid` |
-| 08 | W-list | `AC-0006-08 shows exactly Nome, E-mail, Telefone and no template` |
-| 09 | W-list | `AC-0006-09 shows "—" for a client without a phone` |
+| 08 | W-list + manual (G-2) | `AC-0006-08 a wide row shows initials, name, e-mail, phone and the template badge, with no column headers`; badge position by hand |
+| 09 | W-list | `AC-0006-09 a client without a phone has no phone line and no "—"` |
 | 10 | W-list | `AC-0006-10 offers Todos os modelos, then client templates by name, archived marked` |
 | 11 | W-list | `AC-0006-11 shows no Modelo control with a single client template` |
 | 12 | W-list | `AC-0006-12 choosing a template sends q and formId without after and shows "1 cliente"` |
@@ -991,83 +1084,119 @@ is `apps/web/tests/clients-list.test.tsx` (W-list), with `clients-harness.tsx` (
 | 15 | W-list | `AC-0006-15 hides the Modelo control when templates fail and still lists` |
 | 16 | e2e clients-list | `AC-0006-16 reports total 120 on two pages of limit 10` |
 | 17 | e2e clients-list | `AC-0006-17 total follows the search and the status filter` |
-| 18 | e2e clients-list | `AC-0006-18 total never counts another tenant's clients` |
-| 19 | W-list | `AC-0006-19 keeps "120 clientes" after Carregar mais`; plus `§4.3 step 2 Carregar mais shows the total of its own response` (second page answers total 121, page shows "121 clientes") |
+| 18 | e2e clients-list | `AC-0006-18 total never counts another tenant's clients`; plus `AC-0006-18 count path: limit 1 still counts only the tenant's clients` (studio-bia's 3 clients seeded; limit 1 → one row, a nextCursor and total 2, so `count` runs and its tenant filter is checked) |
+| 19 | W-list | `AC-0006-19 keeps "120 clientes" after the second page loads`; plus `§4.3 step 2 the total follows the latest page` (second page answers total 121, the page shows "121 clientes") |
 | 20 | W-list | `AC-0006-20 shows "1 cliente"` |
-| 21 | W-list | `AC-0006-21 shows no total in the no-clients state` |
+| 21 | W-list | `AC-0006-21 shows no total and no closing block in the no-clients state` |
 | 22 | e2e clients-list | `AC-0006-22 sorts by name descending ignoring case and accents` |
-| 23 | e2e clients-list | `AC-0006-23 sorts by e-mail ascending and descending` |
+| 23 | e2e clients-list | `AC-0006-23 sorts by last update, newest first` |
 | 24 | e2e clients-list | `AC-0006-24 pages a descending name sort with a tie at the page boundary` |
 | 25 | e2e clients-list, unit client-requests | `AC-0006-25 rejects sort "phone" with clientSort.invalid` |
 | 26 | e2e clients-list, unit client-cursor | `AC-0006-26 rejects a cursor issued for another sort` |
 | 27 | unit client-requests, e2e clients-list | `AC-0006-27 checks q before formId and sort` |
-| 28 | W-list | `AC-0006-28 marks Nome ascending on load; Telefone is not a sort control` |
-| 29 | W-list | `AC-0006-29 toggles the name sort between -name and name` |
-| 30 | W-list | `AC-0006-30 pressing E-mail sorts by email ascending` |
+| 28 | W-list | `AC-0006-28 the sort control shows Nome (A–Z) and offers the three sorts in order` |
+| 29 | W-list | `AC-0006-29 Nome (Z–A) sends -name and Nome (A–Z) sends name` |
+| 30 | W-list | `AC-0006-30 Última atualização sends -updatedAt` |
 | 31 | W-list | `AC-0006-31 a sort change keeps search and filters and restarts at the first page` |
-| 32 | W-list | `AC-0006-32 a new visit sends no sort and marks Nome ascending` |
+| 32 | W-list | `AC-0006-32 a new visit sends no sort and shows Nome (A–Z)` |
 | 33 | W-list | `AC-0006-33 shows skeleton rows and no total while a sort change loads` |
 | 34 | e2e clients-list, unit client-cursor | `AC-0006-34 rejects a cursor issued for another template filter` |
-| 35 | W-list | `AC-0006-35 Carregar mais sends sort, formId and the cursor` |
+| 35 | W-list | `AC-0006-35 the next page sends sort, formId and the cursor` |
 | 36 | W-list | `AC-0006-36 shows no total in the error state` |
-| 37 | W-list | `AC-0006-37 shows no total in the emptyFilter state` |
+| 37 | W-list | `AC-0006-37 shows no total and no closing block in the emptyFilter state` |
 | 38 | W-list | `AC-0006-38 shows no total in the noResults state` |
 | 39 | W-list | `AC-0006-39 hides the Modelo control while templates load` |
-| 40 | manual (G-2) | at `/review`: 375 px wide, only Nome shown and marked ascending |
-| 41 | W-list + manual (G-2) | `AC-0006-41 pressing Nome while sorted by e-mail sorts by name ascending`; narrow layout by hand |
+| 40 | W-list | `AC-0006-40 narrow: search, status and total; no sort or Modelo control; no sort or formId sent` |
+| 41 | W-list | `AC-0006-41 narrowing drops sort and formId, keeps q and status, and goes back to the top`; plus `R8 narrowing with the default sort and no template reloads the first page and scrolls up` (two pages loaded on a wide screen with the defaults, then narrow → one request with no after, `scrollTo` called, only the first page shown) |
 | 42 | unit client-requests, e2e clients-list | `AC-0006-42 checks formId before sort` |
+| 43 | W-list | `AC-0006-43 the 50th row in view loads the next page once and appends it` |
+| 44 | W-list | `AC-0006-44 Tab to the 50th name loads the next page` |
+| 45 | W-list | `AC-0006-45 a failed next page keeps the rows, sends nothing until retry, and retry loads it` (replaces the AC-0004-63 test). It waits 1.2 s after the failure, past Query's first default retry delay (1 s), before asserting that no request was sent, so a list query that kept the default retries fails it |
+| 46 | W-list | `AC-0006-46 shows loadingMore and sends no second request while a page loads` |
+| 47 | W-list | `AC-0006-47 shows the closing block after the third page and sends nothing more` |
+| 48 | W-list | `AC-0006-48 shows the closing block under a single short page` |
+| 49 | W-list | `AC-0006-49 shows no closing block in the noResults state` |
+| 50 | W-list | `AC-0006-50 announces "100 de 120 clientes carregados" without moving focus` |
+| 51 | W-list | `AC-0006-51 shows no Carregar mais button` |
+| 52 | W-list | `AC-0006-52 the closing illustration is hidden from assistive technology` |
+| 53 | e2e clients-list, unit client-requests | `AC-0006-53 rejects sort "updatedAt" with clientSort.invalid` |
+| 54 | e2e clients-list | `AC-0006-54 pages -updatedAt over 60 clients with one microsecond-precise time` (G-6) |
+| 55 | e2e clients-list | `AC-0006-55 an edit moves the client up under -updatedAt` |
+| 56 | e2e clients-list | `AC-0006-56 an inactivation moves the client up under -updatedAt` |
+| 57 | e2e clients-list | `AC-0006-57 the list reports updatedAt as ISO-8601 UTC` |
+| 58 | W-list | `AC-0006-58 a status change scrolls the list back to the top` |
+| 59 | W-list | `AC-0006-59 narrow card shows initials, name, e-mail, "02/08" and the template badge, no phone` (browser TZ America/Sao_Paulo, Risks); plus `Q26 the card date uses the browser's time zone, not the provider's` (provider `timeZone="UTC"`, browser America/Sao_Paulo, `updatedAt` 2026-08-03T01:00:00Z → "02/08", where UTC would give "03/08") |
+| 60 | W-list | `AC-0006-60 narrow headings A, E, J group by letter ignoring case and accents` |
+| 61 | W-list | `AC-0006-61 a page starting with the same letter adds no second heading` |
+| 62 | W-list | `AC-0006-62 a name not starting with a letter goes under "#"` |
+| 63 | W-list + manual (G-2) | `AC-0006-63 the floating Novo cliente button opens the Novo menu; no top Novo button`; position by hand |
+| 64 | W-list | `AC-0006-64 widening restores the wide sort and template` |
+| 65 | W-list | `AC-0006-65 an archived template's badge shows its name alone` |
+| 66 | W-list | `AC-0006-66 a wide row shows Inativo right before the template badge` |
+| 67 | W-list | `AC-0006-67 a narrow card shows Inativo right before the template badge` |
+| 68 | W-list | `AC-0006-68 coming back to the list starts at the top with the first page`. One `createQueryClient()` client for the whole test: load two pages, unmount the list, wait one macrotask (so `gcTime: 0` collects the query), render it again under the same client. The new first request has no after, and only the first page shows. A list query without `gcTime: 0` would show both cached pages and fail it |
+| 69 | e2e clients-list | `AC-0006-69 after an inactivation, the read and the list report the same later updatedAt` |
 
 Deferred checks: none. Every AC can be verified with code that exists.
 
 Existing tests touched. Each changes shape only, not what it asserts:
-- W-list AC-0004-02: the `includeArchived` assertion (G-1).
-- SPEC-0004 W-list fixtures (`ListReply`, `EMPTY_LIST`): gain `total`.
+- W-list:
+  - every test renders with `renderClients` (Query provider);
+  - AC-0004-02: the `includeArchived` assertion (G-1);
+  - the "Carregar mais" block: the AC-0004-63 test goes, superseded by AC-0006-45 (SPEC-0004 v1.7).
+- SPEC-0004 W-list fixtures (`clientRow`, `ListReply`, `EMPTY_LIST`): gain `updatedAt` and `total`.
 - `client-requests.spec.ts`:
-  - `lists the client error codes of §6, each once`: the list gains `clientSort.invalid`.
+  - `lists the client error codes of §6, each once`: the list gains `clientSort.invalid`;
   - `defaults status to active and limit to 50`: the parsed output gains `sort: "name"`.
 - `client-cursor.spec.ts`: the `filter` and `last` fixtures behind the AC-0004-21/-23 tests and the wrong-shape
   cases. `nameKey` becomes `key`, and the filter gains `formId` and `sort`.
 
-AC-0004-21 to -23 must stay green, because the default sort and the cursor rules keep their behavior.
+These must stay green, because the default sort, the cursor rules and the response shapes keep their behavior:
+- AC-0004-21 to -23;
+- the SPEC-0003 and SPEC-0004 e2e suites, which check `updatedAt` only as a string.
 
 ### Sequence
 
-0. **Preconditions** (owner): G-3 commits made and the tree clean; SPEC-0004 set to `Implemented` (G-5).
+0. **Preconditions** (owner): this plan committed, so the tree is clean (G-3); SPEC-0004 set to `Implemented` (G-5).
 1. **Contracts.** Schemas, error code, `validation.clientSort.invalid` copy.
-   `pnpm --filter @planici/schemas build && pnpm --filter @planici/schemas typecheck`. The schemas package has no
-   tests; `client-requests.spec.ts` covers the schema under `pnpm --filter api test`. Once `total` is required, the
-   api typecheck and the SPEC-0004 W-list tests fail until steps 3 and 4. So the commit plan keeps the contract,
-   API and harness changes in one commit; steps 1–4 are working steps, not separate commits.
+   `pnpm --filter @planici/schemas build && pnpm --filter @planici/schemas typecheck`.
+   - Once `total` and `updatedAt` are required, the api typecheck and the W-list fixtures fail until steps 3 and 4.
+     So the commit plan keeps the contract, API and harness changes in one commit; steps 1–4 are working steps, not
+     separate commits.
 2. **Failing tests.**
    - API unit and e2e for the API ACs.
-   - Harness `total`, plus the W-list tests for the UI ACs.
+   - Harness (provider, IO stub, screen helper, fixtures) and the W-list tests for the UI ACs.
    - Confirm they fail for the right reason.
-3. **API.** Cursor, repository `list` and `count`, handler. `pnpm --filter api test && pnpm --filter api test:e2e`.
+3. **API.** Cursor, repository (`list`, `count`, `updatedAt`), handler, presenter, status handlers.
+   `pnpm --filter api test && pnpm --filter api test:e2e`.
 4. **Web.**
-   - BFF and adapter.
-   - List page: template control, total, sort headers, no Modelo column. Menu prop (G-1). i18n keys.
+   - Provider and shell, BFF and adapter, the `menu.tsx` appearance.
+   - Hooks, then the list, rows, cards, end block and menu. i18n keys.
    - `pnpm --filter web lint && pnpm --filter web typecheck && pnpm --filter web test`.
-5. **Close.** Whole-repo `pnpm lint && pnpm typecheck && pnpm test`. Manual check of AC-0006-40/41 (G-2). Update the
-   changelog.
+5. **Close.** Whole-repo `pnpm lint && pnpm typecheck && pnpm test`. Manual look at 375px and 1280px (G-2), and
+   back navigation in a real browser (Risks). Update the changelog.
 
 ### Risks
 
 | Risk | Cheapest early check |
 | --- | --- |
-| The §6 check order depends on the validation pipe answering the first issue in schema key order. | Write AC-0006-27/-42 unit tests first (step 2); they fail fast if the order differs. |
-| `count(*)` repeats the list's predicates, including the unindexed `LIKE '%…%'` search. The single-page rule (API) skips it whenever the first page holds every match, but results longer than one page still scan twice, most of all when sorted by e-mail or with status "all". | Before or during step 3, run `EXPLAIN (ANALYZE, BUFFERS)` on Testcontainers postgres:17: one tenant with 5,000 clients plus 20,000 in other tenants, `ANALYZE`, then time `list` and `count` for no `q` (active, by name), a `q` matching nothing, a `q` matching most rows, and status "all" by e-mail. Repeat with 50,000. Revisit if the count's p95 passes 20 ms or a tenant passes 10,000 clients: a `pg_trgm` index if the search is the cost, or a capped count (a spec change). |
-| The cursor payload changes, so a "Carregar mais" across the deploy fails with `cursor.invalid` and its retry fails too, until the page reloads. | Accept: a one-time edge at deploy. A reload fixes it. |
-| Uncommitted files outside the scope, the AC-0001-10 failure, and SPEC-0004 not yet `Implemented` block the lock (G-3, G-5). | Owner preconditions, step 0. |
-| The `Select` popup in jsdom for AC-0006-10/12/13. | Existing record-form tests already open a `Select`; reuse their pattern. |
+| The §6 check order depends on the validation pipe answering the first issue in schema key order. | Write the AC-0006-27/-42 unit tests first (step 2); they fail fast if the order differs. |
+| `count(*)` repeats the list's predicates, including the unindexed `LIKE '%…%'` search. The `-updatedAt` sort has no index (G-4). | During step 3, run `EXPLAIN (ANALYZE, BUFFERS)` on Testcontainers postgres:17. Set up one tenant with 5,000 clients plus 20,000 in other tenants, and run `ANALYZE`. Then time `list` and `count` for: no `q` (active, by name); a `q` matching nothing; a `q` matching most rows; `-updatedAt` active; and status "all" by name. Repeat with 50,000. Revisit if a p95 passes 20 ms or a tenant passes 10,000 clients: a `pg_trgm` index if the search is the cost, the G-4 index for `-updatedAt`, or a capped count (a spec change). |
+| Microsecond `updated_at` against a millisecond cursor skips or repeats rows (G-6). | AC-0006-54 seeds one time with microseconds (`…15:30:00.123456+00`) on 60 clients. It fails at once if the key is cut. |
+| The cursor payload changes, so a next-page request across the deploy fails with `cursor.invalid`, and its retry fails too, until the page reloads. | Accept: a one-time edge at deploy. A reload fixes it. |
+| jsdom has no `IntersectionObserver` and does not implement `window.scrollTo`. | Harness stubs (Tests). Without an observer, `use-reach-end` does nothing, so a missing stub shows up as a test failure, not a crash. |
+| AC-0006-59 needs America/Sao_Paulo. Node resets its time zone when `process.env.TZ` is set at runtime, but this was not tried in this repo's vitest. | First test of step 2: set `TZ`, check that `Intl.DateTimeFormat().resolvedOptions().timeZone` reports it, and restore `TZ` after. If it does not take, the test stubs `resolvedOptions` instead; the card already reads the zone from there (Web, `client-cards.tsx`). |
+| Next.js may restore the previous scroll position on back navigation, against Q18. | The R8 effect scrolls to the top on mount; check back navigation by hand at step 5. |
+| The separate TanStack Query refactor may add its own provider first, or touch `shell.tsx` (G-8). | Before step 4, check whether it landed; if so, reuse its provider. |
+| `presenter.updatedAt` now comes from the client row in every client response (create, read, update, inactivate, reactivate). | Run the whole api e2e suite in step 3. Today only string checks touch it. |
+| The `Select` popup in jsdom for AC-0006-10/12/13/28–30. | Existing record-form tests already open a `Select`; reuse their pattern. |
 
 ### New dependencies
 
-None for this plan.
-- TanStack Table was considered and not used. Sort, filter and paging run on the server, and the table has two
-  sortable headers, so a headless table library would add code rather than remove it.
-- The working tree's `apps/web/package.json` already declares `@tanstack/react-query`, `@tanstack/react-table` and
-  `@tanstack/react-virtual`, unused in `apps/web/src`. They are not part of this plan. The owner commits them
-  separately, for the out-of-scope data-fetching refactor (§2), or removes them with pnpm before the lock (G-3).
+None new. `@tanstack/react-query` is already declared in `apps/web/package.json` (commit `a11cb9d`) and is first
+used by this plan. It gives the shared infinite-list hook its page state, request de-duplication (one templates
+request for two components) and per-key isolation of out-of-date responses, which the v1.3 hand-written state did
+with counters. The owner removed `@tanstack/react-table` and `@tanstack/react-virtual` with pnpm (2026-11-20).
 
 ## 12. Changelog
 
@@ -1083,3 +1212,6 @@ None for this plan.
 | 1.5 | 2026-11-19 | Redesign from the owner's designs (n8n-style wide rows, mobile cards) and answers Q20–Q23. Wide screens: full-width rows with initials, name, e-mail, phone and a template badge, no column headers, an "Ordenar por" control (§4.1, §4.4). Narrow screens: cards under letter headings with e-mail, last-update date and template badge, search and status only, always A–Z, floating [Novo] button (§4.6). Sorts are now `name`, `-name`, `-updatedAt`; the e-mail sorts are dropped (R4, §6, §7, RF-09). `ClientSummary` gains `updatedAt` (R9, §7). Back to the top on any change (R8). The template badge returns to the rows; the template filter stays (Q21). Q9 superseded, Q17 withdrawn (no virtualization), Q24–Q29 proposed. AC-0006-08, -09, -23, -26, -28 to -32, -35, -40 and -41 reworded; AC-0006-53 to -65 added. Owner technical choice: TanStack Query only (§11 banner). Status stays Review; `plan_status` Draft. |
 | 1.6 | 2026-11-20 | Spec review (2026-11-20) required changes 1–5 applied with the owner's picks. Q30: `updatedAt` means R9's time on the client's page too, so SPEC-0004 §7 "Client" is amended and the page and list agree (R9, §2, §7; AC-0006-69 added). §2 amendment list: SPEC-0004's v1.0 notes on R10, §4.1 step 2, §7 "List" and §8 "success" are rewritten, not added; §7 "Client" and "ClientSummary" listed separately; Decision 9 of SPEC-0004's plan noted. Q31: R10 defines narrow as under 48rem (RNF-16 `md`), wide otherwise; "desktop" and "mobile" removed. "Inativo" badge just before the template badge on rows and cards (R6, §4.1, §4.6, §8; AC-0006-66 and -67 added). Q8, Q13, Q16, Q18 and Q23–Q29 decided as proposed; AC-0006-68 added for Q18. Non-blocking review suggestions left as follow-ups. Status stays Review; `plan_status` Draft. |
 | 1.7 | 2026-11-20 | Approved by Joao Izidoro, 2026-11-20, after the spec review and its re-check (both 2026-11-20), with all 69 criteria agreed. SPEC-0004 amended per §2 (its v1.7). `plan_status` stays Draft; `/plan` revises §11. |
+| 1.8 | 2026-11-20 | Implementation plan (§11) revised by `/plan` for spec v1.7, replacing the v1.3 plan: TanStack Query only, through one shared `useInfiniteQuery` hook and a shared templates query; separate wide-row and narrow-card components; `-updatedAt` keyset with an exact microsecond cursor key; `updatedAt` from the client row in every client response; a `floating` appearance for the [Novo] menu; a Query provider in the private shell; no migration. All 69 criteria mapped to tests; layout checked in W-list through a `matchMedia` stub, look by hand. Owner decisions G-1, G-2, G-4 and G-6 to G-9 proposed; G-3 and G-5 are preconditions. `plan_status` stays Draft. |
+| 1.9 | 2026-11-20 | Plan review (2026-11-20) required changes 1–4 applied. (1) Card dates pass the browser's time zone explicitly, because next-intl 4.14.2's server provider falls back to the server's zone; W-list test with provider UTC and 2026-08-03T01:00:00Z showing "02/08". (2) The layout is in the list's query key and the back-to-top effect, so narrowing with default sort and template still reloads and scrolls up; `use-layout.ts` knows no layout during hydration and the query waits for it, so a phone sends no wide request first; W-list test added. (3) Two e2e tests with limit 1 run the `count` path, for the tenant filter (AC-0006-18) and the template filter. (4) Tests build their Query client with the app's `createQueryClient()` and no test-only defaults; AC-0006-45 waits past the default retry delay, and AC-0006-68 remounts under the same client. Non-blocking suggestions left as follow-ups. `plan_status` stays Draft. |
+| 1.10 | 2026-11-20 | Plan approved by Joao Izidoro, 2026-11-20: §11 as revised in 1.8 and 1.9, after the plan review and its re-check, with G-1, G-2, G-4 and G-6 to G-9 decided as proposed. `plan_status` Approved. Before `/implement`: this file committed (G-3) and SPEC-0004 set to `Implemented` (G-5). |
