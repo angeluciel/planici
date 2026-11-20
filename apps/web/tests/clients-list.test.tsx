@@ -605,6 +605,11 @@ describe("Modelo control", () => {
 
 		await screen.findByText(tc("list.emptyFilter"));
 		expect(screen.queryByText(tc("list.empty"))).toBeNull();
+
+		// the controls stay, so the template can be changed back (§4.4 step 1)
+		expect(queryPicker(tc("list.sort.label"))).not.toBeNull();
+		await choose(tc("list.filter.form"), tc("list.filter.allForms"));
+		expect(await screen.findByText("Ana Souza")).toBeTruthy();
 	});
 
 	it("AC-0006-15 hides the Modelo control when templates fail and still lists", async () => {
