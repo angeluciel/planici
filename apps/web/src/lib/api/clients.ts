@@ -5,6 +5,7 @@ import {
 	ClientListResponseSchema,
 	type ClientResponse,
 	ClientSchema,
+	type ClientSort,
 	type ClientStatusFilter,
 	type ClientUpdateRequestInput,
 	type DeleteClientRequestInput,
@@ -26,6 +27,8 @@ export type ConsentTextResult =
 export type ListClientsParams = {
 	q?: string;
 	status?: ClientStatusFilter;
+	formId?: string;
+	sort?: ClientSort;
 	limit?: number;
 	after?: string;
 };
@@ -51,6 +54,8 @@ export async function listClients(
 		const params: Record<string, string> = {};
 		if (options.q) params.q = options.q;
 		if (options.status) params.status = options.status;
+		if (options.formId) params.formId = options.formId;
+		if (options.sort) params.sort = options.sort;
 		if (options.limit) params.limit = String(options.limit);
 		if (options.after) params.after = options.after;
 
