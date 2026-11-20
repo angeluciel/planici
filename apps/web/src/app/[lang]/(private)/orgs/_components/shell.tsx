@@ -39,7 +39,7 @@ export default function AppShell({
 						isSidebarOpen={isSidebarOpen}
 						onOpenSidebar={() => setIsSidebarOpen(true)}
 					/>
-					<main>{children}</main>
+					<main className="flex flex-col items-center">{children}</main>
 				</div>
 			</ToastProvider>
 		</QueryProvider>

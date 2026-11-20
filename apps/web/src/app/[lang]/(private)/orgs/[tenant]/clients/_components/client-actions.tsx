@@ -95,6 +95,20 @@ export function ClientActions({
 				</span>
 			)}
 
+			{hasHistory ? (
+				<p className="font-body-sm text-text-secondary">
+					{t("delete.hasHistory")}
+				</p>
+			) : (
+				<Button
+					variant="danger"
+					text={t("delete.action")}
+					className="w-auto"
+					disabled={busy !== null}
+					onPress={() => setDialog("delete")}
+				/>
+			)}
+
 			{inactive ? (
 				<Button
 					variant="subtle"
@@ -116,20 +130,6 @@ export function ClientActions({
 					className="w-auto"
 					disabled={busy !== null}
 					onPress={() => setDialog("inactivate")}
-				/>
-			)}
-
-			{hasHistory ? (
-				<p className="font-body-sm text-text-secondary">
-					{t("delete.hasHistory")}
-				</p>
-			) : (
-				<Button
-					variant="subtle"
-					text={t("delete.action")}
-					className="w-auto"
-					disabled={busy !== null}
-					onPress={() => setDialog("delete")}
 				/>
 			)}
 

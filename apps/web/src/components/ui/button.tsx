@@ -28,16 +28,19 @@ export const buttonVariants = tv({
 					"bg-background-brand-bold hover:bg-background-brand-bold-hovered active:bg-background-brand-bold-pressed",
 					"text-text-inverse",
 				],
-
 				leading: "",
 				trailing: "",
 			},
-			// TODO: Button variants:
-			// Secondary, Sublte, Warning, Danger
 			secondary: {
-				root: "",
-				leading: "",
-				trailing: "",
+				root: [
+					"group border-[1.5px] border-border",
+					"hover:border-border-bold hover:bg-surface-hovered",
+					"active:border-border-focused active:bg-surface-pressed",
+				],
+				label:
+					"text-icon group-hover:text-text-primary group-active:text-text-bold",
+				leading: "text-icon-brand",
+				trailing: "text-icon-brand",
 			},
 			subtle: {
 				root: "hover:bg-surface-hovered active:bg-surface-pressed group",
@@ -49,14 +52,23 @@ export const buttonVariants = tv({
 					"text-icon-subtle group-hover:text-icon group-active:text-icon",
 			},
 			warning: {
-				root: "",
-				leading: "",
-				trailing: "",
+				root: [
+					"bg-background-status-warning-bold hover:bg-background-status-warning-bold-hovered active:bg-background-status-warning-bold-pressed",
+				],
+				label: "text-text-status-warning-inverse",
+				leading: "text-icon-warning-inverse",
+				trailing: "text-icon-warning-inverse",
 			},
 			danger: {
-				root: "",
-				leading: "",
-				trailing: "",
+				root: [
+					"group bg-background-status-danger-bold hover:bg-background-status-danger-bold-hovered active:bg-background-status-danger-bold-pressed",
+				],
+				label:
+					"text-text-bold group-hover:text-text-inverse group-active:text-text-inverse",
+				leading:
+					"text-text-bold group-hover:text-text-inverse group-active:text-text-inverse",
+				trailing:
+					"text-text-bold group-hover:text-text-inverse group-active:text-text-inverse",
 			},
 		},
 	},

@@ -129,25 +129,27 @@ export function ClientsList() {
 			)}
 
 			{ready && hasRows && (
-				<>
+				<div className="flex flex-col gap-1">
 					<p className="font-body-sm text-text-secondary">
 						{t("list.count", { count: list.total })}
 					</p>
-					{wide ? (
-						<ClientRows rows={list.rows} base={base} lastRef={lastRef} />
-					) : (
-						<ClientCards rows={list.rows} base={base} lastRef={lastRef} />
-					)}
-					<ListEnd
-						loaded={list.rows.length}
-						total={list.total}
-						announce={list.pageCount > 1}
-						loading={list.isFetchingNextPage}
-						failed={list.isFetchNextPageError}
-						hasNext={list.hasNextPage}
-						onRetry={list.retryNext}
-					/>
-				</>
+					<div className="flex flex-col gap-2 p-2 bg-surface-sunken rounded-lg">
+						{wide ? (
+							<ClientRows rows={list.rows} base={base} lastRef={lastRef} />
+						) : (
+							<ClientCards rows={list.rows} base={base} lastRef={lastRef} />
+						)}
+						<ListEnd
+							loaded={list.rows.length}
+							total={list.total}
+							announce={list.pageCount > 1}
+							loading={list.isFetchingNextPage}
+							failed={list.isFetchNextPageError}
+							hasNext={list.hasNextPage}
+							onRetry={list.retryNext}
+						/>
+					</div>
+				</div>
 			)}
 		</div>
 	);
