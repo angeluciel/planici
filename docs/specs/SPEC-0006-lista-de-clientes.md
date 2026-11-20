@@ -3,7 +3,7 @@ id: SPEC-0006
 title: Lista de clientes — filtro por modelo, total e ordenação
 status: Implemented # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.12
+version: 1.13
 owner: Joao Izidoro
 satisfies: [RF-09, RN-02]
 depends_on: [SPEC-0001, SPEC-0003, SPEC-0004]
@@ -124,7 +124,7 @@ step 7. This section describes wide screens; narrow screens follow §4.6 (R10).
    name alone, like an active one (§9 Q29).
 
 ### 4.2 Template filter
-1. On wide screens, next to the status filter, a "Modelo" control offers "Todos os modelos" (the default) and every
+1. On wide screens, above the list on its right side, a "Modelo" control offers "Todos os modelos" (the default) and every
    client template of the tenant by name, active and archived. Narrow screens have no template control (§4.6). An archived template's name is followed by "(arquivado)".
 2. The control appears only when the tenant has two or more client templates, active or archived (owner
    decision, §9 Q6).
@@ -146,8 +146,9 @@ step 7. This section describes wide screens; narrow screens follow §4.6 (R10).
    client under the chosen filters, no search results).
 
 ### 4.4 Sorting
-1. On wide screens, an "Ordenar por" control next to the filters offers, in order, "Nome (A–Z)", "Nome (Z–A)" and
-   "Última atualização" (R4). It shows the current sort. On first load it is "Nome (A–Z)".
+1. On wide screens, an "Ordenar por" control above the list on its right side, after the "Modelo" control, offers, in
+   order, "Nome (A–Z)", "Nome (Z–A)" and "Última atualização" (R4). It shows the current sort. On first load it is
+   "Nome (A–Z)". Both controls stay in place while the list loads, fails or is empty (owner decision, 2026-11-20).
 2. "Última atualização" lists the most recently updated clients first (R9).
 3. Choosing a sort reloads the list from the first page and returns to its top (R8). The search and filters stay as
    they were.
@@ -1217,3 +1218,4 @@ with counters. The owner removed `@tanstack/react-table` and `@tanstack/react-vi
 | 1.10 | 2026-11-20 | Plan approved by Joao Izidoro, 2026-11-20: §11 as revised in 1.8 and 1.9, after the plan review and its re-check, with G-1, G-2, G-4 and G-6 to G-9 decided as proposed. `plan_status` Approved. Before `/implement`: this file committed (G-3) and SPEC-0004 set to `Implemented` (G-5). |
 | 1.11 | 2026-11-20 | Implemented per §11 by `/implement`. Contract: `formId` and `sort` (`name`, `-name`, `-updatedAt`) on the list query, `updatedAt` on each row, `total` on the response, error `clientSort.invalid`. API: template filter, three keyset sorts with the cursor bound to filter and sort, `-updatedAt` keyed by its exact microsecond text (G-6), total from a tenant-scoped count or the single-page rule, inactivate and reactivate return the moved `updatedAt` (R9). Web: one TanStack Query `useInfiniteQuery` hook keyed by layout and inputs, wide rows (name, e-mail below, phone below), narrow cards with letter headings and a browser-zone date badge, infinite scroll with inline retry, floating "+" on narrow screens. All 69 criteria pass in automated tests (24 API e2e, 7 of them also unit; 45 W-list). Review 2026-11-20: one blocking item (wide-row layout) fixed, re-check PASS. Deferred checks: none. Manual look at 375px and 1280px and back navigation checked by the owner on the running system, 2026-11-20: correct (§11 step 5, G-2). `status` stays Approved until the owner accepts the behavior. |
 | 1.12 | 2026-11-20 | Status Implemented: Joao Izidoro accepts the behavior on a running system, 2026-11-20, as implemented per §11 (1.10) and recorded in 1.11. Deferred checks: none. |
+| 1.13 | 2026-11-20 | Owner decision, 2026-11-20: the "Modelo" and "Ordenar por" controls move from beside the status filter to above the list, on its right, and stay there while the list loads, fails or is empty (§4.2 step 1, §4.4 step 1). They now open a menu of single choices, and each control's accessible name carries its label and current choice. No criterion changes. |
