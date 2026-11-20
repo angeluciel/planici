@@ -133,12 +133,17 @@ async function chooseStatus(label: string) {
 	press(await screen.findByRole("radio", { name: label }));
 }
 
-const combobox = (label: string) =>
-	screen.findByRole("combobox", { name: label });
+// A toolbar picker is a menu button named "<label>: <current choice>".
+const pickerName = (label: string) => (name: string) =>
+	name.startsWith(`${label}:`);
+const picker = (label: string) =>
+	screen.findByRole("button", { name: pickerName(label) });
+const queryPicker = (label: string) =>
+	screen.queryByRole("button", { name: pickerName(label) });
 
 async function choose(label: string, option: string) {
-	fireEvent.click(await combobox(label));
-	press(await screen.findByRole("option", { name: option }));
+	press(await picker(label));
+	press(await screen.findByRole("menuitemradio", { name: option }));
 }
 
 const total = () => screen.queryByText(/^\d+ clientes?$/);
@@ -519,11 +524,11 @@ describe("Modelo control", () => {
 		]);
 		renderClients(<ClientsList />);
 
-		fireEvent.click(await combobox(tc("list.filter.form")));
+		press(await picker(tc("list.filter.form")));
 
-		await screen.findAllByRole("option");
+		await screen.findAllByRole("menuitemradio");
 		expect(
-			screen.getAllByRole("option").map((o) => o.textContent?.trim()),
+			screen.getAllByRole("menuitemradio").map((o) => o.textContent?.trim()),
 		).toEqual([
 			tc("list.filter.allForms"),
 			"Anamnese",
@@ -542,9 +547,7 @@ describe("Modelo control", () => {
 		);
 		await settle(100);
 
-		expect(
-			screen.queryByRole("combobox", { name: tc("list.filter.form") }),
-		).toBeNull();
+		expect(queryPicker(tc("list.filter.form"))).toBeNull();
 	});
 
 	it('AC-0006-12 choosing a template sends q and formId without after and shows "1 cliente"', async () => {
@@ -615,9 +618,7 @@ describe("Modelo control", () => {
 		);
 		await settle(100);
 
-		expect(
-			screen.queryByRole("combobox", { name: tc("list.filter.form") }),
-		).toBeNull();
+		expect(queryPicker(tc("list.filter.form"))).toBeNull();
 	});
 
 	it("AC-0006-39 hides the Modelo control while templates load", async () => {
@@ -627,9 +628,7 @@ describe("Modelo control", () => {
 
 		await screen.findByText("Ana Souza");
 
-		expect(
-			screen.queryByRole("combobox", { name: tc("list.filter.form") }),
-		).toBeNull();
+		expect(queryPicker(tc("list.filter.form"))).toBeNull();
 	});
 });
 
@@ -746,13 +745,13 @@ describe("Sort", () => {
 		serveClientTemplates([]);
 		renderClients(<ClientsList />);
 
-		const control = await combobox(tc("list.sort.label"));
+		const control = await picker(tc("list.sort.label"));
 
 		expect(control.textContent).toContain(tc("list.sort.nameAsc"));
-		fireEvent.click(control);
-		await screen.findAllByRole("option");
+		press(control);
+		await screen.findAllByRole("menuitemradio");
 		expect(
-			screen.getAllByRole("option").map((o) => o.textContent?.trim()),
+			screen.getAllByRole("menuitemradio").map((o) => o.textContent?.trim()),
 		).toEqual([
 			tc("list.sort.nameAsc"),
 			tc("list.sort.nameDesc"),
@@ -768,13 +767,13 @@ describe("Sort", () => {
 
 		await choose(tc("list.sort.label"), tc("list.sort.nameDesc"));
 		await waitFor(() => expect(lastList().get("sort")).toBe("-name"));
-		expect((await combobox(tc("list.sort.label"))).textContent).toContain(
+		expect((await picker(tc("list.sort.label"))).textContent).toContain(
 			tc("list.sort.nameDesc"),
 		);
 
 		await choose(tc("list.sort.label"), tc("list.sort.nameAsc"));
 		await waitFor(() => expect(lastList().get("sort")).toBe("name"));
-		expect((await combobox(tc("list.sort.label"))).textContent).toContain(
+		expect((await picker(tc("list.sort.label"))).textContent).toContain(
 			tc("list.sort.nameAsc"),
 		);
 	});
@@ -788,7 +787,7 @@ describe("Sort", () => {
 		await choose(tc("list.sort.label"), tc("list.sort.updatedAt"));
 
 		await waitFor(() => expect(lastList().get("sort")).toBe("-updatedAt"));
-		expect((await combobox(tc("list.sort.label"))).textContent).toContain(
+		expect((await picker(tc("list.sort.label"))).textContent).toContain(
 			tc("list.sort.updatedAt"),
 		);
 	});
@@ -836,7 +835,7 @@ describe("Sort", () => {
 
 		await waitFor(() => expect(listCalls().length).toBeGreaterThan(before));
 		expect(listCalls()[before]?.query.get("sort")).toBeNull();
-		expect((await combobox(tc("list.sort.label"))).textContent).toContain(
+		expect((await picker(tc("list.sort.label"))).textContent).toContain(
 			tc("list.sort.nameAsc"),
 		);
 	});
@@ -1119,12 +1118,8 @@ describe("Narrow screens", () => {
 			expect(callsTo("GET", "/api/forms").length).toBeGreaterThan(0),
 		);
 		await settle(100);
-		expect(
-			screen.queryByRole("combobox", { name: tc("list.sort.label") }),
-		).toBeNull();
-		expect(
-			screen.queryByRole("combobox", { name: tc("list.filter.form") }),
-		).toBeNull();
+		expect(queryPicker(tc("list.sort.label"))).toBeNull();
+		expect(queryPicker(tc("list.filter.form"))).toBeNull();
 		expect(listCalls().length).toBeGreaterThan(0);
 		for (const call of listCalls()) {
 			expect(call.query.get("sort")).toBeNull();
@@ -1192,10 +1187,10 @@ describe("Narrow screens", () => {
 		expect(query.get("sort")).toBe("-updatedAt");
 		expect(query.get("formId")).toBe(anamnese.id);
 		expect(query.get("after")).toBeNull();
-		expect((await combobox(tc("list.sort.label"))).textContent).toContain(
+		expect((await picker(tc("list.sort.label"))).textContent).toContain(
 			tc("list.sort.updatedAt"),
 		);
-		expect((await combobox(tc("list.filter.form"))).textContent).toContain(
+		expect((await picker(tc("list.filter.form"))).textContent).toContain(
 			"Anamnese",
 		);
 	});
