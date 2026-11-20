@@ -2,8 +2,8 @@
 id: SPEC-0006
 title: Lista de clientes — filtro por modelo, total e ordenação
 status: Approved # Draft | Review | Approved | Implemented | Superseded
-plan_status: Approved # Draft | Approved
-version: 1.3
+plan_status: Draft # Draft | Approved
+version: 1.7
 owner: Joao Izidoro
 satisfies: [RF-09, RN-02]
 depends_on: [SPEC-0001, SPEC-0003, SPEC-0004]
@@ -23,29 +23,52 @@ amended 2026-11-19).
 ## 2. Scope
 
 **In scope**
-- A template filter on `/clients`. The "Modelo" column leaves the list.
+- A new layout (owner designs, 2026-11-19): on wide screens, a compact full-width list of client rows; on narrow
+  screens, client cards grouped by initial letter (R10). Each row and card shows its template as a badge.
+- A template filter on `/clients`.
 - The total number of clients matching the current search and filters, shown above the list.
-- Sorting the list by name or e-mail, ascending or descending, from the column headers.
+- Sorting the wide-screen list by name (A–Z, Z–A) or by last update (newest first). The narrow-screen list is
+  always A–Z.
+- Infinite scroll: the next page loads as the professional reaches the end of the list, replacing "Carregar mais".
+  When there is nothing more to load, a message and an illustration close the list. (Owner request, 2026-11-19.)
 
 **Out of scope**
 - Last and next appointment columns: the scheduling spec, once appointments exist.
 - Custom-field values as list columns: SPEC-0003 R9 stands (owner decision, 2026-11-19).
-- Sorting by phone or by template.
+- Sorting by e-mail, phone or template (the e-mail sorts of v1.0 were dropped in v1.5).
+- Client photos (`avatar_url`, post-MVP per SPEC-0004 §2): rows show initials.
 - Remembering the chosen filters or sort between visits (§9 Q8).
-- Moving the list's data fetching to a library: a behavior-preserving refactor, no spec.
+- Moving other screens' data fetching to a library: a behavior-preserving refactor, no spec. The client list's own
+  fetching is part of this plan (§11).
 - The "Criar novo modelo" link of the [Novo] dropdown (§9 Q11): a separate fix restoring AC-0001-10.
 
 **Dependencies and amendments**
 - Builds on SPEC-0004 (Approved): its search (R9), status filter (§4.1 step 4), pagination (AC-0004-21 to -23)
   and list states (§8) are unchanged unless stated here.
 - On approval, this spec amends these parts of SPEC-0004, each of which gets the note "amended by SPEC-0006",
-  with a version bump and a changelog line (§9 Q12):
-  - R10 (one fixed sort);
-  - §4.1 step 2 (the Modelo column) and step 5 (the empty state now also covers the template filter);
+  with a version bump and a changelog line (§9 Q12). SPEC-0004 v1.6 already carries notes from this spec's v1.0;
+  where a part below already has one, that note is **rewritten** to match this version, not added to:
+  - R10 (one fixed sort). Its v1.0 note ("four sorts, name or e-mail") is rewritten: three sorts, `name`, `-name`
+    and `-updatedAt` (R4 here);
+  - §4.1 step 2, the table and its Modelo column. Its v1.0 note ("the Modelo column is gone; the template is a
+    filter") is rewritten: rows on wide screens and cards on narrow screens, each with a template badge, and a
+    template filter on wide screens (§4.1, §4.6 here);
+  - §4.1 step 5, the empty state, which now also covers the template filter (existing note, unchanged);
+  - §4.1 step 6 ("Carregar mais"), replaced by infinite scroll (§4.5 here);
+  - §4.2 step 1, the [Novo] trigger, which on narrow screens is a floating button (§4.6 step 5 here);
   - §6, the list check order (`q`, `status`, `limit`, `after`) and the `cursor.invalid` row, which now also covers
-    a different template filter or sort;
-  - §7 "List";
-  - §8, the "success" and "empty under the chosen filter" rows.
+    a different template filter or sort (existing notes, unchanged);
+  - §7 "Client": `updatedAt` becomes the client's last update time of R9 here, which also changes on inactivation
+    and reactivation, so the client's page and the list report the same value (§7 here; owner decision, §9 Q30);
+  - §7 "ClientSummary": adds `updatedAt` (§7 here);
+  - §7 "List". Its v1.0 note is rewritten: query adds `formId?` and `sort?` (`name` default, `-name`, `-updatedAt`);
+    response adds `total`;
+  - §8, the "success" row, whose v1.0 note ("Nome, E-mail, Telefone, with the total above") is rewritten to the
+    wide-screen rows and narrow-screen cards with the total above (§8 here); the "empty under the chosen filter"
+    row (existing note, unchanged); and the "loading more" and "loading more failed" rows;
+  - AC-0004-63, superseded by AC-0006-45.
+- SPEC-0004 §11 Decision 9 (`createdAt` and `updatedAt` from the record) no longer holds for `updatedAt`; the
+  revised plan (§11 here) records the change.
 - RF-09 and `docs/architecture/api-convention.md` "Pagination" were amended on 2026-11-19 to allow the total and
   a documented set of sorts (§9 Q1–Q3).
 
@@ -61,26 +84,48 @@ amended 2026-11-19).
 - **R3.** **Total.** Every list response carries the number of the tenant's clients that match the search, the
   status filter and the template filter, regardless of `limit` and `after`. Clients of other tenants are never
   counted. (RF-09, amended; api-convention "Pagination", amended; owner decisions, §9 Q2 and Q4)
-- **R4.** **Sort.** The list can be sorted by name ascending (the default, as SPEC-0004 R10), name descending,
-  e-mail ascending or e-mail descending. Name order ignores case and accents. E-mail order compares the stored,
-  normalised e-mail (SPEC-0004 R3). Every sort ends with the client `id`, in the same direction, so pages never
-  repeat or skip a client. (RF-09, amended; api-convention "Pagination", amended; owner decisions, §9 Q3 and Q10)
+- **R4.** **Sort.** The list can be sorted by name ascending (the default, as SPEC-0004 R10), name descending, or
+  last update, newest first. Name order ignores case and accents. Last-update order compares the client's last
+  update time (R9) at full stored precision. Every sort ends with the client `id`, in the same direction, so pages
+  never repeat or skip a client. (RF-09, amended; api-convention "Pagination", amended; owner decisions, §9 Q3, Q10
+  and 2026-11-19 v1.5)
 - **R5.** A cursor is bound to the search, the status filter, the template filter **and the sort** it was issued
   with. Sending it with any of them changed is rejected. (api-convention "Pagination", amended)
-- **R6.** List rows show name, e-mail and phone. The template is shown on the client's view page only (SPEC-0003
-  §4.2). Custom-field values still never appear in the list (SPEC-0003 R9).
+- **R6.** **Row content.** A wide-screen row shows the client's initials, name, e-mail, phone and a template badge.
+  A narrow-screen card shows initials, name, e-mail, the date of the last update and a template badge. On both, an
+  inactive client also carries the "Inativo" badge of SPEC-0004 §4.1 step 4, placed just before the template badge. Custom-field values
+  never appear in the list (SPEC-0003 R9). (Owner designs and decisions, 2026-11-19, §9 Q20–Q23)
+- **R7.** **Infinite scroll.** The list loads its next page when the professional reaches the end of the rows
+  already loaded, by scrolling or by moving keyboard focus there, until the server reports no next page. There is no
+  "Carregar mais" button. Pages still hold at most 50 clients (RNF-23, which allows "paginação ou scroll infinito").
+  (Owner request, 2026-11-19)
+- **R8.** **Back to the top.** When the search, a filter, the sort or the layout (§4.6 step 6) changes, the list
+  returns to its top and loads from the first page. (Owner request, 2026-11-19)
+- **R9.** **Last update.** A client's last update time is set when the client is created and changes on every edit
+  saved, inactivation and reactivation. The client's page and the list report the same time (SPEC-0004 §7
+  "Client", amended). (SPEC-0004 §4.3–§4.4; owner decisions, 2026-11-19 and §9 Q30)
+- **R10.** **Layouts.** A screen is *narrow* when its viewport is under 48rem wide (RNF-16, breakpoint `md`), and
+  *wide* otherwise. Wide screens follow §4.1; narrow screens follow §4.6. (Owner decision, §9 Q31)
 
 ## 4. Behavior
 
 ### 4.1 List (`/clients`)
-Replaces SPEC-0004 §4.1 step 2. Steps 1, 3, 4, 6 and 7 are unchanged; step 5 is extended by 4.2 step 7.
+Replaces SPEC-0004 §4.1 step 2 and step 6 (by 4.5). Steps 1, 3, 4 and 7 are unchanged; step 5 is extended by 4.2
+step 7. This section describes wide screens; narrow screens follow §4.6 (R10).
 
-2. The system lists active clients with columns Nome, E-mail and Telefone, sorted by name (R4, R6). A client
-   without a phone shows "—" in Telefone.
+2. The system lists active clients sorted by name (R4). Each client is a row across the full width of the content
+   area, with no column headers (R6):
+   - on the left, the client's initials, and beside them the name, which opens the client's page (SPEC-0004 §4.3);
+   - below the name, the e-mail; below the e-mail, the phone, in a quieter style;
+   - on the right, a badge with the template's name, in the same position on every row; for an inactive client,
+     the "Inativo" badge just before it (SPEC-0004 §4.1 step 4).
+
+   A client without a phone shows no phone line and no placeholder (§9 Q24). An archived template's badge shows its
+   name alone, like an active one (§9 Q29).
 
 ### 4.2 Template filter
-1. Next to the status filter, a "Modelo" control offers "Todos os modelos" (the default) and every client template
-   of the tenant by name, active and archived. An archived template's name is followed by "(arquivado)".
+1. On wide screens, next to the status filter, a "Modelo" control offers "Todos os modelos" (the default) and every
+   client template of the tenant by name, active and archived. Narrow screens have no template control (§4.6). An archived template's name is followed by "(arquivado)".
 2. The control appears only when the tenant has two or more client templates, active or archived (owner
    decision, §9 Q6).
 3. While the templates load, the control is not shown. The list loads and works meanwhile.
@@ -92,24 +137,61 @@ Replaces SPEC-0004 §4.1 step 2. Steps 1, 3, 4, 6 and 7 are unchanged; step 5 is
    cliente com este filtro." (SPEC-0004 §4.1 step 5, now covering the template filter too).
 
 ### 4.3 Total
-1. Above the list, the page shows the total of R3, for example "120 clientes" or "1 cliente".
+1. Above the list, on wide and narrow screens, the page shows the total of R3, for example "120 clientes" or
+   "1 cliente".
 2. The total is the number of matching clients, not the number of rows loaded so far. Every response carries it,
-   and the page shows the one from the latest response. So loading a page with "Carregar mais" changes it only if
-   matching clients were added or removed in the meantime (owner decision, §9 Q4).
+   and the page shows the one from the latest response. So loading the next page changes it only if matching
+   clients were added or removed in the meantime (owner decision, §9 Q4).
 3. The total is not shown while the list loads, in the error state, or in any empty state (no clients at all, no
    client under the chosen filters, no search results).
 
 ### 4.4 Sorting
-1. The Nome and E-mail column headers are sort controls. Telefone is not.
-2. The current sort is marked on its header, with its direction. On first load it is Nome, ascending.
-3. Pressing the header of the current sort reverses its direction. Pressing the other sortable header sorts by
-   that column, ascending.
-4. A change of sort reloads the list from the first page. The search and filters stay as they were.
-5. "Carregar mais" loads the next page with the same search, filters and sort as the rows already shown (R5).
-6. On narrow screens only the Nome column is shown, so only the name sort is offered (§9 Q9). If the current sort
-   is by e-mail when the screen narrows, the list keeps that order and the Nome header is not marked; pressing it
-   sorts by name, ascending.
-7. Leaving and reopening `/clients` starts again from Nome, ascending (§9 Q8).
+1. On wide screens, an "Ordenar por" control next to the filters offers, in order, "Nome (A–Z)", "Nome (Z–A)" and
+   "Última atualização" (R4). It shows the current sort. On first load it is "Nome (A–Z)".
+2. "Última atualização" lists the most recently updated clients first (R9).
+3. Choosing a sort reloads the list from the first page and returns to its top (R8). The search and filters stay as
+   they were.
+4. The next page (4.5) loads with the same search, filters and sort as the rows already shown (R5).
+5. Narrow screens have no sort control: the list is always "Nome (A–Z)" (§4.6).
+6. Leaving and reopening `/clients` starts again from "Nome (A–Z)" (§9 Q8).
+
+### 4.5 Infinite scroll and end of list
+1. When the last loaded row comes into view, by scrolling or by keyboard focus, and the latest response had a next
+   page, the page requests the next page and appends its rows below (R7).
+2. While it loads, a loading indicator with "Carregando mais clientes…" shows below the rows. Only one next-page
+   request runs at a time.
+3. If the next page fails, the loaded rows stay, and below them the page says "Não foi possível carregar mais
+   clientes." with a retry. No further page is requested automatically until the professional presses retry.
+4. When the latest response has no next page and the list has at least one row, a closing block shows below the
+   last row: an illustration and the message "Isso é tudo! Não há mais clientes por aqui." (§9 Q15, Q16). This
+   includes a list that fits in one page. Reaching the end again sends no request.
+5. The illustration is decorative: assistive technology ignores it. Until the owner picks one, the block shows the
+   message with an empty illustration slot (§9 Q15).
+6. After each next page loads, assistive technology is told how many clients are loaded, for example "100 de 120
+   clientes carregados", without moving focus.
+7. The empty states (no clients, no client under the filters, no search results) show no closing block.
+8. Everything in this section applies to the cards of narrow screens as it does to rows.
+
+### 4.6 Narrow screens
+Follows the owner's narrow-screen design (2026-11-19). Narrow is defined by R10.
+
+1. Above the list: the search (SPEC-0004 R9), the status filter (SPEC-0004 §4.1 step 4) and the total (4.3). There
+   is no template control and no sort control (§9 Q23).
+2. Clients are cards sorted by name, A–Z, whatever sort was chosen on a wide screen. A list request from a narrow
+   screen carries no sort and no template filter.
+3. Before the first card of each initial letter, a heading shows that letter in upper case. The letter ignores case
+   and accents ("Érica" goes under "E"). A name that does not start with a letter goes under "#" (§9 Q25).
+4. A card shows (R6): the client's initials; the name, which opens the client's page; the e-mail below the name;
+   the date of the last update (R9) as a short day and month in the page's language, for example "02/08", with the
+   year added when it is not the current year (§9 Q26); a badge with the template's name; and, for an inactive
+   client, the "Inativo" badge just before it (R6).
+5. A floating button "+" at the bottom of the screen opens the [Novo] dropdown of SPEC-0004 §4.2. Its accessible
+   name is "Novo cliente". It replaces the [Novo] button of wide screens (§9 Q27).
+6. When the screen changes between wide and narrow, the search and the status filter stay. The list returns to its
+   top and loads from the first page with the new layout's sort and template filter (R8). Going back to wide
+   restores the template and sort last chosen there (§9 Q28).
+7. When the next page starts with the same letter as the last loaded card, no second heading for that letter
+   appears.
 
 ## 5. Permissions and tenant isolation
 
@@ -127,7 +209,7 @@ The list errors of SPEC-0004 §6 still apply. New or extended:
 | Situation | Status | `error` key | `field` |
 | --- | --- | --- | --- |
 | Template filter that is not a well-formed template id | 422 | `formId.invalid` (existing, SPEC-0003 §6) | `formId` |
-| Sort that is not one of `name`, `-name`, `email`, `-email` | 422 | `clientSort.invalid` | `sort` |
+| Sort that is not one of `name`, `-name`, `-updatedAt` | 422 | `clientSort.invalid` | `sort` |
 | Cursor issued for another search, status, template filter or sort (R5), or malformed | 422 | `cursor.invalid` (existing) | `after` |
 
 **Check order for list**: `q`, `status`, `formId`, `sort`, `limit`, then `after` (amends SPEC-0004 §6).
@@ -141,12 +223,15 @@ Additive, non-breaking. Consumer: `apps/web`.
 
 - **List query** adds:
   - `formId?`: a template id. Filters by template (R1, R2).
-  - `sort?`: one of `name` (default), `-name`, `email`, `-email`. A leading `-` means descending (R4; owner
-    decision, §9 Q10).
+  - `sort?`: one of `name` (default), `-name`, `-updatedAt`. A leading `-` means descending (R4; owner decision,
+    §9 Q10). There is no ascending `updatedAt`.
 - **List response** adds `total`: integer, 0 or more, on every page (R3). It becomes
   `{ clients: ClientSummary[], nextCursor: string | null, total: number }`.
-- **ClientSummary** is unchanged. `formId` and `formName` stay in the response, although the page no longer shows
-  them.
+- **ClientSummary** adds `updatedAt`: the client's last update time (R9), an ISO-8601 UTC string. `formId` and
+  `formName` stay; `formName` feeds the template badge (R6).
+- **Client** (the single-client response of SPEC-0004 §7): `updatedAt` keeps its name and type, and now means the
+  time of R9, so it also changes on inactivation and reactivation. `createdAt` is unchanged. Non-breaking for the
+  only consumer, `apps/web` (owner decision, §9 Q30).
 
 ## 8. UI states
 
@@ -154,8 +239,11 @@ Rows of SPEC-0004 §8 not listed here are unchanged.
 
 | Screen | State | Behavior | Copy key |
 | --- | --- | --- | --- |
-| `/clients` | success | Table with Nome, E-mail, Telefone (4.1); total above it (4.3) | `clients.list.title`, `clients.list.count` |
-| `/clients` | no phone | "—" in Telefone | — |
+| `/clients` | success, wide screen | Full-width rows: initials, name, e-mail, phone, template badge on the right (4.1); total above them (4.3) | `clients.list.title`, `clients.list.count` |
+| `/clients` | success, narrow screen | Cards under letter headings: initials, name, e-mail, last-update date, template badge (4.6); total above them | `clients.list.title`, `clients.list.count` |
+| `/clients` | no phone (wide) | No phone line | — |
+| `/clients` | inactive client (wide and narrow) | "Inativo" badge just before the template badge (R6) | `clients.list.inactiveBadge` |
+| `/clients` | narrow screen, [Novo] | Floating "+" button opening the [Novo] dropdown (4.6 step 5) | `clients.new.floating` |
 | `/clients` | template filter | "Modelo" control with "Todos os modelos" and each client template (4.2) | `clients.list.filter.form`, `clients.list.filter.allForms` |
 | `/clients` | archived template in filter | Name followed by "(arquivado)" | `clients.list.filter.archivedForm` |
 | `/clients` | templates loading | No template control yet; list works (4.2 step 3) | — |
@@ -164,8 +252,12 @@ Rows of SPEC-0004 §8 not listed here are unchanged.
 | `/clients` | empty under the chosen filters | "Nenhum cliente com este filtro." (status or template); no total | `clients.list.emptyFilter` |
 | `/clients` | empty, no search results, or error | As SPEC-0004 §8; no total | `clients.list.empty`, `clients.list.noResults`, `clients.list.error` |
 | `/clients` | loading after a filter or sort change | Skeleton rows; no total | `clients.list.loading` |
-| `/clients` | sort | Nome / E-mail headers are buttons; the current one is marked with its direction | `clients.list.sort.ascending`, `clients.list.sort.descending` |
-| `/clients` | narrow screen | Only Nome is shown and sortable (4.4 step 6) | — |
+| `/clients` | sort (wide) | "Ordenar por" control with "Nome (A–Z)", "Nome (Z–A)", "Última atualização"; shows the current one (4.4) | `clients.list.sort.label`, `clients.list.sort.nameAsc`, `clients.list.sort.nameDesc`, `clients.list.sort.updatedAt` |
+| `/clients` | narrow screen | No template or sort control; always A–Z (4.6) | — |
+| `/clients` | loading the next page | Indicator below the rows, "Carregando mais clientes…" (4.5 step 2) | `clients.list.loadingMore` |
+| `/clients` | next page failed | Rows kept; "Não foi possível carregar mais clientes." + retry below them; no automatic request until retry (4.5 step 3) | `clients.list.loadMoreError`, `clients.form.retry` |
+| `/clients` | end of list | Illustration (decorative; empty slot until chosen) and "Isso é tudo! Não há mais clientes por aqui." below the last row (4.5 steps 4–5) | `clients.list.end` |
+| `/clients` | next page loaded | Polite announcement of loaded / total, focus unchanged (4.5 step 6) | `clients.list.loadedCount` |
 
 Copy:
 - `clients.list.count`: "{count, plural, one {# cliente} other {# clientes}}" / "{count, plural, one {# client}
@@ -173,30 +265,56 @@ Copy:
 - `clients.list.filter.form`: "Modelo" / "Template"
 - `clients.list.filter.allForms`: "Todos os modelos" / "All templates"
 - `clients.list.filter.archivedForm`: "{name} (arquivado)" / "{name} (archived)"
-- `clients.list.sort.ascending`: "Ordenado por {column}, crescente" / "Sorted by {column}, ascending"
-- `clients.list.sort.descending`: "Ordenado por {column}, decrescente" / "Sorted by {column}, descending"
+- `clients.list.sort.label`: "Ordenar por" / "Sort by"
+- `clients.list.sort.nameAsc`: "Nome (A–Z)" / "Name (A–Z)"
+- `clients.list.sort.nameDesc`: "Nome (Z–A)" / "Name (Z–A)"
+- `clients.list.sort.updatedAt`: "Última atualização" / "Last updated"
+- `clients.new.floating`: "Novo cliente" / "New client" (the floating button's accessible name)
 - `validation.clientSort.invalid`: "Ordenação inválida." / "Invalid sort."
+- `clients.list.loadingMore` (copy changed, the key no longer labels a button): "Carregando mais clientes…" /
+  "Loading more clients…"
+- `clients.list.end`: "Isso é tudo! Não há mais clientes por aqui." / "That's all! No more clients here." (§9 Q16)
+- `clients.list.loadedCount`: "{loaded} de {total} clientes carregados" / "{loaded} of {total} clients loaded"
 
 ## 9. Open questions
 
 | # | Question | Answer | Blocks |
 | --- | --- | --- | --- |
-| Q1 | RF-09 said only "buscar clientes por nome, e-mail ou telefone". Sorting and the total were not in the RFC. | Decided (owner, 2026-11-19): RF-09 amended to "O profissional pode buscar clientes por nome, e-mail ou telefone, filtrar por status e por modelo, ordenar por nome ou e-mail e ver quantos clientes foram encontrados." | — |
+| Q1 | RF-09 said only "buscar clientes por nome, e-mail ou telefone". Sorting and the total were not in the RFC. | Decided (owner, 2026-11-19): RF-09 amended to "O profissional pode buscar clientes por nome, e-mail ou telefone, filtrar por status e por modelo, ordenar por nome ou pela última atualização e ver quantos clientes foram encontrados." (v1.5 replaced "por nome ou e-mail".) | — |
 | Q2 | `api-convention.md` said list responses have "no total count". | Decided (owner, 2026-11-19): convention amended; a list endpoint may return `total` (matching items, ignoring `limit` and `after`) when its spec asks for it. | — |
 | Q3 | `api-convention.md` said each endpoint has "one fixed, stable sort". | Decided (owner, 2026-11-19): convention amended; an endpoint may document a closed set of sorts through `sort`, each ending with `id`, the first being the default; the cursor is bound to the filters and the sort. | — |
 | Q4 | Total on every page, or only the first? | Decided (owner, 2026-11-19): every page; the page shows the latest response's total (4.3 step 2). | — |
 | Q5 | Template filter with an unknown or another tenant's template: 200 empty, 404 or 422? | Decided (owner, 2026-11-19): 200 with an empty list and total 0 for any well-formed id (R2); 422 only for a malformed id. | — |
 | Q6 | Show the template control when the tenant has a single client template? | Decided (owner, 2026-11-19): no; only with two or more client templates, active or archived. | — |
 | Q7 | Archived templates in the filter? | Decided (owner, 2026-11-19): yes, with "(arquivado)" after the name, in name order with the active ones. Their clients are still listed (SPEC-0001 R8). | — |
-| Q8 | Remember filters and sort between visits? | Proposed: no, as today; each visit starts with Ativos, Todos os modelos, Nome ascending. | No |
-| Q9 | On narrow screens only Nome is shown, so the e-mail sort cannot be reached. | Proposed: accept for the MVP; narrow screens sort by name only (4.4 step 6). | No |
-| Q10 | Format of the `sort` value. | Decided (owner, 2026-11-19): `name`, `-name`, `email`, `-email`; a leading `-` means descending. | — |
+| Q8 | Remember filters and sort between visits? | Decided (owner, 2026-11-20): no, as today; each visit starts with Ativos, Todos os modelos, Nome (A–Z). | — |
+| Q9 | On narrow screens only Nome is shown, so the e-mail sort cannot be reached. | Superseded (v1.5): narrow screens are always A–Z by owner decision (Q23), and the e-mail sort is gone. | — |
+| Q10 | Format of the `sort` value. | Decided (owner, 2026-11-19): a leading `-` means descending. Values since v1.5 (owner): `name`, `-name`, `-updatedAt`; the e-mail sorts are dropped. | — |
 | Q11 | The owner asked to amend AC-0001-10 so "Criar novo modelo" goes to `/forms/new?type=client`. AC-0001-10 names no URL. The editor locks the type, returns to `/clients` on leave and opens the new-client page after saving only when the link carries `from=clients` (SPEC-0004 §4.2 step 4). With `?type=client` alone, AC-0001-10 fails. | AC-0001-10 is not amended. Restoring the `from=clients` link is a separate bug fix, outside this spec. | No (separate fix) |
 | Q12 | How SPEC-0004 records the change. | Decided (owner, 2026-11-19): on approval of this spec, SPEC-0004 gets a version bump, the note "amended by SPEC-0006" on each part listed in §2, and a changelog line. | — |
-| Q13 | Copy for the total while searching: "3 clientes" or "3 clientes encontrados"? | Proposed: the same `clients.list.count` copy in every case. | No |
+| Q13 | Copy for the total while searching: "3 clientes" or "3 clientes encontrados"? | Decided (owner, 2026-11-20): the same `clients.list.count` copy in every case. | — |
 | Q14 | A new `clientForm.invalid` key would duplicate SPEC-0003's `formId.invalid` for a malformed template id. | Decided (owner, 2026-11-19): reuse `formId.invalid` (422, field `formId`). | — |
+| Q15 | Which illustration closes the list? | Owner picks an SVG later (owner, 2026-11-19). Until then the slot is empty and the message shows alone. The illustration is decorative, with no text of its own. | No |
+| Q16 | Copy of the closing message. | Decided (owner, 2026-11-20): "Isso é tudo! Não há mais clientes por aqui." / "That's all! No more clients here." | — |
+| Q17 | Infinite scroll can keep only the rows near the screen in the page, so the browser's find (Ctrl+F) would not see rows far from view. Acceptable? | Withdrawn (v1.5): the owner dropped row virtualization, so every loaded row stays in the page. | — |
+| Q18 | Coming back from a client's page to the list: same scroll position and loaded pages, or the top? | Decided (owner, 2026-11-20): the top with the first page, as today (AC-0006-68). Restoring the position is a later improvement. | — |
+| Q19 | The services list (SPEC-0005) should follow the same pattern (sort, total, infinite scroll, closing message "…não há mais serviços por aqui."). | Yes, written into SPEC-0005 when it is reviewed, reusing this spec's behavior. | No |
+| Q20 | Which date does the narrow-screen card's date badge show? | Decided (owner, 2026-11-19): the client's last update (R9). | — |
+| Q21 | The owner's designs show the template on each row. Keep the Modelo filter too? | Decided (owner, 2026-11-19): both, a badge on each row and the filter on wide screens. Reverses v1.0's "the template leaves the list". | — |
+| Q22 | Which line goes under the name on narrow screens? | Decided (owner, 2026-11-19): the e-mail. | — |
+| Q23 | Which controls do narrow screens have? | Decided (owner, 2026-11-19): the search and the status filter; always A–Z with letter headings. Decided (owner, 2026-11-20): the total is shown too. | — |
+| Q24 | A wide-screen row for a client without a phone: "—", or no phone line? | Decided (owner, 2026-11-20): no phone line, since the row has no columns to keep aligned. | — |
+| Q25 | Letter headings: how are accented, lower-case and non-letter initials grouped? | Decided (owner, 2026-11-20): upper case without accents ("Érica" under "E"); anything that is not a letter under "#", which comes where the name order puts it. | — |
+| Q26 | Format of the narrow-screen date. | Decided (owner, 2026-11-20): day and month in the page's language ("02/08" in pt-BR), with the year when it is not the current year, in the browser's time zone. | — |
+| Q27 | The mock's floating "+" button: what does it open? | Decided (owner, 2026-11-20): the [Novo] dropdown of SPEC-0004 §4.2, unchanged; it replaces the [Novo] button on narrow screens. | — |
+| Q28 | When the screen changes between wide and narrow, what happens to the template filter and the sort? | Decided (owner, 2026-11-20): narrow drops them (it has no controls for them); going back to wide restores the last choice there. The search and the status filter stay. | — |
+| Q29 | Badge of an archived template. | Decided (owner, 2026-11-20): the name alone; "(arquivado)" appears only in the filter. | — |
+| Q30 | The client's page reports `updatedAt` from the record, which inactivation does not change (SPEC-0004 plan, Decision 9; AC-0003-82 keeps the revision), while R9 changes on inactivation and reactivation. Which meaning wins? | Decided (owner, 2026-11-20): R9's. SPEC-0004 §7 "Client" `updatedAt` is amended to it, so the page and the list agree (§2, §7). | — |
+| Q31 | Where is the line between wide and narrow screens? | Decided (owner, 2026-11-20): 48rem, RNF-16's `md` breakpoint (R10). | — |
 
 ## 10. Acceptance criteria
+
+UI criteria run on a wide screen (R10) unless they say "narrow screen".
 
 ```gherkin
 AC-0006-01
@@ -250,17 +368,17 @@ Then  the response is 422 with { "error": "formId.invalid", "field": "formId" }
 
 ```gherkin
 AC-0006-08
-Given an active client "Ana Souza" from template "Anamnese"
+Given an active client "Ana Souza" (ana@example.com, phone "(11) 98765-4321") from template "Anamnese"
 When  the owner opens /clients
-Then  the table headers are exactly Nome, E-mail, Telefone
-And   the row of "Ana Souza" does not show "Anamnese"
+Then  the row of "Ana Souza" shows "AS", "Ana Souza", "ana@example.com", "(11) 98765-4321" and a badge "Anamnese"
+And   the list has no column headers
 ```
 
 ```gherkin
 AC-0006-09
 Given an active client "Ana Souza" with no phone
 When  the owner opens /clients
-Then  the Telefone cell of "Ana Souza" shows "—"
+Then  the row of "Ana Souza" shows no phone line and no "—"
 ```
 
 ```gherkin
@@ -333,7 +451,7 @@ Then  the response has total 2
 ```gherkin
 AC-0006-19
 Given tenant "studio-ana" with 120 active clients, and no client added or removed during the test
-When  its owner opens /clients and presses Carregar mais
+When  its owner opens /clients and scrolls to the end of the first 50 rows
 Then  the page shows "120 clientes" before and after the second page loads
 ```
 
@@ -348,7 +466,7 @@ Then  the page shows "1 cliente"
 AC-0006-21
 Given tenant "studio-ana" with no clients
 When  its owner opens /clients
-Then  the page shows the state with copy key clients.list.empty and no total
+Then  the page shows the state with copy key clients.list.empty, no total and no closing block
 ```
 
 ```gherkin
@@ -360,10 +478,9 @@ Then  they are listed in the order "Érica", "bruno", "Ana"
 
 ```gherkin
 AC-0006-23
-Given clients "Zeca" (ana@example.com), "Ana" (zeca@example.com) and "Bruno" (bruno@example.com)
-When  the owner lists clients with sort "email", and then with sort "-email"
-Then  the first list is "Zeca", "Bruno", "Ana"
-And   the second list is "Ana", "Bruno", "Zeca"
+Given clients "Ana" last updated 2026-11-10, "Bruno" last updated 2026-11-18 and "Carla" last updated 2026-11-15
+When  the owner lists clients with sort "-updatedAt"
+Then  they are listed in the order "Bruno", "Carla", "Ana"
 ```
 
 ```gherkin
@@ -385,7 +502,7 @@ Then  the response is 422 with { "error": "clientSort.invalid", "field": "sort" 
 ```gherkin
 AC-0006-26
 Given a nextCursor returned for a list with sort "name"
-When  the owner lists clients with sort "email" and that cursor as after
+When  the owner lists clients with sort "-updatedAt" and that cursor as after
 Then  the response is 422 with { "error": "cursor.invalid", "field": "after" }
 ```
 
@@ -400,40 +517,40 @@ Then  the response is 422 with { "error": "clientSearch.min", "field": "q" }
 AC-0006-28
 Given an owner opening /clients
 When  the list has loaded
-Then  the Nome header is marked as sorted ascending and the E-mail header is not marked
-And   the Telefone header is not a sort control
+Then  the "Ordenar por" control shows "Nome (A–Z)"
+And   it offers, in order, "Nome (A–Z)", "Nome (Z–A)", "Última atualização"
 ```
 
 ```gherkin
 AC-0006-29
-Given the owner on /clients sorted by Nome ascending
-When  they press the Nome header, and then press it again
-Then  the first press sends a list request with sort "-name" and marks Nome as descending
-And   the second press sends a list request with sort "name" and marks Nome as ascending
+Given the owner on /clients sorted by "Nome (A–Z)"
+When  they choose "Nome (Z–A)", and then "Nome (A–Z)"
+Then  the first choice sends a list request with sort "-name" and the control shows "Nome (Z–A)"
+And   the second choice sends a list request with sort "name" and the control shows "Nome (A–Z)"
 ```
 
 ```gherkin
 AC-0006-30
-Given the owner on /clients sorted by Nome descending
-When  they press the E-mail header
-Then  a list request is sent with sort "email"
-And   E-mail is marked as ascending and Nome is not marked
+Given the owner on /clients sorted by "Nome (Z–A)"
+When  they choose "Última atualização"
+Then  a list request is sent with sort "-updatedAt"
+And   the control shows "Última atualização"
 ```
 
 ```gherkin
 AC-0006-31
-Given the owner on /clients with search "ana", status "Todos", "Anamnese" chosen in the Modelo control, and a second page loaded with Carregar mais
-When  they press the E-mail header
-Then  the next list request has q "ana", status "all", formId of "Anamnese", sort "email" and no after
+Given the owner on /clients with search "ana", status "Todos", "Anamnese" chosen in the Modelo control, and a second page loaded by scrolling
+When  they choose "Última atualização"
+Then  the next list request has q "ana", status "all", formId of "Anamnese", sort "-updatedAt" and no after
 And   only that request's first page is shown
 ```
 
 ```gherkin
 AC-0006-32
-Given the owner sorted /clients by E-mail descending and left the page
+Given the owner sorted /clients by "Última atualização" and left the page
 When  they open /clients again
 Then  the first list request has no sort parameter
-And   the Nome header is marked as sorted ascending
+And   the control shows "Nome (A–Z)"
 ```
 
 ```gherkin
@@ -452,9 +569,9 @@ Then  both responses are 422 with { "error": "cursor.invalid", "field": "after" 
 
 ```gherkin
 AC-0006-35
-Given the owner on /clients sorted by E-mail ascending, with "Anamnese" chosen in the Modelo control and more than 50 matching clients
-When  they press Carregar mais
-Then  the list request has sort "email", formId of "Anamnese" and the first page's nextCursor as after
+Given the owner on /clients sorted by "Última atualização", with "Anamnese" chosen in the Modelo control and more than 50 matching clients
+When  they scroll to the end of the first 50 rows
+Then  the list request has sort "-updatedAt", formId of "Anamnese" and the first page's nextCursor as after
 ```
 
 ```gherkin
@@ -468,7 +585,7 @@ Then  the page shows the state with copy key clients.list.error and no total
 AC-0006-37
 Given tenant "studio-ana" whose only client "Ana Souza" is inactive
 When  its owner opens /clients with the default filter
-Then  the page shows the state with copy key clients.list.emptyFilter and no total
+Then  the page shows the state with copy key clients.list.emptyFilter, no total and no closing block
 ```
 
 ```gherkin
@@ -488,18 +605,19 @@ And   the list shows "Ana Souza" once its request answers
 
 ```gherkin
 AC-0006-40
-Given an owner on /clients on a narrow screen, with client "Ana Souza"
-When  the list has loaded
-Then  only the Nome header is shown
-And   it is a sort control marked as ascending
+Given tenant "studio-ana" with client templates "Ficha" and "Anamnese" and client "Ana Souza"
+When  its owner opens /clients on a narrow screen
+Then  the search, the status filter and the total are shown
+And   no "Ordenar por" control and no Modelo control are shown
+And   the list request has no sort and no formId
 ```
 
 ```gherkin
 AC-0006-41
-Given the owner on /clients sorted by E-mail ascending, and the screen then narrows
-When  they press the Nome header
-Then  before the press the Nome header is not marked as sorted
-And   the press sends a list request with sort "name" and marks Nome as ascending
+Given the owner on /clients with search "ana", sorted by "Última atualização" and with "Anamnese" chosen in the Modelo control
+When  the screen narrows
+Then  a list request is sent with q "ana", the same status, no sort, no formId and no after
+And   the list shows its first card at the top
 ```
 
 ```gherkin
@@ -509,7 +627,225 @@ When  the request has formId "not-an-id" and sort "phone"
 Then  the response is 422 with { "error": "formId.invalid", "field": "formId" }
 ```
 
+```gherkin
+AC-0006-43
+Given tenant "studio-ana" with 120 active clients and the first 50 shown on /clients
+When  the owner scrolls until the 50th row is in view
+Then  one list request is sent with the first page's nextCursor as after
+And   the list shows 100 rows, the first 50 unchanged and in the same order
+```
+
+```gherkin
+AC-0006-44
+Given tenant "studio-ana" with 120 active clients and the first 50 shown on /clients
+When  the owner moves keyboard focus with Tab to the name of the 50th client
+Then  a list request is sent with the first page's nextCursor as after
+```
+
+```gherkin
+AC-0006-45
+Given tenant "studio-ana" with 120 active clients and the first 50 shown on /clients
+When  the next-page request fails with 500
+Then  the 50 rows stay and below them the page shows copy key clients.list.loadMoreError with a retry control
+And   scrolling to the end again sends no request
+And   pressing retry sends the request again and, when it answers, shows 100 rows
+```
+
+```gherkin
+AC-0006-46
+Given the owner on /clients with the first 50 of 120 clients shown
+When  the next-page request has not answered yet
+Then  below the rows the page shows the indicator with copy key clients.list.loadingMore
+And   scrolling to the end again sends no second request
+```
+
+```gherkin
+AC-0006-47
+Given tenant "studio-ana" with 120 active clients
+When  its owner scrolls /clients until all three pages have loaded
+Then  below the 120th row the page shows the closing block with copy key clients.list.end
+And   scrolling to the end again sends no request
+```
+
+```gherkin
+AC-0006-48
+Given tenant "studio-ana" with 3 active clients
+When  its owner opens /clients
+Then  below the 3 rows the page shows the closing block with copy key clients.list.end
+```
+
+```gherkin
+AC-0006-49
+Given clients "Ana Souza" and "Bruno Lima"
+When  the owner searches /clients for "zzz"
+Then  the page shows the state with copy key clients.list.noResults and no closing block
+```
+
+```gherkin
+AC-0006-50
+Given tenant "studio-ana" with 120 active clients and the first 50 shown on /clients
+When  the second page loads
+Then  a polite live region announces "100 de 120 clientes carregados" (copy key clients.list.loadedCount)
+And   keyboard focus stays where it was
+```
+
+```gherkin
+AC-0006-51
+Given tenant "studio-ana" with 120 active clients
+When  its owner opens /clients
+Then  no "Carregar mais" button is shown
+```
+
+```gherkin
+AC-0006-52
+Given the closing block on /clients
+When  it renders
+Then  its illustration is hidden from assistive technology
+And   the block's only accessible text is the clients.list.end message
+```
+
+```gherkin
+AC-0006-53
+Given an owner listing clients
+When  the request has sort "updatedAt"
+Then  the response is 422 with { "error": "clientSort.invalid", "field": "sort" }
+```
+
+```gherkin
+AC-0006-54
+Given tenant "studio-ana" with 60 active clients that all have the same last update time
+When  its owner lists clients with sort "-updatedAt", then once more passing that response's nextCursor as after
+Then  the pages hold 50 and 10 clients
+And   no client appears twice and none is missing
+```
+
+```gherkin
+AC-0006-55
+Given clients "Ana Souza" and "Bruno Lima", where "Bruno Lima" was updated after "Ana Souza"
+When  the owner saves an edit of the phone of "Ana Souza" and lists clients with sort "-updatedAt"
+Then  "Ana Souza" is listed before "Bruno Lima"
+```
+
+```gherkin
+AC-0006-56
+Given active clients "Ana Souza" and "Bruno Lima", where "Bruno Lima" was updated after "Ana Souza"
+When  the owner inactivates "Ana Souza" and lists clients with status "all" and sort "-updatedAt"
+Then  "Ana Souza" is listed before "Bruno Lima"
+```
+
+```gherkin
+AC-0006-57
+Given a client "Ana Souza" whose last update was at 2026-11-18T15:30:00.000Z
+When  the owner lists clients
+Then  the entry of "Ana Souza" has updatedAt "2026-11-18T15:30:00.000Z"
+```
+
+```gherkin
+AC-0006-58
+Given tenant "studio-ana" with 120 active clients, and the owner on /clients scrolled down to the 80th row
+When  they choose status "Todos"
+Then  the list shows its first row at the top of the page
+```
+
+```gherkin
+AC-0006-59
+Given an active client "Ana Souza" (ana@example.com) from template "Anamnese", last updated on 2 August of the current year at 15:00 UTC, and a browser in the America/Sao_Paulo time zone with pt-BR
+When  the owner opens /clients on a narrow screen
+Then  the card of "Ana Souza" shows "AS", "Ana Souza", "ana@example.com", "02/08" and a badge "Anamnese"
+And   it shows no phone
+```
+
+```gherkin
+AC-0006-60
+Given active clients "João Lima", "Érica Dias", "ana Reis" and "Eduardo Reis"
+When  the owner opens /clients on a narrow screen
+Then  the cards are in the order "ana Reis", "Eduardo Reis", "Érica Dias", "João Lima"
+And   headings "A", "E" and "J" appear once each, right before "ana Reis", "Eduardo Reis" and "João Lima"
+```
+
+```gherkin
+AC-0006-61
+Given tenant "studio-ana" with 120 active clients, where the 50th and 51st by name both start with "M"
+When  its owner, on a narrow screen, scrolls until the second page loads
+Then  exactly one heading "M" is shown
+```
+
+```gherkin
+AC-0006-62
+Given active clients "7 Mares Estética" and "Ana Reis"
+When  the owner opens /clients on a narrow screen
+Then  "7 Mares Estética" is under the heading "#"
+```
+
+```gherkin
+AC-0006-63
+Given tenant "studio-ana" with active client template "Ficha"
+When  its owner, on a narrow screen, presses the floating button named "Novo cliente" (copy key clients.new.floating)
+Then  the [Novo] dropdown opens with "Criar novo modelo" and "Ficha"
+And   no [Novo] button is shown at the top of the page
+```
+
+```gherkin
+AC-0006-64
+Given the owner on /clients sorted by "Última atualização" with "Anamnese" chosen, and the screen then narrowed
+When  the screen widens again
+Then  a list request is sent with sort "-updatedAt", formId of "Anamnese" and no after
+And   the controls show "Última atualização" and "Anamnese"
+```
+
+```gherkin
+AC-0006-65
+Given archived template "Antigo" with active client "Carla Dias"
+When  the owner opens /clients
+Then  the badge of "Carla Dias" shows "Antigo", without "(arquivado)"
+```
+
+```gherkin
+AC-0006-66
+Given an inactive client "Ana Reis" from template "Ficha"
+When  the owner opens /clients and chooses status "Todos"
+Then  the row of "Ana Reis" shows the "Inativo" badge (copy key clients.list.inactiveBadge) right before the badge "Ficha"
+```
+
+```gherkin
+AC-0006-67
+Given an inactive client "Ana Reis" from template "Ficha"
+When  the owner opens /clients on a narrow screen and chooses status "Todos"
+Then  the card of "Ana Reis" shows the "Inativo" badge (copy key clients.list.inactiveBadge) right before the badge "Ficha"
+```
+
+```gherkin
+AC-0006-68
+Given tenant "studio-ana" with 120 active clients, and the owner on /clients with two pages loaded, scrolled down to the 80th row
+When  they open the page of the 80th client and then go back to /clients
+Then  the first list request has no after
+And   the list shows its first row at the top of the page
+```
+
+```gherkin
+AC-0006-69
+Given an active client "Ana Souza"
+When  the owner inactivates "Ana Souza", then reads her and lists clients with status "all"
+Then  the read's updatedAt is later than before the inactivation
+And   it equals the updatedAt of "Ana Souza" in the list
+```
+
 ## 11. Implementation plan
+
+> **Needs revision (v1.5).** The behavior amendments of v1.4 (infinite scroll, closing block) and v1.5 (wide-screen
+> rows, narrow-screen cards, `-updatedAt` sort, `updatedAt` in `ClientSummary`, back-to-top) are not planned yet.
+> Owner technical choice (2026-11-19): TanStack Query only, no Table and no Virtual. Once v1.5 is approved, `/plan`
+> revises this section:
+> - one client-list hook on `useInfiniteQuery`, shared by both layouts; search, status, template filter and sort in
+>   the query key; next page fetched as the end of the list comes near; a failed page keeps the loaded pages;
+> - separate components for the wide-screen row and the narrow-screen card, each layout passing its own sort and
+>   template filter;
+> - API: the `-updatedAt` keyset on `(updated_at, id)` descending, the email sorts removed, and whether an index on
+>   `(tenant_id, status, updated_at, id)` is needed at MVP sizes;
+> - the `@tanstack/react-table` and `@tanstack/react-virtual` packages removed by the owner with pnpm (G-3).
+>
+> The approval of v1.3 no longer applies; `plan_status` is Draft. The text below is the v1.3 plan, kept as the base
+> for the revision.
 
 Drafted by `/plan` on 2026-11-19 against the code SPEC-0004 built (spec v1.6, `status: Approved`; its code is
 committed, but the spec is not yet `Implemented`, see G-5). Revised in v1.2 after the plan review and the
@@ -743,3 +1079,7 @@ None for this plan.
 | 1.1 | 2026-11-19 | Implementation plan (§11) drafted by `/plan` against the SPEC-0004 code: contract additions (`formId`, `sort`, `total`, `clientSort.invalid`), no migration, cursor bound to template filter and sort, repository `count`, list page template control, total and sort headers. Owner decisions G-1 to G-4 pending. `plan_status` stays Draft. |
 | 1.2 | 2026-11-19 | Plan review (2026-11-19) required changes 1–6 applied: G-5 added (SPEC-0004 must be `Implemented` before the lock) and the intro corrected; G-3 rewritten for the current tree (polish committed in `6eefdb1`; docs, link fix and TanStack packages committed separately); TanStack packages in the tree declared out of plan; step 1 check uses `typecheck`, since the schemas package has no tests; existing tests touched listed in full; "Carregar mais" replaces the total, with a W-list check. Non-blocking: reuse `archive(id)`, cite SPEC-0001's template order, keep contract, API and harness in one commit. Count-cost research (owner choice): single-page rule in the handler, `list` then `count` sequentially; the measurement and revisit thresholds added under Risks. Owner decisions G-1 to G-5 pending. `plan_status` stays Draft. |
 | 1.3 | 2026-11-19 | Plan approved by Joao Izidoro, 2026-11-19: §11 as revised in 1.2, with G-1 to G-4 decided as proposed. `plan_status` Approved. Before `/implement`: the G-3 commits and SPEC-0004 set to `Implemented` (G-5). |
+| 1.4 | 2026-11-19 | Behavior amendment at the owner's request: infinite scroll replaces "Carregar mais" (R7, §4.5), with a closing message and an illustration slot left empty until the owner picks an SVG (Q15). AC-0006-19, -21, -31, -35 and -37 reworded; AC-0006-43 to -52 added; AC-0004-63 and SPEC-0004 §4.1 step 6 and the §8 "loading more" rows added to the amendments of §2. Q15–Q19 added. Status → Review; `plan_status` → Draft, §11 to be revised for Query, Table and Virtual after approval. |
+| 1.5 | 2026-11-19 | Redesign from the owner's designs (n8n-style wide rows, mobile cards) and answers Q20–Q23. Wide screens: full-width rows with initials, name, e-mail, phone and a template badge, no column headers, an "Ordenar por" control (§4.1, §4.4). Narrow screens: cards under letter headings with e-mail, last-update date and template badge, search and status only, always A–Z, floating [Novo] button (§4.6). Sorts are now `name`, `-name`, `-updatedAt`; the e-mail sorts are dropped (R4, §6, §7, RF-09). `ClientSummary` gains `updatedAt` (R9, §7). Back to the top on any change (R8). The template badge returns to the rows; the template filter stays (Q21). Q9 superseded, Q17 withdrawn (no virtualization), Q24–Q29 proposed. AC-0006-08, -09, -23, -26, -28 to -32, -35, -40 and -41 reworded; AC-0006-53 to -65 added. Owner technical choice: TanStack Query only (§11 banner). Status stays Review; `plan_status` Draft. |
+| 1.6 | 2026-11-20 | Spec review (2026-11-20) required changes 1–5 applied with the owner's picks. Q30: `updatedAt` means R9's time on the client's page too, so SPEC-0004 §7 "Client" is amended and the page and list agree (R9, §2, §7; AC-0006-69 added). §2 amendment list: SPEC-0004's v1.0 notes on R10, §4.1 step 2, §7 "List" and §8 "success" are rewritten, not added; §7 "Client" and "ClientSummary" listed separately; Decision 9 of SPEC-0004's plan noted. Q31: R10 defines narrow as under 48rem (RNF-16 `md`), wide otherwise; "desktop" and "mobile" removed. "Inativo" badge just before the template badge on rows and cards (R6, §4.1, §4.6, §8; AC-0006-66 and -67 added). Q8, Q13, Q16, Q18 and Q23–Q29 decided as proposed; AC-0006-68 added for Q18. Non-blocking review suggestions left as follow-ups. Status stays Review; `plan_status` Draft. |
+| 1.7 | 2026-11-20 | Approved by Joao Izidoro, 2026-11-20, after the spec review and its re-check (both 2026-11-20), with all 69 criteria agreed. SPEC-0004 amended per §2 (its v1.7). `plan_status` stays Draft; `/plan` revises §11. |
