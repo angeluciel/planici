@@ -1,7 +1,12 @@
 import { z } from "zod";
 import { EmailSchema } from "../common.js";
 import { CursorQuerySchema, LimitQuerySchema } from "../pagination.js";
-import { PhoneValueSchema, RecordCreateEnvelopeSchema, RecordUpdateEnvelopeSchema } from "../records/index.js";
+import {
+	PhoneValueSchema,
+	RecordCreateEnvelopeSchema,
+	RecordFormIdSchema,
+	RecordUpdateEnvelopeSchema,
+} from "../records/index.js";
 
 // Request schemas of SPEC-0004 §6 and §7. The API parses a create or update body
 // in parts, in §6 order (envelope, consent, attributes); the composed request
@@ -11,6 +16,8 @@ export const CLIENT_NAME_MAX_LENGTH = 120;
 export const CLIENT_SEARCH_MIN_LENGTH = 2;
 export const CLIENT_STATUSES = ["active", "inactive"] as const;
 export const CLIENT_STATUS_FILTERS = ["active", "inactive", "all"] as const;
+// SPEC-0006 R4: the first one is the default; a leading `-` means descending
+export const CLIENT_SORTS = ["name", "-name", "-updatedAt"] as const;
 
 // a malformed id names a client that cannot exist: 404, not 422 (AC-0004-73)
 export const ClientIdSchema = z.uuid({ error: "client.not-found" });
@@ -89,7 +96,8 @@ export const ClientUpdateRequestSchema = z
 	})
 	.superRefine(checkValueKeys);
 
-// GET /clients?q&status&limit&after. Key order is the check order (§6, List).
+// GET /clients?q&status&formId&sort&limit&after. Key order is the check order
+// (SPEC-0004 §6, List, as amended by SPEC-0006 §6).
 export const ListClientsQuerySchema = z.object({
 	// R9: trimmed; blank is no filter; one character is too short
 	q: z
@@ -103,6 +111,10 @@ export const ListClientsQuerySchema = z.object({
 		.transform((q) => (q === "" ? undefined : q))
 		.optional(),
 	status: z.enum(CLIENT_STATUS_FILTERS, { error: "clientStatus.invalid" }).default("active"),
+	// SPEC-0006 R1, R2: malformed -> formId.invalid (SPEC-0006 §9 Q14)
+	formId: RecordFormIdSchema.optional(),
+	// SPEC-0006 R4
+	sort: z.enum(CLIENT_SORTS, { error: "clientSort.invalid" }).default("name"),
 	limit: LimitQuerySchema,
 	after: CursorQuerySchema,
 });
@@ -114,6 +126,7 @@ export const DeleteClientRequestSchema = z.object({
 
 export type ClientStatus = (typeof CLIENT_STATUSES)[number];
 export type ClientStatusFilter = (typeof CLIENT_STATUS_FILTERS)[number];
+export type ClientSort = (typeof CLIENT_SORTS)[number];
 export type ClientAttributesInput = z.input<typeof ClientAttributesSchema>;
 export type ClientAttributesData = z.output<typeof ClientAttributesSchema>;
 export type ClientCreateRequestInput = z.input<typeof ClientCreateRequestSchema>;

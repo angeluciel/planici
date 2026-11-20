@@ -29,10 +29,19 @@ export class ReactivateClientHandler implements ICommandHandler<ReactivateClient
       if (!client) throw new ClientNotFoundError();
       if (client.status === 'active') throw new ClientStatusUnchangedError();
 
-      // the client row only: the record's revision and updated_at stay (AC-0003-82)
-      await this.clients.setStatus(tx, tenantId, clientId, 'active');
+      // the client row only: the record's revision and updated_at stay (AC-0003-82),
+      const updatedAt = await this.clients.setStatus(
+        tx,
+        tenantId,
+        clientId,
+        'active',
+      );
 
-      return this.presenter.present({ ...client, status: 'active' }, tx);
+      // while the client's own last update time moves (SPEC-0006 R9)
+      return this.presenter.present(
+        { ...client, status: 'active', updatedAt },
+        tx,
+      );
     });
   }
 }

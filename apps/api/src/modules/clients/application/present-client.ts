@@ -13,7 +13,9 @@ import type { StoredClient } from '../ports/client.repository.js';
 /**
  * The Client response of SPEC-0004 section 7: the record as SPEC-0003 reads it,
  * with the client's own attributes, status, history and attestation (SPEC-0003
- * point 5). `createdAt` and `updatedAt` come from the record (plan, Decision 9).
+ * point 5). `createdAt` comes from the record (plan, Decision 9); `updatedAt` is
+ * the client's own last update time, which inactivation and reactivation change
+ * too, so the client and the list report the same value (SPEC-0006 R9).
  */
 @Injectable()
 export class ClientPresenter {
@@ -49,6 +51,7 @@ export class ClientPresenter {
       email: client.email,
       phone: client.phone,
       status: client.status,
+      updatedAt: client.updatedAt.toISOString(),
       hasHistory,
       consentAttestation: {
         attestedBy: client.consentAttestedBy,

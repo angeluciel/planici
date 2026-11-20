@@ -1,9 +1,13 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import type { ClientSort } from '@planici/schemas';
 
-// The list cursor of SPEC-0004 plan, API, List: `<payload>.<mac>`, both
-// base64url. The payload is the JSON { f, n, i }: `f` the filter the cursor was
-// issued for, `n` and `i` the `name_key` and `id` of the last row. The mac is
-// HMAC-SHA256 of the payload string, so an edit of any of them fails the check.
+// The list cursor of SPEC-0004 plan, API, List, as amended by SPEC-0006 plan,
+// API: `<payload>.<mac>`, both base64url. The payload is the JSON { f, k, i }:
+// `f` the filter and sort the cursor was issued for, `k` and `i` the sort key
+// and `id` of the last row. The key is the row's `name_key` for the name sorts
+// and its exact `updated_at` text, microseconds included, for `-updatedAt`
+// (SPEC-0006 plan, G-6). The mac is HMAC-SHA256 of the payload string, so an
+// edit of any of them fails the check.
 
 const KEY_CONTEXT = 'planici:list-cursor:v1';
 
@@ -11,10 +15,13 @@ export type CursorFilter = {
   status: 'active' | 'inactive' | 'all';
   // textKey of the search query, '' when there is none
   q: string;
+  // the template filter, '' when there is none (SPEC-0006 R5)
+  formId: string;
+  sort: ClientSort;
 };
 
 export type CursorPosition = {
-  nameKey: string;
+  key: string;
   id: string;
 };
 
@@ -34,8 +41,13 @@ export function encodeCursor(
 ): string {
   const payload = Buffer.from(
     JSON.stringify({
-      f: { status: filter.status, q: filter.q },
-      n: last.nameKey,
+      f: {
+        status: filter.status,
+        q: filter.q,
+        formId: filter.formId,
+        sort: filter.sort,
+      },
+      k: last.key,
       i: last.id,
     }),
   ).toString('base64url');
@@ -49,7 +61,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 /**
  * The position a cursor stands for, or null when it is malformed, was not
- * signed with `key`, or was issued for another filter (-> 422 `cursor.invalid`).
+ * signed with `key`, or was issued for another filter or sort (-> 422
+ * `cursor.invalid`).
  */
 export function decodeCursor(
   key: Buffer,
@@ -82,11 +95,25 @@ export function decodeCursor(
 
   if (!isRecord(data) || !isRecord(data.f)) return null;
 
-  const { f, n, i } = data;
+  const { f, k, i } = data;
 
-  if (typeof f.status !== 'string' || typeof f.q !== 'string') return null;
-  if (typeof n !== 'string' || typeof i !== 'string') return null;
-  if (f.status !== filter.status || f.q !== filter.q) return null;
+  if (
+    typeof f.status !== 'string' ||
+    typeof f.q !== 'string' ||
+    typeof f.formId !== 'string' ||
+    typeof f.sort !== 'string'
+  ) {
+    return null;
+  }
+  if (typeof k !== 'string' || typeof i !== 'string') return null;
+  if (
+    f.status !== filter.status ||
+    f.q !== filter.q ||
+    f.formId !== filter.formId ||
+    f.sort !== filter.sort
+  ) {
+    return null;
+  }
 
-  return { nameKey: n, id: i };
+  return { key: k, id: i };
 }

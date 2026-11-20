@@ -29,10 +29,19 @@ export class InactivateClientHandler implements ICommandHandler<InactivateClient
       if (!client) throw new ClientNotFoundError();
       if (client.status === 'inactive') throw new ClientStatusUnchangedError();
 
-      // the client row only: the record's revision and updated_at stay (AC-0003-82)
-      await this.clients.setStatus(tx, tenantId, clientId, 'inactive');
+      // the client row only: the record's revision and updated_at stay (AC-0003-82),
+      const updatedAt = await this.clients.setStatus(
+        tx,
+        tenantId,
+        clientId,
+        'inactive',
+      );
 
-      return this.presenter.present({ ...client, status: 'inactive' }, tx);
+      // while the client's own last update time moves (SPEC-0006 R9)
+      return this.presenter.present(
+        { ...client, status: 'inactive', updatedAt },
+        tx,
+      );
     });
   }
 }

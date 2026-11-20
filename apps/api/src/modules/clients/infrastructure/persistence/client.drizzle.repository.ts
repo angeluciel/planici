@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, eq, or, type SQL, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, or, type SQL, sql } from 'drizzle-orm';
 import type { ClientStatus } from '@planici/schemas';
 import { DRIZZLE } from '@src/database/database.constants.js';
 import type { Database } from '@src/database/database.module.js';
@@ -8,6 +8,7 @@ import { TenantScope } from '@modules/tenants/infrastructure/persistence/tenant-
 import type { TenantTransaction } from '@modules/tenants/infrastructure/persistence/tenant-scope.js';
 import { ClientEmailTakenError } from '../../domain/errors/client.errors.js';
 import type {
+  ClientCountFilter,
   ClientExecutor,
   ClientListFilter,
   ClientListRow,
@@ -39,7 +40,76 @@ const columns = {
   consentAttestedBy: clients.consentAttestedBy,
   consentAttestedAt: clients.consentAttestedAt,
   consentTextVersion: clients.consentTextVersion,
+  updatedAt: clients.updatedAt,
 };
+
+// the exact stored `updated_at`, microseconds included, as the `-updatedAt`
+// cursor key (SPEC-0006 plan, G-6): a JS Date would cut the microseconds
+const updatedAtKey = sql<string>`to_char(${clients.updatedAt} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`;
+
+/** The conditions `list` and `count` share: tenant, status, search, template. */
+function filterConditions(
+  tenantId: string,
+  filter: ClientCountFilter,
+): (SQL | undefined)[] {
+  const conditions: (SQL | undefined)[] = [eq(clients.tenantId, tenantId)];
+
+  if (filter.status !== 'all') {
+    conditions.push(eq(clients.status, toStoredStatus(filter.status)));
+  }
+
+  if (filter.search) {
+    const { pattern, phonePattern } = filter.search;
+
+    conditions.push(
+      or(
+        sql`${clients.nameKey} like ${pattern}`,
+        sql`${clients.email} like ${pattern}`,
+        phonePattern ? sql`${clients.phone} like ${phonePattern}` : undefined,
+      ),
+    );
+  }
+
+  // SPEC-0006 R1; another tenant's template matches nothing, since every join
+  // below is scoped to the tenant (R2)
+  if (filter.formId) {
+    conditions.push(eq(formRecords.formId, filter.formId));
+  }
+
+  return conditions;
+}
+
+/** Order, keyset and cursor key of each sort (SPEC-0006 R4, plan API). */
+function sortOf(filter: ClientListFilter) {
+  const after = filter.after;
+
+  switch (filter.sort) {
+    case '-name':
+      return {
+        orderBy: [desc(clients.nameKey), desc(clients.id)],
+        keyset: after
+          ? sql`(${clients.nameKey}, ${clients.id}) < (${after.key}, ${after.id}::uuid)`
+          : undefined,
+        sortKey: sql<string>`${clients.nameKey}`,
+      };
+    case '-updatedAt':
+      return {
+        orderBy: [desc(clients.updatedAt), desc(clients.id)],
+        keyset: after
+          ? sql`(${clients.updatedAt}, ${clients.id}) < (${after.key}::timestamptz, ${after.id}::uuid)`
+          : undefined,
+        sortKey: updatedAtKey,
+      };
+    case 'name':
+      return {
+        orderBy: [asc(clients.nameKey), asc(clients.id)],
+        keyset: after
+          ? sql`(${clients.nameKey}, ${clients.id}) > (${after.key}, ${after.id}::uuid)`
+          : undefined,
+        sortKey: sql<string>`${clients.nameKey}`,
+      };
+  }
+}
 
 function toStored(row: {
   id: string;
@@ -52,6 +122,7 @@ function toStored(row: {
   consentAttestedBy: string;
   consentAttestedAt: Date;
   consentTextVersion: string;
+  updatedAt: Date;
 }): StoredClient {
   return { ...row, status: toContractStatus(row.status) };
 }
@@ -165,42 +236,24 @@ export class DrizzleClientRepository implements ClientRepository {
     tenantId: string,
     clientId: string,
     status: ClientStatus,
-  ): Promise<void> {
+  ): Promise<Date> {
     return guardQuery(async () => {
-      await tx
+      const [row] = await tx
         .update(clients)
         .set({ status: toStoredStatus(status), updatedAt: new Date() })
-        .where(and(eq(clients.id, clientId), eq(clients.tenantId, tenantId)));
+        .where(and(eq(clients.id, clientId), eq(clients.tenantId, tenantId)))
+        .returning({ updatedAt: clients.updatedAt });
+
+      if (!row) throw new Error('update of clients returned no row');
+
+      return row.updatedAt;
     });
   }
 
   list(tenantId: string, filter: ClientListFilter): Promise<ClientListRow[]> {
     return guardQuery(async () => {
-      const conditions: (SQL | undefined)[] = [eq(clients.tenantId, tenantId)];
-
-      if (filter.status !== 'all') {
-        conditions.push(eq(clients.status, toStoredStatus(filter.status)));
-      }
-
-      if (filter.search) {
-        const { pattern, phonePattern } = filter.search;
-
-        conditions.push(
-          or(
-            sql`${clients.nameKey} like ${pattern}`,
-            sql`${clients.email} like ${pattern}`,
-            phonePattern
-              ? sql`${clients.phone} like ${phonePattern}`
-              : undefined,
-          ),
-        );
-      }
-
-      if (filter.after) {
-        conditions.push(
-          sql`(${clients.nameKey}, ${clients.id}) > (${filter.after.nameKey}, ${filter.after.id}::uuid)`,
-        );
-      }
+      const { orderBy, keyset, sortKey } = sortOf(filter);
+      const conditions = [...filterConditions(tenantId, filter), keyset];
 
       const rows = await this.db
         .select({
@@ -212,6 +265,8 @@ export class DrizzleClientRepository implements ClientRepository {
           formId: formRecords.formId,
           formName: forms.name,
           status: clients.status,
+          updatedAt: clients.updatedAt,
+          sortKey,
         })
         .from(clients)
         .innerJoin(
@@ -226,13 +281,35 @@ export class DrizzleClientRepository implements ClientRepository {
           and(eq(forms.id, formRecords.formId), eq(forms.tenantId, tenantId)),
         )
         .where(and(...conditions))
-        .orderBy(asc(clients.nameKey), asc(clients.id))
+        .orderBy(...orderBy)
         .limit(filter.take);
 
       return rows.map((row) => ({
         ...row,
         status: toContractStatus(row.status),
       }));
+    });
+  }
+
+  count(tenantId: string, filter: ClientCountFilter): Promise<number> {
+    return guardQuery(async () => {
+      const [row] = await this.db
+        .select({ total: sql<number>`count(*)::int` })
+        .from(clients)
+        .innerJoin(
+          formRecords,
+          and(
+            eq(formRecords.id, clients.formRecordId),
+            eq(formRecords.tenantId, tenantId),
+          ),
+        )
+        .innerJoin(
+          forms,
+          and(eq(forms.id, formRecords.formId), eq(forms.tenantId, tenantId)),
+        )
+        .where(and(...filterConditions(tenantId, filter)));
+
+      return row?.total ?? 0;
     });
   }
 
