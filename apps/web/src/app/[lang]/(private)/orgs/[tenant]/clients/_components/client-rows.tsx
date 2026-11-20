@@ -68,7 +68,7 @@ export function ClientRows({
 										{client.email}
 									</span>
 									{client.phone && (
-										<span className="text-text-secondary">
+										<span className="text-text-secondary self-start">
 											{maskPhone(client.phone)}
 										</span>
 									)}

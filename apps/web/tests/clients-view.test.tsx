@@ -1,5 +1,6 @@
 // W-cview: SPEC-0004 AC-0004-14 (the dialog), -33 (partly), -64 to -70, -71
-// (partly) and AC-0002-23 (masked through protected-value). The view page runs
+// (partly), AC-0002-23 (masked through protected-value) and SPEC-0003
+// AC-0003-97 and -98 (partly: the client page's trail and back link). The view page runs
 // with the real client adapter and ClientActions; the BFF is faked by
 // clients-harness. -33 and -71 are partly verified: no linked appointment
 // exists, so `hasHistory` comes from the faked read (plan G-2).
@@ -30,6 +31,8 @@ import {
 	setRoute,
 	stubFetch,
 	systemFieldsOf,
+	TENANT,
+	tCommon,
 	tc,
 } from "./clients-harness";
 
@@ -306,5 +309,32 @@ describe("Protected value", () => {
 		);
 
 		expect(await screen.findByText("Pintura")).toBeTruthy();
+	});
+});
+
+// ----------------------------------------------------- way back (SPEC-0003 §4.2)
+
+describe("Way back", () => {
+	const LIST = `/orgs/${TENANT}/clients`;
+
+	it("AC-0003-97 (partly) links the breadcrumb to the client list with clients.list.title, then shows the client's name", async () => {
+		const box = { current: client() };
+		await openView(box);
+
+		const nav = screen.getByRole("navigation", {
+			name: tCommon("breadcrumb"),
+		});
+		const link = within(nav).getByRole("link", { name: tc("list.title") });
+		expect(link.getAttribute("href")).toBe(LIST);
+		expect(
+			within(nav).getByText(box.current.name).getAttribute("aria-current"),
+		).toBe("page");
+	});
+
+	it("AC-0003-98 (partly) links Voltar to the client list", async () => {
+		await openView({ current: client() });
+
+		const back = screen.getByRole("link", { name: tc("form.back") });
+		expect(back.getAttribute("href")).toBe(LIST);
 	});
 });

@@ -1,5 +1,6 @@
 // W-view: SPEC-0003 AC-0003-15, -16 (view part), -18, -25, -27, -29, -46, -50, -52,
-// -70, -84, -85, -92, -95, -96 and the option-removal support check. Run for
+// -70, -84, -85, -92, -95, -96, -97 and -98 (partly: jsdom applies no CSS, so the
+// width split is a browser check) and the option-removal support check. Run for
 // `clients` and `services`. The version read goes through forms-harness; the
 // record read goes through the fake RecordAdapter of record-harness.
 import {
@@ -9,6 +10,7 @@ import {
 	waitFor,
 	within,
 } from "@testing-library/react";
+import type { ComponentProps } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RecordView } from "@/app/[lang]/(private)/orgs/[tenant]/_components/records/record-view";
 import {
@@ -32,6 +34,8 @@ import {
 	setRoute,
 	stubFetch,
 	systemFieldsOf,
+	TENANT,
+	tCommon,
 } from "./record-harness";
 
 vi.mock("axios", async (importOriginal) => {
@@ -60,8 +64,24 @@ afterEach(() => {
 // ------------------------------------------------------------------ helpers
 
 const MASK = "••••••";
+// the breadcrumb link an entity page would pass, e.g. "Clientes"
+const TRAIL_LABEL = "Lista de cadastros";
 
 type Fields = ReturnType<typeof systemFieldsOf>;
+type ViewProps = ComponentProps<typeof RecordView>;
+
+/** The view with a one-link trail and a back link, both to the adapter's list. */
+function viewOf(h: FakeAdapter, extra: Partial<ViewProps> = {}) {
+	return (
+		<RecordView
+			adapter={h.adapter}
+			recordId={RECORD_ID}
+			trail={[{ label: TRAIL_LABEL, href: h.adapter.listHref }]}
+			backHref={h.adapter.listHref}
+			{...extra}
+		/>
+	);
+}
 let shownLabels: string[] = [];
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -100,11 +120,12 @@ async function openView(
 	h: FakeAdapter,
 	rec: ReturnType<typeof record>,
 	fields: Fields,
+	extra: Partial<ViewProps> = {},
 ) {
 	serveVersion(rec.form.version, fields);
 	h.state.read = async () => ({ ok: true, record: rec });
 	shownLabels = fields.map((f) => f.label);
-	renderApp(<RecordView adapter={h.adapter} recordId={RECORD_ID} />);
+	renderApp(viewOf(h, extra));
 	await screen.findByText(
 		new RegExp(`^${escapeRe(ENTITY[entity].systemLabels[0])}(:|$)`),
 	);
@@ -252,7 +273,7 @@ describe.each(ENTITIES)("W-view (%s)", (entity) => {
 
 	it("AC-0003-50 says the record was not found for an unknown record id", async () => {
 		// the default fake read answers with the entity's 404 key
-		renderApp(<RecordView adapter={h.adapter} recordId={RECORD_ID} />);
+		renderApp(viewOf(h));
 
 		await screen.findByText(tr("view.notFound"));
 		expect(h.log.reads).toEqual([RECORD_ID]);
@@ -260,7 +281,7 @@ describe.each(ENTITIES)("W-view (%s)", (entity) => {
 
 	it("AC-0003-52 shows the load error with a retry that reads the record again", async () => {
 		h.state.read = async () => ({ ok: false, error: "unexpected" });
-		renderApp(<RecordView adapter={h.adapter} recordId={RECORD_ID} />);
+		renderApp(viewOf(h));
 		await screen.findByText(tr("view.loadError"));
 		expect(h.log.reads).toHaveLength(1);
 		serveVersion(1, sys);
@@ -325,7 +346,7 @@ describe.each(ENTITIES)("W-view (%s)", (entity) => {
 	it("AC-0003-92 shows the skeleton named by the loading copy while the record is pending", async () => {
 		h.state.read = () => never() as never;
 
-		renderApp(<RecordView adapter={h.adapter} recordId={RECORD_ID} />);
+		renderApp(viewOf(h));
 
 		const marker = await loadingMarker(tr("view.loading"));
 		expect(marker.length).toBeGreaterThan(0);
@@ -410,6 +431,52 @@ describe("W-view (services) system field formats", () => {
 	});
 });
 
+describe.each(ENTITIES)("W-view way back (%s)", (entity) => {
+	const tr = ENTITY[entity].tr;
+	let h: FakeAdapter;
+	let sys: Fields;
+	beforeEach(() => {
+		h = fakeAdapter(entity);
+		sys = systemFieldsOf(entity);
+	});
+	const breadcrumb = () =>
+		screen.queryByRole("navigation", { name: tCommon("breadcrumb") });
+
+	it("AC-0003-97 (partly) shows a breadcrumb with the trail's links, then the record's name as the current page", async () => {
+		await openView(entity, h, record(entity, { name: "Ana Souza" }), sys);
+
+		const nav = breadcrumb();
+		if (!nav) throw new Error("No breadcrumb navigation");
+		const link = within(nav).getByRole("link", { name: TRAIL_LABEL });
+		expect(link.getAttribute("href")).toBe(h.adapter.listHref);
+		const current = within(nav).getByText("Ana Souza");
+		expect(current.getAttribute("aria-current")).toBe("page");
+		expect(
+			within(nav).queryByRole("link", { name: tr("form.back") }),
+		).toBeNull();
+	});
+
+	it("AC-0003-98 (partly) shows a Voltar link to `backHref`, outside the breadcrumb", async () => {
+		const backHref = `/orgs/${TENANT}/elsewhere`;
+
+		await openView(entity, h, record(entity, { name: "Ana Souza" }), sys, {
+			backHref,
+		});
+
+		const back = screen.getByRole("link", { name: tr("form.back") });
+		expect(back.getAttribute("href")).toBe(backHref);
+		expect(breadcrumb()?.contains(back)).toBe(false);
+	});
+
+	it("AC-0003-97 (partly) shows no breadcrumb when the record is not found", async () => {
+		// the default fake read answers with the entity's 404 key
+		renderApp(viewOf(h));
+
+		await screen.findByText(tr("view.notFound"));
+		expect(breadcrumb()).toBeNull();
+	});
+});
+
 describe("W-view actions prop (SPEC-0004 G-1)", () => {
 	it("SPEC-0004 G-1 renders `actions` with the loaded record and a reload that re-reads it", async () => {
 		const h = fakeAdapter("clients");
@@ -422,6 +489,8 @@ describe("W-view actions prop (SPEC-0004 G-1)", () => {
 			<RecordView
 				adapter={h.adapter}
 				recordId={RECORD_ID}
+				trail={[]}
+				backHref={h.adapter.listHref}
 				actions={(loaded, reload) => (
 					<div>
 						<span>{`actions for ${String(loaded.name)}`}</span>

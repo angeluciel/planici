@@ -3,7 +3,7 @@ id: SPEC-0003
 title: Preenchimento de cadastro a partir de modelo
 status: Implemented # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.8
+version: 1.9
 owner: Joao Izidoro
 satisfies: [RF-40, RF-41, RF-42, RN-01, RN-02, RN-20, RN-21, RNF-07]
 depends_on: [SPEC-0001, SPEC-0002]
@@ -143,6 +143,10 @@ decision, §9 Q4). A `yes_no` field is never required (SPEC-0002 R8), so having 
    older version than the latest, the page also says "Este cadastro usa uma versão anterior do modelo".
 4. An unknown record id shows "Cadastro não encontrado." If the record cannot be loaded, the page says "Não foi
    possível carregar o cadastro." with a retry button.
+5. Once the record has loaded, the page shows the way back. On screens 768 px wide or wider, a breadcrumb above the
+   header shows the pages above the record, each a link (for clients: "Clientes", to the client list), then the
+   record's name as the current page. On narrower screens a **"Voltar"** link to the page above the record (for
+   clients, the client list) replaces it. The loading, error and not-found states are unchanged.
 
 ### 4.3 Edit a record
 1. **[Editar]** opens the fill-in page pre-filled with current values. Protected values are shown in plain text.
@@ -267,6 +271,8 @@ New, non-breaking. Consumers: `apps/web`. The client and service shapes in SPEC-
 | View | older version | "Este cadastro usa uma versão anterior do modelo" | `{entity}.view.olderVersion` |
 | View | version badge | "Modelo: <name> · Versão N" | `{entity}.view.version` |
 | View | required field missing | "Preenchimento pendente" badge | `{entity}.view.missingRequired` |
+| View | loaded, 768 px or wider | Breadcrumb "Clientes › <nome>" labelled "Trilha de navegação"; the name is the current page | `clients.list.title`, `common.breadcrumb` |
+| View | loaded, narrower than 768 px | "Voltar" link to the page above the record | `{entity}.form.back` |
 
 ## 9. Open questions
 
@@ -999,6 +1005,23 @@ When  they press the control with copy key clients.view.hide
 Then  "Diagnóstico" shows "••••••" again
 ```
 
+```gherkin
+AC-0003-97
+Given a client named "Ana Souza"
+When  the owner opens the client's view page on a screen 768 px wide or wider
+Then  a navigation labelled with copy key common.breadcrumb shows a link with copy key clients.list.title to the
+      client list, followed by "Ana Souza" marked as the current page
+And   no link with copy key clients.form.back is shown
+```
+
+```gherkin
+AC-0003-98
+Given a client named "Ana Souza"
+When  the owner opens the client's view page on a screen narrower than 768 px
+Then  a link with copy key clients.form.back leads to the client list
+And   the breadcrumb is not shown
+```
+
 ## 11. Implementation plan
 
 Drafted by `/plan` on 2026-11-10 against SPEC-0001's and SPEC-0002's plans, before any forms code existed. Revised by
@@ -1210,7 +1233,7 @@ Their plans build on these points. A change to any of them amends this plan and 
 6. `PhoneValueSchema` validates `client.phone` (SPEC-0004 R4). `phone.invalid` is one key for both.
 7. Web: the routes mount `RecordForm` and `RecordView` (Web) with a `RecordAdapter`. As built (checked at `/done`,
    2026-11-18): `<RecordForm adapter mode="create" formId />` or `<RecordForm adapter mode="edit" recordId />`, with an
-   optional `extraFields: { initial, schema, render }`; `<RecordView adapter recordId actions? />`, where the optional `actions?: (record, reload) => ReactNode` renders the entity's own actions next to [Editar] and `reload` re-reads the record without the loading state (G-1, SPEC-0004). `RecordAdapter` (in
+   optional `extraFields: { initial, schema, render }`; `<RecordView adapter recordId trail backHref actions? />`, where `trail: { label, href }[]` is the breadcrumb's links before the record's name and `backHref` is where the narrow-screen "Voltar" link goes (§4.2 item 5, version 1.9), and the optional `actions?: (record, reload) => ReactNode` renders the entity's own actions next to [Editar] and `reload` re-reads the record without the loading state (G-1, SPEC-0004). `RecordAdapter` (in
    `record-adapter.ts`) is `{ entity, type, create(body), update(id, body), read(id), viewHref(id), editHref(id),
    listHref, systemFields, onSaveError? }`; the three calls resolve to `{ ok: true, record } | ApiFailure`.
    `systemFields` is keyed by `systemKey`, each `{ attribute, input, schema, format }`.
@@ -1481,6 +1504,8 @@ U-req asserts the first-issue order of Decision 12 with one request per adjacent
 | 94 | W-form | update resolves → toast `clients.toast.saved`, then `viewHref(id)` |
 | 95 | W-view | no value for "Hobby" → "—" |
 | 96 | W-view | "Mostrar", then "Ocultar" (`clients.view.hide`) → "••••••" again |
+| 97 | W-view, W-cview (SPEC-0004) | partly: navigation `common.breadcrumb` with a link per `trail` item, then the record's name with `aria-current="page"`; W-cview: `ClientViewPage` passes `clients.list.title` to the client list |
+| 98 | W-view, W-cview (SPEC-0004) | partly: a `clients.form.back` link to `backHref`; W-cview: `ClientViewPage` passes the client list |
 
 AC-0003-19, -39, -40, -57, -58 and -82 have no test here (Deferred checks).
 
@@ -1527,6 +1552,7 @@ file in its scope, and adds `<AC ids> verified with SPEC-XXXX, <date>` to this c
 | 19 | not checked: the client and service lists | SPEC-0004, SPEC-0005 |
 | 39, 40, 57, 58 | not checked: authentication and tenant guards on the record endpoints | SPEC-0004, SPEC-0005 |
 | 82 | not checked: inactivation | SPEC-0004 (SPEC-0005 §4.4 for services) |
+| 97, 98 | partly: jsdom applies no CSS, so which of the two shows at each width is checked on the running page | browser check on the running page, below and above 768 px |
 
 The UI criteria are verified here on the shared components, for both entities. SPEC-0004 and SPEC-0005 mount them on
 their routes and run W-form and W-view against their adapters (What SPEC-0004 and SPEC-0005 rely on, point 7).
@@ -1683,3 +1709,4 @@ None. Masks, CPF check digits and the DDD list are written here. next-intl, `nod
 | 1.6 | 2026-11-18 | Copy confirmed by Joao Izidoro, 2026-11-18: every key marked proposed under Copy (Decision 10), and the seven `{entity}.form.address.*` labels added during implementation, as shipped in both locales |
 | 1.7 | 2026-11-18 | Status Implemented: Joao Izidoro accepts the code as implemented per §11 (1.5), 2026-11-18, so SPEC-0004, which `depends_on` this spec, can start `/implement` (SPEC-0004 §11, G-6 option a). The behavior has no route yet, so the running-system check of its pages happens at SPEC-0004's `/done`. Deferred checks stay open as listed in 1.5: SPEC-0004 verifies the client side and SPEC-0005 the service side, each adding `<AC ids> verified with SPEC-XXXX, <date>` here |
 | 1.8 | 2026-11-19 | Client side of AC-0003-02 to -14, -17, -19, -20, -22 to -24, -26, -30 to -45, -54 to -60, -62 to -69, -71 to -76, -79, -81, -82, -86 to -89 verified with SPEC-0004, 2026-11-19 (E-rec through `/v1/clients`); the service side waits for SPEC-0005. §11 point 7 records the optional `actions` prop of `RecordView` (SPEC-0004 G-1) |
+| 1.9 | 2026-11-20 | Amendment approved by Joao Izidoro, 2026-11-20: once the record has loaded, the view page shows a breadcrumb from 768 px and a "Voltar" link below it (§4.2 item 5, §8, AC-0003-97 and -98). Both live in the shared `RecordView`, which takes the breadcrumb's links (`trail`) and the back page (`backHref`) as props (§11 point 7); `ClientViewPage` passes the client list. View page only; the edit page is unchanged. New copy key `common.breadcrumb` ("Trilha de navegação" / "Breadcrumb"). AC-0003-97 and -98 have passing W-view and W-cview tests, partly verified: jsdom applies no CSS, so which one shows at each width is a browser check (Deferred checks). Status stays Implemented |

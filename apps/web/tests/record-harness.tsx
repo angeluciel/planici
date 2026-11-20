@@ -46,6 +46,7 @@ function strict(namespace: string): Translate {
 
 export const tClients = strict("clients");
 export const tServices = strict("services");
+export const tCommon = strict("common");
 
 // ---------------------------------------------------------------- entities
 
