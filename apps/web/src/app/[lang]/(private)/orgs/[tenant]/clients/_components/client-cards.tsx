@@ -72,35 +72,39 @@ export function ClientCards({
 					</h2>
 					<ul className="flex flex-col gap-2">
 						{cards.map((client) => (
-							// biome-ignore lint/a11y/useKeyWithClickEvents: the name link is the keyboard path
 							<li
 								key={client.id}
 								ref={client === last ? lastRef : undefined}
-								className="flex cursor-pointer items-start gap-3 rounded-md border border-border p-3 transition-colors duration-100 hover:bg-surface-hovered"
-								onClick={() => router.push(`${base}/${client.id}`)}
+								className="flex flex-1"
 							>
-								<Initials name={client.name} />
-								<div className="flex min-w-0 flex-1 flex-col gap-1 font-body-sm">
-									<Link
-										href={`${base}/${client.id}`}
-										className={`${NAME_LINK} w-fit`}
-										onClick={(event) => event.stopPropagation()}
-									>
-										{client.name}
-									</Link>
-									<span className="truncate text-text-primary">
-										{client.email}
-									</span>
-									<div className="flex flex-wrap items-center justify-between gap-2">
-										<ClientBadges
-											inactive={client.status === "inactive"}
-											formName={client.formName}
-										/>
-										<span className="text-text-secondary">
-											{dateOf(client.updatedAt)}
+								<button
+									type="button"
+									className="flex flex-1 cursor-pointer items-start gap-3 rounded-md p-3 transition-colors duration-100 bg-surface-raised focus:bg-surface-raised-pressed"
+									onClick={() => router.push(`${base}/${client.id}`)}
+								>
+									<Initials name={client.name} />
+									<div className="flex min-w-0 flex-1 flex-col gap-1 font-body-sm">
+										<Link
+											href={`${base}/${client.id}`}
+											className={`${NAME_LINK} w-fit`}
+											onClick={(event) => event.stopPropagation()}
+										>
+											{client.name}
+										</Link>
+										<span className="truncate self-start text-text-primary">
+											{client.email}
 										</span>
+										<div className="flex flex-wrap items-center justify-between gap-2">
+											<ClientBadges
+												inactive={client.status === "inactive"}
+												formName={client.formName}
+											/>
+											<span className="text-text-secondary">
+												{dateOf(client.updatedAt)}
+											</span>
+										</div>
 									</div>
-								</div>
+								</button>
 							</li>
 						))}
 					</ul>

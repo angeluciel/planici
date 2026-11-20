@@ -17,7 +17,7 @@ export function Initials({ name }: Readonly<{ name: string }>) {
 	return (
 		<span
 			aria-hidden="true"
-			className="flex size-8 shrink-0 items-center justify-center rounded-full bg-background-accent-gray-subtler font-body-xs font-semibold text-text-accent-gray-bolder"
+			className="flex size-8 shrink-0 items-center justify-center rounded-full bg-background-brand-bold font-body-xs font-semibold text-text-inverse"
 		>
 			{initials(name)}
 		</span>
@@ -41,7 +41,7 @@ export function ClientRows({
 	const router = useRouter();
 	return (
 		<div className="flex flex-col w-full">
-			<ul className="flex w-full flex-col">
+			<ul className="flex w-full flex-col gap-2">
 				{rows.map((client, index) => (
 					<li
 						key={client.id}
@@ -50,7 +50,7 @@ export function ClientRows({
 					>
 						<button
 							type="button"
-							className="flex cursor-pointer items-center gap-4 border-b border-border px-3 py-3 transition-colors duration-100 hover:bg-surface-hovered flex-1"
+							className="flex cursor-pointer items-center gap-4 p-3 transition-colors duration-100 hover:bg-surface-raised-hovered focus:bg-surface-raised-pressed rounded-md shadow-raised flex-1 bg-surface-raised"
 							onClick={() => router.push(`${base}/${client.id}`)}
 						>
 							<div className="flex min-w-0 flex-1 items-center gap-3 font-body-sm">

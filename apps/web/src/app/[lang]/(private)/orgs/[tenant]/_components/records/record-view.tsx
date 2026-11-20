@@ -180,7 +180,7 @@ export function RecordView({
 					<Link
 						href={adapter.editHref(record.id)}
 						className={buttonVariants({ variant: "primary" }).root({
-							class: "w-auto",
+							class: "w-auto py-2",
 						})}
 					>
 						{t("form.edit")}

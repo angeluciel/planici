@@ -9,12 +9,12 @@ export function ClientBadges({
 	return (
 		<span className="flex flex-wrap items-center gap-2">
 			{inactive && (
-				<span className="rounded-sm bg-background-accent-gray-subtler px-2 font-body-xs text-text-accent-gray-bolder">
+				<span className="rounded-sm border border-border-danger px-2 py-1 font-body-caption text-text-status-danger-bolder">
 					{t("list.inactiveBadge")}
 				</span>
 			)}
-			<span className="rounded-sm border border-border px-2 font-body-xs text-text-secondary">
-				{formName}
+			<span className="rounded-sm py-1 px-2 font-body-caption bg-background-accent-green-bold text-text-inverse font-semibold">
+				{formName.slice(0, 12)}
 			</span>
 		</span>
 	);
