@@ -3,7 +3,7 @@ id: SPEC-0004
 title: Cadastro de clientes
 status: Approved # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.6
+version: 1.7
 owner: Joao Izidoro
 satisfies: [RF-07, RF-08, RF-09, RN-02, RN-04, RN-05, RN-24, RN-25]
 depends_on: [SPEC-0001, SPEC-0002, SPEC-0003]
@@ -72,7 +72,8 @@ information that professional needs (RFC §1, problem statement; §2.2.2, UC-07�
   once non-digits are removed, it also matches clients whose phone contains those digits. A 1-character query is
   rejected. (RF-09, amended; owner decisions, §9 Q7 and 2026-11-09)
 - **R10.** The list is sorted by name (ignoring case and accents), then by `id`. (owner decision, 2026-11-09)
-  _Amended by SPEC-0006 R4: this is now the default of four sorts (name or e-mail, ascending or descending)._
+  _Amended by SPEC-0006 R4: this is now the default of three sorts: `name`, `-name` and `-updatedAt` (last update,
+  newest first)._
 - **R11.** Every tenant has a client template named "Cliente" containing only the client system fields, from the
   moment the tenant exists. It is an ordinary template: editable, archivable and deletable under the same rules as
   any other template (SPEC-0001 R8). An existing tenant gets it only if it has no client template at all, active
@@ -96,8 +97,9 @@ information that professional needs (RFC §1, problem statement; §2.2.2, UC-07�
 ### 4.1 List (`/clients`)
 1. The professional opens `/clients`.
 2. The system lists active clients with columns Nome, E-mail, Telefone, Modelo (R10). Custom-field values never
-   appear here (SPEC-0003 R9). _Amended by SPEC-0006 §4.1: the Modelo column is gone; the template is a filter
-   (SPEC-0006 §4.2)._
+   appear here (SPEC-0003 R9). _Amended by SPEC-0006 §4.1 and §4.6: no table; full-width rows on wide screens and
+   cards under letter headings on narrow screens (SPEC-0006 R10), each with a template badge; a template filter on
+   wide screens (SPEC-0006 §4.2)._
 3. A search box filters by name, e-mail or phone as the professional types (R9; debounced). With fewer than 2
    characters after trimming, the page sends no search and shows the hint "Digite ao menos 2 caracteres para
    buscar."; an empty box shows the unfiltered list.
@@ -107,11 +109,13 @@ information that professional needs (RFC §1, problem statement; §2.2.2, UC-07�
    but none under the chosen filter, it says "Nenhum cliente com este filtro." _Amended by SPEC-0006 §4.2 step 7:
    "the chosen filter" covers the template filter too._
 6. "Carregar mais" at the end of the list loads the next page. If that fails, the loaded rows stay and the page
-   says "Não foi possível carregar mais clientes." with a retry.
+   says "Não foi possível carregar mais clientes." with a retry. _Amended by SPEC-0006 §4.5: infinite scroll
+   replaces "Carregar mais"; the failure keeps the rows and offers a retry, and a closing block ends the list._
 7. Selecting a row opens the client view page (SPEC-0003 §4.2).
 
 ### 4.2 [Novo] dropdown
-1. The professional presses **[Novo]**.
+1. The professional presses **[Novo]**. _Amended by SPEC-0006 §4.6 step 5: on narrow screens the trigger is a
+   floating "+" button named "Novo cliente"; the dropdown is unchanged._
 2. The dropdown shows **"Criar novo modelo"** first, a divider, then every **active** client template by name.
 3. Picking a template opens the fill-in page for it (SPEC-0003 §4.1).
 4. Picking "Criar novo modelo" opens the template editor with type `client` locked (SPEC-0001 §4.3). After saving,
@@ -221,12 +225,15 @@ New, non-breaking. Consumers: `apps/web`.
 - **Client** (response): `id`, `form` (`{ id, name, version, latestVersion, status }`), `revision` (int, SPEC-0003
   R14), `name`, `email`, `phone` (string | null), `values`, `missingRequired`, `status` (`active | inactive`),
   `hasHistory` (bool), `consentAttestation` (`{ attestedBy, attestedAt, textVersion }`, R12; `attestedBy` is the
-  user id), `createdAt`, `updatedAt`.
-- **ClientSummary** (list item): `id`, `name`, `email`, `phone`, `formId`, `formName`, `status`.
+  user id), `createdAt`, `updatedAt`. _Amended by SPEC-0006 §7 and R9: `updatedAt` is the client's last update
+  time, set on creation and changed on every saved edit, inactivation and reactivation, the same value the list
+  reports._
+- **ClientSummary** (list item): `id`, `name`, `email`, `phone`, `formId`, `formName`, `status`. _Amended by
+  SPEC-0006 §7: adds `updatedAt` (ISO-8601 UTC)._
 - **List**: query `q?` (trimmed; blank means no filter, R9), `status?` (`active` default, `inactive`, `all`),
   `limit?`, `after?` (`api-convention.md`, Pagination; sort: name ignoring case and accents, then `id`, R10).
   Response `{ clients: ClientSummary[], nextCursor: string | null }`. _Amended by SPEC-0006 §7: query adds `formId?`
-  and `sort?` (`name` default, `-name`, `email`, `-email`); response adds `total`._
+  and `sort?` (`name` default, `-name`, `-updatedAt`); response adds `total`._
 - **Create request**: `formId`, `formVersion`, `name`, `email`, `phone?`, `values`, `consentAttested` (must be
   `true`, R12), `consentTextVersion` (string, the version of the attestation text the page showed). The current
   version is part of the shared contract, so the web app and the API agree on it.
@@ -248,9 +255,9 @@ New, non-breaking. Consumers: `apps/web`.
 | `/clients` | no search results | "Nenhum cliente encontrado para “<q>”." | `clients.list.noResults` |
 | `/clients` | search too short | Hint "Digite ao menos 2 caracteres para buscar."; no request | `clients.list.searchHint` |
 | `/clients` | error | "Não foi possível carregar os clientes." + retry | `clients.list.error` |
-| `/clients` | success | Table (4.1) (amended by SPEC-0006 §8: Nome, E-mail, Telefone, with the total above) | `clients.list.title` |
-| `/clients` | loading more | "Carregar mais" button at list end while `nextCursor` is not null; spinner while loading | `clients.list.loadingMore` |
-| `/clients` | loading more failed | "Não foi possível carregar mais clientes." + retry; loaded rows kept | `clients.list.loadMoreError` |
+| `/clients` | success | Table (4.1) (amended by SPEC-0006 §8: full-width rows on wide screens, cards under letter headings on narrow screens, with the total above) | `clients.list.title` |
+| `/clients` | loading more | "Carregar mais" button at list end while `nextCursor` is not null; spinner while loading (amended by SPEC-0006 §8: no button; an indicator "Carregando mais clientes…" while the next page loads by infinite scroll) | `clients.list.loadingMore` |
+| `/clients` | loading more failed | "Não foi possível carregar mais clientes." + retry; loaded rows kept (amended by SPEC-0006 §8: no automatic request until retry) | `clients.list.loadMoreError` |
 | [Novo] dropdown | no templates | Only "Criar novo modelo" + hint | `clients.new.noTemplates` |
 | Fill-in / view / edit | all states | As SPEC-0003 §8, with client wording | `clients.form.*`, `clients.view.*` |
 | Fill-in | e-mail taken | Inline under E-mail | `validation.clientEmail.taken` |
@@ -752,6 +759,8 @@ Given tenant "studio-ana" whose only client "Ana Souza" is inactive
 When  its owner opens /clients with the default filter
 Then  the page shows the state with copy key clients.list.emptyFilter, not clients.list.empty
 ```
+
+_AC-0004-63 is superseded by AC-0006-45 (amended by SPEC-0006 §4.5: there is no "Carregar mais" button)._
 
 ```gherkin
 AC-0004-63
@@ -1307,7 +1316,9 @@ The owner confirmed Decisions 1–9 as written, including Decision 2 (`record_st
 8. **Consent attestation columns on `clients`**, not a separate table: one attestation per client, never updated
    (R12). `consent_attested_by` restricts a user delete; erasure is manual (§2).
 9. **`createdAt`/`updatedAt` come from the record** (SPEC-0003 point 5), so inactivating does not change the
-   response's `updatedAt`.
+   response's `updatedAt`. _Amended by SPEC-0006 R9: `updatedAt` no longer comes from the record; it is the
+   client's last update time, which inactivation and reactivation change. `createdAt` is unchanged. SPEC-0006's
+   plan carries the change._
 
 ### Gaps and conflicts for the owner
 
@@ -1368,3 +1379,4 @@ None. The cursor, search normalisation and SQL function use what the code alread
 | 1.4 | 2026-11-18 | Plan approved by Joao Izidoro, 2026-11-18: §11 as revised in 1.1 to 1.3, after the plan review and its re-check (ready for approval). Should-fix items 1–6 of the review (lock order, AC-0004-74 constraint cleanup, rollback wording, `schema.dbml` tenant id type, `drizzle/meta/*` in scope, the two history readers) stay follow-ups. Before `/implement`, SPEC-0003 is set Implemented (G-6). plan_status Approved |
 | 1.5 | 2026-11-19 | Implemented per §11. Built: client contracts (`packages/schemas/src/clients/`, `pagination.ts`, `ClientConsentTextSchema`) and copy; table `clients` (`0004`) and the "Cliente" seed and backfill functions (`0005`), seeded in `createWithOwner`'s transaction; `ClientsModule` (list with search and HMAC-signed cursor, create, read, update with consent in the §6 order, inactivate, reactivate, delete), `ClientPhonePresence` for `FormsModule`, Drizzle skipped by Observe and client query errors wrapped with fixed messages; the BFF, `@/lib/api/clients`, the `/clients` list, [Novo] menu, fill-in with consent, edit and view pages with actions (`RecordView` `actions`, G-1). All 75 criteria have passing tests (U-req, U-cur, U-search, E-cl, E-list, E-life, E-def, E-rec, E-tpl, W-list, W-cform, W-cview). Partly verified, per Deferred checks: AC-0004-15, -33, -71 (fake history reader; first scheduling or payments spec) and -74 (Observe and logs; no Sentry). Owner decision during implementation: AC-0001-32's test reads "unchanged" as the client data, with `form.status` "archived" (2026-11-19). Review: one blocking item (consent response shape outside `packages/schemas`), fixed; re-check PASS. Status stays Approved until the owner accepts the behavior on a running system |
 | 1.6 | 2026-11-19 | Amended by SPEC-0006 (approved by Joao Izidoro, 2026-11-19): R10 is the default of four sorts; §4.1 step 2 drops the Modelo column and step 5 covers the template filter; §6 list check order and `cursor.invalid` row; §7 "List" adds `formId`, `sort` and `total`; §8 "success" and "empty under the chosen filter" rows. Each place carries the note "amended by SPEC-0006". No criterion of this spec changes. |
+| 1.7 | 2026-11-20 | Amended by SPEC-0006 v1.7 (approved by Joao Izidoro, 2026-11-20). Rewritten notes: R10 (three sorts `name`, `-name`, `-updatedAt`), §4.1 step 2 (rows and cards with a template badge, template filter on wide screens), §7 "List" (`sort` values), §8 "success" row. New notes: §4.1 step 6 and §8 "loading more" and "loading more failed" rows (infinite scroll), §4.2 step 1 (floating [Novo] on narrow screens), §7 "Client" (`updatedAt` is the last update time, changed on inactivation and reactivation), §7 "ClientSummary" (adds `updatedAt`), §11 Decision 9. AC-0004-63 superseded by AC-0006-45. Status stays Approved. |
