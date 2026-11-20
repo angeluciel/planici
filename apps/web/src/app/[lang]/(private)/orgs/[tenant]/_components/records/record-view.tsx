@@ -1,9 +1,11 @@
 "use client";
 
 import type { Field } from "@planici/schemas";
+import { ChevronLeftIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
+	Fragment,
 	type ReactNode,
 	useCallback,
 	useEffect,
@@ -11,6 +13,14 @@ import {
 	useState,
 } from "react";
 import { Alert } from "@/components/ui/alert";
+import {
+	Breadcrumb,
+	BreadcrumbItem,
+	BreadcrumbLink,
+	BreadcrumbList,
+	BreadcrumbPage,
+	BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@/i18n/navigation";
@@ -29,17 +39,25 @@ const PAGE = "mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 md:p-6";
 // a sentinel for the template name inside the translated `view.version`
 const NAME = "\u0000";
 
+export type Crumb = { label: string; href: string };
+
 // View page of a record (SPEC-0003 §4.2): the fields of its linked version,
 // not the latest, with protected values masked (R9).
 export function RecordView({
 	adapter,
 	recordId,
+	// the way back once loaded (§4.2 item 5): from 768 px a breadcrumb of
+	// `trail` then the record's name; below it a "Voltar" link to `backHref`
+	trail,
+	backHref,
 	// the entity's own actions next to [Editar] (SPEC-0003 §11, G-1); `reload`
 	// reads the record again without the loading state
 	actions,
 }: Readonly<{
 	adapter: RecordAdapter;
 	recordId: string;
+	trail: Crumb[];
+	backHref: string;
 	actions?: (record: RecordData, reload: () => void) => ReactNode;
 }>) {
 	const t = useTranslations(adapter.entity);
@@ -148,6 +166,7 @@ export function RecordView({
 	}).split(NAME);
 	const missing = new Set(record.missingRequired);
 	const empty = t("view.empty");
+	const name = typeof record.name === "string" ? record.name : "";
 
 	// the text of a field's value, "" when there is none (a yes_no always has one)
 	const textOf = (field: Field): string => {
@@ -164,29 +183,58 @@ export function RecordView({
 
 	return (
 		<div className={PAGE}>
-			<header className="flex flex-wrap items-center justify-between gap-3">
-				<p className="font-body-sm text-text-secondary">
-					{before}
-					<Link
-						href={`/orgs/${tenant}/forms/${record.form.id}`}
-						className="text-text-link hover:underline focus-visible:outline-2 focus-visible:outline-border-focused"
-					>
-						{record.form.name}
-					</Link>
-					{after}
-				</p>
-				<div className="flex flex-wrap items-center gap-2">
-					{actions?.(record, reload)}
-					<Link
-						href={adapter.editHref(record.id)}
-						className={buttonVariants({ variant: "primary" }).root({
-							class: "w-auto py-2",
-						})}
-					>
-						{t("form.edit")}
-					</Link>
-				</div>
-			</header>
+			<div className="flex flex-col gap-3">
+				<Breadcrumb className="hidden md:block">
+					<BreadcrumbList>
+						{trail.map((crumb) => (
+							<Fragment key={crumb.href}>
+								<BreadcrumbItem>
+									<BreadcrumbLink render={<Link href={crumb.href} />}>
+										{crumb.label}
+									</BreadcrumbLink>
+								</BreadcrumbItem>
+								<BreadcrumbSeparator />
+							</Fragment>
+						))}
+						<BreadcrumbItem>
+							<BreadcrumbPage>{name}</BreadcrumbPage>
+						</BreadcrumbItem>
+					</BreadcrumbList>
+				</Breadcrumb>
+				<Link
+					href={backHref}
+					className="inline-flex min-h-10 items-center gap-1 self-start rounded-sm font-body-sm text-text-secondary transition-colors duration-100 ease-out hover:text-text-primary hover:underline focus-visible:outline-2 focus-visible:outline-border-focused active:text-text-bold md:hidden"
+				>
+					<ChevronLeftIcon
+						aria-hidden="true"
+						className="size-4 rtl:rotate-180"
+					/>
+					{t("form.back")}
+				</Link>
+				<header className="flex flex-wrap items-center justify-between gap-3">
+					<p className="font-body-sm text-text-secondary">
+						{before}
+						<Link
+							href={`/orgs/${tenant}/forms/${record.form.id}`}
+							className="text-text-link hover:underline focus-visible:outline-2 focus-visible:outline-border-focused"
+						>
+							{record.form.name}
+						</Link>
+						{after}
+					</p>
+					<div className="flex flex-wrap items-center gap-2">
+						{actions?.(record, reload)}
+						<Link
+							href={adapter.editHref(record.id)}
+							className={buttonVariants({ variant: "primary" }).root({
+								class: "w-auto py-2",
+							})}
+						>
+							{t("form.edit")}
+						</Link>
+					</div>
+				</header>
+			</div>
 
 			{record.form.version < record.form.latestVersion && (
 				<Alert tone="info">{t("view.olderVersion")}</Alert>
