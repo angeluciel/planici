@@ -40,40 +40,48 @@ export function ClientRows({
 }>) {
 	const router = useRouter();
 	return (
-		<ul className="flex w-full flex-col">
-			{rows.map((client, index) => (
-				// biome-ignore lint/a11y/useKeyWithClickEvents: the name link is the keyboard path
-				<li
-					key={client.id}
-					ref={index === rows.length - 1 ? lastRef : undefined}
-					className="flex cursor-pointer items-center gap-4 border-b border-border px-3 py-3 transition-colors duration-100 hover:bg-surface-hovered"
-					onClick={() => router.push(`${base}/${client.id}`)}
-				>
-					<div className="flex min-w-0 flex-1 items-center gap-3 font-body-sm">
-						<Initials name={client.name} />
-						{/* name, then e-mail below it, then phone below that (§4.1 step 2) */}
-						<div className="flex min-w-0 flex-col">
-							<Link
-								href={`${base}/${client.id}`}
-								className={`${NAME_LINK} max-w-full self-start truncate`}
-								onClick={(event) => event.stopPropagation()}
-							>
-								{client.name}
-							</Link>
-							<span className="truncate text-text-primary">{client.email}</span>
-							{client.phone && (
-								<span className="text-text-secondary">
-									{maskPhone(client.phone)}
-								</span>
-							)}
-						</div>
-					</div>
-					<ClientBadges
-						inactive={client.status === "inactive"}
-						formName={client.formName}
-					/>
-				</li>
-			))}
-		</ul>
+		<div className="flex flex-col w-full">
+			<ul className="flex w-full flex-col">
+				{rows.map((client, index) => (
+					<li
+						key={client.id}
+						ref={index === rows.length - 1 ? lastRef : undefined}
+						className="flex w-full"
+					>
+						<button
+							type="button"
+							className="flex cursor-pointer items-center gap-4 border-b border-border px-3 py-3 transition-colors duration-100 hover:bg-surface-hovered flex-1"
+							onClick={() => router.push(`${base}/${client.id}`)}
+						>
+							<div className="flex min-w-0 flex-1 items-center gap-3 font-body-sm">
+								<Initials name={client.name} />
+								{/* name, then e-mail below it, then phone below that (§4.1 step 2) */}
+								<div className="flex min-w-0 flex-col">
+									<Link
+										href={`${base}/${client.id}`}
+										className={`${NAME_LINK} max-w-full self-start truncate`}
+										onClick={(event) => event.stopPropagation()}
+									>
+										{client.name}
+									</Link>
+									<span className="truncate text-text-primary">
+										{client.email}
+									</span>
+									{client.phone && (
+										<span className="text-text-secondary">
+											{maskPhone(client.phone)}
+										</span>
+									)}
+								</div>
+							</div>
+							<ClientBadges
+								inactive={client.status === "inactive"}
+								formName={client.formName}
+							/>
+						</button>
+					</li>
+				))}
+			</ul>
+		</div>
 	);
 }

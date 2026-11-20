@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ClientCards } from "./client-cards";
 import { ClientRows } from "./client-rows";
+import { ClientsPickers } from "./clients-pickers";
 import { ClientsToolbar } from "./clients-toolbar";
 import { ListEnd } from "./list-end";
 import { NewClientMenu } from "./new-client-menu";
@@ -69,7 +70,7 @@ export function ClientsList() {
 	const ready = !list.pending && !list.error;
 
 	return (
-		<div className="flex w-full flex-col gap-6 p-4 pb-24 md:p-6">
+		<div className="flex w-full flex-col max-w-3xl gap-6 p-4 pb-24 md:p-6">
 			<div className="flex flex-wrap items-center justify-between gap-3">
 				<h1 className="font-heading-md text-text-bold">{t("list.title")}</h1>
 				{layout !== null && (
@@ -83,6 +84,9 @@ export function ClientsList() {
 				shortInput={shortInput}
 				status={status}
 				onStatus={setStatus}
+			/>
+
+			<ClientsPickers
 				wide={wide}
 				formId={formId}
 				onFormId={setFormId}
