@@ -6,6 +6,8 @@
 @import "./elevation.css";
 @import "./typography.css";
 @import "./components/text.css";
+@import "./components/button.css";
+@import "./components/nav.css";
 
 @theme inline {
 	--color-*: initial;
@@ -329,6 +331,8 @@
 	--color-border-inverse: var(--border-inverse);
 	--color-border-selected: var(--border-selected);
 	--color-border-brand: var(--border-brand);
+	--color-border-brand-selected: var(--border-brand-selected);
+	--color-border-brand-disabled: var(--border-brand-disabled);
 	--color-border-warning: var(--border-warning);
 	--color-border-warning-subtle: var(--border-warning-subtle);
 	--color-border-danger: var(--border-danger);

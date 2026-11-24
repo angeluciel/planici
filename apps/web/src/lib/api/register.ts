@@ -8,7 +8,10 @@ import {
 } from "@planici/schemas";
 import { z } from "zod";
 import type { RegisterData } from "@/types/register";
-import { hasEmailProof, hasGoogleCredential } from "../register-flow";
+import {
+	hasEmailProof,
+	hasGoogleCredential,
+} from "../../app/[lang]/(auth)/register/_lib/register-flow";
 import { type ApiFailure, apiFailure, authClient } from "./client";
 
 export type RegisterPayload = RegisterRequestInput;

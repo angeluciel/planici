@@ -52,3 +52,14 @@ pnpm-debug.log*
 
 # NGINX
 docker/proxy/certs/
+
+# --- AI AGENTS ---
+.ai/work/*
+!.ai/work/.gitkeep
+.claude/settings.local.json
+.claude/agent-memory-local/
+.claude/state
+
+# Docker
+docker/proxy/certs/*
+docker/proxy/certs/

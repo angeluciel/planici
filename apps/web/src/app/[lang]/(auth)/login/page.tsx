@@ -1,9 +1,9 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import Header from "@/app/[lang]/(auth)/_components/auth-header";
 import { CookieSettingsLink } from "@/components/consent/cookie-settings-link";
-import Header from "@/components/header";
 import { Logo } from "@/components/logo";
-import LoginForm from "./login-form";
+import LoginForm from "./_components/login-form";
 
 export default async function LoginPage() {
 	const t = await getTranslations();

@@ -18,10 +18,10 @@ const publicRoutes = [
 	{ path: "/privacy", whenAuthenticated: "allow" },
 ] as const;
 
-const PROTECTED_PREFIXES = ["/orgs", "/create-tenant"] as const;
+const PROTECTED_PREFIXES = ["/@me", "/orgs", "/create-tenant"] as const;
 
 const REDIRECT_WHEN_NOT_AUTHENTICATED = "/login";
-const REDIRECT_WHEN_AUTHENTICATED = "/orgs";
+const REDIRECT_WHEN_AUTHENTICATED = "/@me";
 
 function fromBase64Url(value: string): Uint8Array<ArrayBuffer> {
 	const base64 = value.replace(/-/g, "+").replace(/_/g, "/");

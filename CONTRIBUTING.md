@@ -1,0 +1,172 @@
+# Contribuindo para o Planici
+
+Obrigado por considerar uma contribuição para o Planici! Esse guia explica como preparar o ambiente, validar suas alterações e enviá-las para revisão.
+
+## Antes de começar
+
+- Confira o [README](README.md) e o [RFC do projeto](docs/RFC.md) para entender o escopo e a arquitetura.
+- Para mudanças maiores ou que alterem o comportamento do produto, abra uma issue ou converse com os mantenedores antes de começar. Isso ajuda a alinhar a solução e evita trabalho duplicado.
+- Para relatar um problema, descreva os passos para reproduzi-lo e o resultado esperado. Não inclua dados reais de clientes (por favor), credenciais ou tokens.
+
+## Branches
+
+| Branch         | Role |
+| -------------- | ---- |
+| ` main `       | Apenas releases, protegida e avança exclusivamente via PR. |
+| ` dev `        | Integração; Todo trabalho é enviado aqui primeiro. |
+| ` feat/* `     | Nova funcionalidade, também aceita ` features/* ` |
+| ` chore/* `    | Manutenção, docs, CI ou dependências. |
+| ` fix/* `      | Correção de bug. |
+| ` hotfix/* `   | Correção urgente em produção; branch a partir da ` main `. |
+| ` refactor/* ` | Refatoração sem mudança de comportamento. |
+
+Nomeie a branch a partir do **trabalho**, e referencie a spec caso tenha uma: `feat/forms-spec-001`, `fix/typo-api-dockerfile`.
+
+Nunca adicione no nome da branch o nome da pessoa/ferramenta que trabalhou nela. Nunca `claude/*` ou `usuario/*`.
+
+## Preparando o ambiente
+
+O repositório usa Node.js `26.5.0` e pnpm `12.3.4`, definidos em `.nvmrc`, `mise.toml` e `package.json`.
+
+Caso tenha **mise** instalado, na raiz do repositório rode:
+
+```bash
+mise install
+pnpm install
+```
+
+Se não usar mise, instale as versões indicadas nos arquivos do repositório e depois rode `pnpm install`. A instalação configura os hooks do Husky.
+
+## Estrutura do repositório
+
+- `apps/api`: API en NestJS.
+- `apps/web`: Aplicação web em Nextjs.
+- `packages/`: pacotes compartilhados entre as aplicações.
+
+## Começando a desenvolver
+
+Rode os comandos na raiz do repositório, com o Docker em execução.
+
+**1. Variáveis locais (só na primeira vez)**
+
+- API: copie `apps/api/.env.example` para `apps/api/.env` e aponte para o banco do Docker:
+  `DATABASE_URL=postgresql://planici:planici@127.0.0.1:5433/planici_dev`
+- Web: em `apps/web/.env.local`, `API_URL` precisa usar a mesma porta do `PORT` da API (por exemplo,
+  `PORT=5000` na API e `API_URL=http://localhost:5000` na web). Com portas diferentes, as rotas `/api/*` da web
+  respondem 502. As demais variáveis da web estão no `.env.example` da raiz.
+
+**2. Subir tudo**
+
+```bash
+pnpm dev
+```
+
+Em sequência, o comando:
+
+1. sobe o Postgres do `compose.dev.yaml` (porta `5433`) e espera ele ficar saudável;
+2. aplica as migrações no Postgres do Docker;
+3. builda os pacotes compartilhados que a API e a web usam (`schemas`, `utils`, `i18n`, `emails`), com cache do Turbo;
+4. inicia a API (`nest start --watch`) e a web (`next dev`) no mesmo terminal.
+
+**Outros comandos**
+
+| Comando | O que faz |
+| --- | --- |
+| `pnpm db:up` | Sobe só o Postgres e espera ele ficar saudável. |
+| `pnpm db:migrate` | Aplica as migrações no Postgres do Docker. Sempre usa `127.0.0.1:5433`, mesmo que o `.env` aponte para outro banco. |
+| `pnpm db:down` | Para o Postgres e **apaga os dados**. |
+| `pnpm dev:api`, `pnpm dev:web` | Inicia só uma aplicação (depois de buildar as dependências dela). Não sobe o banco. |
+| `pnpm dev:email` | Preview dos e-mails na porta `3001`. |
+
+> [!NOTE]
+> O banco de desenvolvimento roda em memória (tmpfs): parar o container apaga tudo, e o próximo `pnpm dev` recria
+> as tabelas vazias. `packages/schemas` não tem modo watch: depois de alterar um contrato, reinicie o `pnpm dev`
+> ou rode `pnpm --filter @planici/schemas build`.
+
+## Verificações
+
+Para validar o projeto:
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+A API também tem testes end-to-end. Para executá-los localmente, use Docker e rode:
+
+```bash
+pnpm --filter api test:e2e
+```
+
+A CI executa lint, verificação de tipos, testes, testes end-to-end da API e build nos pull requests para `dev`e `main`, e de novo em cada tag de release antes do deploy.
+
+O hook de `pre-commit` configurado atualmente executa `lint-stages`, que aplica a verificação do Biome aos arquivos preparados que correspondem à configuração do projeto.
+
+O hook de `commit-msg` previne (ou tenta, pelo menos) que agentes de IA se adicionem como co-autores do repositório.
+
+O hook de `pre-push` roda `pnpm test`.
+
+> Caso um hook falhe, corrija o problema e tente o commit novamente.
+
+## Fluxo de contribuição
+
+1. Faça um fork do repositório no GitHub, caso ainda não tenha permissão para criar branches nele.
+2. Clone seu fork e adicione o repositório original como upstream:
+```bash
+git clone https://github.com/<seu-usuario>/planici.git
+cd planici
+
+git remote add upstream https://github.com/angeluciel/planici.git
+git fetch upstream dev
+
+git switch -c dev --track upstream/dev
+```
+
+Se você já clonou o repositório original, atualize sua branch local `dev` com `git pull --ff-only origin dev`.
+
+3. Crie uma branch a partir da `dev`. Use um nome curto que descreva a mudança, por exemplo:
+```bash
+git switch -c feat/filtro-de-agendamentos
+```
+4. Faça a alteração em commits pequenos e com mensagens claras. Não há formato de commit obrigatório definido no repositório.
+5. Rode as verificações relacionados à mudança e confirme que os hooks locais passam.
+6. Envie sua branch para o seu fork:
+```bash
+git push -u origin feat/filtro-de-agendamentos
+```
+7. Abra um pull request de sua branch para `dev` no repositório `angeluciel/planici`. Não envie alterações diretamente para `dev` ou `main`.
+
+## Pull Requests
+Inclua no pull request:
+- O que mudou e por que a mudança é necessária.
+- Como validar o comportamento alterado, incluindo os comandos de teste executados.
+- Capturas de tela ou gravações curtas quando a mudança afetar a interface.
+- A issue relacionada, caso haja uma.
+
+Mantenha o pull request focado em uma mudança que possa ser revisada de forma independente. Atualize testes e documentação quando o comportamento ou as instruções do projeto mudarem. Aguarda a revisão e a CI antes do merge.
+
+## Releases e deploy
+
+O merge na `main` não faz deploy. O deploy em produção acontece quando uma tag de release `vX.Y.Z` é enviada
+apontando para um commit da `main`. A versão segue SemVer e vale para o produto inteiro (API e web saem juntas).
+Antes do 1.0, suba o minor para funcionalidades e o patch para correções.
+
+Para publicar uma versão:
+
+```bash
+git switch main
+git pull --ff-only
+git tag -a v0.1.0 -m "v0.1.0"
+git push origin v0.1.0
+```
+
+O workflow `CD` então confere que a tag está na `main`, roda a CI de novo nesse commit, gera as imagens com a tag
+da versão, faz o deploy no ECS e cria a release no GitHub com as notas geradas.
+
+Para voltar a uma versão anterior, rode o workflow `CD` manualmente a partir da `main` (Actions → CD → Run workflow)
+informando a tag. As imagens dessa versão já estão no ECR e não são geradas de novo.
+
+Hotfix: crie `hotfix/*` a partir da `main`, abra o PR para a `main`, crie a tag do patch e depois traga a correção
+para a `dev`.

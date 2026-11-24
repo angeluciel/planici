@@ -118,6 +118,88 @@ describe('create tenant', () => {
 });
 
 describe('list, read and rename', () => {
+  it('requires authentication to list workspaces', async () => {
+    await api().get('/v1/tenants').expect(401);
+  });
+
+  it('lists every workspace for the caller without an active tenant header', async () => {
+    const token = await signUp('ana@planici.co', 'ana');
+    const first = await createTenant(token, {
+      name: 'Studio Ana',
+      slug: 'studio-ana',
+    }).expect(201);
+    const second = await createTenant(token, {
+      name: 'Studio Centro',
+      slug: 'studio-centro',
+    }).expect(201);
+
+    // A stable tie-breaker also handles tenants imported with the same timestamp.
+    await ctx.pool.query('update tenants set created_at = $1', [
+      '2026-09-01T12:00:00.000Z',
+    ]);
+
+    const response = await api()
+      .get('/v1/tenants')
+      .set('Authorization', `Bearer ${token}`)
+      .expect('Cache-Control', 'private, no-store')
+      .expect(200);
+
+    expect(
+      response.body.tenants.map((tenant: { id: string }) => tenant.id),
+    ).toEqual([first.body.id, second.body.id].sort());
+  });
+
+  it('excludes deleted tenants and inactive memberships, but shows suspended tenants', async () => {
+    const token = await signUp('ana@planici.co', 'ana');
+    const active = await createTenant(token, {
+      name: 'Active',
+      slug: 'active',
+    }).expect(201);
+    const suspended = await createTenant(token, {
+      name: 'Suspended',
+      slug: 'suspended',
+    }).expect(201);
+    const deleted = await createTenant(token, {
+      name: 'Deleted',
+      slug: 'deleted',
+    }).expect(201);
+    const inactiveMembership = await createTenant(token, {
+      name: 'Inactive membership',
+      slug: 'inactive-membership',
+    }).expect(201);
+    const deletedMembership = await createTenant(token, {
+      name: 'Deleted membership',
+      slug: 'deleted-membership',
+    }).expect(201);
+
+    await ctx.pool.query(
+      "update tenants set status = 'suspended' where id = $1",
+      [suspended.body.id],
+    );
+    await ctx.pool.query(
+      "update tenants set status = 'deleted' where id = $1",
+      [deleted.body.id],
+    );
+    await ctx.pool.query(
+      "update tenant_memberships set status = 'suspended' where tenant_id = $1",
+      [inactiveMembership.body.id],
+    );
+    await ctx.pool.query(
+      "update tenant_memberships set status = 'deleted' where tenant_id = $1",
+      [deletedMembership.body.id],
+    );
+
+    const response = await api()
+      .get('/v1/tenants')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(response.body.tenants).toEqual([
+      expect.objectContaining({ id: active.body.id, status: 'active' }),
+      expect.objectContaining({ id: suspended.body.id, status: 'suspended' }),
+    ]);
+  });
+
   it('lists only the caller’s workspaces', async () => {
     const ana = await signUp('ana@planici.co', 'ana');
     const bia = await signUp('bia@planici.co', 'bia');

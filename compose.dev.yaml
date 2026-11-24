@@ -1,0 +1,28 @@
+name: planici-dev
+
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: planici
+      POSTGRES_PASSWORD: planici
+      POSTGRES_DB: planici_dev
+    ports:
+      - "127.0.0.1:5433:5432"
+    # postgres 18+ keeps data in /var/lib/postgresql/18/docker and refuses to start
+    # when something is mounted at the old /var/lib/postgresql/data path
+    tmpfs:
+      - /var/lib/postgresql
+    healthcheck:
+      test:
+        - CMD
+        - pg_isready
+        - -h
+        - 127.0.0.1
+        - -U
+        - planici
+        - -d
+        - planici_dev
+      interval: 2s
+      timeout: 3s
+      retries: 30

@@ -7,6 +7,9 @@ export default defineConfig({
 	root: fileURLToPath(new URL(".", import.meta.url)),
 	resolve: {
 		alias: {
+			"client-only": fileURLToPath(
+				new URL("./tests/stubs/client-only.ts", import.meta.url),
+			),
 			"@/": fileURLToPath(new URL("./src/", import.meta.url)),
 			"@planici/schemas": fileURLToPath(
 				new URL("../../packages/schemas/src/index.ts", import.meta.url),
@@ -22,5 +25,10 @@ export default defineConfig({
 		include: ["tests/**/*.test.{ts,tsx}"],
 		setupFiles: ["./tests/setup.ts"],
 		clearMocks: true,
+		coverage: {
+			provider: "v8",
+			include: ["src/**/*.{ts,tsx}"],
+			reporter: ["text", "html", "lcov"],
+		},
 	},
 });

@@ -1,6 +1,6 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Header, UseGuards } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TenantListResponse } from '@planici/schemas';
 import { routesV1 } from '@src/config/app.routes.js';
 import {
@@ -19,7 +19,13 @@ export class ListMyTenantsHttpController {
   constructor(private readonly queries: QueryBus) {}
 
   @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'List all workspaces the authenticated user belongs to',
+    description:
+      'Requires an active membership. Deleted workspaces are excluded; suspended workspaces remain visible. No active tenant is required.',
+  })
   @Get()
+  @Header('Cache-Control', 'private, no-store')
   @UseGuards(JwtAccessGuard)
   list(@CurrentUser() user: AuthenticatedUser): Promise<TenantListResponse> {
     return this.queries.execute(new ListMyTenantsQuery(user.id));

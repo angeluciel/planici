@@ -10,6 +10,19 @@ import {
 import { DomainExceptionFilter } from '@shared/http/domain-exception.filter.js';
 import { inject } from 'vitest';
 import { PG_POOL } from '@src/database/database.constants.js';
+import {
+  RECORD_HISTORY_READER,
+  type RecordHistoryReader,
+} from '@modules/forms/ports/record-history.reader.js';
+import {
+  CLIENT_HISTORY_READER,
+  type ClientHistoryReader,
+} from '@modules/clients/ports/client-history.reader.js';
+import { CLIENT_CONSENT_VERSION } from '@modules/clients/ports/client-consent-version.js';
+import {
+  SYSTEM_FIELD_PRESENCE,
+  type SystemFieldPresence,
+} from '@modules/forms/ports/system-field-presence.js';
 
 // captura o e-mail enviado
 export class CapturingMailer implements Mailer {
@@ -52,7 +65,20 @@ export type TestContext = {
   close: () => Promise<void>;
 };
 
-export async function createTestApp(): Promise<TestContext> {
+export type TestAppOptions = {
+  // replaces the SystemFieldPresence provider (the zero adapter runs when omitted)
+  systemFieldPresence?: SystemFieldPresence;
+  // replaces the RecordHistoryReader provider; the real adapter runs when omitted
+  recordHistory?: RecordHistoryReader;
+  // replaces the ClientHistoryReader provider (SPEC-0004 R7); the zero adapter runs when omitted
+  clientHistory?: ClientHistoryReader;
+  // replaces the current consent text version (SPEC-0004 R12); the shared constant applies when omitted
+  consentTextVersion?: string;
+};
+
+export async function createTestApp(
+  options: TestAppOptions = {},
+): Promise<TestContext> {
   const mailer = new CapturingMailer();
   const expectedUrl = inject('testDatabaseUrl');
 
@@ -64,10 +90,37 @@ export async function createTestApp(): Promise<TestContext> {
     throw new Error('Test app required the provisioned E2E database');
   }
 
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
+  const builder = Test.createTestingModule({
+    imports: [AppModule],
+  })
     .overrideProvider(MAILER)
-    .useValue(mailer)
-    .compile();
+    .useValue(mailer);
+
+  if (options.recordHistory) {
+    builder
+      .overrideProvider(RECORD_HISTORY_READER)
+      .useValue(options.recordHistory);
+  }
+
+  if (options.systemFieldPresence) {
+    builder
+      .overrideProvider(SYSTEM_FIELD_PRESENCE)
+      .useValue(options.systemFieldPresence);
+  }
+
+  if (options.clientHistory) {
+    builder
+      .overrideProvider(CLIENT_HISTORY_READER)
+      .useValue(options.clientHistory);
+  }
+
+  if (options.consentTextVersion) {
+    builder
+      .overrideProvider(CLIENT_CONSENT_VERSION)
+      .useValue(options.consentTextVersion);
+  }
+
+  const moduleRef = await builder.compile();
 
   const app = moduleRef.createNestApplication();
   app.setGlobalPrefix('v1');

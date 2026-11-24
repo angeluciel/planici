@@ -242,9 +242,9 @@ Após concluir o setup do negócio, o usuário acessa a área principal do siste
 - **Agenda:** visualizar e editar agendamentos, consultar horários, procedimentos e localização;
 - **Clientes:** buscar clientes, visualizar registros e criar novos cadastros;
 - **Procedimentos/Consultas:** visualizar serviços cadastrados, adicionar novos procedimentos, excluir ou expandir categorias;
-- **Formulários (Pós-MVP):** visualizar formulários cadastrados e criar novos modelos.
+- **Formulários:** visualizar formulários cadastrados e criar novos modelos.
 
-**Requisitos relacionados:** RF-07 a RF-13, RF-18 a RF-29 (MVP); RF-37 a RF-42 (Pós-MVP).
+**Requisitos relacionados:** RF-07 a RF-13, RF-18 a RF-29, RF-37 a RF-42 (MVP).
 
 ---
 
@@ -261,6 +261,8 @@ Após concluir o setup do negócio, o usuário acessa a área principal do siste
 | Link público | Sim | Sim | vazio/erro/confirmação | Pendente (mockup) |
 | Pagamento manual | Sim | Sim | erro/sucesso | Pendente (mockup) |
 | Financeiro básico | Sim | Sim | vazio/loading | Pendente (mockup) |
+| Modelos de formulário | Sim | Sim | vazio/erro/sucesso | Pendente (mockup) |
+| Preenchimento de formulário | Sim | Sim | vazio/erro/sucesso | Pendente (mockup) |
 
 > [!WARNING]
 > **Tarefas pendentes de UX (não inventar evidências):**

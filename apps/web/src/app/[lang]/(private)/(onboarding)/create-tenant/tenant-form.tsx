@@ -7,12 +7,12 @@ import {
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import type z from "zod";
-import { Alert } from "@/components/alert";
-import { Button } from "@/components/button";
-import type { ComboboxOption as ItemsType } from "@/components/combobox";
-import { Combobox } from "@/components/combobox";
-import { Input } from "@/components/input";
 import { Logo } from "@/components/logo";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import type { ComboboxOption as ItemsType } from "@/components/ui/combobox";
+import { Combobox } from "@/components/ui/combobox";
+import { Input } from "@/components/ui/input";
 import { useRouter } from "@/i18n/navigation";
 import { createTenant } from "@/lib/api/tenants";
 import { useFieldError } from "@/lib/form";
@@ -48,7 +48,7 @@ export function TenantForm() {
 			return;
 		}
 
-		router.replace(`/orgs/${result.tenant.id}/clients`);
+		router.replace(`/orgs/${result.tenant.id}`);
 		router.refresh();
 	}
 

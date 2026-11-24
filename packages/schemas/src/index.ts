@@ -3,9 +3,12 @@ export * from "./auth/login.js";
 export * from "./auth/register.js";
 export * from "./auth/requests.js";
 export * from "./auth/responses.js";
-
+export * from "./clients/index.js";
 export * from "./common.js";
-
+export * from "./forms/index.js";
+export * from "./forms/protected-terms.js";
+export * from "./pagination.js";
+export * from "./records/index.js";
 export * from "./tenants/errors.js";
 export * from "./tenants/requests.js";
 export * from "./tenants/responses.js";

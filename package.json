@@ -5,7 +5,11 @@
 	"private": true,
 	"scripts": {
 		"clean": "turbo run clean",
-		"dev": "turbo run dev",
+		"dev": "pnpm db:up && pnpm db:migrate && turbo run dev --filter=api --filter=web",
+		"dev:api": "turbo run dev --filter=api",
+		"db:up": "docker compose -f compose.dev.yaml up -d --wait",
+		"db:down": "docker compose -f compose.dev.yaml down",
+		"db:migrate": "cross-env DATABASE_URL=postgresql://planici:planici@127.0.0.1:5433/planici_dev pnpm --filter api exec drizzle-kit migrate",
 		"dev:web": "turbo run dev --filter=web",
 		"dev:email": "turbo run dev --filter=@planici/emails",
 		"build": "turbo run build",
@@ -15,7 +19,7 @@
 		"prepare": "husky"
 	},
 	"lint-staged": {
-		"**/*.{js,jsx,ts,tsx,json,css,md}": [
+		"**/*.{js,jsx,ts,tsx,json,css}": [
 			"biome check --write"
 		]
 	},
@@ -41,6 +45,7 @@
 		"@biomejs/biome": "2.3.8",
 		"@sonar/scan": "^5.0.0",
 		"@types/node": "^20.19.41",
+		"cross-env": "^10.1.0",
 		"husky": "^9.1.7",
 		"lint-staged": "^17.0.5",
 		"rimraf": "^6.1.3",

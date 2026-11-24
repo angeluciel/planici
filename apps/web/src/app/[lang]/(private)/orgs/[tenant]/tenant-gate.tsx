@@ -2,7 +2,7 @@
 
 import { notFound } from "next/navigation";
 import { useEffect, useEffectEvent, useState } from "react";
-import { Alert } from "@/components/alert";
+import { Alert } from "@/components/ui/alert";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { selectTenant } from "@/lib/api/tenants";
 import { useFieldError } from "@/lib/form";

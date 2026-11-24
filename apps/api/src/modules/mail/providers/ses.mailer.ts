@@ -20,7 +20,7 @@ export class SesMailer implements Mailer {
   }
 
   async send(message: MailMessage): Promise<void> {
-    await this.client.send(
+    const res = await this.client.send(
       new SendEmailCommand({
         FromEmailAddress: this.config.from,
         Destination: { ToAddresses: [message.to] },
@@ -35,6 +35,8 @@ export class SesMailer implements Mailer {
         },
       }),
     );
-    this.logger.log(`Sent "${message.subject}" to ${message.to}`);
+    this.logger.log(
+      `Sent "${message.subject}" to ${message.to}. messageId=${res.MessageId} region=${this.config.region}`,
+    );
   }
 }

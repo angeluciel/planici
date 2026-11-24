@@ -15,6 +15,34 @@
       "when": 1790966600101,
       "tag": "0001_plain_darwin",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794399350752,
+      "tag": "0002_forms_templates",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794420208612,
+      "tag": "0003_form_field_rules",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795046605145,
+      "tag": "0004_clients",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795046609089,
+      "tag": "0005_default_client_template",
+      "breakpoints": true
     }
   ]
 }

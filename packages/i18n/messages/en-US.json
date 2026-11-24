@@ -5,6 +5,8 @@
 		"loading": "Loading",
 		"back": "Back",
 		"close": "Close",
+		"notifications": "Notifications",
+		"breadcrumb": "Breadcrumb",
 		"footer": "{year} PLANICI, All Rights Reserved",
 		"inputs": {
 			"email": {
@@ -18,6 +20,34 @@
 		}
 	},
 	"tenants": {
+		"workspace": {
+			"title": "Your workspace",
+			"description": "Choose an option in the menu to manage this workspace.",
+			"clients": "View clients"
+		},
+		"list": {
+			"title": "Your workspaces",
+			"description": "Choose a workspace to continue.",
+			"create": "Create workspace",
+			"switch": "Switch workspace",
+			"loading": "Loading your workspaces...",
+			"retry": "Try again",
+			"open": "Open workspace",
+			"opening": "Opening...",
+			"openWorkspace": "Open {name}",
+			"emptyTitle": "You don't have a workspace yet",
+			"emptyDescription": "Create your first workspace to start organizing your business.",
+			"statuses": {
+				"active": "Active",
+				"suspended": "Suspended",
+				"deleted": "Unavailable"
+			},
+			"plans": {
+				"free": "Free",
+				"pro": "Pro",
+				"enterprise": "Enterprise"
+			}
+		},
 		"create": {
 			"title": "Welcome to Planici",
 			"description": "Let's set up your organization",
@@ -27,6 +57,12 @@
 		}
 	},
 	"validation": {
+		"tenant": {
+			"required": "Choose a workspace to continue.",
+			"not-found": "This workspace is no longer available to your account. Refresh the list and choose another.",
+			"forbidden": "You don't have permission to access this workspace.",
+			"inactive": "This workspace is suspended and cannot be opened right now."
+		},
 		"tenantName": {
 			"required": "Enter your organization's name.",
 			"max": "The organization name must be at most 80 characters long."
@@ -98,6 +134,181 @@
 		},
 		"verification": {
 			"expired": "Your email verification expired. Verify your email again to continue."
+		},
+		"formName": {
+			"required": "Enter the template name.",
+			"max": "The name must be at most 80 characters.",
+			"taken": "A template with this name already exists."
+		},
+		"formDescription": {
+			"max": "The description must be at most 500 characters."
+		},
+		"formType": {
+			"invalid": "Choose the template type.",
+			"immutable": "The template type can't be changed.",
+			"mismatch": "This template is for another kind of record."
+		},
+		"includeArchived": {
+			"invalid": "Invalid filter."
+		},
+		"formFields": {
+			"max": "Limit of 100 fields reached."
+		},
+		"form": {
+			"limit-reached": "Limit of 200 templates reached. Delete a template to create another.",
+			"revision-conflict": "This template was changed in another window. Reload to see the current version.",
+			"not-found": "Template not found.",
+			"in-use": "This template's records changed. Review before continuing.",
+			"records-have-history": "This template's records changed. Review before continuing.",
+			"status-unchanged": "This template's status already changed. Reload the page.",
+			"archived": "This template is archived."
+		},
+		"formRevision": {
+			"required": "Couldn't save. Reload the template and try again."
+		},
+		"migration": {
+			"mode-required": "Choose how to apply the changes to existing records.",
+			"mode-invalid": "Invalid apply option.",
+			"confirmation-required": "Type the template name to confirm."
+		},
+		"deleteConfirmation": {
+			"required": "Type the template name to confirm."
+		},
+		"formVersion": {
+			"not-found": "Version not found.",
+			"required": "Template version missing.",
+			"invalid": "Invalid template version."
+		},
+		"fieldLabel": {
+			"required": "Enter the field label.",
+			"max": "The label must be at most 80 characters.",
+			"duplicate": "Another field in this template has this label."
+		},
+		"fieldType": {
+			"invalid": "Choose a valid field type.",
+			"immutable": "A published field's type can't be changed. Create a new field."
+		},
+		"fieldSensitive": {
+			"locked": "This field must be protected.",
+			"not-allowed": "System fields can't be protected."
+		},
+		"fieldRequired": {
+			"locked": "Whether this field is required can't be changed."
+		},
+		"fieldHelpText": {
+			"max": "The help text must be at most 200 characters."
+		},
+		"fieldOptions": {
+			"required": "Add at least 2 options.",
+			"max": "Use at most 50 options.",
+			"not-allowed": "This field type has no options."
+		},
+		"fieldOptionLabel": {
+			"required": "Enter the option text.",
+			"max": "The option must be at most 80 characters.",
+			"duplicate": "Another option has this text."
+		},
+		"fieldOptionId": {
+			"unknown": "This option no longer exists. Reload the template.",
+			"duplicate": "This option appears twice. Reload the template."
+		},
+		"systemField": {
+			"missing": "A system field is missing. Reload the template.",
+			"locked": "This system field can't be changed this way. Reload the template."
+		},
+		"fieldSystemKey": {
+			"not-allowed": "Couldn't save this field. Reload the template."
+		},
+		"field": {
+			"unknown": "This field no longer exists in this template. Reload the template."
+		},
+		"fieldId": {
+			"duplicate": "This field appears twice. Reload the template."
+		},
+		"formId": {
+			"required": "Choose a template.",
+			"not-allowed": "A record's template cannot be changed.",
+			"invalid": "This template is not available."
+		},
+		"record": {
+			"form-changed": "The template was updated. Review the fields and save again.",
+			"revision-conflict": "This record was changed in another window."
+		},
+		"recordRevision": {
+			"required": "Record revision missing.",
+			"invalid": "Invalid record revision."
+		},
+		"values": {
+			"invalid": "Invalid record values."
+		},
+		"value": {
+			"required": "Fill in this field.",
+			"unknown-field": "This field is not part of the template.",
+			"invalid": "Invalid value.",
+			"max": "Text is too long."
+		},
+		"number": {
+			"invalid": "Enter a number with up to 2 decimal places."
+		},
+		"date": {
+			"invalid": "Enter a valid date between 1900 and 2100."
+		},
+		"option": {
+			"invalid": "Choose one of the options."
+		},
+		"phone": {
+			"invalid": "Enter a phone number with a valid area code.",
+			"required": "Enter the phone number."
+		},
+		"cpf": {
+			"invalid": "Invalid CPF."
+		},
+		"cep": {
+			"invalid": "Invalid CEP."
+		},
+		"uf": {
+			"invalid": "Invalid state."
+		},
+		"address": {
+			"incomplete": "Fill in the whole address or leave it blank."
+		},
+		"consentAttested": {
+			"required": "Confirm the data subject's consent to save.",
+			"not-allowed": "Consent has already been recorded."
+		},
+		"consentTextVersion": {
+			"required": "Consent text version is missing.",
+			"not-allowed": "Consent has already been recorded."
+		},
+		"consentText": {
+			"outdated": "The consent text has been updated."
+		},
+		"clientName": {
+			"required": "Enter the client's name.",
+			"max": "Use at most 120 characters."
+		},
+		"clientEmail": {
+			"taken": "A client with this e-mail already exists."
+		},
+		"client": {
+			"not-found": "Client not found.",
+			"has-history": "Clients with history cannot be deleted.",
+			"status-unchanged": "This client's status has already been changed."
+		},
+		"clientSearch": {
+			"min": "Type at least 2 characters to search."
+		},
+		"clientStatus": {
+			"invalid": "Invalid status filter."
+		},
+		"clientSort": {
+			"invalid": "Invalid sort."
+		},
+		"limit": {
+			"invalid": "Invalid limit."
+		},
+		"cursor": {
+			"invalid": "Reload the list."
 		}
 	},
 	"auth": {
@@ -307,5 +518,326 @@
 		"description": "You are signed in to Planici.",
 		"sign-out": "Sign out",
 		"signing-out": "Signing out…"
+	},
+	"not-found": {
+		"h2": "Page not found",
+		"content": "The page you're looking for is gone :(",
+		"button": "Back",
+		"profile": "Go to profile"
+	},
+	"forms": {
+		"list": {
+			"title": "Form templates",
+			"loading": "Loading templates…",
+			"empty": "No {type, select, client {client} other {service}} templates yet.",
+			"emptyTitle": "No forms found yet",
+			"emptyDescription": "Let's create your first template! Getting started is a click away.",
+			"error": "Couldn't load the templates.",
+			"groupClient": "Clients",
+			"groupService": "Services",
+			"archivedBadge": "Archived",
+			"showArchived": "Show archived",
+			"fieldCount": "{count, plural, one {# field} other {# fields}}",
+			"recordCount": "{count, plural, one {# record} other {# records}}",
+			"actionsFor": "Actions for {name}"
+		},
+		"actions": {
+			"new": "New",
+			"newClient": "New client template",
+			"newService": "New service template",
+			"newForm": "Create form",
+			"archive": "Archive",
+			"unarchive": "Unarchive",
+			"delete": "Delete",
+			"publish": "Publish",
+			"apply": "Apply",
+			"reload": "Reload",
+			"retry": "Try again"
+		},
+		"editor": {
+			"type": "Type",
+			"name": "Form title",
+			"description": "Description (optional)",
+			"typeClient": "Client",
+			"typeClientHint": "Person or company",
+			"typeService": "Service",
+			"typeServiceHint": "Something you offer",
+			"loading": "Loading template…",
+			"loadError": "Couldn't load the template.",
+			"notFound": "Template not found.",
+			"unsaved": "Discard changes?",
+			"discard": "Discard",
+			"saving": "Saving…",
+			"saveFailed": "Couldn't save your changes. Nothing was changed.",
+			"published": "Template published",
+			"saved": "Changes saved",
+			"version": "Version {version}",
+			"recordCounts": "{current, plural, one {# record} other {# records}} on this version · {older} on older versions",
+			"conflict": "This template was changed in another window. Reload to see the current version.",
+			"chooseType": "Choose a type to start",
+			"archived": "Template archived"
+		},
+		"publish": {
+			"confirm": "Publish version {version}?",
+			"publishing": "Publishing…",
+			"failed": "Couldn't publish the version. Nothing was changed."
+		},
+		"apply": {
+			"title": "Apply changes",
+			"summary": "{added, plural, one {# field added} other {# fields added}}, {removed} removed, {changed} changed",
+			"keep": "Keep existing",
+			"keepDescription": "{count, plural, one {The current record stays} other {The # current records stay}} on their version. New records will use version {next}.",
+			"updateAll": "Update all",
+			"updateAllDescription": "{count, plural, one {The record moves} other {All # records move}} to version {next}.",
+			"answersDeleted": "{count, plural, one {# record has} other {# records have}} answers in removed fields. Those answers will be deleted.",
+			"typeName": "Type the template name to confirm",
+			"pendingRequired": "{count, plural, one {# record will have} other {# records will have}} required fields left to fill.",
+			"applying": "Applying…",
+			"failed": "Couldn't apply the changes. Nothing was changed."
+		},
+		"archive": {
+			"confirm": "Archive template? Existing records are not affected.",
+			"archiving": "Archiving…",
+			"failed": "Couldn't archive the template."
+		},
+		"unarchive": {
+			"unarchiving": "Unarchiving…",
+			"failed": "Couldn't unarchive the template."
+		},
+		"delete": {
+			"confirm": "Delete the template permanently? Type the template name to confirm.",
+			"withRecords": "This template has {count, plural, one {# record. Delete that record too?} other {# records. Delete those records too?}}",
+			"deleteAll": "Yes, delete everything",
+			"archiveInstead": "No, archive the template",
+			"archiveOnly": "Archive the template",
+			"confirmWithRecords": "The template and {count, plural, one {# record} other {# records}} will be deleted permanently.",
+			"recordsHaveHistory": "{count, plural, one {This template has # record, and it has} other {This template has # records, and some have}} appointment or payment history. Records with history can't be deleted.",
+			"recordsChanged": "This template's records changed. Review before continuing.",
+			"deleting": "Deleting…",
+			"failed": "Couldn't delete the template. Nothing was deleted."
+		},
+		"toast": {
+			"versionPublished": "Version {version} published",
+			"unarchived": "Template unarchived",
+			"archived": "Template archived",
+			"deletedWithRecords": "Template and {count, plural, one {# record} other {# records}} deleted"
+		},
+		"fields": {
+			"add": "New field",
+			"onlySystem": "Add fields to collect more information",
+			"systemBadge": "System",
+			"required": "Required",
+			"sensitive": "Protected data",
+			"sensitiveHelp": "Hides the value in lists and only shows it when you ask. Use it for documents, contact details and health information.",
+			"sensitiveLockedType": "This field type is always protected",
+			"sensitiveLockedLabel": "The label points to personal or health data",
+			"typeChangeWarning": "Changing the type creates a new field. Current answers are not converted.",
+			"removeWithAnswers": "This field has answers in {count} records. It leaves the next version; what happens to the answers is decided when you apply the changes.",
+			"moveUp": "Move up",
+			"moveDown": "Move down",
+			"remove": "Remove",
+			"limitReached": "Limit of 100 fields reached.",
+			"label": "Label",
+			"type": "Type",
+			"helpText": "Help text",
+			"inlineLabel": "Label for {name}",
+			"inlineHelpText": "Help text for {name}",
+			"requiredMark": "required",
+			"options": "Options",
+			"addOption": "Add option",
+			"panelTitle": "Field settings",
+			"descriptionPlaceholder": "Add description",
+			"answerPreview": "Answer",
+			"previewYes": "Yes",
+			"previewNo": "No",
+			"move": "Move",
+			"close": "Close",
+			"sensitiveInfo": "About protected data",
+			"removeOption": "Remove option",
+			"removeConfirm": "Remove field",
+			"cancel": "Cancel",
+			"types": {
+				"text": "Short text",
+				"long_text": "Long text",
+				"number": "Number",
+				"date": "Date",
+				"yes_no": "Yes/No",
+				"select": "Select",
+				"email": "E-mail",
+				"phone": "Phone",
+				"cpf": "CPF",
+				"full_name": "Full name",
+				"address": "Address",
+				"duration": "Duration (minutes)",
+				"money": "Amount (R$)"
+			}
+		}
+	},
+	"clients": {
+		"form": {
+			"loading": "Loading…",
+			"loadError": "Could not load the template.",
+			"unavailable": "This template is not available.",
+			"notFound": "Record not found.",
+			"saving": "Saving…",
+			"errorSummary": "Fix {count, plural, one {# field} other {# fields}}",
+			"formChanged": "The template was updated. Review the fields and save again.",
+			"revisionConflict": "This record was changed in another window. Reload to see the current version.",
+			"saveError": "Could not save. Try again.",
+			"discard": "Discard this record?",
+			"newTitle": "New client",
+			"subtitle": "Template: {name}",
+			"save": "Save",
+			"cancel": "Cancel",
+			"edit": "Edit",
+			"reload": "Reload",
+			"retry": "Try again",
+			"back": "Back",
+			"discardConfirm": "Discard",
+			"discardStay": "Keep editing",
+			"address": {
+				"cep": "CEP",
+				"street": "Street",
+				"number": "Number",
+				"complement": "Complement",
+				"district": "District",
+				"city": "City",
+				"state": "State"
+			},
+			"consent": "I declare that I obtained from the data subject, in a specific and prominent way, consent to the processing of the personal data recorded in this registration, including health data, where applicable, for the purposes of the service, in accordance with the LGPD.",
+			"consentOutdated": "The consent text has been updated. Read it and confirm again."
+		},
+		"toast": {
+			"created": "Client created",
+			"saved": "Changes saved",
+			"inactivated": "Client inactivated",
+			"reactivated": "Client reactivated",
+			"deleted": "Client deleted"
+		},
+		"view": {
+			"loading": "Loading…",
+			"loadError": "Could not load the record.",
+			"notFound": "Record not found.",
+			"reveal": "Show",
+			"hide": "Hide",
+			"olderVersion": "This record uses an earlier version of the template",
+			"version": "Template: {name} · Version {version}",
+			"missingRequired": "Needs filling in",
+			"yes": "Yes",
+			"no": "No",
+			"empty": "—"
+		},
+		"list": {
+			"title": "Clients",
+			"count": "{count, plural, one {# client} other {# clients}}",
+			"loading": "Loading clients…",
+			"empty": "No clients yet.",
+			"emptyFilter": "No clients match this filter.",
+			"noResults": "No clients found for “{q}”.",
+			"searchHint": "Type at least 2 characters to search.",
+			"error": "Could not load clients.",
+			"loadMoreError": "Could not load more clients.",
+			"loadingMore": "Loading more clients…",
+			"search": "Search by name, e-mail or phone",
+			"status": {
+				"active": "Active",
+				"inactive": "Inactive",
+				"all": "All"
+			},
+			"inactiveBadge": "Inactive",
+			"filter": {
+				"status": "Status",
+				"form": "Template",
+				"allForms": "All templates",
+				"archivedForm": "{name} (archived)"
+			},
+			"sort": {
+				"label": "Sort by",
+				"nameAsc": "Name (A–Z)",
+				"nameDesc": "Name (Z–A)",
+				"updatedAt": "Last updated"
+			},
+			"end": "That's all! No more clients here.",
+			"loadedCount": "{loaded} of {total} clients loaded"
+		},
+		"new": {
+			"button": "New",
+			"createTemplate": "Create new template",
+			"noTemplates": "Create a template to register clients",
+			"floating": "New client"
+		},
+		"inactivate": {
+			"action": "Inactivate",
+			"confirm": "Inactivate {name}? The client leaves the main list, but the history is kept.",
+			"confirmButton": "Inactivate",
+			"inProgress": "Inactivating…",
+			"error": "Could not inactivate the client."
+		},
+		"reactivate": {
+			"action": "Reactivate",
+			"inProgress": "Reactivating…",
+			"error": "Could not reactivate the client."
+		},
+		"status": {
+			"unchanged": "This client's status has already been changed."
+		},
+		"delete": {
+			"action": "Delete",
+			"confirm": "Permanently delete {name}? This action cannot be undone.",
+			"confirmLabel": "Type the client's name to confirm",
+			"inProgress": "Deleting…",
+			"error": "Could not delete the client.",
+			"hasHistory": "Clients with history cannot be deleted"
+		}
+	},
+	"services": {
+		"form": {
+			"loading": "Loading…",
+			"loadError": "Could not load the template.",
+			"unavailable": "This template is not available.",
+			"notFound": "Record not found.",
+			"saving": "Saving…",
+			"errorSummary": "Fix {count, plural, one {# field} other {# fields}}",
+			"formChanged": "The template was updated. Review the fields and save again.",
+			"revisionConflict": "This record was changed in another window. Reload to see the current version.",
+			"saveError": "Could not save. Try again.",
+			"discard": "Discard this record?",
+			"newTitle": "New service",
+			"subtitle": "Template: {name}",
+			"save": "Save",
+			"cancel": "Cancel",
+			"edit": "Edit",
+			"reload": "Reload",
+			"retry": "Try again",
+			"back": "Back",
+			"discardConfirm": "Discard",
+			"discardStay": "Keep editing",
+			"address": {
+				"cep": "CEP",
+				"street": "Street",
+				"number": "Number",
+				"complement": "Complement",
+				"district": "District",
+				"city": "City",
+				"state": "State"
+			}
+		},
+		"toast": {
+			"created": "Service created",
+			"saved": "Changes saved"
+		},
+		"view": {
+			"loading": "Loading…",
+			"loadError": "Could not load the record.",
+			"notFound": "Record not found.",
+			"reveal": "Show",
+			"hide": "Hide",
+			"olderVersion": "This record uses an earlier version of the template",
+			"version": "Template: {name} · Version {version}",
+			"missingRequired": "Needs filling in",
+			"yes": "Yes",
+			"no": "No",
+			"empty": "—"
+		}
 	}
 }

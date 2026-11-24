@@ -1,0 +1,131 @@
+{
+	"$schema": "https://json.schemastore.org/claude-code-settings.json",
+	"env": {
+		"CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "1"
+	},
+	"permissions": {
+		"allow": [
+			"Bash(pnpm lint:*)",
+			"Bash(pnpm typecheck:*)",
+			"Bash(pnpm test:*)",
+			"Bash(pnpm build:*)",
+			"Bash(pnpm --filter:*)",
+			"Bash(pnpm exec biome:*)",
+			"Bash(git status:*)",
+			"Bash(git diff:*)",
+			"Bash(git log:*)",
+			"Bash(git show:*)",
+			"Bash(git blame:*)",
+			"Bash(git rev-parse:*)",
+			"Bash(rg:*)",
+			"Bash(.claude/bin/task-lock.sh:*)"
+		],
+		"ask": [
+			"Bash(pnpm add:*)",
+			"Bash(pnpm remove:*)",
+			"Bash(pnpm install:*)",
+			"Bash(pnpm dlx:*)",
+			"Bash(npx:*)",
+			"Bash(docker:*)",
+			"Bash(gh:*)",
+			"Bash(pnpm --filter * add *)",
+			"Bash(pnpm --filter * remove *)",
+			"Bash(pnpm --filter * install *)",
+			"Bash(pnpm --filter * update *)",
+			"Bash(.claude/bin/task-lock.sh add:*)"
+		],
+		"deny": [
+			"Read(**/.env)",
+			"Edit(**/.env)",
+			"Bash(git commit:*)",
+			"Bash(git push:*)",
+			"Bash(git switch:*)",
+			"Bash(git checkout:*)",
+			"Bash(git rebase:*)",
+			"Bash(git merge:*)",
+			"Bash(git reset:*)",
+			"Bash(git clean:*)",
+			"Bash(git restore:*)",
+			"Bash(rm -rf:*)",
+			"Bash(curl:*)",
+			"Bash(wget:*)"
+		]
+	},
+	"enabledMcpjsonServers": ["linear", "figma", "postgres", "sonarqube"],
+	"extraKnownMarketplaces": {
+		"claude-plugins-official": {
+			"source": { "source": "github", "repo": "anthropics/claude-plugins-official" }
+		}
+	},
+	"enabledPlugins": {
+		"typescript-lsp@claude-plugins-official": true,
+		"context7@claude-plugins-official": true,
+		"pr-review-toolkit@claude-plugins-official": true,
+		"security-guidance@claude-plugins-official": true,
+		"hookify@claude-plugins-official": true,
+		"claude-md-management@claude-plugins-official": true,
+		"playwright@claude-plugins-official": true,
+		"skill-creator@claude-plugins-official": true
+	},
+	"hooks": {
+		"SessionStart": [
+			{
+				"hooks": [{ "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/anchor.sh --session" }]
+			}
+		],
+		"UserPromptSubmit": [
+			{
+				"hooks": [{ "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/anchor.sh" }]
+			}
+		],
+		"PreToolUse": [
+			{
+				"matcher": "Read|Edit|Write|MultiEdit|NotebookEdit",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-paths.sh",
+						"onFailure": "block"
+					}
+				]
+			},
+			{
+				"matcher": "Edit|Write|MultiEdit|NotebookEdit",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/scope-lock.sh",
+						"onFailure": "block"
+					}
+				]
+			},
+			{
+				"matcher": "Bash",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-bash.sh",
+						"onFailure": "block"
+					}
+				]
+			}
+		],
+		"PostToolUse": [
+			{
+				"matcher": "Edit|Write|MultiEdit",
+				"hooks": [{ "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/format-changed.sh" }]
+			}
+		],
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "prompt",
+						"timeout": 30,
+						"prompt": "You audit the last turn of a coding agent working in the Planici repo. Event and transcript: $ARGUMENTS\n\nReturn {\"ok\": true} when any of these holds:\nA. The turn only answered a question or discussed (no files edited, no claim that work is complete).\nB. The turn ends waiting on the owner: it asks the owner a question or for a decision (approve, fix or defer, pick an option), in its text or in a next-step box. Open work that waits on the owner's answer is not a reason to block.\nC. The turn ends waiting on a subagent or a background command the agent started, and says so. Do not tell it to keep waiting.\nD. \"stop_hook_active\" is true in the event and the agent made no new file edits and no new completion claim since your last block. Never block twice for the same reason.\n\nOtherwise return {\"ok\": false, \"reason\": \"<what to do next>\"} only if the transcript shows any of:\n1. A claim that something works, passes, builds or is fixed, with no lint/typecheck/test command output from this turn backing it.\n2. Edits that add behavior, endpoints, fields, dependencies or refactors that the user's request or the active task's acceptance criteria do not ask for.\n3. Acceptance criteria in a spec changed without the owner approving that change in this conversation.\n4. A git commit, push, branch switch, rebase or merge run or attempted without the owner asking for it in this conversation.\n5. A final message that omits the commit plan after finishing implementation work. A commit plan that depends on a pending owner decision counts as given.\n\nNever block for these (they are not unfinished work):\n- open SHOULD-FIX or other non-blocking review items: they become follow-ups unless the owner picks them;\n- a review verdict of PASS with remaining suggestions;\n- failing tests the agent showed are in files the diff does not touch (pre-existing);\n- a reviewer, test run or other check that is still running.\n\nIf a condition can never be met in this environment (for example Docker is unavailable for e2e tests and the agent already reported that as unrun), return {\"ok\": false, \"impossible\": true, \"reason\": \"...\"}. Judge only from evidence in the transcript. Reply with JSON only."
+					}
+				]
+			}
+		]
+	}
+}
