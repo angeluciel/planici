@@ -3,7 +3,7 @@ id: SPEC-0005
 title: Cadastro de serviços
 status: Approved # Draft | Review | Approved | Implemented | Superseded
 plan_status: Draft # Draft | Approved
-version: 1.0
+version: 1.1
 owner: Joao Izidoro
 satisfies: [RF-11, RF-12, RF-13, RN-02, RN-06, RN-24, RN-25]
 depends_on: [SPEC-0001, SPEC-0002, SPEC-0003, SPEC-0004, SPEC-0006]
@@ -898,11 +898,285 @@ None. Every open question is answered.
 
 ## 11. Implementation plan
 
-Written by `/plan` after the spec is Approved. Empty until then.
+Drafted by `/plan` on 2026-11-24. It builds on SPEC-0003 §11, "What SPEC-0004 and SPEC-0005 rely on", points 1–8,
+and mirrors the clients slice of SPEC-0004 §11 and the list of SPEC-0006 §11. Paths are repo-relative; `T` is
+`apps/web/src/app/[lang]/(private)/orgs/[tenant]`.
 
+### Scope
+
+```scope
+packages/schemas/src/services/*
+packages/schemas/src/index.ts
+packages/i18n/messages/pt-BR.json
+packages/i18n/messages/en-US.json
+apps/api/src/modules/services/*
+apps/api/src/modules/clients/*
+apps/api/src/shared/list/*
+apps/api/src/app.module.ts
+apps/api/src/config/app.routes.ts
+apps/api/src/database/schema/services.ts
+apps/api/src/database/schema/index.ts
+apps/api/drizzle/0006_services.sql
+apps/api/drizzle/0007_default_service_template.sql
+apps/api/drizzle/meta/*
+apps/api/src/modules/tenants/infrastructure/persistence/tenant.drizzle.repository.ts
+apps/api/test/setup/test-app.ts
+apps/api/test/utils/services-fixtures.ts
+apps/api/test/e2e/services*
+apps/api/test/e2e/clients*
+apps/api/test/e2e/forms*
+apps/api/test/e2e/form-*
+apps/api/test/e2e/tenants*
+apps/web/src/app/*/orgs/*/services/*
+apps/web/src/app/*/orgs/*/clients/_components/*
+apps/web/src/app/*/orgs/*/_components/list/*
+apps/web/src/app/*/orgs/*/forms/_lib/draft.ts
+apps/web/src/app/*/orgs/_components/sidebar/sidebar.tsx
+apps/web/src/app/api/services/*
+apps/web/src/app/api/_lib/http.ts
+apps/web/src/lib/api/services.ts
+apps/web/src/lib/services/*
+apps/web/tests/services-*
+apps/web/tests/clients-list.test.tsx
+apps/web/tests/form-editor.test.tsx
+docs/schema.dbml
+docs/specs/SPEC-0001-modelos-de-formulario.md
+docs/specs/SPEC-0003-preenchimento-de-cadastro.md
+docs/specs/SPEC-0005-servicos.md
 ```
 
-```
+`[lang]`, `(private)` and `[tenant]` become `*` because the lock uses bash globs. Paths outside the services folders:
+- `apps/api/src/modules/clients/*`, `apps/api/src/shared/list/*`, `T/clients/_components/*`, `T/_components/list/*`
+  and `apps/web/tests/clients-list.test.tsx`: the behavior-preserving extraction of G-1 and G-2. Client tests keep
+  their assertions; only import paths may change.
+- `tenant.drizzle.repository.ts`: `createWithOwner` seeds "Serviço" (R10).
+- `test-app.ts`: the `serviceHistory` override (G-3).
+- `clients*`, `forms*`, `form-*` (including `form-records*`), `tenants*` e2e: setup-only fixes for the new default
+  template (G-6).
+- `draft.ts`, `form-editor.test.tsx`: the "Duração" label (§2 amendment of SPEC-0001 §3.2).
+- `sidebar.tsx`: "Serviços" gets its `services` path (today a disabled "em breve" entry).
+- The three spec files: changelog lines added by `/done`.
+
+### Gaps and conflicts for the owner
+
+Each needs a decision with the plan's approval. The proposal is what the rest of this plan assumes.
+
+| # | Where | Gap or conflict | Proposal |
+| --- | --- | --- | --- |
+| G-1 | Web list | Every list piece of SPEC-0006 (`useLayout`, `useReachEnd`, `ListEnd`, toolbar, pickers, `Initials`, `letterOf`, badges, the infinite-query hook) lives in `T/clients/_components` and hard-codes the `clients` namespace, schemas and paths. Copying them would duplicate ~800 lines (SonarCloud gate, RNF-20). | Extract them, parameterized by namespace and fetcher, into `T/_components/list/`; clients and services both use them. A separate `refactor` commit; `clients-list.test.tsx` (59 tests) stays green with no assertion changed. |
+| G-2 | API list helpers | Cursor signing (`client-cursor.ts`), `escapeLike`, `parseOrThrow` and `guardQuery` are clients-local. | Move them to `apps/api/src/shared/list/`, unchanged in behavior; each module keeps its own error classes. Services derive their cursor key with the context `"planici:services-cursor:v1"`, so a client cursor never decodes as a services cursor. Clients keep `"planici:list-cursor:v1"`. |
+| G-3 | `hasHistory` | No appointments table exists. | `ServiceHistoryReader` port with `ZeroServiceHistoryReader` (always false), replaced in e2e through `createTestApp({ serviceHistory })`, as SPEC-0004 G-2. AC-0005-15, -55, -58 and -84 are verified **partly** until the first scheduling spec (Deferred checks). |
+| G-4 | Storage vs `schema.dbml` | `schema.dbml` has `price numeric(10,2)`, nullable `duration_minutes`, `description`, and no link to a record. | Columns `price_cents integer`, `currency text`, `duration_minutes integer`, all NOT NULL with checks (R4, R5); `description` not created (§9 Q6); `form_record_id` as clients. `inactive` stored as `suspended`, as SPEC-0004 Decision 2. `schema.dbml` rewritten to match. |
+| G-5 | Default template | R10's skip conditions in SQL. | `planici_seed_service_template(tenant)` skips when the tenant has any `service` template, any template whose `name_key` is `servico` (any type), or 200 or more templates. `createWithOwner` calls it right after the client seed. |
+| G-6 | Existing e2e | A second default template changes template counts in existing setups (for example AC-0001-48 seeds 199). | Setup-only fixes, as SPEC-0004 changelog 1.5: remove the seeded "Serviço" first or seed one fewer. No assertion changes; any needed assertion change stops the work and comes back to the owner. |
+| G-7 | SPEC-0003 §11 | Re-check SHOULD-FIX 9: SPEC-0003 §11 points to "SPEC-0005 §4.1" for duration and price formatting; it is now R12 and §4.3. | Fix the reference in the same `/done` edit that adds SPEC-0003's changelog line. |
+
+### Contracts (`packages/schemas/src/services/`)
+
+New, non-breaking. Consumers: `apps/api`, `apps/web`.
+
+- `requests.ts`:
+  - `ServiceAttributesSchema`: `name` (trim, collapse spaces, 1–80 → `serviceName.required`, `.max`),
+    `durationMinutes` (int, 5–1,440 → `serviceDuration.required`, `.invalid`), `priceCents` (int, 0–99,999,999 →
+    `servicePrice.required`, `.negative`, `.invalid`), `currency` (`"BRL"` → `serviceCurrency.required`,
+    `.invalid`). Field order matches §6 step 1.
+  - `ServiceCreateRequestSchema` / `ServiceUpdateRequestSchema`: the SPEC-0003 record envelopes plus the attributes,
+    for the web's typing; the controller still parses the envelope first (SPEC-0003 §11 point 2).
+  - `ListServicesQuerySchema`: `q` (trimmed, blank → no filter, 1 char → `serviceSearch.min`), `status`
+    (`active` default, `inactive`, `all` → `serviceStatus.invalid`), `formId` (uuid → `formId.invalid`), `sort`
+    (`SERVICE_SORTS` = `name`, `-name`, `-updatedAt` → `serviceSort.invalid`), `limit`, `after` (`pagination.ts`).
+  - `DeleteServiceRequestSchema` (`confirmName`), `ServiceIdSchema`.
+- `responses.ts`: `ServiceSchema` (§7 Service), `ServiceSummarySchema`, `ServiceListResponseSchema`
+  (`{ services, nextCursor, total }`).
+- `errors.ts`: `SERVICE_ERROR_CODES` with every key of §6 that is new.
+- `index.ts` re-exports; `src/index.ts` exports `./services`.
+
+### Persistence
+
+- `apps/api/src/database/schema/services.ts`, exported from `schema/index.ts`. Table `services`: `id` (uuid PK),
+  `tenant_id` (FK tenants, cascade), `form_record_id` (unique, FK `form_records`, cascade), `name`, `name_key`
+  (`textKey(name)`), `duration_minutes`, `price_cents`, `currency` (default `'BRL'`), `status` (`record_status`,
+  default `active`), `created_at`, `updated_at`.
+- Checks: `ck_services_status` (`active`, `suspended`), `ck_services_duration` (5–1,440), `ck_services_price`
+  (0–99,999,999), `ck_services_currency` (`= 'BRL'`).
+- Indexes: `idx_services_tenant_name_key` unique `(tenant_id, name_key)` (R3; a 23505 on it → `serviceName.taken`,
+  which also settles AC-0005-64); `idx_services_tenant_status_name` `(tenant_id, status, name_key, id)`. No
+  `-updatedAt` index (as SPEC-0006 G-4).
+- `0006_services.sql`: `pnpm --filter api exec drizzle-kit generate --name services`. Read the SQL before going on.
+- `0007_default_service_template.sql`: `drizzle-kit generate --custom --name default_service_template`. Defines
+  `planici_seed_service_template(tenant text)` (G-5; fields `service.name` "Nome" `text`, `service.duration`
+  "Duração" `duration`, `service.price` "Preço" `money`, all required, version 1, the insert shape of `0005`) and
+  `planici_backfill_service_templates()`, and runs the backfill once.
+- `tenant.drizzle.repository.ts`: `createWithOwner` calls `select planici_seed_service_template(id)` in the
+  tenant's transaction, after the client seed.
+- Delete locks the row `for update`, checks history, then deletes the `form_records` row; the cascade removes the
+  service. Deleting a template with "Sim, excluir tudo" cascades the same way.
+- `docs/schema.dbml`: `services` rewritten (G-4).
+- **Rollback**: dropping `services` loses every service; dropping the seed functions loses nothing, but the seeded
+  "Serviço" templates stay unless deleted as ordinary templates. Both rollbacks are destructive and need the
+  owner's authorization.
+
+### API (`apps/api/src/modules/services/`)
+
+Same layout as clients: `commands/{create,update,inactivate,reactivate,delete}-service/`,
+`queries/{get-service,list-services}/`, `application/present-service.ts`, `domain/` (errors, search, request
+specs), `ports/` (`service.repository`, `service-history.reader`, `service-cursor-key`), `infrastructure/`
+(Drizzle repository, `ZeroServiceHistoryReader`). Registered in `app.module.ts`; root `services` in
+`app.routes.ts`. Every route: `JwtAccessGuard`, `ActiveTenantGuard`, `membership.assertCanManage()`; `:serviceId`
+through `ZodParam(ServiceIdSchema, () => new ServiceNotFoundError())`. No consent and no `SystemFieldPresence`
+(`presenceFor('service')` is already `{}`).
+
+| Route | Success | Errors, in order | ACs |
+| --- | --- | --- | --- |
+| `GET /v1/services` | 200 | `q`, `status`, `formId`, `sort`, `limit`, `after` (422) | 12, 19, 21, 33, 36, 38–44, 68–73, 82 |
+| `POST /v1/services` | 201 | envelope (422); template 400 / 422 / 409; `record.form-changed`; name, duration, price, currency (422); values; `serviceName.taken` (409) | 03–11, 22–27, 34, 35, 64, 66, 67 |
+| `GET /v1/services/:serviceId` | 200 | 404 `service.not-found` | 45, 58 |
+| `PATCH /v1/services/:serviceId` | 200 | body (422, before the id, as clients); 404; `record.form-changed`; `record.revision-conflict`; attributes; values; taken | 28, 65 |
+| `POST /v1/services/:serviceId/inactivate` | 200 | 404; 409 `service.status-unchanged` | 13, 30, 74 |
+| `POST /v1/services/:serviceId/reactivate` | 200 | 404; 409 `service.status-unchanged` | 29 |
+| `POST /v1/services/:serviceId/delete` | 204 | 404; 400 `deleteConfirmation.required`; 409 `service.has-history` | 14, 15, 31 |
+
+- **Create**, in one transaction: `openForCreate(…, 'service', …)` → `parseOrThrow(ServiceAttributesSchema)` →
+  `checkValues` → `draft.insert` → insert the service row → `present` (§6 check order; SPEC-0003 Decision 2).
+- **Update**: `lockById` (404) → `openForUpdate` (`RecordNotFoundError` → `service.not-found`) → attributes →
+  `checkValues` → `draft.replace` → update the row and `updated_at`.
+- **Response**: `RecordService.read` (presence `{}`) merged with the row's attributes, `status`, `hasHistory`,
+  `createdAt` and `updatedAt` from the service row (R11).
+- **List**: `name_key like` search; filters joined to `forms` of type `service` in the tenant, so another tenant's
+  or a client template gives an empty page with total 0; keyset sorts with the shared cursor (G-2), `-updatedAt`
+  carrying microsecond text (SPEC-0006 G-6); `count` with the same filters.
+
+### Web
+
+| Route | Component |
+| --- | --- |
+| `T/services` | `ServicesList` (SPEC-0006 behavior through the shared list of G-1) |
+| `T/services/new?form=:id` | `NewServicePage` → `RecordForm mode="create"` |
+| `T/services/[serviceId]` | `ServiceViewPage` → `RecordView` + `ServiceActions` |
+| `T/services/[serviceId]/edit` | `ServiceEditPage` → `RecordForm mode="edit"` |
+
+- `useServiceAdapter` (`entity: "services"`): `systemFields` for `service.name`, `service.duration` (input of R13,
+  format of R12) and `service.price` (pt-BR mask, `formatPrice`); `currency: "BRL"` added to every request.
+- `apps/web/src/lib/services/`: `parseDuration` (R13), `formatDuration` (R12), `parsePriceMask`, `formatPrice`.
+- `NewServiceMenu`: active `service` templates; "Criar novo modelo" → `/forms/new?from=services` (already handled
+  by the editor's redirect).
+- `ServiceRows` / `ServiceCards`: initials, name, "1h 30min · R$ 150,00", badges (§4.1).
+- `ServiceActions`: inactivate, reactivate and delete dialogs, toasts and the 409 reloads (§4.4, §8).
+- BFF `apps/web/src/app/api/services/**`: `GET`/`POST` list and create; `GET`/`PATCH` `[serviceId]`;
+  `POST` `[serviceId]/{inactivate,reactivate,delete}`; `_lib/services.ts` (`serviceIdParam` → 404
+  `service.not-found`). `http.ts`: `"services"` joins the `resource` union. Browser wrapper
+  `apps/web/src/lib/api/services.ts`.
+- `sidebar.tsx`: "Serviços" → `services`. `draft.ts`: `service.duration` → "Duração".
+- **Copy** (both locales, proposed): `services.*` mirrors `clients.*` (`list`, `new`, `inactivate`,
+  `reactivate`, `status`, `delete`, `toast`) with the service wording of §4.1, §4.4 and §8; the existing
+  `services.form`, `services.toast.created/saved` and `services.view` stay. New `validation.*`:
+
+| Key | pt-BR | en-US |
+| --- | --- | --- |
+| `service.not-found` | Serviço não encontrado. | Service not found. |
+| `service.has-history` | Serviços já utilizados não podem ser excluídos. | Services already in use cannot be deleted. |
+| `service.status-unchanged` | O status deste serviço já foi alterado. | This service's status has already changed. |
+| `serviceName.required` | Informe o nome do serviço. | Enter the service name. |
+| `serviceName.max` | Use até 80 caracteres. | Use up to 80 characters. |
+| `serviceName.taken` | Já existe um serviço com este nome. | A service with this name already exists. |
+| `serviceDuration.required` | Informe a duração. | Enter the duration. |
+| `serviceDuration.invalid` | Use de 5min a 24h, como "1h 30" ou "90". | Use 5min to 24h, such as "1h 30" or "90". |
+| `servicePrice.required` | Informe o preço. | Enter the price. |
+| `servicePrice.negative` | O preço não pode ser negativo. | The price cannot be negative. |
+| `servicePrice.invalid` | Use um preço de até R$ 999.999,99. | Use a price up to R$ 999,999.99. |
+| `serviceCurrency.required`, `.invalid` | Moeda inválida. | Invalid currency. |
+| `serviceSearch.min` | Digite ao menos 2 caracteres para buscar. | Type at least 2 characters to search. |
+| `serviceStatus.invalid` | Status inválido. | Invalid status. |
+| `serviceSort.invalid` | Ordenação inválida. | Invalid sort. |
+
+### Tests
+
+Every test name starts with its AC ID. Files:
+- **E-sv** `apps/api/test/e2e/services.e2e-spec.ts`: create, read, update, validation, isolation, auth.
+- **E-slist** `services-list.e2e-spec.ts`: list, search, filters, sorts, total, pagination, tenant context.
+- **E-slife** `services-lifecycle.e2e-spec.ts`: inactivate, reactivate, delete, history, cascades.
+- **E-sdef** `services-default-template.e2e-spec.ts`: seed and backfill.
+- **E-srec** `services-records.e2e-spec.ts`: SPEC-0003's service side.
+- **U-sreq** `apps/api/src/modules/services/domain/service-requests.spec.ts`: the request schemas.
+- **W-slist** `apps/web/tests/services-list.test.tsx`, **W-sform** `services-form.test.tsx`, **W-sview**
+  `services-view.test.tsx`, **W-sval** `services-values.test.ts` (R12, R13, price mask).
+- Helpers: `apps/api/test/utils/services-fixtures.ts` (`servicesApi`, `serviceBody`, `seedService`,
+  `FakeServiceHistory`), `apps/web/tests/services-harness.tsx`.
+
+| AC | Test | What it checks |
+| --- | --- | --- |
+| 01 | E-sdef, W-slist | a new tenant's only service template is "Serviço"; the dropdown shows it after "Criar novo modelo" |
+| 02 | W-slist | dropdown order and filtering (active service templates only) |
+| 03–11, 22–27 | E-sv, U-sreq | create happy path and every attribute rule and bound |
+| 05, 64, 65 | E-sv | name taken: inactive service, concurrent creates, update |
+| 06 | E-sv | the same name in another tenant is accepted |
+| 12, 21, 71, 72 | E-slist | default sort, search, `-name`, `-updatedAt` |
+| 13 | E-slife, W-slist | 200 inactive and gone from the default filter; "Inativo" badge under "Inativos" |
+| 14 | E-slife, W-sview | delete 204 then 404; the dialog flow |
+| 15, 58 | E-slife | partly (G-3): 409 `service.has-history`; `hasHistory` true / false |
+| 16, 17, 37 | E-sv | another tenant's service is 404 on every action; 401 without a token |
+| 18, 48–54, 57, 75, 76 | W-slist | empty, loading, error, noResults, noTemplates, searchHint, emptyFilter, load-more failure, wide row, end of list, narrow letter headings |
+| 19, 40–44, 70, 73 | E-slist | pagination, query errors, total, `serviceSort.invalid` |
+| 20, 56, 77–81 | W-sform, W-sval | price mask; duration input, rejection and edit prefill |
+| 28 | E-sv | update happy path |
+| 29, 30, 74 | E-slife | reactivate; status unchanged; `updatedAt` moves on inactivation |
+| 31 | E-slife | wrong `confirmName` → 400, service kept |
+| 32, 55, 61, 62, 83, 84 | W-sview | dialog gate; history hint (55, 84 partly, G-3); duration display; 409 reloads |
+| 33, 36, 38, 39, 82 | E-slist | list isolation; `tenant.not-found`, `tenant.required`, `tenant.inactive`; another tenant's template as filter |
+| 34, 35 | E-sv | another tenant's template; `formType.mismatch` |
+| 45 | E-sv | malformed id → 404 |
+| 46, 47, 59, 60, 63 | E-sdef | backfill branches (none, archived, name clash, 200 templates); seeded label "Duração" |
+| 66, 67 | E-sv, U-sreq | currency invalid / missing |
+| 68, 69 | E-slist | template filter; client template as filter → total 0 |
+
+**Deferred criteria this plan verifies**
+
+| AC | Test | What it checks here |
+| --- | --- | --- |
+| AC-0003-02 to -14, -17, -19, -20, -22 to -24, -26, -30 to -45, -54 to -60, -62 to -69, -71, -72, -75, -76, -79, -81, -86 to -89 (service side) | E-srec | each case of `clients-records.e2e-spec.ts` that is not client-only, through the service endpoints (`service.not-found` where clients get `client.not-found`). AC-0003-73 and -74 are client-only (SPEC-0003 §11) |
+| AC-0003-82 (service side) | E-slife | "Sim, excluir tudo" on a service template removes its services (§4.4) |
+| SPEC-0001 Persistence, services | E-slife | after a service delete, both the `services` and the `form_records` rows are gone |
+
+`/done` adds "`<AC ids>` verified with SPEC-0005, `<date>`" to SPEC-0003's changelog (closing its G-9) and
+fixes the reference of G-7.
+
+### Deferred checks
+
+| AC | Status after this plan | Verified by |
+| --- | --- | --- |
+| AC-0005-15, -55, -58, -84 | partly: a fake `ServiceHistoryReader` stands in for appointments (G-3) | the first scheduling spec, unless the owner waives as for AC-0004-15, -33, -71 |
+
+### Sequence
+
+0. **Preconditions**: `plan_status` Approved; branch `feat/spec-0005-services`; Docker up for e2e.
+1. **Contracts**: `packages/schemas/src/services/*`, U-sreq. `pnpm --filter @planici/schemas build && pnpm
+   typecheck`.
+2. **Refactors (G-1, G-2)**, behavior-preserving, own commit: move the API list helpers to `shared/list/` and the
+   web list pieces to `T/_components/list/`. `pnpm --filter api test`, `pnpm --filter api test:e2e` (clients*)
+   and `pnpm --filter web test` (clients-list) green with no assertion changed.
+3. **Persistence**: `services.ts` → `0006_services` → `0007_default_service_template` → `createWithOwner` →
+   `schema.dbml`. Run the full api e2e now; fix setups only (G-6).
+4. **Failing tests**: fixtures, E-sv, E-slist, E-slife, E-sdef, E-srec; W-slist, W-sform, W-sview, W-sval. Each
+   fails for the right reason (404 route, missing module, missing component).
+5. **API**: 5a list and read (12, 19, 21, 33, 36, 38–45, 68–73, 82); 5b create and update (03–11, 22–28, 34, 35,
+   64–67); 5c inactivate, reactivate, delete (13–16, 29–31, 58, 74); 5d full api e2e, E-srec and E-sdef.
+6. **Web**: 6a `lib/services` helpers, BFF, `lib/api/services.ts`; 6b list and [Novo]; 6c fill-in, view, edit,
+   actions; 6d sidebar, `draft.ts` label, `form-editor.test.tsx`, copy in both locales.
+7. **Checks**: `pnpm lint && pnpm typecheck && pnpm test`, `pnpm --filter api test:e2e`.
+
+### Risks
+
+| Risk | Cheapest early check |
+| --- | --- |
+| The new default template breaks template counts in existing e2e beyond setup fixes (G-6). | Step 3: run the full api e2e right after the migrations, before any new test. |
+| The list extraction (G-1) changes client list behavior. | Step 2 is its own commit; `clients-list.test.tsx` and clients e2e must pass unchanged. |
+| `textKey` folds "Sessão" / "sessao  individual" differently from R3's intent. | U-sreq case for AC-0005-05 in step 1, against `textKey`. |
+| The seed function's insert shape drifts from what the forms API writes. | E-sdef compares the seeded "Serviço" field by field with an API-created service template, as SPEC-0004 Decision 4. |
+| R13 parsing ambiguities ("90min", "1h30", "1H 30MIN"). | W-sval table of every R13 example, accepted and rejected, first in step 6a. |
+
+### New dependencies
+
+None.
 
 ## 12. Changelog
 
@@ -920,3 +1194,4 @@ Written by `/plan` after the spec is Approved. Empty until then.
 | 0.10 | 2026-11-24 | Owner answers to §9 Q1–Q3 and Q7–Q12 (Q7: no preference stated, so the proposed answer was taken). R3–R5 decided; R5 adds the currency in requests (Q9); R7 uses `service.has-history` (Q7, Q10); R10 leaves a tenant alone on a name clash or at 200 templates (Q11); new R11 (list follows SPEC-0006, Q8) and R12 (duration display, Q12). §2 adds SPEC-0006 to `depends_on` and the amendment of SPEC-0001 §3.2 to be applied on approval (label "Duração"). §4.1 rewritten on SPEC-0006; §4.3 duration input. §6: `serviceCurrency.*`, `serviceSort.invalid`, template filter, list check order. §7: `hasHistory`, `currency` in requests, `formId`, `sort`, `total`, `updatedAt`. §8 list rows and copy as SPEC-0006. All provisional criteria agreed (AC-0005-15 and -55 to -58 rewritten for `hasHistory` and the list layout); AC-0005-59 to -76 added |
 | 0.11 | 2026-11-24 | Spec re-check: the 4 blocking items. New R13 (accepted duration inputs and the edit page's prefill; owner decision at the re-check), §4.3 points to it, §9 Q12 notes it. AC-0005-13 also checks the "Inativos" filter (R6). AC-0005-77 to -79 (unreadable or out-of-range duration), -80 and -81 (edit prefill), -82 (another tenant's template as list filter, §5), -83 (status changed elsewhere) and -84 (history found on delete) added. The re-check's SHOULD-FIX items are follow-ups, not applied |
 | 1.0 | 2026-11-24 | Approved by Joao Izidoro, 2026-11-24, confirming §9 Q7 explicitly (409 `service.has-history` instead of RF-12's automatic inactivation). The amendment of SPEC-0001 §3.2 (§2) is applied (SPEC-0001 v1.6) |
+| 1.1 | 2026-11-24 | §11 implementation plan drafted by `/plan` (`plan_status` Draft): scope, gaps G-1 to G-7 for the owner, contracts, persistence (`0006_services`, `0007_default_service_template`), API, web, tests mapping AC-0005-01 to -84 and SPEC-0003's service side, deferred checks, sequence, risks. The `scope` label is restored on the §11 fence (re-check SHOULD-FIX 7, first half) |
