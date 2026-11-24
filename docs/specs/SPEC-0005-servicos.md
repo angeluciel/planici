@@ -3,7 +3,7 @@ id: SPEC-0005
 title: Cadastro de serviços
 status: Approved # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.5
+version: 1.6
 owner: Joao Izidoro
 satisfies: [RF-11, RF-12, RF-13, RN-02, RN-06, RN-24, RN-25]
 depends_on: [SPEC-0001, SPEC-0002, SPEC-0003, SPEC-0004, SPEC-0006]
@@ -48,7 +48,8 @@ are the same entity (RN-22). Template filling is shared with clients in SPEC-000
 - On approval, this spec amends SPEC-0001 §3.2: the default label of `service.duration` becomes "Duração" (§9
   Q12). SPEC-0001 gets the note "amended by SPEC-0005" there, a version bump and a changelog line. Templates that
   already exist keep their label.
-- AC-0005-15, -55, -58, -84, -99, -101 and -111 need a service linked to an appointment, which only scheduling can
+- The template editor's name for the `duration` field type becomes "Duração" / "Duration" (copy only, §9 Q26).
+- AC-0005-15, -55, -58, -84, -99, -101, -111 and -114 need a service linked to an appointment, which only scheduling can
   create. Until scheduling exists, the link can be seeded directly.
 
 ## 3. Domain rules
@@ -110,7 +111,9 @@ are the same entity (RN-22). Template filling is shared with clients in SPEC-000
   - a horizontally scrollable row of chips: "Todos" (default), then one chip per service template, active or
     archived, that has at least one active service, by template name, then "Arquivados" when the tenant has at
     least one archived service. Exactly one chip is active. When the active chip disappears (its last service was
-    archived, reactivated or deleted), "Todos" becomes active;
+    archived, reactivated or deleted), "Todos" becomes active. While the chips load, "Todos" shows followed by
+    placeholder chips; if they fail to load, "Todos" shows followed by a "Tentar novamente" chip that loads them
+    again, and the list keeps working under "Todos" (§9 Q25);
   - "Todos" lists the active services grouped by template: a section header with the template's name, sections
     by template name, services by name within them (sort `form`). A section header is not repeated when the
     next page continues the same template. A template chip lists only that template's active services, by
@@ -119,15 +122,15 @@ are the same entity (RN-22). Template filling is shared with clients in SPEC-000
     (R12, §9 Q18) and the price ("R$ 150,00");
   - there is no status filter, template picker, sort control or total; infinite scroll and the closing block
     follow R11;
-  - the floating "+" opens the fill-in page of the active chip's template, or the [Novo] menu under "Todos" and
-    "Arquivados" (§9 Q19).
+  - the floating "+" opens the fill-in page of the active chip's template when that template is active, or the
+    [Novo] menu under "Todos", "Arquivados" and the chip of an archived template (§9 Q19, Q24).
 - **R15.** **Row actions (narrow).** Swiping a row left reveals "Arquivar" and "Excluir" (red, with a trash
   icon); on an archived row, "Reativar" and "Excluir". The row snaps open when dragged past half the width of its
   actions or flicked fast; otherwise it snaps closed. Only one row is open at a time; tapping elsewhere or
   scrolling closes it. Vertical scrolling keeps working over the rows. A "⋯" button on each row, or a long press,
   opens a menu with the same actions. "Excluir" on a service with history opens no dialog and sends no request:
-  the row snaps closed and a toast gives the reason with an "Arquivar" action (R7). (owner design, §9 Q13 and
-  Q15)
+  the row snaps closed and a toast gives the reason, with an "Arquivar" action on an active row and no action on
+  an archived one (R7). (owner design, §9 Q13, Q15 and Q23)
 - **R16.** **Wording.** The services UI calls inactivating "Arquivar", an inactive service "Arquivado" and the
   inactive filter "Arquivados", on every screen. The contract keeps `inactive` (§7). (§9 Q22)
 
@@ -169,7 +172,8 @@ SPEC-0004 §4.4–§4.5 apply with service wording (R16), except (R7, R8, R15):
 2. **Reativar**, on the view page or an archived narrow row, works as SPEC-0004 §4.4 step 2; the narrow row leaves
    "Arquivados".
 3. **Excluir** opens the typed-name dialog (R8). On a narrow row whose service has history, it opens no dialog: the
-   row snaps closed and the toast "Serviços já utilizados não podem ser excluídos." offers "Arquivar". If a delete
+   row snaps closed and the toast "Serviços já utilizados não podem ser excluídos." offers "Arquivar" (no action
+   on an archived row, R15). If a delete
    returns 409 `service.has-history`, the dialog closes and the same toast appears; a narrow row snaps closed, and
    the view page reloads offering only "Arquivar".
 4. A successful delete removes the narrow row, or returns from the view page to `/services`, with the toast
@@ -254,9 +258,10 @@ New, non-breaking. Consumers: `apps/web`; later the scheduling module.
   `formId?` (template filter, R11), `sort?` (`name` default, `-name`, `-updatedAt`, `form`), `limit?`, `after?`
   (`api-convention.md`, Pagination). Response `{ services: ServiceSummary[], nextCursor: string | null, total:
   number }`.
-- **Service template summary** (the narrow chips, R14): `{ templates: { id, name, activeCount }[], archivedCount }`
-  — the tenant's service templates, active or archived, with at least one active service, by name, and the
-  number of archived services. Read-only, tenant-scoped; its path is set in `/plan`.
+- **Service template summary** (the narrow chips, R14): `{ templates: { id, name, status, activeCount }[],
+  archivedCount }` — the tenant's service templates, active or archived (`status`: `active | archived`), with at
+  least one active service, by name, and the number of archived services. Read-only, tenant-scoped; its path is
+  set in `/plan`.
 - **Create request**: `formId`, `formVersion`, `name`, `durationMinutes`, `priceCents`, `currency` (`"BRL"`),
   `values`.
 - **Update request**: `revision`, `formVersion`, `name`, `durationMinutes`, `priceCents`, `currency` (`"BRL"`),
@@ -284,6 +289,8 @@ New, non-breaking. Consumers: `apps/web`; later the scheduling module.
 | `/services` | error | "Não foi possível carregar os serviços." + retry; no total | `services.list.error` |
 | `/services` | success, wide screen | Full-width rows: initials, name, duration and price, template badge on the right (4.1); total above them | `services.list.title`, `services.list.count` |
 | `/services` | success, narrow screen | Title, search icon, chips; rows with status dot, name, duration, price; section headers under "Todos" (R14); no total | `services.list.title`, `services.list.chips.all`, `services.list.chips.archived`, `services.list.searchOpen` |
+| `/services` | chips loading (narrow) | "Todos" followed by placeholder chips (R14) | `services.list.chips.loading` |
+| `/services` | chips failed (narrow) | "Todos" followed by "Tentar novamente", which loads the chips again; the list keeps working under "Todos" (R14) | `services.list.chips.retry` |
 | `/services` | archived service (wide) | "Arquivado" badge just before the template badge | `services.list.inactiveBadge` |
 | `/services` | template filter (wide) | "Modelo" control with "Todos os modelos" and each service template; archived ones followed by "(arquivado)"; shown only with two or more service templates | `services.list.filter.form`, `services.list.filter.allForms`, `services.list.filter.archivedForm` |
 | `/services` | sort (wide) | "Ordenar por" control with "Nome (A–Z)", "Nome (Z–A)", "Última atualização" | `services.list.sort.label`, `services.list.sort.nameAsc`, `services.list.sort.nameDesc`, `services.list.sort.updatedAt` |
@@ -328,6 +335,9 @@ Copy specific to services (other list copy as SPEC-0006 §8, under `services.*`)
 - `services.toast.archived`: "Serviço arquivado" / "Service archived"; `services.toast.undo`: "Desfazer" / "Undo"
 - `services.delete.hasHistory`: "Serviços já utilizados não podem ser excluídos." / "Services already in use
   cannot be deleted."
+- `services.list.chips.loading`: "Carregando modelos…" / "Loading templates…" (announced, not shown);
+  `services.list.chips.retry`: "Tentar novamente" / "Try again"
+- `forms.fields.types.duration`: "Duração" / "Duration" (was "Duração (minutos)" / "Duration (minutes)"; §9 Q26)
 
 ## 9. Open questions
 
@@ -355,6 +365,10 @@ Copy specific to services (other list copy as SPEC-0006 §8, under `services.*`)
 | 20 | ~~The header's search icon, bell and avatar dot.~~ | **Decided (owner, 2026-11-24):** only the search icon, which opens the name search on `/services`; the bell, the dot and the shared header are out of scope (§2). | — |
 | 21 | ~~Wide screens under the mobile design.~~ | **Decided (owner, 2026-11-24):** wide screens keep SPEC-0006's rows, status filter, template picker, sort and total; only the actions change (R8, §4.4). | — |
 | 22 | ~~Details the design leaves open, filled in by this amendment: "Arquivar" / "Arquivado" / "Arquivados" on every screen, not only on narrow ones (R16); "Reativar" in place of "Arquivar" on archived narrow rows (R15); chips ordered by template name; the "Arquivados" chip shown only when an archived service exists, and "Todos" active again when the active chip disappears (R14); the title "Procedimentos/Consultas" on every screen, while the sidebar keeps "Serviços" (§4.1).~~ | **Confirmed by the owner at approval, 2026-11-24.** | — |
+| 23 | ~~R15's history toast offers "Arquivar" on an archived row too, whose service is already archived.~~ | **Decided (owner, 2026-11-24, plan review follow-up 7a):** on an archived row the toast has no action; active rows keep "Arquivar" (R15, §4.4). | — |
+| 24 | ~~The chip of an archived template: new services need an active template, so what does the floating "+" open?~~ | **Decided (owner, 2026-11-24, follow-up 7b):** the [Novo] menu, as under "Todos"; the template summary carries each template's status (R14, §7). | — |
+| 25 | ~~What the chips show while they load, and when they fail.~~ | **Decided (owner, 2026-11-24, follow-up 7c):** "Todos" plus placeholder chips while loading; "Todos" plus a "Tentar novamente" chip on failure, with the list still working under "Todos" (R14, §8). | — |
+| 26 | ~~The template editor names the `duration` type "Duração (minutos)", though R13 accepts hours.~~ | **Decided (owner, 2026-11-24, follow-up 7d):** "Duração" / "Duration" (§2, §8). | — |
 
 ## 10. Acceptance criteria
 
@@ -1184,6 +1198,59 @@ When  the owner archives "Laser facial" from its row
 Then  the chip "Laser" is gone and "Todos" is the active chip
 ```
 
+From v1.6 (§9 Q23–Q26):
+
+```
+AC-0005-114
+Given an archived service "Laser antigo" whose list item has hasHistory true, under the chip "Arquivados" on a narrow screen
+When  the owner swipes its row open and taps "Excluir"
+Then  no dialog opens and no request is sent
+And   the row snaps closed and the toast with copy key services.delete.hasHistory shows with no action
+```
+
+```
+AC-0005-115
+Given an archived template "Laser" with an active service "Laser facial", with the chip "Laser" active on a narrow screen
+When  the owner taps the floating "+"
+Then  the Novo menu opens with "Criar novo modelo" and the active service templates
+```
+
+```
+AC-0005-116
+Given an active template "Estéticos" and an archived template "Laser", each with one active service
+When  the owner reads the service template summary
+Then  "Estéticos" has status "active" and "Laser" has status "archived"
+```
+
+```
+AC-0005-117
+Given the service template summary has not loaded yet
+When  the owner opens /services on a narrow screen
+Then  the chip "Todos" shows, followed by placeholder chips
+```
+
+```
+AC-0005-118
+Given an active service "Facial" and a service template summary request that fails
+When  the owner opens /services on a narrow screen
+Then  the chips are "Todos" and "Tentar novamente" with copy key services.list.chips.retry
+And   "Facial" is listed under "Todos"
+```
+
+```
+AC-0005-119
+Given the chips show "Tentar novamente" after a failed load, and template "Estéticos" has an active service
+When  the owner taps "Tentar novamente" and the summary loads
+Then  the chip "Estéticos" appears after "Todos"
+```
+
+```
+AC-0005-120
+Given the owner in the template editor of a service template
+When  they clear the label of the duration system field
+Then  the label input's placeholder reads "Duração" with copy key forms.fields.types.duration
+```
+
 ### Provisional criteria
 
 None. Every open question is answered.
@@ -1300,7 +1367,7 @@ New, non-breaking. Consumers: `apps/api`, `apps/web`.
   - `DeleteServiceRequestSchema` (`confirmName`), `ServiceIdSchema`.
 - `responses.ts`: `ServiceSchema` (§7 Service), `ServiceSummarySchema` (with `hasHistory`),
   `ServiceListResponseSchema` (`{ services, nextCursor, total }`), `ServiceTemplateSummarySchema`
-  (`{ templates: { id, name, activeCount }[], archivedCount }`).
+  (`{ templates: { id, name, status, activeCount }[], archivedCount }`, `status` from `FORM_STATUSES`).
 - `errors.ts`: `SERVICE_ERROR_CODES` with every key of §6 that is new.
 - `index.ts` re-exports; `src/index.ts` exports `./services`.
 
@@ -1344,7 +1411,7 @@ through `ZodParam(ServiceIdSchema, () => new ServiceNotFoundError())`. No consen
 | Route | Success | Errors, in order | ACs |
 | --- | --- | --- | --- |
 | `GET /v1/services` | 200 | `q`, `status`, `formId`, `sort`, `limit`, `after` (422) | 12, 19, 21, 33, 36, 38–44, 68–73, 82, 108, 111 |
-| `GET /v1/services/templates` | 200 | tenant context only (400 / 403 / 404 as §5) | 109, 110 |
+| `GET /v1/services/templates` | 200 | tenant context only (400 / 403 / 404 as §5) | 109, 110, 116 |
 | `POST /v1/services` | 201 | envelope (422); template 400 / 422 / 409; `record.form-changed`; name, duration, price, currency (422); values; `serviceName.taken` (409) | 03–11, 22–27, 34, 35, 64, 66, 67 |
 | `GET /v1/services/:serviceId` | 200 | 404 `service.not-found` | 45, 58 |
 | `PATCH /v1/services/:serviceId` | 200 | body (422, before the id, as clients); 404; `record.form-changed`; `record.revision-conflict`; attributes; values; taken | 28, 65 |
@@ -1363,7 +1430,8 @@ through `ZodParam(ServiceIdSchema, () => new ServiceNotFoundError())`. No consen
   carrying microsecond text (SPEC-0006 G-6), `form` carrying `(forms.name_key, services.name_key, id)`; `count`
   with the same filters; `hasHistory` from one `withHistory` call per page (G-9).
 - **Template summary**: one grouped query over the tenant's `service` forms joined to their services —
-  templates with at least one active service, `activeCount`, ordered by `forms.name_key`, then `id` — plus the
+  templates with at least one active service, their `status`, `activeCount`, ordered by `forms.name_key`, then
+  `id` — plus the
   count of inactive services. Same guards as the list.
 
 ### Web
@@ -1384,22 +1452,27 @@ through `ZodParam(ServiceIdSchema, () => new ServiceNotFoundError())`. No consen
 - Narrow (`T/services/_components/`), split by `useLayout` at 48rem:
   - `ServiceChips`: from `useServiceTemplateSummary` (TanStack Query over the summary route); "Todos", the
     templates, "Arquivados" when `archivedCount > 0`; the active chip kept in component state;
-    falls back to "Todos" when its chip is gone (AC-0005-113).
+    falls back to "Todos" when its chip is gone (AC-0005-113). While the summary loads, "Todos" plus
+    `aria-hidden` placeholder chips and the polite status `services.list.chips.loading`; on failure, "Todos" plus
+    a "Tentar novamente" chip that refetches; the list query does not wait for the summary (R14).
   - `ServicesNarrowList`: the shared infinite query with `sort=form` under "Todos", `formId` + `sort=name` under a
     template chip, `status=inactive` under "Arquivados"; section headers by G-11; the search icon opens the shared
     search field.
   - `ServiceSwipeRow`: `SwipeRow` (G-8) with the status dot, name, R12 duration, price; actions "Arquivar" or
     "Reativar", and "Excluir".
-  - `ServiceFab`: the floating "+" links to `/services/new?form=<chip>` under a template chip, else opens
-    `NewServiceMenu` with the `floating` menu look.
+  - `ServiceFab`: the floating "+" links to `/services/new?form=<chip>` under the chip of an active template,
+    else ("Todos", "Arquivados", an archived template's chip) opens `NewServiceMenu` with the `floating` menu
+    look.
 - `ServiceActions` (view page) and `useServiceActions` (shared with the narrow rows): archive at once with the
   "Desfazer" toast action (reactivate), reactivate, the typed-name delete dialog, the `hasHistory` toast with its
-  "Arquivar" action, the 409 reloads (§4.4, §8). Every success invalidates the list and summary queries.
+  "Arquivar" action (none for an archived service, R15), the 409 reloads (§4.4, §8). Every success
+  invalidates the list and summary queries.
 - BFF `apps/web/src/app/api/services/**`: `GET`/`POST` list and create; `GET` `templates`; `GET`/`PATCH`
   `[serviceId]`; `POST` `[serviceId]/{inactivate,reactivate,delete}`; `_lib/services.ts` (`serviceIdParam` → 404
   `service.not-found`). `http.ts`: `"services"` joins the `resource` union. Browser wrapper
   `apps/web/src/lib/api/services.ts`.
-- `sidebar.tsx`: "Serviços" → `services`. `draft.ts`: `service.duration` → "Duração".
+- `sidebar.tsx`: "Serviços" → `services`. `draft.ts`: `service.duration` → "Duração". The editor's type name
+  `forms.fields.types.duration` → "Duração" / "Duration" in both locales (§9 Q26).
 - **Copy** (both locales, proposed): `services.*` mirrors `clients.*` (`list`, `new`, `inactivate`,
   `reactivate`, `status`, `delete`, `toast`) with the service wording of §4.1, §4.4 and §8 and R16
   ("Arquivar", "Arquivado", "Arquivados"; `services.inactivate.inProgress` "Arquivando…", `.error` "Não foi
@@ -1478,6 +1551,11 @@ Every test name starts with its AC ID. Files:
 | 109, 110 | E-slist | summary contents and counts; another tenant's template absent; the route answers 200, not 404 (G-10) |
 | 111 | E-slist | partly (G-3, G-9): `hasHistory` per list item |
 | 113 | W-snarrow | the active chip disappears after archiving → "Todos" active |
+| 114 | W-snarrow | partly (G-3, G-9): archived row with `hasHistory` true → toast with no action, no dialog, no request |
+| 115 | W-snarrow | floating "+" under an archived template's chip opens the [Novo] menu |
+| 116 | E-slist | summary `status` for an active and an archived template |
+| 117–119 | W-snarrow | chips while the summary loads; failure shows "Tentar novamente" and the list still loads; retry brings the chips |
+| 120 | `apps/web/tests/form-editor.test.tsx` | cleared duration label → placeholder "Duração" |
 
 **Deferred criteria this plan verifies**
 
@@ -1495,7 +1573,7 @@ fixes the reference of G-7.
 
 | AC | Status after this plan | Verified by |
 | --- | --- | --- |
-| AC-0005-15, -55, -58, -84, -99, -101, -111 | partly: a fake `ServiceHistoryReader` stands in for appointments (G-3, G-9) | the first scheduling spec, unless the owner waives as for AC-0004-15, -33, -71 |
+| AC-0005-15, -55, -58, -84, -99, -101, -111, -114 | partly: a fake `ServiceHistoryReader` stands in for appointments (G-3, G-9) | the first scheduling spec, unless the owner waives as for AC-0004-15, -33, -71 |
 | AC-0005-91 to -95 | partly: snap rule and group logic in jsdom; the gesture itself by hand on a phone (G-8) | the manual check recorded at `/done` |
 
 ### Sequence
@@ -1516,7 +1594,7 @@ fixes the reference of G-7.
 6. **Web**: 6a `lib/services` helpers, BFF, `lib/api/services.ts`; 6b `SwipeRow` and W-swipe, the `menu.tsx`
    and `toast.tsx` additions (own commit, before any services UI); 6c wide list and [Novo]; 6d narrow list,
    chips, sections, swipe rows, floating "+"; 6e fill-in, view, edit, actions; 6f sidebar, `draft.ts` label,
-   `form-editor.test.tsx`, copy in both locales.
+   the `duration` type name, `form-editor.test.tsx`, copy in both locales.
 7. **Checks**: `pnpm lint && pnpm typecheck && pnpm test`, `pnpm --filter api test:e2e`; the manual swipe check of
    G-8 on a phone.
 
@@ -1561,3 +1639,4 @@ fixes the reference of G-7.
 | 1.3 | 2026-11-24 | Approved by Joao Izidoro, 2026-11-24, confirming the §9 Q22 details explicitly. `plan_status` stays Draft until the plan is reviewed and approved |
 | 1.4 | 2026-11-24 | Plan review (`/spec-review SPEC-0005 plan`), the 3 blocking items: the AC-0003-82 row now checks revision after inactivation, and the "Sim, excluir tudo" check has its own row; `apps/web/package.json` and `pnpm-lock.yaml` join the scope (the `motion` dependency, changed only through pnpm); `SwipeRowGroup` closes the open row on a `scroll` caught on `window`, and W-swipe fires it there (AC-0005-95). The review's SHOULD-FIX items are follow-ups, not applied. `plan_status` stays Draft |
 | 1.5 | 2026-11-24 | Plan approved by Joao Izidoro, 2026-11-24 (`plan_status` Approved), after the plan review and its re-check; the proposals of G-1 to G-11 are accepted with it. The review's SHOULD-FIX items stay numbered follow-ups |
+| 1.6 | 2026-11-24 | Owner decisions on plan review follow-ups 7a–7d (§9 Q23–Q26): an archived narrow row's history toast has no action (R15, §4.4); the floating "+" opens the [Novo] menu under an archived template's chip, and the template summary carries each template's `status` (R14, §7); chips show placeholders while loading and "Tentar novamente" on failure (R14, §8); the editor's `duration` type name becomes "Duração" (§2, §8). AC-0005-114 to -120 added. §11 updated to match (contracts, API, web, copy, tests, deferred checks, sequence); scope unchanged. `status` and `plan_status` stay Approved: each change is an explicit owner decision |
