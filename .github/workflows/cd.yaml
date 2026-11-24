@@ -1,18 +1,29 @@
 name: CD
 
+# Production deploys are triggered by release tags (vX.Y.Z) that point at a commit on main.
+# Merging to main does not deploy.
+# To roll back or redeploy, run this workflow manually from main with an existing tag:
+# images that already exist in ECR are reused, not rebuilt.
 on:
   push:
-    branches: [main]
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to deploy (for example v0.1.0)
+        required: true
+        type: string
 
 concurrency:
   group: deploy-production
   cancel-in-progress: false
 
 permissions:
-  id-token: write
   contents: read
 
 env:
+  RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+
   AWS_REGION: us-east-2
   ECS_CLUSTER: planici-1
   ECS_SERVICE: planici-service
@@ -29,73 +40,128 @@ env:
   WEB_DOCKERFILE: apps/web/Dockerfile
 
 jobs:
-  deploy:
-    name: Build and deploy to ECS
+  verify-tag:
+    name: Verify release tag
     runs-on: ubuntu-latest
-    environment: production
 
     steps:
-      - name: Checkout main
+      - name: Check tag format
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::'$RELEASE_TAG' is not a release tag (expected vX.Y.Z)."
+            exit 1
+          fi
+
+      - name: Checkout release tag
         uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ env.RELEASE_TAG }}
+          fetch-depth: 0
+
+      - name: Require tag to point at a commit on main
+        run: |
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "::error::$RELEASE_TAG ($(git rev-parse --short HEAD)) is not on main. Tag a commit that is on main."
+            exit 1
+          fi
+
+  ci:
+    name: CI
+    needs: verify-tag
+    # A new tag is re-checked; a manual redeploy of an existing tag was checked when it was first deployed.
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/ci.yaml
+
+  deploy:
+    name: Build and deploy to ECS
+    needs: [verify-tag, ci]
+    if: ${{ !cancelled() && needs.verify-tag.result == 'success' && (needs.ci.result == 'success' || needs.ci.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ env.RELEASE_TAG }}
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@b7a1386e5b2f3979f342e9f94f8ea7f23083c85f
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-      
+
       - name: Log in to Amazon ECR
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd
 
-      - name: Build API image
-        id: build-api
+      - name: Resolve images for this release
+        id: images
         env:
           REGISTRY: ${{ steps.ecr-login.outputs.registry }}
         run: |
-          IMAGE_URI="$REGISTRY/$API_ECR_REPOSITORY:${{ github.sha }}"
-          docker build -f "$API_DOCKERFILE" -t "$IMAGE_URI" .
-          echo "image=$IMAGE_URI" >> "$GITHUB_OUTPUT"
-        
-      - name: Build web image
-        id: build-web
+          # Tags are immutable in ECR, so an image that already exists is this release's image.
+          image_exists() {
+            local count
+            count=$(aws ecr batch-get-image \
+              --repository-name "$1" \
+              --image-ids imageTag="$RELEASE_TAG" \
+              --query 'length(images)' --output text)
+            [[ "$count" != "0" ]]
+          }
+
+          echo "api=$REGISTRY/$API_ECR_REPOSITORY:$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+          echo "web=$REGISTRY/$WEB_ECR_REPOSITORY:$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+
+          if image_exists "$API_ECR_REPOSITORY"; then api_exists=true; else api_exists=false; fi
+          if image_exists "$WEB_ECR_REPOSITORY"; then web_exists=true; else web_exists=false; fi
+          echo "api-exists=$api_exists" >> "$GITHUB_OUTPUT"
+          echo "web-exists=$web_exists" >> "$GITHUB_OUTPUT"
+          echo "API image exists: $api_exists, web image exists: $web_exists"
+
+      - name: Build and push API image
+        if: steps.images.outputs.api-exists != 'true'
         env:
-          REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          IMAGE_URI: ${{ steps.images.outputs.api }}
+        run: |
+          docker build -f "$API_DOCKERFILE" -t "$IMAGE_URI" .
+          docker push "$IMAGE_URI"
+
+      - name: Build and push web image
+        if: steps.images.outputs.web-exists != 'true'
+        env:
+          IMAGE_URI: ${{ steps.images.outputs.web }}
           NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
         run: |
-          IMAGE_URI="$REGISTRY/$WEB_ECR_REPOSITORY:${{ github.sha }}"
           docker build -f "$WEB_DOCKERFILE" \
             --build-arg NEXT_PUBLIC_GOOGLE_CLIENT_ID="$NEXT_PUBLIC_GOOGLE_CLIENT_ID" \
             -t "$IMAGE_URI" .
-          echo "image=$IMAGE_URI" >> "$GITHUB_OUTPUT"
-
-      - name: Push API image to ECR
-        run: docker push "${{ steps.build-api.outputs.image }}"
-      
-      - name: Push WEB image to ECR
-        run: docker push "${{ steps.build-web.outputs.image }}"
+          docker push "$IMAGE_URI"
 
       - name: Download current task definition
         run: |
           aws ecs describe-task-definition \
             --task-definition "$ECS_TASK_DEFINITION_FAMILY" \
             --query taskDefinition > task-definition.json
-      
+
       - name: Render task definition with new API image
         id: render-api
         uses: aws-actions/amazon-ecs-render-task-definition@cbed19f1b86bbb18f59cfffde7107b93cc9b75da
         with:
           task-definition: task-definition.json
           container-name: ${{ env.API_CONTAINER_NAME }}
-          image: ${{ steps.build-api.outputs.image }}
-      
+          image: ${{ steps.images.outputs.api }}
+
       - name: Render task definition with new WEB image
         id: render-web
         uses: aws-actions/amazon-ecs-render-task-definition@cbed19f1b86bbb18f59cfffde7107b93cc9b75da
         with:
           task-definition: ${{ steps.render-api.outputs.task-definition }}
           container-name: ${{ env.WEB_CONTAINER_NAME }}
-          image: ${{ steps.build-web.outputs.image }}
+          image: ${{ steps.images.outputs.web }}
 
       - name: Deploy to ECS and wait for stability
         uses: aws-actions/amazon-ecs-deploy-task-definition@7b5ba17dae98c8fd463ddf2cef977d3be43322c5
@@ -104,3 +170,23 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           service: ${{ env.ECS_SERVICE }}
           wait-for-service-stability: true
+
+  release:
+    name: Publish GitHub release
+    needs: deploy
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Create release with generated notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
+            echo "Release $RELEASE_TAG already exists."
+          else
+            gh release create "$RELEASE_TAG" --verify-tag --generate-notes
+          fi

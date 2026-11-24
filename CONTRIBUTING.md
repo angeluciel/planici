@@ -100,7 +100,7 @@ A API também tem testes end-to-end. Para executá-los localmente, use Docker e 
 pnpm --filter api test:e2e
 ```
 
-A CI executa lint, verificação de tipos, testes, testes end-to-end da API e build nos pull requests para `dev`e `main`.
+A CI executa lint, verificação de tipos, testes, testes end-to-end da API e build nos pull requests para `dev`e `main`, e de novo em cada tag de release antes do deploy.
 
 O hook de `pre-commit` configurado atualmente executa `lint-stages`, que aplica a verificação do Biome aos arquivos preparados que correspondem à configuração do projeto.
 
@@ -146,3 +146,27 @@ Inclua no pull request:
 - A issue relacionada, caso haja uma.
 
 Mantenha o pull request focado em uma mudança que possa ser revisada de forma independente. Atualize testes e documentação quando o comportamento ou as instruções do projeto mudarem. Aguarda a revisão e a CI antes do merge.
+
+## Releases e deploy
+
+O merge na `main` não faz deploy. O deploy em produção acontece quando uma tag de release `vX.Y.Z` é enviada
+apontando para um commit da `main`. A versão segue SemVer e vale para o produto inteiro (API e web saem juntas).
+Antes do 1.0, suba o minor para funcionalidades e o patch para correções.
+
+Para publicar uma versão:
+
+```bash
+git switch main
+git pull --ff-only
+git tag -a v0.1.0 -m "v0.1.0"
+git push origin v0.1.0
+```
+
+O workflow `CD` então confere que a tag está na `main`, roda a CI de novo nesse commit, gera as imagens com a tag
+da versão, faz o deploy no ECS e cria a release no GitHub com as notas geradas.
+
+Para voltar a uma versão anterior, rode o workflow `CD` manualmente a partir da `main` (Actions → CD → Run workflow)
+informando a tag. As imagens dessa versão já estão no ECR e não são geradas de novo.
+
+Hotfix: crie `hotfix/*` a partir da `main`, abra o PR para a `main`, crie a tag do patch e depois traga a correção
+para a `dev`.
