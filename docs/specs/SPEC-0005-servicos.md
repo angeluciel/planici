@@ -3,7 +3,7 @@ id: SPEC-0005
 title: Cadastro de serviços
 status: Draft # Draft | Review | Approved | Implemented | Superseded
 plan_status: Draft # Draft | Approved
-version: 0.10
+version: 0.11
 owner: Joao Izidoro
 satisfies: [RF-11, RF-12, RF-13, RN-02, RN-06, RN-24, RN-25]
 depends_on: [SPEC-0001, SPEC-0002, SPEC-0003, SPEC-0004, SPEC-0006]
@@ -43,7 +43,7 @@ are the same entity (RN-22). Template filling is shared with clients in SPEC-000
 - On approval, this spec amends SPEC-0001 §3.2: the default label of `service.duration` becomes "Duração" (§9
   Q12). SPEC-0001 gets the note "amended by SPEC-0005" there, a version bump and a changelog line. Templates that
   already exist keep their label.
-- AC-0005-15, -55 and -58 need a service linked to an appointment, which only scheduling can create. Until
+- AC-0005-15, -55, -58 and -84 need a service linked to an appointment, which only scheduling can create. Until
   scheduling exists, the link can be seeded directly.
 
 ## 3. Domain rules
@@ -89,6 +89,11 @@ are the same entity (RN-22). Template filling is shared with clients in SPEC-000
   - wide and narrow layouts split at 48rem (SPEC-0006 R10).
 - **R12.** **Duration display.** A duration shows as minutes under one hour ("45min"), whole hours ("2h"), or hours
   and minutes ("1h 30min"). (owner decision, §9 Q12)
+- **R13.** **Duration input.** The duration field accepts, ignoring case and spaces: hours and minutes ("1h 30",
+  "1h30", "1h 30min"), whole hours ("1h"), or minutes ("90", "90min"). When hours are given, the minutes are 0–59.
+  Anything else is unreadable, for example "1:30", "1h 75", decimals ("1,5h", "90.5") or "abc". The edit page fills
+  the field with the display form of R12 ("1h 30min"), which is itself an accepted input. (owner decisions, §9 Q12
+  and 2026-11-24 spec re-check)
 
 ## 4. Behavior
 
@@ -111,9 +116,9 @@ Same as SPEC-0004 §4.2, with active `service` templates and type `service` lock
 
 ### 4.3 Create, view and edit
 These follow SPEC-0003 §4.1–§4.3, plus R2–R5. The duration field is labelled "Duração" (§2, amendment of
-SPEC-0001 §3.2). It accepts hours and minutes ("1h 30"), whole hours ("1h") or minutes ("90"), and stores minutes.
-The view page shows the duration as R12. A duration the page cannot read, or outside R4, shows the inline error of
-`serviceDuration.invalid` and sends no request (SPEC-0003 §4.1 step 4). Price is typed with a pt-BR mask ("150,00");
+SPEC-0001 §3.2). It accepts the forms of R13 and stores minutes; the edit page fills it as R13 says. The view page
+shows the duration as R12. An unreadable duration (R13), or one outside R4, shows the inline error of
+`serviceDuration.invalid` under Duração and sends no request (SPEC-0003 §4.1 step 4). Price is typed with a pt-BR mask ("150,00");
 the page sends it with currency "BRL".
 
 ### 4.4 Inactivate, reactivate and delete
@@ -270,7 +275,7 @@ Copy specific to services (other list copy as SPEC-0006 §8, under `services.*`)
 | 9 | ~~Should create and update requests carry `currency`?~~ | **Decided (owner, 2026-11-24):** yes, required, only `"BRL"` (R5, §6, §7). | — |
 | 10 | ~~`inUse` / `service.in-use` or SPEC-0004's `hasHistory` / `has-history`?~~ | **Decided (owner, 2026-11-24):** match SPEC-0004: `hasHistory`, `service.has-history`, `services.delete.hasHistory`. | — |
 | 11 | ~~The "Serviço" backfill when the name is taken by a client template or the tenant has 200 templates.~~ | **Decided (owner, 2026-11-24):** leave that tenant alone (R10). | — |
-| 12 | ~~Duration label "Duração (minutos)" (SPEC-0001 §3.2) vs typed "1h 30"; display format.~~ | **Decided (owner, 2026-11-24):** label "Duração" (amends SPEC-0001 §3.2 on approval, §2); input "1h 30", "1h" or minutes; display "45min", "2h", "1h 30min" (§4.3, R12). | — |
+| 12 | ~~Duration label "Duração (minutos)" (SPEC-0001 §3.2) vs typed "1h 30"; display format.~~ | **Decided (owner, 2026-11-24):** label "Duração" (amends SPEC-0001 §3.2 on approval, §2); input "1h 30", "1h" or minutes; display "45min", "2h", "1h 30min" (§4.3, R12). The full list of accepted inputs and the edit page's prefill were decided at the spec re-check (owner, 2026-11-24; R13). | — |
 
 ## 10. Acceptance criteria
 
@@ -369,6 +374,7 @@ Given an active service "Sessão individual"
 When  the owner inactivates it after confirming
 Then  the response is 200 with status "inactive"
 And   it no longer appears in /services with the default filter
+And   it appears with the "Inativo" badge with copy key services.list.inactiveBadge under the "Inativos" filter
 ```
 
 ```
@@ -824,6 +830,68 @@ When  the owner opens /services on a narrow screen
 Then  the cards appear under the letter headings "A" and "R", in that order
 ```
 
+```
+AC-0005-77
+Given the owner on the fill-in page of template "Serviço" with a valid name and price
+When  they type "abc" in the duration field and press Salvar
+Then  the inline error with copy key validation.serviceDuration.invalid shows under Duração
+And   no request is sent
+```
+
+```
+AC-0005-78
+Given the owner on the fill-in page of template "Serviço" with a valid name and price
+When  they type "3" in the duration field and press Salvar
+Then  the inline error with copy key validation.serviceDuration.invalid shows under Duração
+And   no request is sent
+```
+
+```
+AC-0005-79
+Given the owner on the fill-in page of template "Serviço" with a valid name and price
+When  they type "1h 75" in the duration field and press Salvar
+Then  the inline error with copy key validation.serviceDuration.invalid shows under Duração
+And   no request is sent
+```
+
+```
+AC-0005-80
+Given a service "Sessão individual" with durationMinutes 90
+When  the owner opens its edit page
+Then  the duration field holds "1h 30min"
+```
+
+```
+AC-0005-81
+Given the owner on the edit page of a service with durationMinutes 90
+When  they press Salvar without changing anything
+Then  the update request carries durationMinutes 90
+And   the response is 200
+```
+
+```
+AC-0005-82
+Given tenant "studio-bia" has a service template "Pilates" with a service "Pilates solo"
+When  the owner of "studio-ana" lists services with the id of "Pilates" as formId and "studio-ana" as active tenant
+Then  the response is 200 with no services and total 0
+```
+
+```
+AC-0005-83
+Given the owner on the view page of active service "Sessão individual"
+And   the service is then inactivated in another tab
+When  the owner confirms "Inativar"
+Then  the page reloads the service, showing it as inactive, with the toast with copy key services.status.unchanged
+```
+
+```
+AC-0005-84
+Given the owner on the view page of service "Sessão individual" while it had no linked history
+And   an appointment is then linked to the service
+When  the owner confirms the delete dialog
+Then  the dialog closes and the page offers only "Inativar" with the hint with copy key services.delete.hasHistory
+```
+
 ### Provisional criteria
 
 None. Every open question is answered.
@@ -850,3 +918,4 @@ Written by `/plan` after the spec is Approved. Empty until then.
 | 0.8 | 2026-11-09 | Owner decision (SPEC-0004 review, §9 Q11): the "Serviço" backfill only adds the template to existing tenants with no service template at all (R10) |
 | 0.9 | 2026-11-24 | Spec review round 1, changes that need no owner decision. RN-22 removed from `satisfies` (post-MVP; only its terminology is used); SPEC-0004 added to `depends_on`; §2 Dependencies added. R6, R8, R9 and R10 aligned with SPEC-0004 R6, R8, R9 and R11; R7 states the 409. §5 tenant context. §6: `deleteConfirmation.required`, `serviceStatus.invalid`, malformed id, search after trimming, check order (as SPEC-0004 §6). §7: list query semantics, inactivate/reactivate/delete bodies, status and price mapping deferred to `/plan`. §8: emptyFilter, searchHint, loading more and inactivate/reactivate/delete progress and failure rows. AC-0005-02, -03, -04, -12 and -16 rewritten; AC-0005-15 moved to provisional (Q7, Q10); AC-0005-20 to -58 added. Q6 closed (SPEC-0001 §3.2); Q7–Q12 added for the owner |
 | 0.10 | 2026-11-24 | Owner answers to §9 Q1–Q3 and Q7–Q12 (Q7: no preference stated, so the proposed answer was taken). R3–R5 decided; R5 adds the currency in requests (Q9); R7 uses `service.has-history` (Q7, Q10); R10 leaves a tenant alone on a name clash or at 200 templates (Q11); new R11 (list follows SPEC-0006, Q8) and R12 (duration display, Q12). §2 adds SPEC-0006 to `depends_on` and the amendment of SPEC-0001 §3.2 to be applied on approval (label "Duração"). §4.1 rewritten on SPEC-0006; §4.3 duration input. §6: `serviceCurrency.*`, `serviceSort.invalid`, template filter, list check order. §7: `hasHistory`, `currency` in requests, `formId`, `sort`, `total`, `updatedAt`. §8 list rows and copy as SPEC-0006. All provisional criteria agreed (AC-0005-15 and -55 to -58 rewritten for `hasHistory` and the list layout); AC-0005-59 to -76 added |
+| 0.11 | 2026-11-24 | Spec re-check: the 4 blocking items. New R13 (accepted duration inputs and the edit page's prefill; owner decision at the re-check), §4.3 points to it, §9 Q12 notes it. AC-0005-13 also checks the "Inativos" filter (R6). AC-0005-77 to -79 (unreadable or out-of-range duration), -80 and -81 (edit prefill), -82 (another tenant's template as list filter, §5), -83 (status changed elsewhere) and -84 (history found on delete) added. The re-check's SHOULD-FIX items are follow-ups, not applied |
