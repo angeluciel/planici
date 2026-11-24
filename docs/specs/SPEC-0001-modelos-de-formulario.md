@@ -3,7 +3,7 @@ id: SPEC-0001
 title: Modelos de formulário
 status: Implemented # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.5
+version: 1.6
 owner: Joao Izidoro
 satisfies: [RF-37, RF-39, RF-40, RN-01, RN-02, RN-20, RN-21, RN-24, RN-25]
 depends_on: []
@@ -127,7 +127,7 @@ amended; owner decision, 2026-11-09, forms-overview.md C-2).
 | client | `client.email` | E-mail | `email` | always (RN-04; §9 Q12) |
 | client | `client.phone` | Telefone | `phone` | professional chooses (RF-07; system field by owner decision D-14) |
 | service | `service.name` | Nome | `text` | always (RN-06) |
-| service | `service.duration` | Duração (minutos) | `duration` | always (RN-06) |
+| service | `service.duration` | Duração (minutos) _(amended by SPEC-0005 §9 Q12: "Duração"; existing templates keep their label)_ | `duration` | always (RN-06) |
 | service | `service.price` | Preço | `money` | always (RN-06) |
 
 ### 3.3 Schema and metadata
@@ -1722,3 +1722,4 @@ acceptance criteria.
 | 1.3 | 2026-11-11 | Status Implemented: Joao Izidoro tested the behavior on a running system and accepted it, 2026-11-11. Still partly verified, per Deferred checks: AC-0001-10, -12, -14, -20, -23, -24, -26, -27, -28, -31, -32, -33, -34, -57, -58 and §4.7 step 4; each verifying spec adds `<AC ids> verified with SPEC-XXXX, <date>` here |
 | 1.4 | 2026-11-18 | AC-0001-10 partly verified with SPEC-0003, 2026-11-18: the fill-in form opened with the new template's id shows its name (SPEC-0003 W-form). The `/clients/new` route and its "Criar novo modelo" entry stay SPEC-0004's |
 | 1.5 | 2026-11-19 | AC-0001-10, -12, -14, -20, -23, -24, -26, -27, -28, -31, -32, -33 and §4.7 step 4 verified with SPEC-0004, 2026-11-19 (E-tpl, W-list, W-cform: the client API reads and the `/clients` route and its "Criar novo modelo" entry; §4.7 step 4 with the real `ClientPhonePresence`). AC-0001-34, -57 and -58 stay with the first scheduling or payments spec (owner waiver). Test setup in `forms.e2e-spec.ts` adjusted for the default "Cliente" template every tenant now has (SPEC-0004 R11): AC-0001-02, -05, -19, -42, -52 and one §6 test remove it first, AC-0001-48 seeds 199, AC-0001-59 reuses it; no assertion changed |
+| 1.6 | 2026-11-24 | Amended by SPEC-0005 (approved by Joao Izidoro, 2026-11-24; SPEC-0005 §9 Q12): §3.2 default label of `service.duration` becomes "Duração". Templates that already exist keep their label. The note in §3.2 says so; the change is built and verified by SPEC-0005. No criterion here changes |
