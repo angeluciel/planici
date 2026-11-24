@@ -3,7 +3,9 @@ name: CI
 on:
   pull_request:
     branches: [main, dev]
-  
+  # CD calls this workflow to re-check the exact commit a release tag points at.
+  workflow_call:
+
 permissions:
   contents: read
 
@@ -99,6 +101,8 @@ jobs:
   sonar:
     name: SonarQube Analysis
     needs: [quality, test]
+    # Reporting only, and it needs SONAR_TOKEN: run it on pull requests, not as part of a release gate.
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
