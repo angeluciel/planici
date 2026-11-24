@@ -1,9 +1,9 @@
 ---
 id: SPEC-0005
 title: Cadastro de serviços
-status: Draft # Draft | Review | Approved | Implemented | Superseded
+status: Approved # Draft | Review | Approved | Implemented | Superseded
 plan_status: Draft # Draft | Approved
-version: 0.11
+version: 1.0
 owner: Joao Izidoro
 satisfies: [RF-11, RF-12, RF-13, RN-02, RN-06, RN-24, RN-25]
 depends_on: [SPEC-0001, SPEC-0002, SPEC-0003, SPEC-0004, SPEC-0006]
@@ -270,7 +270,7 @@ Copy specific to services (other list copy as SPEC-0006 §8, under `services.*`)
 | 4 | ~~Money representation.~~ | **Decided (D-9):** `priceCents` + `currency` (`api-convention.md`, Money). | — |
 | 5 | ~~Default "Serviço" template.~~ | **Decided (D-6):** yes. | — |
 | 6 | ~~Should the service "description" (in `schema.dbml`) be a system field?~~ | **Decided in SPEC-0001 §3.2:** no. The service system fields are name, duration and price; a description is a custom long-text field when wanted. | — |
-| 7 | ~~RF-12 says deleting a service with links "resulta em inativação". Should the API instead return 409 and the UI offer only "Inativar"?~~ | **Decided (owner, 2026-11-24, no preference stated; the proposed answer was taken):** yes, as for clients (SPEC-0004 §9 Q5) (R7). | — |
+| 7 | ~~RF-12 says deleting a service with links "resulta em inativação". Should the API instead return 409 and the UI offer only "Inativar"?~~ | **Decided (owner, 2026-11-24, no preference stated; the proposed answer was taken):** yes, as for clients (SPEC-0004 §9 Q5) (R7). **Confirmed explicitly by the owner at approval, 2026-11-24.** | — |
 | 8 | ~~Should `/services` follow the SPEC-0006 list pattern (SPEC-0006 Q19)?~~ | **Decided (owner, 2026-11-24):** yes (R11, §4.1, §7, §8). SPEC-0006 joins `depends_on`. | — |
 | 9 | ~~Should create and update requests carry `currency`?~~ | **Decided (owner, 2026-11-24):** yes, required, only `"BRL"` (R5, §6, §7). | — |
 | 10 | ~~`inUse` / `service.in-use` or SPEC-0004's `hasHistory` / `has-history`?~~ | **Decided (owner, 2026-11-24):** match SPEC-0004: `hasHistory`, `service.has-history`, `services.delete.hasHistory`. | — |
@@ -919,3 +919,4 @@ Written by `/plan` after the spec is Approved. Empty until then.
 | 0.9 | 2026-11-24 | Spec review round 1, changes that need no owner decision. RN-22 removed from `satisfies` (post-MVP; only its terminology is used); SPEC-0004 added to `depends_on`; §2 Dependencies added. R6, R8, R9 and R10 aligned with SPEC-0004 R6, R8, R9 and R11; R7 states the 409. §5 tenant context. §6: `deleteConfirmation.required`, `serviceStatus.invalid`, malformed id, search after trimming, check order (as SPEC-0004 §6). §7: list query semantics, inactivate/reactivate/delete bodies, status and price mapping deferred to `/plan`. §8: emptyFilter, searchHint, loading more and inactivate/reactivate/delete progress and failure rows. AC-0005-02, -03, -04, -12 and -16 rewritten; AC-0005-15 moved to provisional (Q7, Q10); AC-0005-20 to -58 added. Q6 closed (SPEC-0001 §3.2); Q7–Q12 added for the owner |
 | 0.10 | 2026-11-24 | Owner answers to §9 Q1–Q3 and Q7–Q12 (Q7: no preference stated, so the proposed answer was taken). R3–R5 decided; R5 adds the currency in requests (Q9); R7 uses `service.has-history` (Q7, Q10); R10 leaves a tenant alone on a name clash or at 200 templates (Q11); new R11 (list follows SPEC-0006, Q8) and R12 (duration display, Q12). §2 adds SPEC-0006 to `depends_on` and the amendment of SPEC-0001 §3.2 to be applied on approval (label "Duração"). §4.1 rewritten on SPEC-0006; §4.3 duration input. §6: `serviceCurrency.*`, `serviceSort.invalid`, template filter, list check order. §7: `hasHistory`, `currency` in requests, `formId`, `sort`, `total`, `updatedAt`. §8 list rows and copy as SPEC-0006. All provisional criteria agreed (AC-0005-15 and -55 to -58 rewritten for `hasHistory` and the list layout); AC-0005-59 to -76 added |
 | 0.11 | 2026-11-24 | Spec re-check: the 4 blocking items. New R13 (accepted duration inputs and the edit page's prefill; owner decision at the re-check), §4.3 points to it, §9 Q12 notes it. AC-0005-13 also checks the "Inativos" filter (R6). AC-0005-77 to -79 (unreadable or out-of-range duration), -80 and -81 (edit prefill), -82 (another tenant's template as list filter, §5), -83 (status changed elsewhere) and -84 (history found on delete) added. The re-check's SHOULD-FIX items are follow-ups, not applied |
+| 1.0 | 2026-11-24 | Approved by Joao Izidoro, 2026-11-24, confirming §9 Q7 explicitly (409 `service.has-history` instead of RF-12's automatic inactivation). The amendment of SPEC-0001 §3.2 (§2) is applied (SPEC-0001 v1.6) |
