@@ -6,7 +6,7 @@ import {
   type CursorPosition,
   decodeCursor,
   encodeCursor,
-} from '../../domain/client-cursor.js';
+} from '@shared/list/list-cursor.js';
 import { ClientCursorInvalidError } from '../../domain/errors/client.errors.js';
 import { CLIENT_CURSOR_KEY } from '../../ports/client-cursor-key.js';
 import {

@@ -12,7 +12,7 @@ import {
   ClientPhoneRequiredError,
   ConsentTextOutdatedError,
 } from '../../domain/errors/client.errors.js';
-import { parseOrThrow } from '../../domain/parse.js';
+import { parseOrThrow } from '@shared/list/parse-or-throw.js';
 import { CLIENT_CONSENT_VERSION } from '../../ports/client-consent-version.js';
 import {
   CLIENT_REPOSITORY,
