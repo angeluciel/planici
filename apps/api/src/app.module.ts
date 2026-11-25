@@ -12,6 +12,7 @@ import { TenantsModule } from './modules/tenants/tenants.module.js';
 import { FormsModule } from './modules/forms/forms.module.js';
 import { RecordsModule } from './modules/records/records.module.js';
 import { ClientsModule } from './modules/clients/clients.module.js';
+import { ServicesModule } from './modules/services/services.module.js';
 import { ClientPhonePresence } from './modules/clients/infrastructure/client-phone.presence.js';
 import { PgDatabase } from 'drizzle-orm/pg-core';
 import { Pool } from 'pg';
@@ -37,6 +38,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule({
     FormsModule.forRoot({ systemFieldPresence: ClientPhonePresence }),
     RecordsModule,
     ClientsModule,
+    ServicesModule,
     // per-IP route limit
     ThrottlerModule.forRoot({
       throttlers: [{ name: 'default', ttl: 60_000, limit: 60 }],
