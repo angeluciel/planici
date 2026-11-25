@@ -1,5 +1,6 @@
-// W-ed: SPEC-0001 AC-0001-01, -08, -10, -11, -18, -20, -50, -55, -63, -64, -69, -77, -79
-// and the out-of-table check "§4.2 step 7" (browser back).
+// W-ed: SPEC-0001 AC-0001-01, -08, -10, -11, -18, -20, -50, -55, -63, -64, -69, -77, -79,
+// SPEC-0005 AC-0005-120 (the duration type's name) and the out-of-table check
+// "§4.2 step 7" (browser back).
 import {
 	cleanup,
 	fireEvent,
@@ -163,12 +164,51 @@ describe("FormEditor: create", () => {
 
 		await chooseType(t("editor.typeService"));
 
-		await waitFor(() => expect(hasText("Duração (minutos)")).toBe(true));
+		await waitFor(() => expect(hasText("Duração")).toBe(true));
 		expect(hasText("Preço")).toBe(true);
 		expect(hasText("Nome completo")).toBe(false);
 		expect(hasText("E-mail")).toBe(false);
 		expect(hasText("Telefone")).toBe(false);
 		expect(hasText("Objetivo")).toBe(true);
+	});
+
+	it("AC-0005-120 shows the placeholder 'Duração' on the label of the duration system field once it is cleared", async () => {
+		renderApp(
+			<FormEditor
+				initialDraft={{
+					type: "service",
+					fields: [
+						{
+							label: "Nome",
+							type: "text",
+							required: true,
+							systemKey: "service.name",
+						},
+						{
+							label: "Duração",
+							type: "duration",
+							required: true,
+							systemKey: "service.duration",
+						},
+						{
+							label: "Preço",
+							type: "money",
+							required: true,
+							systemKey: "service.price",
+						},
+					],
+				}}
+			/>,
+		);
+		const label = (await screen.findByDisplayValue(
+			"Duração",
+		)) as HTMLTextAreaElement;
+
+		fireEvent.change(label, { target: { value: "" } });
+
+		expect(label.value).toBe("");
+		expect(label.getAttribute("placeholder")).toBe("Duração");
+		expect(label.getAttribute("placeholder")).toBe(t("fields.types.duration"));
 	});
 
 	it("AC-0001-10 after saving from the /clients shortcut goes to the new-client page for the new template", async () => {
