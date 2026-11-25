@@ -3,7 +3,7 @@ id: SPEC-0004
 title: Cadastro de clientes
 status: Implemented # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.8
+version: 1.9
 owner: Joao Izidoro
 satisfies: [RF-07, RF-08, RF-09, RN-02, RN-04, RN-05, RN-24, RN-25]
 depends_on: [SPEC-0001, SPEC-0002, SPEC-0003]
@@ -125,7 +125,8 @@ information that professional needs (RFC §1, problem statement; §2.2.2, UC-07�
 
 ### 4.3 Create, view and edit
 These follow SPEC-0003 §4.1–§4.3, plus R2–R5. The name, e-mail and phone inputs are the template's system fields,
-in the template's position and with its labels.
+in the template's position and with its labels. _(amended by SPEC-0007 R2: the name is the page heading input,
+wherever the template places it; e-mail and phone keep the template's position)_
 
 On the fill-in page for a **new** client, an unchecked checkbox with the attestation text (§9 Q8) appears above
 **[Salvar]** (R12). Saving without checking it shows an inline error under the checkbox, with the other field
@@ -1381,3 +1382,4 @@ None. The cursor, search normalisation and SQL function use what the code alread
 | 1.6 | 2026-11-19 | Amended by SPEC-0006 (approved by Joao Izidoro, 2026-11-19): R10 is the default of four sorts; §4.1 step 2 drops the Modelo column and step 5 covers the template filter; §6 list check order and `cursor.invalid` row; §7 "List" adds `formId`, `sort` and `total`; §8 "success" and "empty under the chosen filter" rows. Each place carries the note "amended by SPEC-0006". No criterion of this spec changes. |
 | 1.7 | 2026-11-20 | Amended by SPEC-0006 v1.7 (approved by Joao Izidoro, 2026-11-20). Rewritten notes: R10 (three sorts `name`, `-name`, `-updatedAt`), §4.1 step 2 (rows and cards with a template badge, template filter on wide screens), §7 "List" (`sort` values), §8 "success" row. New notes: §4.1 step 6 and §8 "loading more" and "loading more failed" rows (infinite scroll), §4.2 step 1 (floating [Novo] on narrow screens), §7 "Client" (`updatedAt` is the last update time, changed on inactivation and reactivation), §7 "ClientSummary" (adds `updatedAt`), §11 Decision 9. AC-0004-63 superseded by AC-0006-45. Status stays Approved. |
 | 1.8 | 2026-11-20 | Status Implemented: Joao Izidoro accepts the behavior on a running system, 2026-11-20, as implemented per §11 (1.5), so SPEC-0006, which `depends_on` this spec, can start `/implement` (SPEC-0006 §11, G-5). The parts marked "amended by SPEC-0006" (v1.6, v1.7) describe SPEC-0006's behavior and are built and verified by SPEC-0006. |
+| 1.9 | 2026-11-25 | Amended by SPEC-0007 (approved by Joao Izidoro, 2026-11-25): the record's name is the page heading input of the fill-in and edit pages (§4.3). |
