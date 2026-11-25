@@ -4,6 +4,6 @@
 
 @layer components {
 	.nav-item {
-		@apply flex min-h-11 w-full shrink-0 items-center gap-3 rounded-md px-3 font-body-sm text-text-secondary hover:bg-surface-hovered hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focused;
+		@apply flex h-8 w-full pl-1.5 shrink-0 items-center gap-3 rounded-md font-body-sm text-text-secondary hover:bg-surface-hovered hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focused;
 	}
 }
