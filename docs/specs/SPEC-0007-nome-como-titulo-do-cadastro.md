@@ -3,7 +3,7 @@ id: SPEC-0007
 title: Nome do cadastro como título da página de preenchimento
 status: Approved # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.3
+version: 1.4
 owner: Joao Izidoro
 satisfies: [RF-40, RF-41, RN-04, RN-06, RNF-18]
 depends_on: [SPEC-0001, SPEC-0002, SPEC-0003, SPEC-0004, SPEC-0005]
@@ -551,3 +551,4 @@ None.
 | 1.1 | 2026-11-25 | Implementation plan written (§11): web only, `titleField` on the record adapter, a new heading input, the hidden level-1 heading and the focus order; P-1 to P-5 for the owner. `plan_status` stays Draft. |
 | 1.2 | 2026-11-25 | Plan review applied: Sequence step 0 (SPEC-0005 must be Implemented before `/implement`); focus after a server rejection moves to an effect after the re-render (Web step 4, Risks); P-3 now uses `FieldMessage` with `role="alert"`; Deferred checks list the owner's browser check of AC-0007-20 and P-2. `plan_status` stays Draft. |
 | 1.3 | 2026-11-25 | Plan approved by Joao Izidoro, 2026-11-25: §11 as revised in 1.2, after the plan review, with P-1 to P-5 decided as written. `plan_status` Approved. `/implement` waits for SPEC-0005 to be Implemented (Sequence step 0). |
+| 1.4 | 2026-11-25 | Implemented per §11; `status` stays Approved until the owner accepts the behavior on a running system and records the browser check of the Deferred checks table. Built: `titleField` on the record adapter (clients `client.name`, services `service.name`); the heading input (`FieldMessage` for help and error, `role="alert"` on error); the hidden level-1 heading (typed name or new-record title on create, stored name on edit); the name left out of the field list; the name first in the focus order; focus after a server rejection once the inputs are enabled again. The focus outline needed `focus-visible:outline-solid` as well as the classes §11 Web step 2 names, because `outline-none` sets the outline style to none (found at review, 2026-11-25). All 21 criteria have passing tests in clients and services runs, with the amended AC-0003-01 test and R6. Partly verified, per Deferred checks: AC-0007-20 (the `sr-only` class in jsdom; on screen by hand) and P-2 (the focus outline, by hand). |
