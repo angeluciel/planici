@@ -3,15 +3,12 @@
 import type { ClientSummary } from "@planici/schemas";
 import { useFormatter } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
+import {
+	Initials,
+	letterOf,
+	NAME_LINK,
+} from "../../_components/list/list-parts";
 import { ClientBadges } from "./client-badges";
-import { Initials, NAME_LINK } from "./client-rows";
-
-// "Érica" -> "E"; "#" when the first character is not a letter
-export function letterOf(name: string) {
-	const first =
-		[...name.trim().normalize("NFD").replace(/\p{M}/gu, "")][0] ?? "";
-	return /\p{L}/u.test(first) ? first.toLocaleUpperCase() : "#";
-}
 
 type Group = { letter: string; cards: ClientSummary[] };
 

@@ -8,6 +8,7 @@ import { SpinnerIcon } from "../../forms/_components/spinner-icon";
 // Below the rows (SPEC-0006 §4.5): loading, a failed page with retry, or the
 // closing block. The polite live region announces each page after the first.
 export function ListEnd({
+	namespace,
 	loaded,
 	total,
 	announce,
@@ -16,6 +17,7 @@ export function ListEnd({
 	hasNext,
 	onRetry,
 }: Readonly<{
+	namespace: string;
 	loaded: number;
 	total: number;
 	announce: boolean;
@@ -24,7 +26,7 @@ export function ListEnd({
 	hasNext: boolean;
 	onRetry: () => void;
 }>) {
-	const t = useTranslations("clients");
+	const t = useTranslations(namespace);
 	return (
 		<>
 			<div aria-live="polite" className="sr-only">
