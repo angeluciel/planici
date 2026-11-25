@@ -3,7 +3,7 @@ id: SPEC-0003
 title: Preenchimento de cadastro a partir de modelo
 status: Implemented # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.10
+version: 1.11
 owner: Joao Izidoro
 satisfies: [RF-40, RF-41, RF-42, RN-01, RN-02, RN-20, RN-21, RNF-07]
 depends_on: [SPEC-0001, SPEC-0002]
@@ -57,6 +57,8 @@ in the "one template per record" model (forms-overview.md D-4).
   version** at the moment it is created. (D-4, RF-40, RN-21, SPEC-0001 R7, R16)
 - **R2.** Pages show the fields of the record's **linked version**, in that version's order, with the current
   label and help text (metadata applies to every version, SPEC-0001 §3.3), and mark required ones. (RN-20, RN-21)
+  _(amended by SPEC-0007 R2: except the name field, which is the page heading input wherever the template places
+  it, and is not repeated in the field list)_
 - **R3.** Each field holds at most one value. A blank value (empty, or whitespace only) or `null` means "no value"
   and is not stored. (owner decision, §9 Q6)
 - **R4.** Values are validated by field type (§3.1). System-field values are also validated by SPEC-0004 or
@@ -125,7 +127,9 @@ decision, §9 Q4). A `yes_no` field is never required (SPEC-0002 R8), so having 
    "Modelo: <template name>". The page uses the template's latest version (R1). Fields appear in that version's
    order (R2). Required ones are marked with "*". Help text appears under the input. If the template is archived
    or does not exist, the page says "Este modelo não está disponível." with a way back. If it cannot be loaded,
-   the page says "Não foi possível carregar o modelo." with a retry button.
+   the page says "Não foi possível carregar o modelo." with a retry button. _(amended by SPEC-0007 §4.1: no
+   visible title; the name is the page heading input, above the subtitle, with no "*", and a visually hidden
+   level-1 heading reads the typed name or "Novo cliente" / "Novo serviço")_
 3. The professional fills in the fields and presses **[Salvar]**.
 4. The page validates every field with the §3.1 rules and shows **all** errors at once, focusing the first.
    The server re-validates and returns only the first issue (`api-convention.md`, Validation).
@@ -150,7 +154,8 @@ decision, §9 Q4). A `yes_no` field is never required (SPEC-0002 R8), so having 
 
 ### 4.3 Edit a record
 1. **[Editar]** opens the fill-in page pre-filled with current values. Protected values are shown in plain text.
-   An unknown record id shows "Cadastro não encontrado."
+   An unknown record id shows "Cadastro não encontrado." _(amended by SPEC-0007 §4.2: the name is the
+   pre-filled page heading input, and the visually hidden level-1 heading reads the stored name)_
 2. The edit page shows the fields of the record's linked version, not the latest one (R2). Saving follows 4.1
    steps 3–5 (toast "Alterações salvas"). Pending required fields from a migration must be filled (R6).
 3. If a required field of the linked version has no value, the view page shows "Preenchimento pendente" next to
@@ -249,6 +254,9 @@ New, non-breaking. Consumers: `apps/web`. The client and service shapes in SPEC-
 
 `{entity}` is `clients` or `services`, matching SPEC-0004 §8 and SPEC-0005 §8.
 
+_Amended by SPEC-0007 §8: on the fill-in and edit pages the name is the page heading input; its rows add the
+heading input's states (blank, typed, help text, error, saving)._
+
 | Screen | State | Behavior | Copy key |
 | --- | --- | --- | --- |
 | Fill-in | loading template | Skeleton of N field rows | `{entity}.form.loading` |
@@ -302,6 +310,9 @@ When  the owner opens the fill-in page for "Ficha"
 Then  the inputs appear in the order Nome completo, E-mail, Telefone, Profissão, Objetivo
 And   Nome completo and E-mail are marked required, and Telefone is not
 ```
+
+_Amended by SPEC-0007: Nome completo is the page heading input above the field list, announced as required
+with no "*" (AC-0007-01, AC-0007-02). E-mail is marked "*" and Telefone is not, as above._
 
 ```gherkin
 AC-0003-02
@@ -1711,3 +1722,4 @@ None. Masks, CPF check digits and the DDD list are written here. next-intl, `nod
 | 1.8 | 2026-11-19 | Client side of AC-0003-02 to -14, -17, -19, -20, -22 to -24, -26, -30 to -45, -54 to -60, -62 to -69, -71 to -76, -79, -81, -82, -86 to -89 verified with SPEC-0004, 2026-11-19 (E-rec through `/v1/clients`); the service side waits for SPEC-0005. §11 point 7 records the optional `actions` prop of `RecordView` (SPEC-0004 G-1) |
 | 1.9 | 2026-11-20 | Amendment approved by Joao Izidoro, 2026-11-20: once the record has loaded, the view page shows a breadcrumb from 768 px and a "Voltar" link below it (§4.2 item 5, §8, AC-0003-97 and -98). Both live in the shared `RecordView`, which takes the breadcrumb's links (`trail`) and the back page (`backHref`) as props (§11 point 7); `ClientViewPage` passes the client list. View page only; the edit page is unchanged. New copy key `common.breadcrumb` ("Trilha de navegação" / "Breadcrumb"). AC-0003-97 and -98 have passing W-view and W-cview tests, partly verified: jsdom applies no CSS, so which one shows at each width is a browser check (Deferred checks). Status stays Implemented |
 | 1.10 | 2026-11-25 | Service side of AC-0003-02 to -14, -17, -19, -20, -22 to -24, -26, -30 to -45, -54 to -60, -62 to -69, -71, -72, -75, -76, -79, -81, -82 and -86 to -89 verified with SPEC-0005, 2026-11-25 (`services-records.e2e-spec.ts` and `services-lifecycle.e2e-spec.ts` through `/v1/services`); with 1.8 they are verified for both entities (AC-0003-73 and -74 are client-only). This closes G-9. §11 "What SPEC-0004 and SPEC-0005 rely on" now points to SPEC-0005 R12 and §4.3 for duration and price formatting (was §4.1; SPEC-0005 G-7) |
+| 1.11 | 2026-11-25 | Amended by SPEC-0007 (approved by Joao Izidoro, 2026-11-25): the record's name is the page heading input of the fill-in and edit pages (R2, §4.1 step 2, §4.3 step 1, §8 and AC-0003-01). |
