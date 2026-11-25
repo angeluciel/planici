@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildClientSearch, escapeLike } from './client-search.js';
+import { escapeLike } from '@shared/list/escape-like.js';
+import { buildClientSearch } from './client-search.js';
 
 // U-search: the search key, the LIKE escaping and the 4-digit phone rule of
 // SPEC-0004 R9.

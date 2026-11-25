@@ -1,4 +1,5 @@
 import { textKey } from '@planici/schemas';
+import { escapeLike } from '@shared/list/escape-like.js';
 
 // Search of SPEC-0004 R9. Pure: it builds the keys and LIKE patterns; the
 // repository puts them in the query.
@@ -14,11 +15,6 @@ export type ClientSearch = {
   // `%digits%` when the query holds 4 or more digits, else null; for `phone`
   phonePattern: string | null;
 };
-
-/** Escapes `\`, `%` and `_` so the value matches literally under LIKE. */
-export function escapeLike(value: string): string {
-  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
-}
 
 /** The search for a query, or null when it is blank (no filter). */
 export function buildClientSearch(

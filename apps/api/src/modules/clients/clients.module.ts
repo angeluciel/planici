@@ -17,7 +17,7 @@ import { ReactivateClientHandler } from './commands/reactivate-client/reactivate
 import { ReactivateClientHttpController } from './commands/reactivate-client/reactivate-client.http.controller.js';
 import { UpdateClientHandler } from './commands/update-client/update-client.handler.js';
 import { UpdateClientHttpController } from './commands/update-client/update-client.http.controller.js';
-import { deriveCursorKey } from './domain/client-cursor.js';
+import { deriveCursorKey } from '@shared/list/list-cursor.js';
 import { ZeroClientHistoryReader } from './infrastructure/zero-client-history.reader.js';
 import { DrizzleClientRepository } from './infrastructure/persistence/client.drizzle.repository.js';
 import { CLIENT_CONSENT_VERSION } from './ports/client-consent-version.js';
@@ -74,7 +74,10 @@ const httpControllers = [
       provide: CLIENT_CURSOR_KEY,
       inject: [ConfigService],
       useFactory: (config: ConfigService) =>
-        deriveCursorKey(config.getOrThrow<string>('JWT_SECRET')),
+        deriveCursorKey(
+          config.getOrThrow<string>('JWT_SECRET'),
+          'planici:list-cursor:v1',
+        ),
     },
   ],
 })
