@@ -124,6 +124,11 @@ async function versionField(
 describe('the template list behind the Novo dropdown', () => {
   it('AC-0004-02 lists the active client templates "Anamnese", "Ficha" and nothing else', async () => {
     await withoutDefaultTemplate(ctx, ana);
+    // the seeded service template "Serviço" (SPEC-0005 R10) would take this name
+    const seeded = await formsOfAna().list({ type: 'service' });
+    await formsOfAna()
+      .remove(seeded.body.forms[0].id, { confirmName: 'Serviço' })
+      .expect(204);
     await ficha([], 'Ficha');
     await ficha([], 'Anamnese');
     const archived = await ficha([], 'Antigo');
