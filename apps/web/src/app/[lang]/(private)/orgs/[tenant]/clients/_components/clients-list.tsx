@@ -11,15 +11,15 @@ import { useEffect, useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ListEnd } from "../../_components/list/list-end";
+import { useLayout } from "../../_components/list/use-layout";
+import { useReachEnd } from "../../_components/list/use-reach-end";
 import { ClientCards } from "./client-cards";
 import { ClientRows } from "./client-rows";
 import { ClientsPickers } from "./clients-pickers";
 import { ClientsToolbar } from "./clients-toolbar";
-import { ListEnd } from "./list-end";
 import { NewClientMenu } from "./new-client-menu";
 import { useClientList } from "./use-client-list";
-import { useLayout } from "./use-layout";
-import { useReachEnd } from "./use-reach-end";
 
 const DEBOUNCE_MS = 300;
 
@@ -140,6 +140,7 @@ export function ClientsList() {
 							<ClientCards rows={list.rows} base={base} lastRef={lastRef} />
 						)}
 						<ListEnd
+							namespace="clients"
 							loaded={list.rows.length}
 							total={list.total}
 							announce={list.pageCount > 1}

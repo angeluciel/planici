@@ -2,30 +2,9 @@
 
 import type { ClientSummary } from "@planici/schemas";
 import { Link, useRouter } from "@/i18n/navigation";
+import { Initials, NAME_LINK } from "../../_components/list/list-parts";
 import { maskPhone } from "../../_components/records/masks";
 import { ClientBadges } from "./client-badges";
-
-// first letters of the first and last words: "Ana Maria Souza" -> "AS"
-export function initials(name: string) {
-	const words = name.trim().split(/\s+/).filter(Boolean);
-	const first = [...(words[0] ?? "")][0] ?? "";
-	const last = words.length > 1 ? ([...(words.at(-1) ?? "")][0] ?? "") : "";
-	return (first + last).toLocaleUpperCase();
-}
-
-export function Initials({ name }: Readonly<{ name: string }>) {
-	return (
-		<span
-			aria-hidden="true"
-			className="flex size-8 shrink-0 items-center justify-center rounded-full bg-background-brand-bold font-body-xs font-semibold text-text-inverse"
-		>
-			{initials(name)}
-		</span>
-	);
-}
-
-export const NAME_LINK =
-	"rounded-sm font-medium text-text-bold hover:underline focus-visible:outline-2 focus-visible:outline-border-focused";
 
 // Wide screens: full-width rows, no column headers. The whole row opens the
 // client's page, and so does the name link.
