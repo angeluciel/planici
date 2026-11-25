@@ -9,14 +9,17 @@ import { Toaster, toast } from "sonner";
 
 type ToastTone = "success" | "danger";
 
+type ToastAction = { label: string; onClick: () => void };
+
 type ToastApi = {
-	show: (message: string, tone?: ToastTone) => void;
+	show: (message: string, tone?: ToastTone, action?: ToastAction) => void;
 };
 
 const API: ToastApi = {
-	show: (message, tone = "success") => {
-		if (tone === "danger") toast.error(message);
-		else toast.success(message);
+	show: (message, tone = "success", action) => {
+		const notify = tone === "danger" ? toast.error : toast.success;
+		if (action) notify(message, { action });
+		else notify(message);
 	},
 };
 
@@ -71,6 +74,8 @@ export function ToastProvider({
 						toast:
 							"relative flex w-full items-start gap-2 rounded-sm px-3 py-2 shadow-overlay",
 						title: "flex-1 font-body-sm font-medium",
+						actionButton:
+							"shrink-0 cursor-pointer rounded-sm px-2 font-body-sm font-semibold underline hover:bg-surface-overlay-hovered focus-visible:outline-2 focus-visible:outline-border-focused",
 						closeButton:
 							"hover:bg-surface-overlay-hovered focus-visible:outline-2 focus-visible:outline-border-focused absolute right-4 top-3",
 						success:

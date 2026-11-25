@@ -63,15 +63,23 @@ export function Menu({
 	label,
 	trigger,
 	appearance = "icon",
+	open,
+	onOpenChange,
 	children,
 }: Readonly<{
 	label: string;
 	trigger?: ReactNode;
 	appearance?: Appearance;
+	// optional control of the popup (a long press opens a row's menu)
+	open?: boolean;
+	onOpenChange?: (open: boolean) => void;
 	children: ReactNode;
 }>) {
 	return (
-		<BaseMenu.Root>
+		<BaseMenu.Root
+			open={open}
+			onOpenChange={onOpenChange ? (next) => onOpenChange(next) : undefined}
+		>
 			<BaseMenu.Trigger
 				aria-label={
 					appearance === "icon" || appearance === "floating" ? label : undefined
