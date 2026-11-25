@@ -30,6 +30,23 @@ let bia: Session;
 const db = () => dbFor(ctx.pool);
 const asAna = () => formsApi(ctx.app, ana);
 
+// every tenant starts with "Cliente" and "Serviço" (SPEC-0004 R11, SPEC-0005
+// R10); setup for tests that count or name templates from none
+async function withoutDefaultTemplates(session: Session) {
+  await withoutDefaultTemplate(ctx, session);
+  await removeSeededService(session);
+}
+
+async function removeSeededService(session: Session) {
+  const list = await formsApi(ctx.app, session).list({ type: 'service' });
+  const seeded = (list.body.forms as { id: string; name: string }[]).find(
+    (form) => form.name === 'Serviço',
+  );
+  await formsApi(ctx.app, session)
+    .remove(seeded!.id, { confirmName: 'Serviço' })
+    .expect(204);
+}
+
 beforeAll(async () => {
   ctx = await createTestApp();
 });
@@ -86,7 +103,7 @@ describe('create', () => {
 
   it('AC-0001-02 rejects a create request without a type and stores nothing', async () => {
     // every tenant starts with "Cliente" (SPEC-0004 R11); this test counts from none
-    await withoutDefaultTemplate(ctx, ana);
+    await withoutDefaultTemplates(ana);
     const { type: _type, ...withoutType } = createClientBody('Ficha');
 
     const response = await asAna().create(withoutType).expect(422);
@@ -116,7 +133,7 @@ describe('create', () => {
   });
 
   it('AC-0001-05 rejects a name taken by an archived template, ignoring case and accents', async () => {
-    await withoutDefaultTemplate(ctx, ana);
+    await withoutDefaultTemplates(ana);
     await seedForm(db(), {
       tenantId: ana.tenantId,
       name: 'Anamnese',
@@ -139,7 +156,7 @@ describe('create', () => {
   });
 
   it('AC-0001-19 rejects a create request with 101 fields', async () => {
-    await withoutDefaultTemplate(ctx, ana);
+    await withoutDefaultTemplates(ana);
     const response = await asAna()
       .create({
         type: 'client',
@@ -153,7 +170,7 @@ describe('create', () => {
   });
 
   it('§6 rejects a create request without a fields key as systemField.missing', async () => {
-    await withoutDefaultTemplate(ctx, ana);
+    await withoutDefaultTemplates(ana);
     const { fields: _fields, ...withoutFields } = createClientBody('Ficha');
 
     const response = await asAna().create(withoutFields).expect(422);
@@ -177,8 +194,9 @@ describe('create', () => {
   });
 
   it('AC-0001-48 rejects the 201st template, archived ones included, and keeps 200', async () => {
-    // the tenant already holds the seeded "Cliente" (SPEC-0004 R11): 199 more make 200
-    await seedManyForms(ctx.pool, ana.tenantId, 199, 60);
+    // the tenant already holds the seeded "Cliente" and "Serviço" (SPEC-0004 R11,
+    // SPEC-0005 R10): 198 more make 200
+    await seedManyForms(ctx.pool, ana.tenantId, 198, 60);
 
     const response = await asAna()
       .create(createClientBody('Ficha'))
@@ -221,7 +239,7 @@ describe('list', () => {
   });
 
   it('AC-0001-52 sorts by name ignoring case and accents, grouped by type', async () => {
-    await withoutDefaultTemplate(ctx, ana);
+    await withoutDefaultTemplates(ana);
     for (const name of ['Ética', 'anamnese', 'Ficha']) {
       await seedForm(db(), { tenantId: ana.tenantId, name, type: 'client' });
     }
@@ -242,7 +260,9 @@ describe('list', () => {
   });
 
   it('AC-0001-59 filters by type', async () => {
-    // the "Cliente" of this list is the one every tenant starts with (SPEC-0004 R11)
+    // the "Cliente" of this list is the one every tenant starts with (SPEC-0004 R11);
+    // the seeded "Serviço" makes room for the seeded one below (SPEC-0005 R10)
+    await removeSeededService(ana);
     await seedForm(db(), { tenantId: ana.tenantId, name: 'Ficha' });
     await seedForm(db(), {
       tenantId: ana.tenantId,
@@ -344,7 +364,7 @@ describe('tenant isolation', () => {
   });
 
   it('AC-0001-42 does not create in a tenant the caller has no membership in', async () => {
-    await withoutDefaultTemplate(ctx, bia);
+    await withoutDefaultTemplates(bia);
     const response = await asAna()
       .create(createClientBody('Ficha'))
       .set('X-Tenant-Id', bia.tenantId)

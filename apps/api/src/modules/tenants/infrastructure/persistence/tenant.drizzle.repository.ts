@@ -93,6 +93,8 @@ export class DrizzleTenantRepository implements TenantRepository {
         // R11: every tenant has "Cliente" from the moment it exists, in this
         // same transaction (SPEC-0004 plan, Decision 4)
         await tx.execute(sql`select planici_seed_client_template(${row.id})`);
+        // SPEC-0005 R10: and "Serviço", right after it
+        await tx.execute(sql`select planici_seed_service_template(${row.id})`);
 
         return toDomain(row);
       });

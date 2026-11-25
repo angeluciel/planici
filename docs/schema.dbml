@@ -183,21 +183,31 @@ Table clients {
 
 Table services {
   id              uuid        [primary key, default: `gen_random_uuid()`]
-  tenant_id       uuid        [not null, ref: > tenants.id]
+  tenant_id       text        [not null, ref: > tenants.id]
+  form_record_id  uuid        [not null, unique, ref: - form_records.id]
+  // one-to-one with the record; deleting the record deletes the service (SPEC-0005 R7)
 
   name            text        [not null]
-  description     text
-  price           numeric(10,2)
+  name_key        text        [not null]
+  // name lowercased, accents stripped, whitespace collapsed: uniqueness, sort and search key (R3, R9)
+  duration_minutes int        [not null]
+  // whole minutes, 5-1440 (R4)
+  price_cents     int         [not null]
+  // centavos, 0-99999999 (R5; api-convention.md, Money)
   currency        text        [not null, default: 'BRL']
-  duration_minutes int
   status          record_status [not null, default: 'active']
+  // 'suspended' is the contract's `inactive`; 'deleted' is never stored (a delete is physical)
 
   created_at      timestamptz [not null, default: `now()`]
   updated_at      timestamptz [not null, default: `now()`]
 
   Indexes {
-    tenant_id     [name: 'idx_services_tenant_id']
+    (tenant_id, name_key)                    [unique, name: 'idx_services_tenant_name_key']
+    (tenant_id, status, name_key, id)        [name: 'idx_services_tenant_status_name']
   }
+  // checks: status in ('active', 'suspended'); duration_minutes between 5 and 1440;
+  // price_cents between 0 and 99999999; currency = 'BRL'
+  // description was dropped (SPEC-0005 §9 Q6); price numeric(10,2) became price_cents (SPEC-0005 G-4)
 }
 
 Table plans {

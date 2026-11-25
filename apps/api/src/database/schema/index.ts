@@ -6,6 +6,7 @@ export * from './forms.js';
 export * from './login-attempts.js';
 export * from './password-reset-tokens.js';
 export * from './refresh-tokens.js';
+export * from './services.js';
 export * from './tenant-memberships.js';
 export * from './tenants.js';
 export * from './user-consents.js';
