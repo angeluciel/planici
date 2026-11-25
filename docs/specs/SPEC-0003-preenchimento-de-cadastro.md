@@ -3,7 +3,7 @@ id: SPEC-0003
 title: Preenchimento de cadastro a partir de modelo
 status: Implemented # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.9
+version: 1.10
 owner: Joao Izidoro
 satisfies: [RF-40, RF-41, RF-42, RN-01, RN-02, RN-20, RN-21, RNF-07]
 depends_on: [SPEC-0001, SPEC-0002]
@@ -1240,7 +1240,7 @@ Their plans build on these points. A change to any of them amends this plan and 
    - SPEC-0004 passes the consent checkbox through `extraFields`; its error counts in the error summary (SPEC-0004
      §4.3).
    - `systemFields` gives each system field its attribute, input, schema and view formatter, so SPEC-0005 shows
-     duration and price in its own format (SPEC-0005 §4.1).
+     duration and price in its own format (SPEC-0005 R12 and §4.3).
    - An error whose `field` names a rendered input, system attribute or `extraFields` input shows under it,
      whatever its status: 409 `clientEmail.taken` under E-mail (SPEC-0004 §8), 409 `serviceName.taken` under Nome
      (SPEC-0005 §8).
@@ -1710,3 +1710,4 @@ None. Masks, CPF check digits and the DDD list are written here. next-intl, `nod
 | 1.7 | 2026-11-18 | Status Implemented: Joao Izidoro accepts the code as implemented per §11 (1.5), 2026-11-18, so SPEC-0004, which `depends_on` this spec, can start `/implement` (SPEC-0004 §11, G-6 option a). The behavior has no route yet, so the running-system check of its pages happens at SPEC-0004's `/done`. Deferred checks stay open as listed in 1.5: SPEC-0004 verifies the client side and SPEC-0005 the service side, each adding `<AC ids> verified with SPEC-XXXX, <date>` here |
 | 1.8 | 2026-11-19 | Client side of AC-0003-02 to -14, -17, -19, -20, -22 to -24, -26, -30 to -45, -54 to -60, -62 to -69, -71 to -76, -79, -81, -82, -86 to -89 verified with SPEC-0004, 2026-11-19 (E-rec through `/v1/clients`); the service side waits for SPEC-0005. §11 point 7 records the optional `actions` prop of `RecordView` (SPEC-0004 G-1) |
 | 1.9 | 2026-11-20 | Amendment approved by Joao Izidoro, 2026-11-20: once the record has loaded, the view page shows a breadcrumb from 768 px and a "Voltar" link below it (§4.2 item 5, §8, AC-0003-97 and -98). Both live in the shared `RecordView`, which takes the breadcrumb's links (`trail`) and the back page (`backHref`) as props (§11 point 7); `ClientViewPage` passes the client list. View page only; the edit page is unchanged. New copy key `common.breadcrumb` ("Trilha de navegação" / "Breadcrumb"). AC-0003-97 and -98 have passing W-view and W-cview tests, partly verified: jsdom applies no CSS, so which one shows at each width is a browser check (Deferred checks). Status stays Implemented |
+| 1.10 | 2026-11-25 | Service side of AC-0003-02 to -14, -17, -19, -20, -22 to -24, -26, -30 to -45, -54 to -60, -62 to -69, -71, -72, -75, -76, -79, -81, -82 and -86 to -89 verified with SPEC-0005, 2026-11-25 (`services-records.e2e-spec.ts` and `services-lifecycle.e2e-spec.ts` through `/v1/services`); with 1.8 they are verified for both entities (AC-0003-73 and -74 are client-only). This closes G-9. §11 "What SPEC-0004 and SPEC-0005 rely on" now points to SPEC-0005 R12 and §4.3 for duration and price formatting (was §4.1; SPEC-0005 G-7) |
