@@ -304,6 +304,38 @@
 		"clientSort": {
 			"invalid": "Ordenação inválida."
 		},
+		"service": {
+			"not-found": "Serviço não encontrado.",
+			"has-history": "Serviços já utilizados não podem ser excluídos.",
+			"status-unchanged": "O status deste serviço já foi alterado."
+		},
+		"serviceName": {
+			"required": "Informe o nome do serviço.",
+			"max": "Use até 80 caracteres.",
+			"taken": "Já existe um serviço com este nome."
+		},
+		"serviceDuration": {
+			"required": "Informe a duração.",
+			"invalid": "Use de 5min a 24h, como \"1h 30\" ou \"90\"."
+		},
+		"servicePrice": {
+			"required": "Informe o preço.",
+			"negative": "O preço não pode ser negativo.",
+			"invalid": "Use um preço de até R$ 999.999,99."
+		},
+		"serviceCurrency": {
+			"required": "Moeda inválida.",
+			"invalid": "Moeda inválida."
+		},
+		"serviceSearch": {
+			"min": "Digite ao menos 2 caracteres para buscar."
+		},
+		"serviceStatus": {
+			"invalid": "Status inválido."
+		},
+		"serviceSort": {
+			"invalid": "Ordenação inválida."
+		},
 		"limit": {
 			"invalid": "Limite inválido."
 		},
@@ -668,7 +700,7 @@
 				"cpf": "CPF",
 				"full_name": "Nome completo",
 				"address": "Endereço",
-				"duration": "Duração (minutos)",
+				"duration": "Duração",
 				"money": "Valor (R$)"
 			}
 		}
@@ -824,7 +856,11 @@
 		},
 		"toast": {
 			"created": "Serviço cadastrado",
-			"saved": "Alterações salvas"
+			"saved": "Alterações salvas",
+			"archived": "Serviço arquivado",
+			"undo": "Desfazer",
+			"reactivated": "Serviço reativado",
+			"deleted": "Serviço excluído"
 		},
 		"view": {
 			"loading": "Carregando…",
@@ -838,6 +874,77 @@
 			"yes": "Sim",
 			"no": "Não",
 			"empty": "—"
+		},
+		"list": {
+			"title": "Procedimentos/Consultas",
+			"count": "{count, plural, one {# serviço} other {# serviços}}",
+			"loading": "Carregando serviços…",
+			"empty": "Nenhum serviço cadastrado.",
+			"emptyFilter": "Nenhum serviço com este filtro.",
+			"noResults": "Nenhum serviço encontrado para “{q}”.",
+			"searchHint": "Digite ao menos 2 caracteres para buscar.",
+			"error": "Não foi possível carregar os serviços.",
+			"loadMoreError": "Não foi possível carregar mais serviços.",
+			"loadingMore": "Carregando mais serviços…",
+			"search": "Buscar por nome",
+			"searchOpen": "Buscar",
+			"status": {
+				"active": "Ativos",
+				"inactive": "Arquivados",
+				"all": "Todos"
+			},
+			"inactiveBadge": "Arquivado",
+			"filter": {
+				"status": "Status",
+				"form": "Modelo",
+				"allForms": "Todos os modelos",
+				"archivedForm": "{name} (arquivado)"
+			},
+			"sort": {
+				"label": "Ordenar por",
+				"nameAsc": "Nome (A–Z)",
+				"nameDesc": "Nome (Z–A)",
+				"updatedAt": "Última atualização"
+			},
+			"chips": {
+				"all": "Todos",
+				"archived": "Arquivados",
+				"loading": "Carregando modelos…",
+				"retry": "Tentar novamente"
+			},
+			"end": "Isso é tudo! Não há mais serviços por aqui.",
+			"loadedCount": "{loaded} de {total} serviços carregados"
+		},
+		"new": {
+			"button": "Novo",
+			"createTemplate": "Criar novo modelo",
+			"noTemplates": "Crie um modelo para cadastrar serviços",
+			"floating": "Novo serviço"
+		},
+		"inactivate": {
+			"inProgress": "Arquivando…",
+			"error": "Não foi possível arquivar o serviço."
+		},
+		"reactivate": {
+			"inProgress": "Reativando…",
+			"error": "Não foi possível reativar o serviço."
+		},
+		"status": {
+			"unchanged": "O status deste serviço já foi alterado."
+		},
+		"delete": {
+			"action": "Excluir",
+			"confirm": "Excluir {name} permanentemente? Esta ação não pode ser desfeita.",
+			"confirmLabel": "Digite o nome do serviço para confirmar",
+			"inProgress": "Excluindo…",
+			"error": "Não foi possível excluir o serviço.",
+			"hasHistory": "Serviços já utilizados não podem ser excluídos."
+		},
+		"actions": {
+			"archive": "Arquivar",
+			"reactivate": "Reativar",
+			"delete": "Excluir",
+			"menu": "Mais ações"
 		}
 	}
 }

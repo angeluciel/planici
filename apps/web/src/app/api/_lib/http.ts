@@ -123,7 +123,7 @@ type ApiOptions = {
 	body?: unknown;
 	token?: string;
 	// first path segment of a route
-	resource?: "auth" | "tenants" | "forms" | "clients";
+	resource?: "auth" | "tenants" | "forms" | "clients" | "services";
 	// sent as x-tenant-id
 	tenantId?: string;
 };

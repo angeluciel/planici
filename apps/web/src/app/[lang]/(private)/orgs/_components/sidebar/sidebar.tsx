@@ -31,7 +31,7 @@ const groups = [
 		label: "Trabalho",
 		items: [
 			{ label: "Clientes", icon: UserRoundPenIcon, path: "clients" },
-			{ label: "Serviços", icon: CoinsIcon },
+			{ label: "Serviços", icon: CoinsIcon, path: "services" },
 			{ label: "Pacotes e Planos", icon: BookOpenIcon },
 			{ label: "Formulários", icon: CheckCircle2Icon, path: "forms" },
 		],
