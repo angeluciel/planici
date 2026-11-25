@@ -97,6 +97,7 @@ export function useServiceAdapter(): RecordAdapter {
 			viewHref: (id) => `${base}/${id}`,
 			editHref: (id) => `${base}/${id}/edit`,
 			listHref: base,
+			titleField: "service.name",
 			systemFields: {
 				"service.name": {
 					attribute: "name",

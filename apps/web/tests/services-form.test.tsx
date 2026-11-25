@@ -60,6 +60,10 @@ const typeInto = (label: string, value: string) =>
 	fireEvent.change(input(label), { target: { value } });
 const saveButton = () => screen.getByRole("button", { name: ts("form.save") });
 const createCalls = () => callsTo("POST", "/api/services");
+/** The heading input of SPEC-0007: the name, found by its placeholder. */
+const titleInput = () =>
+	screen.getByPlaceholderText("Nome") as HTMLInputElement;
+const h1s = () => screen.queryAllByRole("heading", { level: 1 });
 
 /** Serves the template of the seeded "Serviço" and mounts /services/new?form=<id>. */
 async function openNew() {
@@ -183,7 +187,22 @@ describe("Fill-in page of a new service", () => {
 		expect(input("Duração").value).toBe("abc");
 	});
 
-	it("§8 shows 'serviceName.taken' under Nome after a 409 and keeps the typed values", async () => {
+	it('AC-0007-07 (service) a blank name shows "Informe o nome do serviço." under the heading input, "Corrija 1 campo", and focuses it', async () => {
+		await openNew();
+		typeInto("Duração", "90");
+		typeInto("Preço", "150,00");
+
+		fireEvent.click(saveButton());
+
+		await screen.findByText(ts("form.errorSummary", { count: 1 }));
+		const el = titleInput();
+		expect(describedText(el)).toContain(tv("serviceName.required"));
+		expect(el.getAttribute("aria-invalid")).toBe("true");
+		expect(document.activeElement).toBe(el);
+		expect(createCalls()).toHaveLength(0);
+	});
+
+	it("AC-0007-08 a 409 serviceName.taken shows under the heading input, focuses it and keeps every typed value", async () => {
 		await openNew();
 		fill("90");
 		on("POST", "/api/services", {
@@ -194,11 +213,45 @@ describe("Fill-in page of a new service", () => {
 		fireEvent.click(saveButton());
 
 		await waitFor(() =>
-			expect(describedText(input("Nome"))).toContain(tv("serviceName.taken")),
+			expect(describedText(titleInput())).toContain(tv("serviceName.taken")),
+		);
+		expect(titleInput().getAttribute("aria-invalid")).toBe("true");
+		await waitFor(() => expect(document.activeElement).toBe(titleInput()));
+		expect(createCalls()).toHaveLength(1);
+		expect(titleInput().value).toBe("Sessão individual");
+		expect(input("Duração").value).toBe("90");
+		expect(input("Preço").value).not.toBe("");
+		expect(navigatedTo().join(" ")).not.toContain(`/services/${SERVICE_ID}`);
+	});
+
+	it("AC-0007-15 the typed name is sent as the service's name and the view page opens with the created toast", async () => {
+		await openNew();
+		fill("90");
+		on("POST", "/api/services", { status: 201, body: service() });
+
+		fireEvent.click(saveButton());
+
+		await screen.findByText("Serviço cadastrado");
+		await waitFor(() =>
+			expect(navigatedTo().join(" ")).toContain(`/services/${SERVICE_ID}`),
 		);
 		expect(createCalls()).toHaveLength(1);
-		expect(input("Duração").value).toBe("90");
-		expect(navigatedTo().join(" ")).not.toContain(`/services/${SERVICE_ID}`);
+		expect(createCalls()[0]?.body).toMatchObject({ name: "Sessão individual" });
+		expect(titleInput().value).toBe("Sessão individual");
+	});
+
+	it("AC-0007-19 a name over the limit shows the length error under the heading input", async () => {
+		await openNew();
+		fill("90");
+		fireEvent.change(titleInput(), { target: { value: "a".repeat(81) } });
+
+		fireEvent.click(saveButton());
+
+		await waitFor(() =>
+			expect(describedText(titleInput())).toContain(tv("serviceName.max")),
+		);
+		expect(titleInput().getAttribute("aria-invalid")).toBe("true");
+		expect(createCalls()).toHaveLength(0);
 	});
 });
 
@@ -276,6 +329,19 @@ describe("Edit page of an existing service", () => {
 				tv("serviceDuration.invalid"),
 			),
 		);
+		expect(callsTo("PATCH", servicePath(s.id))).toHaveLength(0);
+	});
+	it("AC-0007-16 clearing the name on the edit page shows the name error under the heading input and keeps the stored name in the hidden heading", async () => {
+		const s = await openEdit();
+
+		fireEvent.change(titleInput(), { target: { value: "" } });
+		fireEvent.click(saveButton());
+
+		await waitFor(() =>
+			expect(describedText(titleInput())).toContain(tv("serviceName.required")),
+		);
+		expect(titleInput().getAttribute("aria-invalid")).toBe("true");
+		expect(h1s().map((e) => e.textContent)).toEqual(["Sessão individual"]);
 		expect(callsTo("PATCH", servicePath(s.id))).toHaveLength(0);
 	});
 });

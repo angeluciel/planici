@@ -142,6 +142,14 @@ describe.each(ENTITIES)("W-form (%s)", (entity) => {
 			).toBeTruthy();
 		}
 		els.forEach((el, i) => {
+			if (i === 0) {
+				// SPEC-0007: the name is the heading input, named by aria-label,
+				// announced as required and with no "*"
+				expect(el.getAttribute("aria-required")).toBe("true");
+				expect(el.getAttribute("aria-label")).toBe(labels[0]);
+				expect(el.labels?.length ?? 0).toBe(0);
+				return;
+			}
 			const marked = (el.labels?.[0]?.textContent ?? "").includes("*");
 			expect(marked).toBe(required[i]);
 		});
@@ -581,6 +589,10 @@ describe.each(ENTITIES)("W-form (%s)", (entity) => {
 				expect(describedText(input(target as string))).not.toBe(""),
 			);
 			expect(input(target as string).getAttribute("aria-invalid")).toBe("true");
+			// SPEC-0003 section 4.1 step 4: focus goes to the named input
+			await waitFor(() =>
+				expect(document.activeElement).toBe(input(target as string)),
+			);
 			expect(screen.queryByText(tr("form.saveError"))).toBeNull();
 			expect(input(target as string).value).toBe(
 				VALID_SYSTEM[entity].find(([l]) => l === target)?.[1],
@@ -603,6 +615,9 @@ describe.each(ENTITIES)("W-form (%s)", (entity) => {
 
 			await waitFor(() =>
 				expect(describedText(input("Profissão"))).not.toBe(""),
+			);
+			await waitFor(() =>
+				expect(document.activeElement).toBe(input("Profissão")),
 			);
 			expect(screen.queryByText(tr("form.saveError"))).toBeNull();
 		});
