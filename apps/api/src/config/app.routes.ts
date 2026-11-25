@@ -6,6 +6,7 @@ const authRoot = 'auth';
 const tenantsRoot = 'tenants';
 const formsRoot = 'forms';
 const clientsRoot = 'clients';
+const servicesRoot = 'services';
 
 const v1 = 'v1';
 
@@ -22,5 +23,8 @@ export const routesV1 = {
   },
   clients: {
     root: clientsRoot,
+  },
+  services: {
+    root: servicesRoot,
   },
 };

@@ -18,6 +18,10 @@ import {
   CLIENT_HISTORY_READER,
   type ClientHistoryReader,
 } from '@modules/clients/ports/client-history.reader.js';
+import {
+  SERVICE_HISTORY_READER,
+  type ServiceHistoryReader,
+} from '@modules/services/ports/service-history.reader.js';
 import { CLIENT_CONSENT_VERSION } from '@modules/clients/ports/client-consent-version.js';
 import {
   SYSTEM_FIELD_PRESENCE,
@@ -72,6 +76,8 @@ export type TestAppOptions = {
   recordHistory?: RecordHistoryReader;
   // replaces the ClientHistoryReader provider (SPEC-0004 R7); the zero adapter runs when omitted
   clientHistory?: ClientHistoryReader;
+  // replaces the ServiceHistoryReader provider (SPEC-0005 R7); the zero adapter runs when omitted
+  serviceHistory?: ServiceHistoryReader;
   // replaces the current consent text version (SPEC-0004 R12); the shared constant applies when omitted
   consentTextVersion?: string;
 };
@@ -112,6 +118,12 @@ export async function createTestApp(
     builder
       .overrideProvider(CLIENT_HISTORY_READER)
       .useValue(options.clientHistory);
+  }
+
+  if (options.serviceHistory) {
+    builder
+      .overrideProvider(SERVICE_HISTORY_READER)
+      .useValue(options.serviceHistory);
   }
 
   if (options.consentTextVersion) {
