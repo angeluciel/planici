@@ -5,13 +5,19 @@ import {
   deriveCursorKey,
   encodeCursor,
   type CursorFilter,
-} from './client-cursor.js';
+} from './list-cursor.js';
 
 // U-cur: the list cursor of SPEC-0004 plan, API, List. `<payload>.<mac>`, both
 // base64url; the payload is { f, k, i } (SPEC-0006) and the mac covers it.
 
-const key = deriveCursorKey('test-secret-of-at-least-32-characters!!');
-const otherKey = deriveCursorKey('another-secret-of-at-least-32-chars!!');
+// the context the clients list keeps (SPEC-0005 G-2)
+const CONTEXT = 'planici:list-cursor:v1';
+
+const key = deriveCursorKey('test-secret-of-at-least-32-characters!!', CONTEXT);
+const otherKey = deriveCursorKey(
+  'another-secret-of-at-least-32-chars!!',
+  CONTEXT,
+);
 
 const filter: CursorFilter = {
   status: 'active',
@@ -42,13 +48,38 @@ const editedWithOldMac = (cursor: string, edit: (p: any) => void) => {
 
 describe('key', () => {
   it('derives a stable 32-byte key per secret', () => {
-    expect(deriveCursorKey('a-secret').length).toBe(32);
+    expect(deriveCursorKey('a-secret', CONTEXT).length).toBe(32);
     expect(
-      deriveCursorKey('a-secret').equals(deriveCursorKey('a-secret')),
+      deriveCursorKey('a-secret', CONTEXT).equals(
+        deriveCursorKey('a-secret', CONTEXT),
+      ),
     ).toBe(true);
     expect(
-      deriveCursorKey('a-secret').equals(deriveCursorKey('b-secret')),
+      deriveCursorKey('a-secret', CONTEXT).equals(
+        deriveCursorKey('b-secret', CONTEXT),
+      ),
     ).toBe(false);
+  });
+});
+
+describe('key context', () => {
+  it('G-2 derives another key for another context', () => {
+    expect(
+      deriveCursorKey('a-secret', 'planici:services-cursor:v1').equals(
+        deriveCursorKey('a-secret', CONTEXT),
+      ),
+    ).toBe(false);
+  });
+
+  it('G-2 a cursor of one context does not decode with the key of another', () => {
+    const services = deriveCursorKey(
+      'test-secret-of-at-least-32-characters!!',
+      'planici:services-cursor:v1',
+    );
+
+    expect(
+      decodeCursor(services, encodeCursor(key, filter, last), filter),
+    ).toBeNull();
   });
 });
 

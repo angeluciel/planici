@@ -1,5 +1,4 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import type { ClientSort } from '@planici/schemas';
 
 // The list cursor of SPEC-0004 plan, API, List, as amended by SPEC-0006 plan,
 // API: `<payload>.<mac>`, both base64url. The payload is the JSON { f, k, i }:
@@ -9,15 +8,17 @@ import type { ClientSort } from '@planici/schemas';
 // (SPEC-0006 plan, G-6). The mac is HMAC-SHA256 of the payload string, so an
 // edit of any of them fails the check.
 
-const KEY_CONTEXT = 'planici:list-cursor:v1';
+// The key context names the list: each module derives its own key, so a cursor
+// of one list never decodes in another (SPEC-0005 G-2). Clients use
+// 'planici:list-cursor:v1', services 'planici:services-cursor:v1'.
 
-export type CursorFilter = {
+export type CursorFilter<Sort extends string = string> = {
   status: 'active' | 'inactive' | 'all';
   // textKey of the search query, '' when there is none
   q: string;
   // the template filter, '' when there is none (SPEC-0006 R5)
   formId: string;
-  sort: ClientSort;
+  sort: Sort;
 };
 
 export type CursorPosition = {
@@ -26,8 +27,8 @@ export type CursorPosition = {
 };
 
 /** Derives the signing key: the JWT secret itself never signs a cursor. */
-export function deriveCursorKey(secret: string): Buffer {
-  return createHmac('sha256', secret).update(KEY_CONTEXT).digest();
+export function deriveCursorKey(secret: string, context: string): Buffer {
+  return createHmac('sha256', secret).update(context).digest();
 }
 
 function sign(key: Buffer, payload: string): Buffer {

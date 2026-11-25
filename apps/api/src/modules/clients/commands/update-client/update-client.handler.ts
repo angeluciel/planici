@@ -13,7 +13,7 @@ import {
   ClientNotFoundError,
   ClientPhoneRequiredError,
 } from '../../domain/errors/client.errors.js';
-import { parseOrThrow } from '../../domain/parse.js';
+import { parseOrThrow } from '@shared/list/parse-or-throw.js';
 import {
   CLIENT_REPOSITORY,
   type ClientRepository,
