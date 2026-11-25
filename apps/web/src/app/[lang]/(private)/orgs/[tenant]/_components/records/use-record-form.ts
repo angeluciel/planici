@@ -101,6 +101,8 @@ export type Load =
 			fields: Field[];
 			// the record's revision when editing
 			revision: number | null;
+			// the stored name of the record being edited (SPEC-0007 R5); null on create
+			storedTitle: string | null;
 	  };
 
 const NOT_FOUND = /\.not-found$/;
@@ -313,15 +315,18 @@ export function useRecordForm(props: Readonly<RecordFormProps>) {
 		[],
 	);
 
-	const ready = useCallback(
-		(loaded: Ready): Load => ({
+	const ready = useCallback((loaded: Ready): Load => {
+		const { adapter: current } = latest.current.props;
+		const attribute = current.systemFields[current.titleField]?.attribute;
+		const stored = attribute ? loaded.record?.[attribute] : undefined;
+		return {
 			status: "ready",
 			template: loaded.template,
 			fields: loaded.fields,
 			revision: loaded.record?.revision ?? null,
-		}),
-		[],
-	);
+			storedTitle: typeof stored === "string" ? stored : null,
+		};
+	}, []);
 
 	// first load, retry, and a new target
 	// biome-ignore lint/correctness/useExhaustiveDependencies: `attempt` re-runs the load on retry; `target` and `mode` identify what is loaded
@@ -368,6 +373,18 @@ export function useRecordForm(props: Readonly<RecordFormProps>) {
 	const focusKey = (key: string) =>
 		document.getElementById(domIdOf(key))?.focus();
 
+	// A rejected save ends `saving` and names the input to focus in the same
+	// tick, while the inputs are still disabled; focus it once they are enabled.
+	const pendingFocus = useRef<string | null>(null);
+	const [focusRequest, setFocusRequest] = useState(0);
+	// biome-ignore lint/correctness/useExhaustiveDependencies: `focusRequest` re-runs it for each rejected save; `focusKey` reads only the stable id
+	useEffect(() => {
+		if (saving || !pendingFocus.current) return;
+		const key = pendingFocus.current;
+		pendingFocus.current = null;
+		focusKey(key);
+	}, [saving, focusRequest]);
+
 	// ------------------------------------------------------------------ edits
 
 	const setSystem = (attribute: string, value: unknown) => {
@@ -388,13 +405,19 @@ export function useRecordForm(props: Readonly<RecordFormProps>) {
 		setValue(`extra.${name}`, value, { shouldDirty: true });
 	};
 
-	// the first invalid input in the order the page shows them
+	// the first invalid input in the order the page shows them: the heading
+	// input first, wherever the version places it (SPEC-0007 R6), then the list
 	const firstInvalid = (
 		found: FieldErrors<Draft>,
 		list: readonly Field[],
 	): string | null => {
 		const has = (key: string) => Boolean(get(found, key));
-		for (const field of list) {
+		const isTitle = (field: Field) => field.systemKey === adapter.titleField;
+		const ordered = [
+			...list.filter(isTitle),
+			...list.filter((f) => !isTitle(f)),
+		];
+		for (const field of ordered) {
 			if (field.systemKey !== null) {
 				const config = adapter.systemFields[field.systemKey];
 				const key = config && `system.${config.attribute}`;
@@ -516,7 +539,8 @@ export function useRecordForm(props: Readonly<RecordFormProps>) {
 				message: failure.error,
 			});
 			setSummary(false);
-			focusKey(key);
+			pendingFocus.current = key;
+			setFocusRequest((n) => n + 1);
 			return;
 		}
 		setBanner("saveError");

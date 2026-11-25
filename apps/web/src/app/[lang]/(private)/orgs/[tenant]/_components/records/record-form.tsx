@@ -9,10 +9,12 @@ import { Link } from "@/i18n/navigation";
 import { LeaveDialog } from "../../forms/_components/leave-dialog";
 import { SpinnerIcon } from "../../forms/_components/spinner-icon";
 import { FieldInput } from "./field-input";
+import { RecordTitleInput } from "./record-title-input";
 import { type RecordFormProps, useRecordForm } from "./use-record-form";
 
 // Fill-in page of a new record and edit page of an existing one (SPEC-0003
-// §4.1, §4.3). The entity's route mounts it with its own adapter.
+// §4.1, §4.3; the name as the heading input, SPEC-0007). The entity's route
+// mounts it with its own adapter.
 export function RecordForm(props: Readonly<RecordFormProps>) {
 	const { adapter, extraFields } = props;
 	const t = useTranslations(adapter.entity);
@@ -68,6 +70,26 @@ export function RecordForm(props: Readonly<RecordFormProps>) {
 
 	const { guard, saving } = form;
 
+	// the record's name is the page heading input (SPEC-0007 R1, R2)
+	const titleConfig = adapter.systemFields[adapter.titleField];
+	const titleField = titleConfig
+		? load.fields.find((field) => field.systemKey === adapter.titleField)
+		: undefined;
+	const title =
+		titleConfig && titleField
+			? { config: titleConfig, field: titleField }
+			: undefined;
+	const typed = title ? form.draft.system[title.config.attribute] : undefined;
+	const typedTitle = typeof typed === "string" ? typed.trim() : "";
+	// create: the typed name, or the new-record title; edit: the stored name (R5)
+	const heading =
+		props.mode === "edit" && load.storedTitle
+			? load.storedTitle
+			: typedTitle || t("form.newTitle");
+	const listed = title
+		? load.fields.filter((field) => field.id !== title.field.id)
+		: load.fields;
+
 	return (
 		<form
 			noValidate
@@ -78,10 +100,18 @@ export function RecordForm(props: Readonly<RecordFormProps>) {
 			}}
 		>
 			<header className="flex flex-col gap-1">
-				{props.mode === "create" && (
-					<h1 className="font-heading-lg text-text-primary">
-						{t("form.newTitle")}
-					</h1>
+				{/* the heading input is the visible title; this keeps one for assistive tech */}
+				<h1 className="sr-only">{heading}</h1>
+				{title && (
+					<RecordTitleInput
+						id={form.systemId(title.config.attribute)}
+						label={title.field.label}
+						value={form.draft.system[title.config.attribute]}
+						onChange={(value) => form.setSystem(title.config.attribute, value)}
+						error={form.error(`system.${title.config.attribute}`)}
+						help={title.field.helpText ?? undefined}
+						disabled={saving}
+					/>
 				)}
 				<p className="font-body-sm text-text-secondary">
 					{t("form.subtitle", { name: load.template.name })}
@@ -110,7 +140,7 @@ export function RecordForm(props: Readonly<RecordFormProps>) {
 			)}
 
 			<div className="flex flex-col gap-4">
-				{load.fields.map((field) => (
+				{listed.map((field) => (
 					<RecordField key={field.id} field={field} form={form} props={props} />
 				))}
 			</div>

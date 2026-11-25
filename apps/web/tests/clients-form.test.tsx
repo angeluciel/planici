@@ -64,6 +64,10 @@ const saveButton = () => screen.getByRole("button", { name: tc("form.save") });
 const consentBox = (text = CONSENT_TEXT) =>
 	screen.getByRole("checkbox", { name: text }) as HTMLInputElement;
 const createCalls = () => callsTo("POST", "/api/clients");
+/** The heading input of SPEC-0007: the name, found by its placeholder. */
+const titleInput = () =>
+	screen.getByPlaceholderText("Nome completo") as HTMLInputElement;
+const h1s = () => screen.queryAllByRole("heading", { level: 1 });
 
 /** Serves the template and the consent text, mounts /clients/new?form=<id>. */
 async function openNew(
@@ -186,6 +190,55 @@ describe("Fill-in page of a new client", () => {
 			consentTextVersion: "2",
 		});
 	});
+
+	it('AC-0007-07 a blank name with e-mail "ana@" and consent shows the name error under the heading input, "Corrija 2 campos", and focuses it', async () => {
+		await openNew();
+		typeInto("E-mail", "ana@");
+		fireEvent.click(consentBox());
+
+		fireEvent.click(saveButton());
+
+		await screen.findByText(tc("form.errorSummary", { count: 2 }));
+		const el = titleInput();
+		expect(describedText(el)).toContain(tValidation("clientName.required"));
+		expect(el.getAttribute("aria-invalid")).toBe("true");
+		expect(document.activeElement).toBe(el);
+		expect(createCalls()).toHaveLength(0);
+	});
+
+	it("AC-0007-15 the typed name is sent as the client's name and the view page opens with the created toast", async () => {
+		await openNew();
+		fireEvent.change(titleInput(), { target: { value: "Ana Souza" } });
+		typeInto("E-mail", "ana@example.com");
+		fireEvent.click(consentBox());
+		on("POST", "/api/clients", { status: 201, body: client() });
+
+		fireEvent.click(saveButton());
+
+		await screen.findByText("Cliente cadastrado");
+		await waitFor(() =>
+			expect(navigatedTo().join(" ")).toContain(`/clients/${CLIENT_ID}`),
+		);
+		expect(createCalls()).toHaveLength(1);
+		expect(createCalls()[0]?.body).toMatchObject({ name: "Ana Souza" });
+	});
+
+	it("AC-0007-19 a name over the limit shows the length error under the heading input", async () => {
+		await openNew();
+		fireEvent.change(titleInput(), { target: { value: "a".repeat(121) } });
+		typeInto("E-mail", "ana@example.com");
+		fireEvent.click(consentBox());
+
+		fireEvent.click(saveButton());
+
+		await waitFor(() =>
+			expect(describedText(titleInput())).toContain(
+				tValidation("clientName.max"),
+			),
+		);
+		expect(titleInput().getAttribute("aria-invalid")).toBe("true");
+		expect(createCalls()).toHaveLength(0);
+	});
 });
 
 describe("Edit page of an existing client", () => {
@@ -201,5 +254,25 @@ describe("Edit page of an existing client", () => {
 		expect(input("Nome completo").value).toBe("Ana Souza");
 		expect(screen.queryByRole("checkbox")).toBeNull();
 		expect(screen.queryByText(CONSENT_TEXT)).toBeNull();
+	});
+	it("AC-0007-16 clearing the name on the edit page shows the name error under the heading input and keeps the stored name in the hidden heading", async () => {
+		const c = client();
+		serveVersion(c.form.version, systemFieldsOf("clients"));
+		on("GET", clientPath(c.id), { status: 200, body: c });
+		serveConsent(CONSENT_TEXT);
+		renderApp(<ClientEditPage clientId={c.id} />);
+		await screen.findByPlaceholderText("Nome completo");
+
+		fireEvent.change(titleInput(), { target: { value: "" } });
+		fireEvent.click(saveButton());
+
+		await waitFor(() =>
+			expect(describedText(titleInput())).toContain(
+				tValidation("clientName.required"),
+			),
+		);
+		expect(titleInput().getAttribute("aria-invalid")).toBe("true");
+		expect(h1s().map((e) => e.textContent)).toEqual(["Ana Souza"]);
+		expect(callsTo("PATCH", clientPath(c.id))).toHaveLength(0);
 	});
 });
