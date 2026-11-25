@@ -3,7 +3,7 @@ id: SPEC-0001
 title: Modelos de formulário
 status: Implemented # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.6
+version: 1.7
 owner: Joao Izidoro
 satisfies: [RF-37, RF-39, RF-40, RN-01, RN-02, RN-20, RN-21, RN-24, RN-25]
 depends_on: []
@@ -1723,3 +1723,4 @@ acceptance criteria.
 | 1.4 | 2026-11-18 | AC-0001-10 partly verified with SPEC-0003, 2026-11-18: the fill-in form opened with the new template's id shows its name (SPEC-0003 W-form). The `/clients/new` route and its "Criar novo modelo" entry stay SPEC-0004's |
 | 1.5 | 2026-11-19 | AC-0001-10, -12, -14, -20, -23, -24, -26, -27, -28, -31, -32, -33 and §4.7 step 4 verified with SPEC-0004, 2026-11-19 (E-tpl, W-list, W-cform: the client API reads and the `/clients` route and its "Criar novo modelo" entry; §4.7 step 4 with the real `ClientPhonePresence`). AC-0001-34, -57 and -58 stay with the first scheduling or payments spec (owner waiver). Test setup in `forms.e2e-spec.ts` adjusted for the default "Cliente" template every tenant now has (SPEC-0004 R11): AC-0001-02, -05, -19, -42, -52 and one §6 test remove it first, AC-0001-48 seeds 199, AC-0001-59 reuses it; no assertion changed |
 | 1.6 | 2026-11-24 | Amended by SPEC-0005 (approved by Joao Izidoro, 2026-11-24; SPEC-0005 §9 Q12): §3.2 default label of `service.duration` becomes "Duração". Templates that already exist keep their label. The note in §3.2 says so; the change is built and verified by SPEC-0005. No criterion here changes |
+| 1.7 | 2026-11-25 | §11 Persistence, one-to-one link for services: after a service delete and after "Sim, excluir tudo" on a service template, both the `services` and the `form_records` rows are gone, verified with SPEC-0005, 2026-11-25 (`services-lifecycle.e2e-spec.ts`) |
