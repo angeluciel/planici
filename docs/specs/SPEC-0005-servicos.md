@@ -1,9 +1,9 @@
 ---
 id: SPEC-0005
 title: Cadastro de serviços
-status: Approved # Draft | Review | Approved | Implemented | Superseded
+status: Implemented # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.7
+version: 1.8
 owner: Joao Izidoro
 satisfies: [RF-11, RF-12, RF-13, RN-02, RN-06, RN-24, RN-25]
 depends_on: [SPEC-0001, SPEC-0002, SPEC-0003, SPEC-0004, SPEC-0006]
@@ -1641,3 +1641,4 @@ fixes the reference of G-7.
 | 1.5 | 2026-11-24 | Plan approved by Joao Izidoro, 2026-11-24 (`plan_status` Approved), after the plan review and its re-check; the proposals of G-1 to G-11 are accepted with it. The review's SHOULD-FIX items stay numbered follow-ups |
 | 1.6 | 2026-11-24 | Owner decisions on plan review follow-ups 7a–7d (§9 Q23–Q26): an archived narrow row's history toast has no action (R15, §4.4); the floating "+" opens the [Novo] menu under an archived template's chip, and the template summary carries each template's `status` (R14, §7); chips show placeholders while loading and "Tentar novamente" on failure (R14, §8); the editor's `duration` type name becomes "Duração" (§2, §8). AC-0005-114 to -120 added. §11 updated to match (contracts, API, web, copy, tests, deferred checks, sequence); scope unchanged. `status` and `plan_status` stay Approved: each change is an explicit owner decision |
 | 1.7 | 2026-11-25 | Implemented per §11; `status` stays Approved until the owner accepts the behavior on a running system and the manual swipe check of G-8 (iOS Safari, Android Chrome) is recorded. Built: the services contracts and `validation.*` copy; the shared API list helpers (G-2) and web list pieces (G-1), behavior-preserving; the `services` table, `0006_services` and `0007_default_service_template` (seed and backfill of "Serviço"); the services module (list with sort `form` and `hasHistory`, template summary, create, read, update, archive, reactivate, delete); the BFF, `SwipeRow`, the menu and toast additions, and the wide and narrow `/services` UI with copy in both locales; sidebar link; "Duração" label and type name. All 119 in-scope criteria (AC-0005-76 withdrawn) have passing tests. Partly verified, per Deferred checks: AC-0005-15, -55, -58, -84, -99, -101, -111 and -114 (a fake `ServiceHistoryReader`; the first scheduling spec) and AC-0005-91 to -95 (jsdom; the manual phone check). Owner decision at review, 2026-11-25: the narrow list's carry-over of previous rows is dropped; a chip or search change shows the skeleton (§8) |
+| 1.8 | 2026-11-25 | Status Implemented: Joao Izidoro accepts the behavior on a running system and reports the manual swipe check of G-8 (iOS Safari, Android Chrome) as done, 2026-11-25, so AC-0005-91 to -95 are verified (snap rule and group logic in jsdom, the gesture by hand). Still deferred to the first scheduling spec: AC-0005-15, -55, -58, -84, -99, -101, -111 and -114 (fake `ServiceHistoryReader`). SPEC-0007, which `depends_on` this spec, can start `/implement`. |
