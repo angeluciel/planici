@@ -79,9 +79,12 @@ export default function SidebarModeDialog({
 				aria-expanded={open}
 				title="Comportamento da barra lateral"
 				onClick={() => setOpen(true)}
-				className="flex min-h-11 w-full items-center gap-3 rounded-md px-3 text-icon-subtle hover:bg-surface-hovered focus-visible:outline-2 focus-visible:outline-border-focused"
+				className="flex size-8 w-full items-center gap-3 rounded-md px-1.5 text-icon-subtle hover:bg-surface-hovered focus-visible:outline-2 focus-visible:outline-border-focused"
 			>
-				<PanelLeftIcon aria-hidden="true" className="size-5 shrink-0" />
+				<PanelLeftIcon
+					aria-hidden="true"
+					className="size-5 shrink-0 stroke-[1.5]"
+				/>
 				<span
 					className={clsx(
 						"whitespace-nowrap font-body-sm",
