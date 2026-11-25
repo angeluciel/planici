@@ -23,7 +23,7 @@ const SYSTEM_FIELD_LABELS: Record<string, string> = {
 	"client.email": "E-mail",
 	"client.phone": "Telefone",
 	"service.name": "Nome",
-	"service.duration": "Duração (minutos)",
+	"service.duration": "Duração",
 	"service.price": "Preço",
 };
 
