@@ -142,7 +142,15 @@ export function serveVersion(
 export type SystemInputProps = ComponentProps<SystemFieldConfig["input"]>;
 
 const text = (): ComponentType<SystemInputProps> =>
-	function TextSystemInput({ id, label, value, onChange, status, help }) {
+	function TextSystemInput({
+		id,
+		label,
+		value,
+		onChange,
+		status,
+		help,
+		disabled,
+	}) {
 		return (
 			<Input
 				id={id}
@@ -150,6 +158,7 @@ const text = (): ComponentType<SystemInputProps> =>
 				value={value == null ? "" : String(value)}
 				status={status}
 				help={help}
+				disabled={disabled}
 				onChange={(e) => onChange(e.target.value)}
 			/>
 		);
@@ -159,7 +168,15 @@ const numeric = (
 	toInput: (v: number) => string,
 	fromInput: (s: string) => number,
 ): ComponentType<SystemInputProps> =>
-	function NumericSystemInput({ id, label, value, onChange, status, help }) {
+	function NumericSystemInput({
+		id,
+		label,
+		value,
+		onChange,
+		status,
+		help,
+		disabled,
+	}) {
 		return (
 			<Input
 				id={id}
@@ -168,6 +185,7 @@ const numeric = (
 				value={typeof value === "number" ? toInput(value) : ""}
 				status={status}
 				help={help}
+				disabled={disabled}
 				onChange={(e) =>
 					onChange(e.target.value === "" ? null : fromInput(e.target.value))
 				}
@@ -392,6 +410,7 @@ export function fakeAdapter(entity: Entity): FakeAdapter {
 		viewHref: (id) => `/orgs/${TENANT}/${entity}/${id}`,
 		editHref: (id) => `/orgs/${TENANT}/${entity}/${id}/edit`,
 		listHref: `/orgs/${TENANT}/${entity}`,
+		titleField: ENTITY[entity].systemKeys[0],
 		systemFields: TEST_SYSTEM_FIELDS[entity],
 		onSaveError: (error) => {
 			log.saveErrors.push(error as Failure);

@@ -54,6 +54,7 @@ export function useClientAdapter(
 			viewHref: (id) => `${base}/${id}`,
 			editHref: (id) => `${base}/${id}/edit`,
 			listHref: base,
+			titleField: "client.name",
 			systemFields: {
 				"client.name": {
 					attribute: "name",

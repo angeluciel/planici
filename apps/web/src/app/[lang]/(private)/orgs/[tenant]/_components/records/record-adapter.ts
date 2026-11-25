@@ -50,6 +50,9 @@ export type RecordAdapter = {
 	listHref: string;
 	// by the version field's `systemKey`, e.g. `client.email`
 	systemFields: Record<string, SystemFieldConfig>;
+	// the `systemKey` of the field shown as the page heading input (SPEC-0007
+	// R1), e.g. `client.name`; a key of `systemFields`
+	titleField: string;
 	// return true when the entity handled the error itself (e.g. 409 consentText.outdated)
 	onSaveError?: (error: ApiFailure) => boolean;
 };
