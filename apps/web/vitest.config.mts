@@ -28,7 +28,15 @@ export default defineConfig({
 		coverage: {
 			provider: "v8",
 			include: ["src/**/*.{ts,tsx}"],
-			reporter: ["text", "html", "lcov"],
+			// lcov paths relative to the repository root (apps/web/src/...), so SonarCloud can tell web and api files apart.
+			reporter: [
+				"text",
+				"html",
+				[
+					"lcov",
+					{ projectRoot: fileURLToPath(new URL("../..", import.meta.url)) },
+				],
+			],
 		},
 	},
 });
