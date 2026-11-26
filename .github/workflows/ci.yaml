@@ -127,14 +127,24 @@ jobs:
 
       - run: pnpm ci
 
-      - name: Build schema package
-        run: pnpm --filter @planici/schemas build
+      - name: Build api and web workspace dependencies
+        run: pnpm --filter "api^..." --filter "web^..." run build
 
       - name: Generate API Coverage
         run: pnpm --filter api test:cov
 
-      - name: Verify LCOV Report
-        run: test -s apps/api/coverage/lcov.info        
+      # Controllers, repositories and adapters are covered by the e2e suite, not by unit tests.
+      - name: Generate API E2E Coverage
+        run: pnpm --filter api test:e2e --coverage
+
+      - name: Generate Web Coverage
+        run: pnpm --filter web test:cov
+
+      - name: Verify LCOV Reports
+        run: |
+          test -s apps/api/coverage/lcov.info
+          test -s apps/api/coverage-e2e/lcov.info
+          test -s apps/web/coverage/lcov.info
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1.0
