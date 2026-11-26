@@ -34,3 +34,12 @@ export function useMediaQuery(query: string, fallback: boolean): boolean {
 export function useWideScreen(): boolean {
 	return useMediaQuery(WIDE_SCREEN_QUERY, true);
 }
+
+// The app shell's header and navigation switch at RNF-16's `md` (SPEC-0008
+// R6). It is in rem, like Tailwind's `md` that the wide sidebar's CSS uses, so
+// both switch together at any default font size.
+export const NAV_WIDE_QUERY = "(min-width: 48rem)";
+
+export function useWideNav(): boolean {
+	return useMediaQuery(NAV_WIDE_QUERY, true);
+}

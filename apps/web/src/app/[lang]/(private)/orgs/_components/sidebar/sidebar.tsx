@@ -1,19 +1,9 @@
 "use client";
 
-import {
-	BookOpenIcon,
-	Calendar1Icon,
-	ChartLineIcon,
-	CheckCircle2Icon,
-	CoinsIcon,
-	Settings2Icon,
-	UserRoundPenIcon,
-	WalletCardsIcon,
-	XIcon,
-} from "lucide-react";
-import { useParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { Link, usePathname } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
+import { type RefObject, useEffect, useState } from "react";
+import { Sheet } from "@/components/ui/sheet";
+import { useWideNav } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 import { SidebarContent } from "./content";
 import SidebarModeDialog from "./sidebar-mode-dialog";
@@ -24,6 +14,8 @@ type SidebarProps = {
 	onModeChange: (mode: SidebarMode) => void;
 	isSidebarOpen: boolean;
 	onClose: () => void;
+	// the header's menu button, where focus returns when the sheet closes
+	navButtonRef: RefObject<HTMLButtonElement | null>;
 };
 
 export default function Sidebar({
@@ -31,36 +23,29 @@ export default function Sidebar({
 	onModeChange,
 	isSidebarOpen,
 	onClose,
+	navButtonRef,
 }: Readonly<SidebarProps>) {
+	const t = useTranslations();
+	const wide = useWideNav();
 	const [hovered, setHovered] = useState(false);
 	const [focused, setFocused] = useState(false);
-	const dialogRef = useRef<HTMLDialogElement>(null);
 	const expanded =
 		mode === "expanded" || (mode === "hover" && (hovered || focused));
 
+	// the sheet is for narrow screens: widening closes it (AC-0008-39)
 	useEffect(() => {
-		const desktop = window.matchMedia("(min-width: 768px)");
-		const closeOnDesktop = () => {
-			if (desktop.matches) onClose();
-		};
-		closeOnDesktop();
-		desktop.addEventListener("change", closeOnDesktop);
-		return () => desktop.removeEventListener("change", closeOnDesktop);
-	}, [onClose]);
+		if (wide) onClose();
+	}, [wide, onClose]);
 
-	useEffect(() => {
-		const dialog = dialogRef.current;
-		if (!dialog) return;
-		if (isSidebarOpen && !window.matchMedia("(min-width: 768px)").matches) {
-			if (!dialog.open) dialog.showModal();
-			const previousOverflow = document.body.style.overflow;
-			document.body.style.overflow = "hidden";
-			return () => {
-				document.body.style.overflow = previousOverflow;
-			};
-		}
-		if (dialog.open) dialog.close();
-	}, [isSidebarOpen]);
+	// Escape, an outside press, swiping down and "Fechar" return focus to the
+	// menu button; Base UI does not after an outside tap on some phones (P-9).
+	// Choosing an entry closes through onNavigate and does not refocus.
+	function closeAndRefocus() {
+		onClose();
+		requestAnimationFrame(() =>
+			navButtonRef.current?.focus({ preventScroll: true }),
+		);
+	}
 
 	return (
 		<>
@@ -100,40 +85,15 @@ export default function Sidebar({
 				</aside>
 			</div>
 
-			<dialog
-				ref={dialogRef}
-				id="mobile-sidebar"
-				aria-label="Menu principal"
-				onCancel={(event) => {
-					event.preventDefault();
-					onClose();
-				}}
-				onClose={onClose}
-				className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none border-0 bg-transparent p-0 text-text-primary backdrop:bg-blanket md:hidden"
+			<Sheet
+				open={isSidebarOpen && !wide}
+				onClose={closeAndRefocus}
+				title={t("shell.nav.title")}
+				closeLabel={t("common.close")}
+				finalFocus={navButtonRef}
 			>
-				<div className="relative flex h-full">
-					<div className="relative z-10 flex h-full w-[min(20rem,calc(100%-3rem))] flex-col bg-surface-raised px-2 shadow-overlay">
-						<div className="flex shrink-0 justify-end pt-2">
-							<button
-								type="button"
-								aria-label="Fechar menu"
-								onClick={onClose}
-								className="flex size-11 items-center justify-center rounded-md text-icon hover:bg-surface-hovered focus-visible:outline-2 focus-visible:outline-border-focused"
-							>
-								<XIcon aria-hidden="true" className="size-5" />
-							</button>
-						</div>
-						<SidebarContent expanded onNavigate={onClose} />
-					</div>
-					<button
-						type="button"
-						aria-label="Fechar menu pelo fundo"
-						tabIndex={-1}
-						onClick={onClose}
-						className="absolute inset-0"
-					/>
-				</div>
-			</dialog>
+				<SidebarContent expanded onNavigate={onClose} />
+			</Sheet>
 		</>
 	);
 }

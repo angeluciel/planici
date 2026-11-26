@@ -946,5 +946,25 @@
 			"delete": "Excluir",
 			"menu": "Mais ações"
 		}
+	},
+	"shell": {
+		"org": {
+			"allOrganizations": "{name}, ver todas as organizações",
+			"menuTitle": "Organizações"
+		},
+		"nav": {
+			"open": "Abrir menu",
+			"title": "Menu"
+		},
+		"account": {
+			"open": "Menu da conta",
+			"profile": "Perfil",
+			"theme": "Tema",
+			"themes": {
+				"system": "Sistema",
+				"dark": "Escuro",
+				"light": "Claro"
+			}
+		}
 	}
 }
