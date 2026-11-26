@@ -946,5 +946,25 @@
 			"delete": "Delete",
 			"menu": "More actions"
 		}
+	},
+	"shell": {
+		"org": {
+			"allOrganizations": "{name}, see all workspaces",
+			"menuTitle": "Workspaces"
+		},
+		"nav": {
+			"open": "Open menu",
+			"title": "Menu"
+		},
+		"account": {
+			"open": "Account menu",
+			"profile": "Profile",
+			"theme": "Theme",
+			"themes": {
+				"system": "System",
+				"dark": "Dark",
+				"light": "Light"
+			}
+		}
 	}
 }

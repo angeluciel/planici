@@ -42,18 +42,6 @@ export function SidebarContent({
 
 	return (
 		<>
-			{/* profile section */}
-			<div className="flex h-20 shrink-0 items-center gap-3 overflow-hidden">
-				<div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-blanket font-body-sm">
-					{/* TODO: change to show the user name */}
-					LB
-				</div>
-				<div className={labelClass}>
-					<h2 className="font-heading-2xs text-text-primary">user name</h2>
-					<span className="font-body-sm text-text-secondary">ver perfil</span>
-				</div>
-			</div>
-			{/* main content */}
 			<nav
 				aria-label="Menu principal"
 				className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto"
