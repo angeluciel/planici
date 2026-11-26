@@ -18,6 +18,8 @@ export default defineConfig({
       reportsDirectory: './coverage',
       reporter: ['text', 'html', ['lcov', { projectRoot: repositoryRoot }]],
       include: ['src/**/*.ts'],
+      // The unit specs sit next to the code; without this they are listed as uncovered sources.
+      exclude: ['src/**/*.spec.ts'],
     },
   },
 });
