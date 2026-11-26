@@ -48,6 +48,8 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
+        // Tests run with placeholder credentials: no worker, nothing sent to the collector.
+        enabled: config.getOrThrow<string>('NODE_ENV') !== 'test',
         appKey: config.getOrThrow<string>('OBSERVE_APP_KEY'),
         appSecret: config.getOrThrow<string>('OBSERVE_APP_SECRET'),
         serviceId: 'planici-api-observe',

@@ -14,3 +14,5 @@ allowBuilds:
   unrs-resolver: true
 catalog:
   zod: ^4.4.3
+minimumReleaseAgeExclude:
+  - '@nestjs/observe@0.3.29'
