@@ -144,9 +144,11 @@ describe('list, read and rename', () => {
       .expect('Cache-Control', 'private, no-store')
       .expect(200);
 
+    // Postgres sorts uuids by bytes: plain string order on lowercase hex, not locale order.
+    const byUuid = (a: string, b: string) => (a < b ? -1 : 1);
     expect(
       response.body.tenants.map((tenant: { id: string }) => tenant.id),
-    ).toEqual([first.body.id, second.body.id].sort());
+    ).toEqual([first.body.id, second.body.id].sort(byUuid));
   });
 
   it('excludes deleted tenants and inactive memberships, but shows suspended tenants', async () => {

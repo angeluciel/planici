@@ -174,10 +174,11 @@ describe('the backfill (planici_backfill_service_templates, as the migration run
     const clients = await templatesOfType('client', ana, {
       includeArchived: true,
     });
-    expect(clients.map((template) => template.name).sort()).toEqual([
-      'Cliente',
-      'Serviço',
-    ]);
+    expect(
+      clients
+        .map((template) => template.name)
+        .sort((a, b) => a.localeCompare(b)),
+    ).toEqual(['Cliente', 'Serviço']);
     expect(await describeTemplate(ana, created.body.id)).toEqual(before);
   });
 
