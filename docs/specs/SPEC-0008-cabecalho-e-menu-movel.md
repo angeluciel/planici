@@ -1,9 +1,9 @@
 ---
 id: SPEC-0008
 title: Cabeçalho do app, troca de organização, menu da conta e menu em folha no celular
-status: Approved # Draft | Review | Approved | Implemented | Superseded
+status: Implemented # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.4
+version: 1.5
 owner: Joao Izidoro
 satisfies: [RF-04a, RN-01, RN-02, RNF-08, RNF-16, RNF-18]
 depends_on: [SPEC-0002, SPEC-0005, SPEC-0006]
@@ -1053,3 +1053,4 @@ None. `@base-ui/react` (menu, drawer), `next-themes`, `sonner` and `lucide-react
 | 1.2 | 2026-11-26 | Plan review fixes (§11). Breakpoint is `(min-width: 48rem)`, matching the sidebar's `md` (P-4). The sheet returns focus through `finalFocus` and an explicit refocus after every close except a navigation (P-9), with a manual phone check. The pending-switch trigger is `aria-disabled` instead of `disabled` (P-8). "Organizações" and the e-mail are group names, as Base UI's group labels give. The harness gets a `networkDown` reply and a rem-aware `matchMedia`; the Tab criteria name their DOM checks; AC-0008-39 checks the sidebar is no longer hidden. API test citations corrected for AC-0008-14, -18, -19 and -47. The sheet tests move to step 4 so each commit is green; step 0 has the owner commit the spec work first; step 5 adds the `@planici/emails` typecheck. `Menu.LinkItem` for links, no `aria-controls`, a string fallback for error toasts, P-2 reworded. Scope drops the spec path (20 paths). `plan_status` stays Draft. |
 | 1.3 | 2026-11-26 | Plan approved by Joao Izidoro, 2026-11-26: §11 as revised in 1.2, after the plan review, with P-1 to P-9 decided as written. `plan_status` Approved. |
 | 1.4 | 2026-11-26 | Implemented per §11; `status` stays Approved until the owner accepts the behavior on a running system and records manual checks M-1 to M-10 and the P-9 phone check of the Deferred checks table. Built: the header (logo, "/", organization switcher and account menu on wide screens; switcher, then the menu button and account menu as a pair on narrow ones); the switcher (initial and name link to `/orgs`, a chevrons trigger opening a menu listed on each open, with retry, suspended entries disabled, a pending switch `aria-disabled`/`aria-busy`); the account menu (e-mail as the first group's name, Perfil, Tema with Sistema/Escuro/Claro, Sair with Saindo…); the gate's `useActiveTenant`; `getMe`, `isSignedOut` and `useWideNav` (48rem); the navigation as a `Sheet` with focus return to "Abrir menu"; the profile block removed. Found at `/done`, 2026-11-26: the shell's close-on-route-change effect also ran on mount, so an open requested before that first effect ran was cancelled (AC-0008-32 and -34 flaky in about one run in three); it now closes only when the path changes (`shell.tsx`), and 15 runs of `nav-sheet.test.tsx` passed. All 54 criteria have passing tests. No criterion is deferred to another spec; M-1 to M-10 and P-9 are unrun. |
+| 1.5 | 2026-11-26 | Status Implemented: Joao Izidoro accepts the behavior on a running system and reports manual checks M-1 to M-10 and the P-9 phone check of the Deferred checks table as passed, 2026-11-26. No criterion is deferred. |
