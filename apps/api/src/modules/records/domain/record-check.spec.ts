@@ -458,3 +458,22 @@ describe('missingRequired (R6)', () => {
     expect(missingRequired(versionOf(smoker), {}, {})).toEqual([]);
   });
 });
+
+describe('the values envelope', () => {
+  it.each([
+    ['null', null],
+    ['an array', [NAME.id]],
+    ['a string', 'Dentista'],
+    ['a number', 42],
+    ['absent', undefined],
+  ])(
+    'rejects %s in place of the values object with values.invalid',
+    (_, values) => {
+      expect(failure(check(versionOf(NAME), values))).toEqual({
+        status: 422,
+        code: 'values.invalid',
+        field: 'values',
+      });
+    },
+  );
+});
