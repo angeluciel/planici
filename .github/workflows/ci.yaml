@@ -3,6 +3,9 @@ name: CI
 on:
   pull_request:
     branches: [main, dev]
+  # Analyzes main after each merge so SonarCloud has a baseline for new-code checks on pull requests.
+  push:
+    branches: [main]
   # CD calls this workflow to re-check the exact commit a release tag points at.
   workflow_call:
 
@@ -101,8 +104,9 @@ jobs:
   sonar:
     name: SonarQube Analysis
     needs: [quality, test]
-    # Reporting only, and it needs SONAR_TOKEN: run it on pull requests, not as part of a release gate.
-    if: github.event_name == 'pull_request'
+    # Reporting only, and it needs SONAR_TOKEN: run it on pull requests and on pushes to main, not as part of a release gate.
+    # When CD calls this workflow for a release tag, event_name is also 'push', so match the main ref exactly.
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
 
     steps:
