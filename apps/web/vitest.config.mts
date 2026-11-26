@@ -27,7 +27,13 @@ export default defineConfig({
 		clearMocks: true,
 		coverage: {
 			provider: "v8",
-			include: ["src/**/*.{ts,tsx}"],
+			// @planici/schemas is aliased to its source above, so the web tests exercise it too.
+			include: [
+				"src/**/*.{ts,tsx}",
+				`${fileURLToPath(new URL("../../packages/schemas/src/", import.meta.url))}**/*.ts`,
+			],
+			// Needed to report files outside this app's root (packages/schemas).
+			allowExternal: true,
 			// lcov paths relative to the repository root (apps/web/src/...), so SonarCloud can tell web and api files apart.
 			reporter: [
 				"text",
