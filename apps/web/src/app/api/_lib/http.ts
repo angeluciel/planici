@@ -1,5 +1,6 @@
 import type { ApiErrorBody } from "@planici/schemas";
 import axios, { type AxiosResponse, type RawAxiosRequestHeaders } from "axios";
+import { trimEnd } from "es-toolkit";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -188,7 +189,7 @@ export async function api(
 		tenantId,
 	}: ApiOptions = {},
 ): Promise<unknown> {
-	const base = requiredEnv("API_URL").replace(/\/+$/, "");
+	const base = trimEnd(requiredEnv("API_URL"), "/");
 
 	let response: AxiosResponse<string>;
 
