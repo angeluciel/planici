@@ -1,12 +1,9 @@
 import type { Request } from 'express';
 
+// Express resolves `request.ip` from X-Forwarded-For with the `trust proxy`
+// setting of main.ts: only the entries our own proxies appended are trusted.
+// The leftmost entry is whatever the client sent, so it is never read here.
 export function ipOf(request: Request): string | null {
-  const forwarded = request.header('x-forwarded-for');
-
-  if (forwarded) {
-    return forwarded.split(',')[0]?.trim() ?? null;
-  }
-
   return request.ip ?? null;
 }
 
