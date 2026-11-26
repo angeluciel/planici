@@ -22,9 +22,15 @@ export function maskPrice(text: string): string {
 	const digits = text.replace(/\D/g, "").slice(0, 10);
 	if (digits === "") return "";
 	const cents = Number(digits);
-	const reais = String(Math.floor(cents / 100)).replace(
-		/\B(?=(\d{3})+(?!\d))/g,
-		".",
-	);
+	const reais = groupThousands(String(Math.floor(cents / 100)));
 	return `${reais},${String(cents % 100).padStart(2, "0")}`;
+}
+
+// "1234567" -> "1.234.567": a dot before every group of three digits, counted from the right
+function groupThousands(digits: string): string {
+	const groups: string[] = [];
+	for (let end = digits.length; end > 0; end -= 3) {
+		groups.unshift(digits.slice(Math.max(0, end - 3), end));
+	}
+	return groups.join(".");
 }
