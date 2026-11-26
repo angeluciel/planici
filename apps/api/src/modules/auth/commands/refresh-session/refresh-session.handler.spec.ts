@@ -109,6 +109,22 @@ describe('RefreshSessionHandler', () => {
     expect(sessions.issue).not.toHaveBeenCalled();
   });
 
+  it('when two refreshes race on one token, the one that loses the rotation revokes the family', async () => {
+    vi.mocked(refreshTokens.findByTokenHash).mockResolvedValue(stored());
+    // the other request already rotated it between the read and the revoke
+    vi.mocked(refreshTokens.revoke).mockResolvedValueOnce(false);
+
+    await expect(
+      handler.execute(new RefreshSessionCommand('raced', context)),
+    ).rejects.toBeInstanceOf(InvalidTokenError);
+
+    expect(refreshTokens.revokeFamily).toHaveBeenCalledWith(
+      'family-1',
+      'reuse-detected',
+    );
+    expect(sessions.issue).not.toHaveBeenCalled();
+  });
+
   it('rejects an expired token without rotating it', async () => {
     vi.mocked(refreshTokens.findByTokenHash).mockResolvedValue(
       stored({ expiresAt: new Date(Date.now() - 1) }),
