@@ -522,7 +522,10 @@ describe('SPEC-0006 sort', () => {
     expect(second.body.clients[0].name).toBe('Mara');
     const listed = pages.flatMap((page) => idsOf(page.body));
     expect(new Set(listed).size).toBe(120);
-    expect([...listed].sort()).toEqual(seeded.map((row) => row.id).sort());
+    const byText = (a: string, b: string) => a.localeCompare(b);
+    expect([...listed].sort(byText)).toEqual(
+      seeded.map((row) => row.id).sort(byText),
+    );
   });
 
   it('AC-0006-25 rejects sort "phone" with clientSort.invalid', async () => {
@@ -597,8 +600,9 @@ describe('SPEC-0006 last update', () => {
       'select id from clients where tenant_id = $1',
       [ana.tenantId],
     );
-    expect([...listed].sort()).toEqual(
-      rows.map((row: { id: string }) => row.id).sort(),
+    const byText = (a: string, b: string) => a.localeCompare(b);
+    expect([...listed].sort(byText)).toEqual(
+      rows.map((row: { id: string }) => row.id).sort(byText),
     );
     // R4: with equal times the order ends with the id, in the same direction
     expect(listed).toEqual(
