@@ -1061,8 +1061,8 @@ Fonte canônica da fase de cada área do produto. Em caso de divergência entre 
 
 | Área | MVP / Portfólio II | Pós-MVP / Evolução futura |
 |---|---|---|
-| Autenticação | Cadastro, login (e-mail/senha e Google OAuth), recuperação de senha e tenant único por usuário | Login social adicional, políticas avançadas de sessão |
-| Tenant | Criação de um espaço de trabalho por profissional (usuário único, papel Owner) | Múltiplos usuários por tenant, convites, papéis e permissões |
+| Autenticação | Cadastro, login (e-mail/senha e Google OAuth), recuperação de senha e um ou mais tenants por usuário, com troca entre eles (RF-04a) | Login social adicional, políticas avançadas de sessão |
+| Tenant | Criação de um ou mais espaços de trabalho por profissional e troca entre eles (cada tenant com usuário único, papel Owner) | Múltiplos usuários por tenant, convites, papéis e permissões |
 | Clientes | CRUD básico, busca e inativação quando houver histórico | Campos avançados, segmentações e importação/exportação |
 | Serviços | CRUD básico de serviços/procedimentos | Pacotes complexos, regras avançadas de preço |
 | Agenda | Disponibilidade básica (fixa e livre), visualização diária/semanal, agendamento manual e bloqueio de horários | Scheduler avançado, lembretes automáticos, integrações de calendário |
