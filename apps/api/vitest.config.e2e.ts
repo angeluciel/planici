@@ -29,6 +29,8 @@ export default defineConfig({
       reportsDirectory: './coverage-e2e',
       reporter: ['text-summary', ['lcovonly', { projectRoot: repositoryRoot }]],
       include: ['src/**/*.ts'],
+      // The unit specs sit next to the code; without this they are listed as uncovered sources.
+      exclude: ['src/**/*.spec.ts'],
     },
   },
 });
