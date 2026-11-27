@@ -1,8 +1,14 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import type { ApiErrorBody } from "@planici/schemas";
 import axios, { type AxiosResponse, type RawAxiosRequestHeaders } from "axios";
 import { trimEnd } from "es-toolkit";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { resolveClientAddress } from "./client-address";
+
+// SPEC-0009 P-2: the client address of the browser request being handled,
+// resolved once by route() and sent by api() on every call it makes.
+const clientAddress = new AsyncLocalStorage<string | null>();
 
 const ErrorBodySchema = z.object({
 	error: z.string(),
@@ -65,7 +71,10 @@ export function route<Context = unknown>(
 				}
 			}
 
-			response = await handler(request, context);
+			response = await clientAddress.run(
+				resolveClientAddress(request.headers),
+				() => handler(request, context),
+			);
 		} catch (error) {
 			response = errorResponse(error);
 		}
@@ -145,6 +154,10 @@ function buildHeaders(
 
 	if (token) headers.Authorization = `Bearer ${token}`;
 	if (tenantId) headers["X-Tenant-Id"] = tenantId;
+
+	// R4: exactly one address, never the browser's own forwarding headers
+	const address = clientAddress.getStore();
+	if (address) headers["X-Forwarded-For"] = address;
 
 	return headers;
 }
