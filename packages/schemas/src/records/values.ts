@@ -102,6 +102,32 @@ const isPlainObject = (value: unknown): value is Record<string, unknown> =>
 
 const isBlankPart = (part: unknown) => part == null || (typeof part === "string" && part.trim() === "");
 
+const partIssue = (part: AddressPart, code: string) => ({ issue: { code, path: [part] } });
+
+/**
+ * One part of an address that passed the completeness check: a blank
+ * complement is null, any other part must be a string, normalised and then
+ * checked.
+ */
+function parseAddressPart(part: AddressPart, raw: unknown): { value: string | null } | { issue: AddressIssue } {
+	if (part === "complement" && isBlankPart(raw)) return { value: null };
+	if (typeof raw !== "string") return partIssue(part, "value.invalid");
+
+	const trimmed = raw.trim();
+	switch (part) {
+		case "cep": {
+			const digits = digitsOnly(trimmed);
+			return digits.length === 8 ? { value: digits } : partIssue(part, "cep.invalid");
+		}
+		case "state": {
+			const state = trimmed.toUpperCase();
+			return STATES.has(state) ? { value: state } : partIssue(part, "uf.invalid");
+		}
+		default:
+			return trimmed.length > ADDRESS_MAX_LENGTHS[part] ? partIssue(part, "value.max") : { value: trimmed };
+	}
+}
+
 /**
  * Completeness first, then the parts in the order cep, street, number,
  * complement, district, city, state (SPEC-0003 plan, Decision 3).
@@ -115,26 +141,9 @@ function parseAddress(input: unknown): { value: AddressValue } | { issue: Addres
 
 	const out: Record<string, string | null> = {};
 	for (const part of ADDRESS_PARTS) {
-		const raw = input[part];
-		if (part === "complement" && isBlankPart(raw)) {
-			out[part] = null;
-			continue;
-		}
-		if (typeof raw !== "string") return { issue: { code: "value.invalid", path: [part] } };
-
-		const trimmed = raw.trim();
-		if (part === "cep") {
-			const digits = digitsOnly(trimmed);
-			if (digits.length !== 8) return { issue: { code: "cep.invalid", path: [part] } };
-			out[part] = digits;
-		} else if (part === "state") {
-			const state = trimmed.toUpperCase();
-			if (!STATES.has(state)) return { issue: { code: "uf.invalid", path: [part] } };
-			out[part] = state;
-		} else {
-			if (trimmed.length > ADDRESS_MAX_LENGTHS[part]) return { issue: { code: "value.max", path: [part] } };
-			out[part] = trimmed;
-		}
+		const result = parseAddressPart(part, input[part]);
+		if ("issue" in result) return result;
+		out[part] = result.value;
 	}
 
 	return { value: out as AddressValue };
