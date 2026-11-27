@@ -1,4 +1,4 @@
-import { TENANT_ID_PATTERN } from '@planici/schemas';
+import { TENANT_ID_PATTERN, TenantResponseSchema } from '@planici/schemas';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { codeFrom, createTestApp, TestContext } from '../setup/test-app.js';
@@ -229,7 +229,7 @@ describe('list, read and rename', () => {
     expect(response.body).toEqual({ tenants: [] });
   });
 
-  it('hides another user’s workspace (RN-02)', async () => {
+  it('hides another user’s workspace from read and rename and leaves its name unchanged (RN-02)', async () => {
     const ana = await signUp('ana@planici.co', 'ana');
     const bia = await signUp('bia@planici.co', 'bia');
 
@@ -244,11 +244,50 @@ describe('list, read and rename', () => {
       .expect(404);
     expect(read.body).toEqual({ error: 'tenant.not-found' });
 
-    await api()
+    const renamed = await api()
       .patch(`/v1/tenants/${created.body.id}`)
       .set('Authorization', `Bearer ${bia}`)
       .send({ name: 'Hijacked' })
       .expect(404);
+    expect(renamed.body).toEqual({ error: 'tenant.not-found' });
+
+    const { rows } = await ctx.pool.query(
+      'select name, slug, status from tenants where id = $1',
+      [created.body.id],
+    );
+    expect(rows).toEqual([
+      { name: 'Studio Ana', slug: 'studio-ana', status: 'active' },
+    ]);
+    const owner = await api()
+      .get(`/v1/tenants/${created.body.id}`)
+      .set('Authorization', `Bearer ${ana}`)
+      .expect(200);
+    expect(owner.body.name).toBe('Studio Ana');
+  });
+
+  it('reads the workspace for its owner', async () => {
+    const token = await signUp('ana@planici.co', 'ana');
+    const created = await createTenant(token, {
+      name: 'Studio Ana',
+      slug: 'studio-ana',
+    }).expect(201);
+
+    const response = await api()
+      .get(`/v1/tenants/${created.body.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(TenantResponseSchema.safeParse(response.body).success).toBe(true);
+    expect(response.body).toEqual({
+      id: created.body.id,
+      name: 'Studio Ana',
+      slug: 'studio-ana',
+      status: 'active',
+      plan: 'free',
+      role: 'owner',
+      trialStartedAt: null,
+      createdAt: created.body.createdAt,
+    });
   });
 
   it('treats an id that is not a tenant id as not found', async () => {
