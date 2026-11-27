@@ -3,7 +3,7 @@ id: SPEC-0013
 title: Páginas públicas dos Termos de Serviço e da Política de Privacidade
 status: Draft # Draft | Review | Approved | Implemented | Superseded
 plan_status: Draft # Draft | Approved
-version: 0.4
+version: 0.6
 owner: Joao Izidoro
 satisfies: [RNF-12]
 depends_on: []
@@ -73,7 +73,7 @@ the version of that document that its page shows. It does not write the document
   identifier from one shared source, so they never disagree on which version is current (§9 Q17, decided).
 - **R4 — The page shows the current version only.** A document's page shows its title, the identifier of its current
   version and the full text of that version in the page's language. Earlier versions have no address; any address
-  below a document's page shows the "page not found" screen (§9 Q4). `assumption`
+  below a document's page shows the "page not found" screen (§9 Q4, decided).
 - **R5 — The recorded version is the shown version.** When a registration completes, the acceptance record of each
   document stores that document's current version identifier: the one its page shows at that moment (RNF-12:
   "Aceite registrado com timestamp e versão do documento"; RFC §6.2: "versão do documento aceito").
@@ -87,7 +87,7 @@ the version of that document that its page shows. It does not write the document
   its checkbox is unchecked (§9 Q2, decided).
 - **R7 — The text comes from the owner.** Each version's text, in each language, is supplied by the owner, who is
   responsible for its legal review. No version is published without its text, and no placeholder text is shown in
-  production (§9 Q1). The RFC requires the owner's text to include:
+  production (§9 Q1, decided). The RFC requires the owner's text to include:
   - in the Privacy Policy, which data is collected, why, where it is stored, for how long, with whom it may be shared,
     and how to request access, correction, export or deletion (RFC §6.2, "Aceite Contratual, Consentimento e
     Transparência");
@@ -105,7 +105,7 @@ the version of that document that its page shows. It does not write the document
 - **R10 — Reading a document does not cost the registration.** Following a document link from the registration
   acceptance step opens the document in a new browser tab. The registration tab stays on its step with everything the
   person entered. On a document page, the header's back control is hidden when the tab has no earlier page to return
-  to, as in a tab opened this way (§9 Q7). `assumption`
+  to, as in a tab opened this way (§9 Q7, decided).
 - **R11 — Nothing personal.** The pages show the same content to every visitor, show no personal or tenant data and
   collect nothing (RNF-15).
 - **R12 — Readable on a phone.** The pages work on smartphones and desktops (RNF-16).
@@ -115,7 +115,8 @@ the version of that document that its page shows. It does not write the document
   version and the language, when the text of a published version changes or is removed. This keeps the exact text of
   every recorded version available to the owner (RNF-12: "registro rastreável"; §9 Q4, Q17, decided).
 - **R14 — Every current version is complete.** The automated checks fail, naming the document, the version and the
-  language, when a document's current version lacks its text in pt-BR or en-US (R3; §9 Q8). `assumption`
+  language, when a document's current version lacks its text in pt-BR or en-US. There is no fallback to the other
+  language (R3; §9 Q8, decided).
 - **R15 — Every section has its own address.** Each section and subsection heading in a document's text has an
   identifier, and the heading's address is the page's address followed by `#` and that identifier, for example
   `/pt-BR/privacy#cookies`. The identifier is derived from the heading's text the way GitHub derives heading anchors:
@@ -241,13 +242,12 @@ en-US copy (§8).
 | State | What shows | Copy key |
 | --- | --- | --- |
 | Loading | None: the page arrives with its text | — |
-| Empty | Not shipped: no version is published without its text (R7). The existing placeholder keys are removed or kept out of production (§9 Q1) | `legal.{doc}.placeholder` (not shown) |
+| Empty | Not shipped: no version is published without its text (R7). The existing placeholder keys are removed (§9 Q1, decided) | `legal.{doc}.placeholder` (removed) |
 | Success | Heading, version line, text of the current version | `legal.{doc}.title`, `legal.{doc}.updated` (`{version}`); the text itself is owner content |
 | Section heading link (R15) | A link beside each section and subsection heading, pointing to the heading's own address; its accessible name names the section | `legal.heading-link` (`{section}`, proposed) |
 | Error | No error state of its own | — |
 | Unknown address below the page | "Page not found" screen | `not-found.h2`, `not-found.content`, `not-found.button`, `not-found.profile` |
 | Back control in the header (shown only at phone widths, as built) | Shown when the tab has an earlier page; hidden when it has none, as in a tab opened from the registration acceptance step (R10, §9 Q7) | `common.back` |
-| English text missing at launch | Only if §9 Q8 is decided as (b) | `legal.untranslated` (proposed) |
 
 **Registration acceptance step** (changes only)
 
@@ -269,7 +269,6 @@ Proposed copy (UI copy only, not legal text):
 | `validation.privacyVersion.required` | Não foi possível registrar seu aceite. Aceite os termos novamente para continuar. | We could not record your acceptance. Accept the terms again to continue. |
 | `common.new-tab` | (abre em nova aba) | (opens in a new tab) |
 | `legal.heading-link` | Link para a seção {section} | Link to the {section} section |
-| `legal.untranslated` | — | This document is available in Portuguese only. |
 
 **Cookie banner**: unchanged; its link now reaches the Privacy Policy page (`consent.banner.policy-link`).
 
@@ -277,14 +276,14 @@ Proposed copy (UI copy only, not legal text):
 
 | # | Question | Proposed answer | Blocks |
 | --- | --- | --- | --- |
-| 1 | No text exists for either document. `docs/` and the copy catalog hold only the placeholders "O conteúdo … ainda será publicado" (`legal.*.placeholder`); the RFC lists required content (R7) but no text. Who supplies it, in which languages, and does it ship before the pages? Note for the text: RFC §6.2 names the operators "AWS (Amplify, Lambda, S3, SES), Google, Neon, Sentry", while SPEC-0009 §2 records the production entry chain as Cloudflare → load balancer → web app; the policy must name the operators actually in use. RFC §6.2 gives `dpo@planici.com.br` only as an example ("ex.:"). | The owner supplies both documents in pt-BR and en-US, reviewed by a lawyer, covering R7, with the real DPO address and the operators in use. Agents never draft or edit the text. The pages are not released before the text exists; the placeholder keys are removed. | Yes (pending owner): AC-0013-01, -02, -07, -16; the release |
+| 1 | No text exists for either document. `docs/` and the copy catalog hold only the placeholders "O conteúdo … ainda será publicado" (`legal.*.placeholder`); the RFC lists required content (R7) but no text. ~~Who supplies it, in which languages, and does it ship before the pages?~~ Note for the text: RFC §6.2 names the operators "AWS (Amplify, Lambda, S3, SES), Google, Neon, Sentry", while SPEC-0009 §2 records the production entry chain as Cloudflare → load balancer → web app; the policy must name the operators actually in use. RFC §6.2 gives `dpo@planici.com.br` only as an example ("ex.:"). | **Decided (owner, 2026-11-27):** the owner supplies both documents in pt-BR and en-US, reviewed by a lawyer, covering R7, with the real DPO address and the operators in use. Agents never draft or edit the text. The pages are not released before the text exists; the placeholder keys are removed. The text is a precondition of the release, not of this spec's approval. | The release (the owner's text, both languages) |
 | 2 | ~~How do versions reach the acceptance records?~~ As built: the web app holds a Terms version and a Privacy Policy version (both "2026-08-26") but sends only the Terms one; the API stores it on the Terms, Privacy Policy and marketing records; it accepts any non-empty text; a missing version answers a message that is not an error key. Options: (a) the request states each document's version and the API refuses one that is not current; (b) the API ignores stated versions and records the current ones. | **Decided (owner, 2026-11-27): (a).** The request states each document's version and the API refuses one that is not current, as R5 and R6, with the keys and check order of §6 and the `privacyVersion` field of §7. (b) was not chosen because it would record a version the person may not have seen if a release lands mid-registration. The identifier format and the shared source are decided in Q17. | — |
 | 3 | Accounts registered so far have acceptance records with version "2026-08-26", a version whose text was never published. Does production hold real accounts? What happens to those records? | The first published version gets its own identifier (a new date label, R3), never "2026-08-26", so no record claims acceptance of a text that did not exist. The owner says whether production holds real accounts; if it does, how they accept is Q5. | No, but answer before release |
-| 4 | Should earlier versions be readable publicly, so a person can see what they accepted? The RFC asks for the version to be recorded, not published. | No, in the MVP. Each published version's text stays kept and unchanged in the product (R13, decided with Q17), so the owner can produce the text of any recorded version through the DPO channel, and a public archive later needs only pages, not new storage. If the owner wants a public archive, add pages per version and an AC for an unknown version; until then AC-0013-08 applies. | AC-0013-08 (written to the proposed answer) |
+| 4 | ~~Should earlier versions be readable publicly, so a person can see what they accepted?~~ The RFC asks for the version to be recorded, not published. | **Decided (owner, 2026-11-27): no, in the MVP.** Each published version's text stays kept and unchanged in the product (R13, decided with Q17), so the owner can produce the text of any recorded version through the DPO channel, and a public archive later needs only pages, not new storage. If the owner wants a public archive, add pages per version and an AC for an unknown version; until then AC-0013-08 applies. | — |
 | 5 | When a document changes, must existing accounts accept the new version? The RFC is silent. | Out of scope here. A separate spec if the owner wants re-acceptance (for example, on the next sign-in). | No |
 | 6 | Is a separate cookie policy needed? The RFC asks for none. The banner links to the Privacy Policy, and the cookie preferences dialog lists every cookie with purpose and duration. | No separate page. The owner's Privacy Policy includes a cookies section consistent with the preferences dialog. | No |
-| 7 | Should the registration links open in a new tab? As built they navigate in the same tab, and the progress kept for the tab omits the password, the e-mail verification proof and the Google credential. Coming back sends the person to the e-mail code step (e-mail sign-up) or to the first step (Google sign-up). The public header's back control has nothing to return to in a new tab. | Yes, a new tab, with the hint `common.new-tab` for screen readers (R10, AC-0013-05, AC-0013-18, AC-0013-19). On the document pages, the back control is hidden when the tab has no earlier page (R10, AC-0013-20). | R10, AC-0013-05, AC-0013-18 to -20; §8 back control and `common.new-tab` (written to the proposed answer) |
-| 8 | Which language prevails, and what does the en-US page show if no English text exists at launch? | (a) The owner supplies both; which version prevails is stated in the owner's text. (b) Fallback only if English is late: the en-US page shows the Portuguese text under the notice `legal.untranslated`, and AC-0013-01's en-US rows then expect it. Proposed: (a). | With Q1: en-US rows of AC-0013-01, AC-0013-07, R14, AC-0013-27, §8 `legal.untranslated` (written to the proposed answer) |
+| 7 | ~~Should the registration links open in a new tab?~~ As built they navigate in the same tab, and the progress kept for the tab omits the password, the e-mail verification proof and the Google credential. Coming back sends the person to the e-mail code step (e-mail sign-up) or to the first step (Google sign-up). The public header's back control has nothing to return to in a new tab. | **Decided (owner, 2026-11-27): yes,** a new tab, with the hint `common.new-tab` for screen readers (R10, AC-0013-05, AC-0013-18, AC-0013-19). On the document pages, the back control is hidden when the tab has no earlier page (R10, AC-0013-20). | — |
+| 8 | ~~Which language prevails, and what does the en-US page show if no English text exists at launch?~~ | **Decided (owner, 2026-11-27): (a).** The owner supplies both languages; which one prevails is stated in the owner's text. No fallback: a version without its en-US text is not published (R14, AC-0013-27). Option (b), the Portuguese text under a `legal.untranslated` notice, was not chosen, and that key is dropped. The en-US text is part of Q1. | — |
 | 9 | Does "Exibição obrigatória no onboarding" (RNF-12) require the person to open or scroll the documents before accepting? | No. The mockup (RFC §4.2, "Registro — Passo 5") shows a link and the acceptance is mandatory. Linking both documents in the step meets it. | No |
 | 10 | Wording conflicts: RNF-12 says "termos de uso"; the mockup's step 5 shows only the Terms of Service; RFC §6.2 and the built step name both documents and say "Termos de Serviço"; the built step's title is "Termos de uso". | Follow RFC §6.2: two documents, "Termos de Serviço". Align RNF-12 and the mockup in an editorial change. The step title is left as is in this spec. | No |
 | 11 | Should the documents be linked from more places: the footers of login, registration and the document pages, the signed-in area, e-mails? The RFC asks for none. | Not in this spec. A follow-up if the owner wants it. | No |
@@ -634,3 +633,5 @@ Written by `/plan` after the spec is Approved. Empty until then.
 | 0.2 | 2026-11-27 | Spec review fixes. §9: the Blocks cells name what is written to each proposed answer (Q1, Q2, Q4, Q7, Q8). AC-0013-14 follows the as-built resume: the saved progress drops the e-mail proof and the Google credential, so the cleared acceptance shows when the person next reaches the step, with no message (R6, §4.5 and §8 aligned). R6, §4.3 and new AC-0013-17: accepting again after `terms.outdated` or `privacy.outdated` stamps the current versions and keeps the password, e-mail proof and Google credential. §6: check order for registration (both versions missing, both outdated, version checks before the proof, `email.taken` and `slug.taken`), with a both-outdated row in AC-0013-10. R10, §4.1, §8 and new AC-0013-20: the back control is hidden when the tab has no earlier page. AC-0013-05 split: its second action is now AC-0013-18; new AC-0013-19 for the `common.new-tab` hint. AC-0013-15 adds the `termsVersion.required` and `privacyVersion.required` rows and names the profile step. §5 cites RN-02 and the as-built records instead of SPEC-0010 §2. Still pending on the owner: Q1 (the documents' text) and Q2 (how versions reach the records, including the new §6 check order). Should-fix items not applied. |
 | 0.3 | 2026-11-27 | Owner decisions, 2026-11-27. §9 Q17 decided: versions are date labels `YYYY-MM-DD` chosen by the owner, current when their release goes live; every published text is kept and never changes; the web app and the API share each current identifier (R3 rewritten, which also settles the review's should-fix on R3 vs §4.5; new R13, R14; §2, §4.5, §7 and Q2, Q3, Q4 aligned). §9 Q18 decided: each section heading has an address whose identifier follows GitHub's heading-anchor rule, with a link beside the heading (new R15, §4.1 step 4, §8 row and `legal.heading-link`). New §9 Q19 (fixed identifiers for headings other pages link to), not blocking. New AC-0013-21 to -27. §11 records the tooling choices for `/plan`: MDX files and `github-slugger`. Still pending on the owner: Q1 (the documents' text) and Q2 (a) or (b). |
 | 0.4 | 2026-11-27 | Owner decision, 2026-11-27: §9 Q2 decided as (a). The registration request states each document's version and the API refuses one that is not current (R5, R6), with the keys and check order of §6 and the `privacyVersion` field of §7; R6 is no longer an assumption, and §6 no longer marks its keys and check order as proposed. Still pending on the owner before Approved: Q1 (the documents' text). Q4, Q7 and Q8 keep their proposed answers, with the criteria written to them listed in their Blocks cells. |
+| 0.5 | 2026-11-27 | Owner decisions, 2026-11-27: §9 Q4, Q7 and Q8 decided as proposed. Q4: only the current version is public in the MVP (R4, AC-0013-08). Q7: the registration links open in a new tab, and the back control is hidden when the tab has no earlier page (R10, AC-0013-05, -18 to -20). Q8 (a): the owner supplies both languages, with no fallback (R14, AC-0013-27); the `legal.untranslated` key and its §8 rows are dropped. R4, R10 and R14 are no longer assumptions. Still pending on the owner before Approved: Q1 (the documents' text, both languages). Q3 to answer before release. |
+| 0.6 | 2026-11-27 | Owner decision, 2026-11-27: §9 Q1 decided as proposed. The owner supplies both documents in pt-BR and en-US, reviewed by a lawyer, covering R7, with the real DPO address and the operators in use; agents never draft or edit the text; the pages are not released before the text exists, and the placeholder keys are removed (R7, §8). The text is a precondition of the release, not of approval. No §9 question blocks approval now; Q3 is to be answered before release. R8 stays an assumption. |
