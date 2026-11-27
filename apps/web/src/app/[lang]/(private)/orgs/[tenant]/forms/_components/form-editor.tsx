@@ -215,6 +215,25 @@ const TYPE_OPTIONS = {
 	{ icon: LucideIcon; label: string; hint: string }
 >;
 
+// the draft the editor starts from: the saved template, the seeded draft, or a
+// blank one of the preset type
+function startingDraft(
+	template: FormTemplate | null,
+	initialDraft: FormEditorProps["initialDraft"],
+	type: FormType | undefined,
+): FormDraft {
+	if (template) return draftFromTemplate(template);
+	if (initialDraft) {
+		return {
+			type: initialDraft.type,
+			name: initialDraft.name ?? "",
+			description: initialDraft.description ?? "",
+			fields: initialDraft.fields,
+		};
+	}
+	return blankDraft(type);
+}
+
 function EditorBody({
 	template,
 	type,
@@ -243,16 +262,7 @@ function EditorBody({
 	const revealed = useRef(false);
 
 	const { form, dirty, guard } = useFormDraft(
-		template
-			? draftFromTemplate(template)
-			: initialDraft
-				? {
-						type: initialDraft.type,
-						name: initialDraft.name ?? "",
-						description: initialDraft.description ?? "",
-						fields: initialDraft.fields,
-					}
-				: blankDraft(type),
+		startingDraft(template, initialDraft, type),
 	);
 	const {
 		register,
@@ -625,72 +635,15 @@ function EditorBody({
 				</div>
 			</div>
 
-			<fieldset
-				className="flex flex-col gap-2"
+			<TypeFieldset
+				baseId={baseId}
+				value={draftType}
+				locked={typeLocked}
 				disabled={saving}
-				aria-describedby={typeError ? `${baseId}-type-error` : undefined}
-			>
-				<legend className="mb-2 font-heading-xs text-text-secondary">
-					{t("editor.type")}
-				</legend>
-				{typeLocked ? (
-					<p className="font-body-sm text-text-bold">
-						{draftType === "service"
-							? t("editor.typeService")
-							: t("editor.typeClient")}
-					</p>
-				) : (
-					<div className="grid max-w-lg grid-cols-2 gap-3">
-						{FORM_TYPES.map((option, index) => {
-							const { icon: Icon, label, hint } = TYPE_OPTIONS[option];
-							const optionId = `${baseId}-${TYPE_ID_SUFFIX}-${option}`;
-							return (
-								<label
-									key={option}
-									className="group flex cursor-pointer flex-col gap-1 rounded-lg border border-border-input p-3 transition-colors duration-100 ease-out hover:bg-surface-hovered has-checked:border-border-brand has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-border-focused has-disabled:cursor-not-allowed has-disabled:border-border-disabled has-disabled:hover:bg-transparent"
-								>
-									<input
-										id={index === 0 ? `${baseId}-${TYPE_ID_SUFFIX}` : undefined}
-										type="radio"
-										name={`${baseId}-type`}
-										value={option}
-										checked={draftType === option}
-										onChange={() => chooseType(option)}
-										aria-labelledby={`${optionId}-label`}
-										aria-describedby={`${optionId}-hint`}
-										className="sr-only"
-									/>
-									<Icon
-										aria-hidden
-										className="mb-1 size-5 text-icon-subtle transition-colors group-has-checked:text-icon-brand group-has-disabled:text-icon-disabled"
-									/>
-									<span
-										id={`${optionId}-label`}
-										className="font-body-md font-semibold text-text-primary group-has-disabled:text-text-disabled"
-									>
-										{t(label)}
-									</span>
-									<span
-										id={`${optionId}-hint`}
-										className="font-body-sm text-text-secondary group-has-disabled:text-text-disabled"
-									>
-										{t(hint)}
-									</span>
-								</label>
-							);
-						})}
-					</div>
-				)}
-				{typeError && (
-					<p
-						id={`${baseId}-type-error`}
-						role="alert"
-						className="font-body-sm font-medium text-text-status-danger"
-					>
-						{text(typeError)}
-					</p>
-				)}
-			</fieldset>
+				error={typeError}
+				text={text}
+				onChoose={chooseType}
+			/>
 
 			{/* field list: SPEC-0002 */}
 			{draftType === "" ? (
@@ -797,5 +750,95 @@ function EditorBody({
 				/>
 			)}
 		</form>
+	);
+}
+
+// the template's type: read-only text once locked, otherwise one radio per type
+function TypeFieldset({
+	baseId,
+	value,
+	locked,
+	disabled,
+	error,
+	text,
+	onChoose,
+}: Readonly<{
+	baseId: string;
+	value: FormDraft["type"];
+	locked: boolean;
+	disabled: boolean;
+	error: string | undefined;
+	text: (key: string | undefined) => string | undefined;
+	onChoose: (next: FormType) => void;
+}>) {
+	const t = useTranslations("forms");
+
+	return (
+		<fieldset
+			className="flex flex-col gap-2"
+			disabled={disabled}
+			aria-describedby={error ? `${baseId}-type-error` : undefined}
+		>
+			<legend className="mb-2 font-heading-xs text-text-secondary">
+				{t("editor.type")}
+			</legend>
+			{locked ? (
+				<p className="font-body-sm text-text-bold">
+					{value === "service"
+						? t("editor.typeService")
+						: t("editor.typeClient")}
+				</p>
+			) : (
+				<div className="grid max-w-lg grid-cols-2 gap-3">
+					{FORM_TYPES.map((option, index) => {
+						const { icon: Icon, label, hint } = TYPE_OPTIONS[option];
+						const optionId = `${baseId}-${TYPE_ID_SUFFIX}-${option}`;
+						return (
+							<label
+								key={option}
+								className="group flex cursor-pointer flex-col gap-1 rounded-lg border border-border-input p-3 transition-colors duration-100 ease-out hover:bg-surface-hovered has-checked:border-border-brand has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-border-focused has-disabled:cursor-not-allowed has-disabled:border-border-disabled has-disabled:hover:bg-transparent"
+							>
+								<input
+									id={index === 0 ? `${baseId}-${TYPE_ID_SUFFIX}` : undefined}
+									type="radio"
+									name={`${baseId}-type`}
+									value={option}
+									checked={value === option}
+									onChange={() => onChoose(option)}
+									aria-labelledby={`${optionId}-label`}
+									aria-describedby={`${optionId}-hint`}
+									className="sr-only"
+								/>
+								<Icon
+									aria-hidden
+									className="mb-1 size-5 text-icon-subtle transition-colors group-has-checked:text-icon-brand group-has-disabled:text-icon-disabled"
+								/>
+								<span
+									id={`${optionId}-label`}
+									className="font-body-md font-semibold text-text-primary group-has-disabled:text-text-disabled"
+								>
+									{t(label)}
+								</span>
+								<span
+									id={`${optionId}-hint`}
+									className="font-body-sm text-text-secondary group-has-disabled:text-text-disabled"
+								>
+									{t(hint)}
+								</span>
+							</label>
+						);
+					})}
+				</div>
+			)}
+			{error && (
+				<p
+					id={`${baseId}-type-error`}
+					role="alert"
+					className="font-body-sm font-medium text-text-status-danger"
+				>
+					{text(error)}
+				</p>
+			)}
+		</fieldset>
 	);
 }
