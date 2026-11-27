@@ -14,73 +14,87 @@ import type {
   UserRepository,
 } from '../../ports/repositories/user.repository.js';
 import {
+  AuthPersistenceError,
   EmailTakenError,
   SlugTakenError,
 } from '../../domain/errors/auth.errors.js';
 import type { User } from '../../domain/user.entity.js';
+import { guardQuery, pgErrorOf } from './guard-query.js';
 import { toDomain } from './user.mapper.js';
 
 /** Postgres unique-violation */
 const UNIQUE_VIOLATION = '23505';
+const EMAIL_INDEX = 'idx_users_email';
+const SLUG_INDEX = 'idx_users_slug';
 
 @Injectable()
 export class DrizzleUserRepository implements UserRepository {
   constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
   async findByEmail(email: string): Promise<User | null> {
-    const [row] = await this.db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
+    return guardQuery(async () => {
+      const [row] = await this.db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
 
-    return row ? toDomain(row) : null;
+      return row ? toDomain(row) : null;
+    });
   }
 
   async findById(id: string): Promise<User | null> {
-    const [row] = await this.db
-      .select()
-      .from(users)
-      .where(eq(users.id, id))
-      .limit(1);
+    return guardQuery(async () => {
+      const [row] = await this.db
+        .select()
+        .from(users)
+        .where(eq(users.id, id))
+        .limit(1);
 
-    return row ? toDomain(row) : null;
+      return row ? toDomain(row) : null;
+    });
   }
 
   async findByGoogleAccountId(providerAccountId: string): Promise<User | null> {
-    const [row] = await this.db
-      .select({ user: users })
-      .from(userIdentities)
-      .innerJoin(users, eq(users.id, userIdentities.userId))
-      .where(
-        and(
-          eq(userIdentities.provider, 'google'),
-          eq(userIdentities.providerAccountId, providerAccountId),
-        ),
-      )
-      .limit(1);
+    return guardQuery(async () => {
+      const [row] = await this.db
+        .select({ user: users })
+        .from(userIdentities)
+        .innerJoin(users, eq(users.id, userIdentities.userId))
+        .where(
+          and(
+            eq(userIdentities.provider, 'google'),
+            eq(userIdentities.providerAccountId, providerAccountId),
+          ),
+        )
+        .limit(1);
 
-    return row ? toDomain(row.user) : null;
+      return row ? toDomain(row.user) : null;
+    });
   }
 
   async emailExists(email: string): Promise<boolean> {
-    const [row] = await this.db
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
+    return guardQuery(async () => {
+      const [row] = await this.db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
 
-    return Boolean(row);
+      return Boolean(row);
+    });
   }
 
   async slugExists(slug: string): Promise<boolean> {
-    const [row] = await this.db
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.slug, slug))
-      .limit(1);
+    return guardQuery(async () => {
+      const [row] = await this.db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.slug, slug))
+        .limit(1);
 
-    return Boolean(row);
+      return Boolean(row);
+    });
   }
 
   async create(
@@ -133,7 +147,7 @@ export class DrizzleUserRepository implements UserRepository {
         return toDomain(row);
       });
     } catch (error) {
-      throw this.translateUniqueViolation(error);
+      throw translateCreateError(error);
     }
   }
 
@@ -141,51 +155,66 @@ export class DrizzleUserRepository implements UserRepository {
     userId: string,
     identity: GoogleIdentityData,
   ): Promise<void> {
-    await this.db
-      .insert(userIdentities)
-      .values({
-        userId,
-        provider: 'google',
-        providerAccountId: identity.providerAccountId,
-        email: identity.email,
-      })
-      .onConflictDoNothing();
+    return guardQuery(async () => {
+      await this.db
+        .insert(userIdentities)
+        .values({
+          userId,
+          provider: 'google',
+          providerAccountId: identity.providerAccountId,
+          email: identity.email,
+        })
+        .onConflictDoNothing();
+    });
   }
 
   async updatePassword(userId: string, passwordHash: string): Promise<void> {
-    await this.db
-      .update(users)
-      .set({
-        passwordHash,
-        passwordChangedAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, userId));
+    return guardQuery(async () => {
+      await this.db
+        .update(users)
+        .set({
+          passwordHash,
+          passwordChangedAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, userId));
+    });
   }
 
   async markEmailVerifier(userId: string): Promise<void> {
-    await this.db
-      .update(users)
-      .set({ emailVerifiedAt: new Date(), updatedAt: new Date() })
-      .where(and(eq(users.id, userId), sql`${users.emailVerifiedAt} is null`));
+    return guardQuery(async () => {
+      await this.db
+        .update(users)
+        .set({ emailVerifiedAt: new Date(), updatedAt: new Date() })
+        .where(
+          and(eq(users.id, userId), sql`${users.emailVerifiedAt} is null`),
+        );
+    });
   }
 
   async recordLogin(userId: string): Promise<void> {
-    await this.db
-      .update(users)
-      .set({ lastLoginAt: new Date() })
-      .where(eq(users.id, userId));
+    return guardQuery(async () => {
+      await this.db
+        .update(users)
+        .set({ lastLoginAt: new Date() })
+        .where(eq(users.id, userId));
+    });
   }
+}
 
-  private translateUniqueViolation(error: unknown): unknown {
-    if (typeof error !== 'object' || error === null || !('code' in error))
-      return error;
-    if ((error as { code?: string }).code !== UNIQUE_VIOLATION) return error;
+/**
+ * A taken e-mail or slug is a 409 (the register pre-checks lost a race). Drizzle
+ * wraps the driver error, so the Postgres code sits on `cause` (`pgErrorOf`).
+ * Anything else becomes `AuthPersistenceError`: Drizzle's message carries the
+ * query parameters, which hold personal data and the password hash.
+ */
+function translateCreateError(error: unknown): Error {
+  const { code, constraint } = pgErrorOf(error);
 
-    const constraint = (error as { constraint?: string }).constraint ?? '';
-    if (constraint.includes('slug')) return new SlugTakenError();
-    if (constraint.includes('email')) return new EmailTakenError();
+  if (code === UNIQUE_VIOLATION && constraint === EMAIL_INDEX)
+    return new EmailTakenError();
+  if (code === UNIQUE_VIOLATION && constraint === SLUG_INDEX)
+    return new SlugTakenError();
 
-    return error;
-  }
+  return new AuthPersistenceError(code, constraint);
 }
