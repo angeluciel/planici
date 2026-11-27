@@ -14,6 +14,7 @@ import {
 	callsTo,
 	clientFields,
 	FORM_ID,
+	field,
 	navigatedTo,
 	never,
 	on,
@@ -26,6 +27,7 @@ import {
 	t,
 	tCommon,
 	template,
+	tValidation,
 } from "./forms-harness";
 
 vi.mock("axios", async (importOriginal) => {
@@ -448,6 +450,59 @@ describe("FormEditor: existing template", () => {
 		// header skeleton test id is not fixed by the plan; assumed
 		expect(within(region).getByTestId("form-header-skeleton")).toBeTruthy();
 		expect(screen.queryByDisplayValue("Ficha")).toBeNull();
+	});
+});
+
+describe("FormEditor: type choice", () => {
+	it("an existing service template shows its type as text, with no type options", async () => {
+		await openExisting({
+			type: "service",
+			fields: [
+				field({
+					label: "Nome",
+					type: "text",
+					required: true,
+					requiredLock: true,
+					systemKey: "service.name",
+				}),
+				field({
+					label: "Duração",
+					type: "duration",
+					required: true,
+					requiredLock: true,
+					systemKey: "service.duration",
+				}),
+				field({
+					label: "Preço",
+					type: "money",
+					required: true,
+					requiredLock: true,
+					systemKey: "service.price",
+				}),
+			],
+		});
+
+		const group = screen.getByRole("group", { name: t("editor.type") });
+		expect(within(group).getByText(t("editor.typeService"))).toBeTruthy();
+		expect(within(group).queryByText(t("editor.typeClient"))).toBeNull();
+		expect(within(group).queryAllByRole("radio")).toHaveLength(0);
+	});
+
+	it("saving a new template without a type shows the error on the type group, focuses the first option and sends nothing", async () => {
+		setRoute({});
+		renderApp(<FormEditor />);
+		rename("Anamnese inicial");
+
+		fireEvent.click(save());
+
+		const group = screen.getByRole("group", { name: t("editor.type") });
+		const alert = await within(group).findByRole("alert");
+		expect(alert.textContent).toBe(tValidation("formType.invalid"));
+		expect(group.getAttribute("aria-describedby")).toBe(alert.id);
+		expect(document.activeElement).toBe(
+			screen.getByRole("radio", { name: t("editor.typeClient") }),
+		);
+		expect(callsTo("POST", "/api/forms")).toHaveLength(0);
 	});
 });
 
