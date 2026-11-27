@@ -22,6 +22,38 @@ function formatAddress(value: Record<string, unknown>): string {
 	return [street, text("district"), city, cep].filter(Boolean).join(", ");
 }
 
+function formatNumber(value: unknown, format: Formatter): string {
+	if (typeof value !== "number") return "";
+	return format.number(value, {
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 2,
+	});
+}
+
+/** A stored `YYYY-MM-DD`, shown on that same day in any time zone. */
+function formatDate(value: unknown, format: Formatter): string {
+	const match = typeof value === "string" ? DATE.exec(value) : null;
+	if (!match) return "";
+	const date = new Date(
+		Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])),
+	);
+	return format.dateTime(date, {
+		day: "2-digit",
+		month: "2-digit",
+		year: "numeric",
+		timeZone: "UTC",
+	});
+}
+
+function optionLabel(options: Field["options"], value: unknown): string {
+	return options?.find((option) => option.id === value)?.label ?? "";
+}
+
+/** A text value through its display mask; anything else shows nothing. */
+function maskText(value: unknown, mask: (text: string) => string): string {
+	return typeof value === "string" ? mask(value) : "";
+}
+
 /** The text of one stored value, or "" when there is nothing to show. */
 export function formatFieldValue(
 	field: Pick<Field, "type" | "options">,
@@ -34,31 +66,15 @@ export function formatFieldValue(
 		case "yes_no":
 			return value === true ? deps.yes : deps.no;
 		case "number":
-			return typeof value === "number"
-				? deps.format.number(value, {
-						minimumFractionDigits: 0,
-						maximumFractionDigits: 2,
-					})
-				: "";
-		case "date": {
-			const match = typeof value === "string" ? DATE.exec(value) : null;
-			if (!match) return "";
-			const date = new Date(
-				Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])),
-			);
-			return deps.format.dateTime(date, {
-				day: "2-digit",
-				month: "2-digit",
-				year: "numeric",
-				timeZone: "UTC",
-			});
-		}
+			return formatNumber(value, deps.format);
+		case "date":
+			return formatDate(value, deps.format);
 		case "select":
-			return field.options?.find((option) => option.id === value)?.label ?? "";
+			return optionLabel(field.options, value);
 		case "phone":
-			return typeof value === "string" ? maskPhone(value) : "";
+			return maskText(value, maskPhone);
 		case "cpf":
-			return typeof value === "string" ? maskCpf(value) : "";
+			return maskText(value, maskCpf);
 		case "address":
 			return typeof value === "object"
 				? formatAddress(value as Record<string, unknown>)
