@@ -362,3 +362,119 @@ describe("readBody() and parseUpstream()", () => {
 		}
 	});
 });
+
+// SPEC-0009 P-2 and P-4: route() resolves the client address, api() forwards it.
+describe("api(): the client address of the browser request", () => {
+	const SECRET_KEY = Symbol.for("planici.peer-secret");
+	const SECRET = "test-secret-0123456789abcdefghijklmnopqrstu";
+
+	function browserRequest(headers: Record<string, string>) {
+		return new NextRequest(`${WEB_ORIGIN}/api/auth/email/code`, {
+			method: "POST",
+			headers: { origin: WEB_ORIGIN, ...headers },
+		});
+	}
+
+	// every header of the upstream call whose name matches, whatever its case
+	function sentHeaders(name: string): [string, unknown][] {
+		const headers = sentRequest().headers as Record<string, unknown>;
+		return Object.entries(headers).filter(
+			([key]) => key.toLowerCase() === name,
+		);
+	}
+
+	beforeEach(() => {
+		(globalThis as Record<symbol, unknown>)[SECRET_KEY] = SECRET;
+		vi.stubEnv("ENTRY_PROXY_RANGES", "");
+	});
+	afterEach(() => {
+		(globalThis as Record<symbol, unknown>)[SECRET_KEY] = undefined;
+	});
+
+	it("AC-0009-07 sends the resolved address as the only X-Forwarded-For value", async () => {
+		const handler = () =>
+			api("/email/code").then(() => NextResponse.json({ ok: true }));
+
+		await route(handler)(
+			browserRequest({
+				"x-planici-peer": `${SECRET} 198.51.100.40`,
+				"x-forwarded-for": "203.0.113.66, 203.0.113.67",
+				"x-real-ip": "203.0.113.68",
+				"cf-connecting-ip": "203.0.113.69",
+			}),
+			undefined,
+		);
+
+		expect(sentHeaders("x-forwarded-for")).toEqual([
+			[expect.any(String), "198.51.100.40"],
+		]);
+		expect(sentHeaders("x-real-ip")).toEqual([]);
+		expect(sentHeaders("cf-connecting-ip")).toEqual([]);
+		expect(sentHeaders("x-planici-peer")).toEqual([]);
+	});
+
+	it("sends the address on every API call the handler makes", async () => {
+		const handler = async () => {
+			await api("/email/code");
+			await api("/me", { method: "GET" });
+			return NextResponse.json({ ok: true });
+		};
+
+		await route(handler)(
+			browserRequest({ "x-planici-peer": `${SECRET} 198.51.100.40` }),
+			undefined,
+		);
+
+		const calls = vi.mocked(axios.request).mock.calls;
+		expect(calls).toHaveLength(2);
+		for (const [config] of calls) {
+			expect(config.headers).toMatchObject({
+				"X-Forwarded-For": "198.51.100.40",
+			});
+		}
+	});
+
+	it("does not leak one request's address into the next", async () => {
+		const handler = () =>
+			api("/email/code").then(() => NextResponse.json({ ok: true }));
+
+		await route(handler)(
+			browserRequest({ "x-planici-peer": `${SECRET} 198.51.100.40` }),
+			undefined,
+		);
+		await route(handler)(
+			browserRequest({ "x-planici-peer": `${SECRET} 198.51.100.41` }),
+			undefined,
+		);
+
+		const sent = vi
+			.mocked(axios.request)
+			.mock.calls.map(([config]) => config.headers);
+		expect(sent[0]).toMatchObject({ "X-Forwarded-For": "198.51.100.40" });
+		expect(sent[1]).toMatchObject({ "X-Forwarded-For": "198.51.100.41" });
+	});
+
+	it("sends no X-Forwarded-For when no address was resolved", async () => {
+		const handler = () =>
+			api("/email/code").then(() => NextResponse.json({ ok: true }));
+
+		await route(handler)(
+			browserRequest({
+				"x-forwarded-for": "203.0.113.66",
+				"x-real-ip": "203.0.113.68",
+				"cf-connecting-ip": "203.0.113.69",
+			}),
+			undefined,
+		);
+
+		expect(sentHeaders("x-forwarded-for")).toEqual([]);
+		expect(sentHeaders("x-real-ip")).toEqual([]);
+		expect(sentHeaders("cf-connecting-ip")).toEqual([]);
+	});
+
+	it("sends no X-Forwarded-For for a call made outside route()", async () => {
+		await api("/me", { method: "GET" });
+
+		expect(sentHeaders("x-forwarded-for")).toEqual([]);
+	});
+});
