@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Field } from '@planici/schemas';
 import {
   checkRecordValues,
@@ -97,6 +97,22 @@ describe('required custom fields', () => {
   it('R6 does not ask for system fields: their values are not in values', () => {
     expect(checkRecordValues(versionOf(NAME, PHONE), {})).toEqual({});
   });
+
+  it('AC-0003-02 accepts a value for a required field and returns it', () => {
+    const profession = fieldOf('text', { required: true });
+
+    expect(
+      checkRecordValues(versionOf(NAME, profession), {
+        [profession.id]: 'Engenheira',
+      }),
+    ).toEqual({ [profession.id]: 'Engenheira' });
+  });
+
+  it('SPEC-0002 R8 does not ask for a required yes_no field', () => {
+    const smoker = fieldOf('yes_no', { label: 'Fumante', required: true });
+
+    expect(checkRecordValues(versionOf(smoker), {})).toStrictEqual({});
+  });
 });
 
 describe('yes_no', () => {
@@ -124,6 +140,14 @@ describe('yes_no', () => {
     expect(checkRecordValues(versionOf(smoker), { [smoker.id]: true })).toEqual(
       { [smoker.id]: true },
     );
+  });
+
+  it('Decision 6 leaves a false yes_no field out of the result', () => {
+    const smoker = fieldOf('yes_no', { label: 'Fumante' });
+
+    expect(
+      checkRecordValues(versionOf(smoker), { [smoker.id]: false }),
+    ).toStrictEqual({});
   });
 });
 
@@ -275,6 +299,60 @@ describe('type rules', () => {
         [shift.id]: shift.options![0]!.id,
       }),
     ).toEqual({ [shift.id]: shift.options![0]!.id });
+  });
+});
+
+// Every issue of the value schemas carries an error key, and a failed parse has
+// at least one issue, so only a stubbed schema reaches the value.invalid
+// fallback.
+describe('an issue without an error key', () => {
+  type StubIssue = { message: string; path: PropertyKey[] };
+
+  afterEach(() => {
+    vi.doUnmock('@planici/schemas');
+    vi.resetModules();
+  });
+
+  async function failureWithIssues(issues: StubIssue[]) {
+    vi.resetModules();
+    vi.doMock('@planici/schemas', async (importOriginal) => ({
+      ...(await importOriginal<Record<string, unknown>>()),
+      customValueSchema: () => ({
+        safeParse: () => ({ success: false, error: { issues } }),
+      }),
+    }));
+    const stubbed = await import('@src/modules/records/domain/record-check.js');
+    const text = fieldOf('text');
+
+    return {
+      id: text.id,
+      thrown: failure(() =>
+        stubbed.checkRecordValues(versionOf(text), { [text.id]: 'x' }),
+      ),
+    };
+  }
+
+  it('reports value.invalid at the path of the first issue', async () => {
+    const { id, thrown } = await failureWithIssues([
+      { message: 'Too big', path: ['street'] },
+      { message: 'cpf.invalid', path: [] },
+    ]);
+
+    expect(thrown).toEqual({
+      status: 422,
+      code: 'value.invalid',
+      field: `values.${id}.street`,
+    });
+  });
+
+  it('reports value.invalid at values.<fieldId> when there is no issue', async () => {
+    const { id, thrown } = await failureWithIssues([]);
+
+    expect(thrown).toEqual({
+      status: 422,
+      code: 'value.invalid',
+      field: `values.${id}`,
+    });
   });
 });
 

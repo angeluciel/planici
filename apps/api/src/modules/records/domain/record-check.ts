@@ -5,7 +5,7 @@ import {
 } from '@planici/schemas';
 import { ValidationError } from '@shared/http/zod-validation.pipe.js';
 import { RecordValueUnknownFieldError } from './errors/record.errors.js';
-import type { RecordVersion } from './record-version.js';
+import type { RecordVersion, RecordVersionField } from './record-version.js';
 
 const KNOWN_CODES: ReadonlySet<string> = new Set([
   ...RECORD_ERROR_CODES,
@@ -23,13 +23,28 @@ export function checkRecordValues(
   version: RecordVersion,
   values: unknown,
 ): Record<string, unknown> {
+  const input = valuesObject(values);
+  checkKeys(version, input);
+
+  const custom = version.fields.filter((field) => field.systemKey === null);
+  checkRequired(custom, input);
+  return checkTypes(custom, input);
+}
+
+/** The values envelope: a plain object, or `values.invalid`. */
+function valuesObject(values: unknown): Record<string, unknown> {
   if (typeof values !== 'object' || values === null || Array.isArray(values)) {
     throw new ValidationError('values.invalid', 'values');
   }
-  const input = values as Record<string, unknown>;
-  const byId = new Map(version.fields.map((field) => [field.id, field]));
+  return values as Record<string, unknown>;
+}
 
-  // pass 1: keys
+/** Pass 1: every key, in request order, is a custom field of the version. */
+function checkKeys(
+  version: RecordVersion,
+  input: Record<string, unknown>,
+): void {
+  const byId = new Map(version.fields.map((field) => [field.id, field]));
   for (const key of Object.keys(input)) {
     const field = byId.get(key);
     if (!field) throw new RecordValueUnknownFieldError(key);
@@ -37,10 +52,16 @@ export function checkRecordValues(
       throw new ValidationError('value.unknown-field', `values.${key}`);
     }
   }
+}
 
-  const custom = version.fields.filter((field) => field.systemKey === null);
-
-  // pass 2: required (a yes_no is never required, SPEC-0002 R8)
+/**
+ * Pass 2: the required fields in version order (a yes_no is never required,
+ * SPEC-0002 R8).
+ */
+function checkRequired(
+  custom: readonly RecordVersionField[],
+  input: Record<string, unknown>,
+): void {
   for (const field of custom) {
     if (
       field.required &&
@@ -50,30 +71,44 @@ export function checkRecordValues(
       throw new ValidationError('value.required', `values.${field.id}`);
     }
   }
+}
 
-  // pass 3: type rules
+/**
+ * Pass 3: the type rules in version order. Returns the normalised values,
+ * leaving out blanks and a `yes_no` that is false.
+ */
+function checkTypes(
+  custom: readonly RecordVersionField[],
+  input: Record<string, unknown>,
+): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const field of custom) {
     const value = input[field.id];
     if (isBlankValue(value)) continue;
 
     const parsed = customValueSchema(field).safeParse(value);
-    if (!parsed.success) {
-      const issue = parsed.error.issues[0];
-      const code =
-        issue && KNOWN_CODES.has(issue.message)
-          ? issue.message
-          : 'value.invalid';
-      throw new ValidationError(
-        code,
-        ['values', field.id, ...(issue?.path ?? [])].join('.'),
-      );
-    }
+    if (!parsed.success) throw issueError(field.id, parsed.error.issues[0]);
     if (field.type === 'yes_no' && parsed.data === false) continue;
     out[field.id] = parsed.data;
   }
 
   return out;
+}
+
+/**
+ * The failure of a value from its first issue: the issue's error key, or
+ * `value.invalid` when it has none, at `values.<fieldId>` plus the issue path.
+ */
+function issueError(
+  fieldId: string,
+  issue: { message: string; path: readonly PropertyKey[] } | undefined,
+): ValidationError {
+  const code =
+    issue && KNOWN_CODES.has(issue.message) ? issue.message : 'value.invalid';
+  return new ValidationError(
+    code,
+    ['values', fieldId, ...(issue?.path ?? [])].join('.'),
+  );
 }
 
 /**
