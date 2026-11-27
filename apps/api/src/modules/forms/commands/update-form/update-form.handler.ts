@@ -1,6 +1,9 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
-import type { FormTemplate as FormTemplateDto } from '@planici/schemas';
+import type {
+  FormTemplate as FormTemplateDto,
+  UpdateFormRequestInput,
+} from '@planici/schemas';
 import { presentForm } from '../../application/present-form.js';
 import {
   FormNotFoundError,
@@ -15,10 +18,12 @@ import { toNextVersionShape } from '../../domain/next-version-shape.js';
 import {
   FORM_RECORD_STORE,
   type FormRecordStore,
+  type NextVersionShape,
 } from '../../ports/form-record-store.js';
 import {
   FORM_REPOSITORY,
   type FormRepository,
+  type TransactionHandle,
 } from '../../ports/form-repository.js';
 import {
   RECORD_HISTORY_READER,
@@ -80,29 +85,19 @@ export class UpdateFormHandler implements ICommandHandler<UpdateFormCommand> {
       }
 
       const next = toNextVersionShape(planned);
-      const { recordCount } = await this.records.counts(tenantId, formId, tx);
-      const migration = payload.migration;
-
-      if (recordCount > 0) {
-        if (!migration) throw new MigrationModeRequiredError();
-
-        if (migration.mode === 'update_all') {
-          const losing = await this.records.countRecordsLosingAnswers(
-            tenantId,
-            formId,
-            next,
-            tx,
-          );
-          // R9 comparison: trimmed, otherwise exact
-          if (losing > 0 && migration.confirmName?.trim() !== stored.name)
-            throw new MigrationConfirmationRequiredError();
-        }
-      }
+      const moveRecords = await this.checkMigration(
+        tx,
+        tenantId,
+        formId,
+        next,
+        payload.migration,
+        stored.name,
+      );
 
       const version = template.startNextVersion();
       await this.forms.publishVersion(tx, template.toStored(), version);
 
-      if (recordCount > 0 && migration?.mode === 'update_all') {
+      if (moveRecords) {
         // repoint first, so a record update holding its lock makes this wait
         await this.records.repointAll(tx, tenantId, formId, version);
         await this.records.deleteLostAnswers(tx, tenantId, formId, next);
@@ -112,5 +107,36 @@ export class UpdateFormHandler implements ICommandHandler<UpdateFormCommand> {
     });
 
     return presentForm(template, this.records, this.history);
+  }
+
+  /**
+   * A schema change over records needs a migration mode, and an `update_all`
+   * that loses answers needs the stored name typed back. Resolves to whether
+   * the records move to the next version (`update_all` over records).
+   */
+  private async checkMigration(
+    tx: TransactionHandle,
+    tenantId: string,
+    formId: string,
+    next: NextVersionShape,
+    migration: UpdateFormRequestInput['migration'],
+    storedName: string,
+  ): Promise<boolean> {
+    const { recordCount } = await this.records.counts(tenantId, formId, tx);
+    if (recordCount === 0) return false;
+    if (!migration) throw new MigrationModeRequiredError();
+    if (migration.mode !== 'update_all') return false;
+
+    const losing = await this.records.countRecordsLosingAnswers(
+      tenantId,
+      formId,
+      next,
+      tx,
+    );
+    // R9 comparison: trimmed, otherwise exact
+    if (losing > 0 && migration.confirmName?.trim() !== storedName)
+      throw new MigrationConfirmationRequiredError();
+
+    return true;
   }
 }

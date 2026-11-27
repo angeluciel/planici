@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { UpdateFormRequestInput } from '@planici/schemas';
+import { FormNameTakenError } from '../../domain/errors/form.errors.js';
 import type { StoredForm } from '../../ports/form-repository.js';
 import {
   buildHandler,
@@ -104,6 +105,19 @@ describe('UpdateFormHandler check order', () => {
     ).rejects.toMatchObject({ code: 'field.unknown' });
   });
 
+  it('answers formName.taken (the name write) before the migration mode', async () => {
+    ports.recordCount = 3;
+    ports.updateRow = () => Promise.reject(new FormNameTakenError());
+
+    await expect(
+      update({
+        revision: 3,
+        name: 'Anamnese',
+        fields: [...inputs(), newField()],
+      }),
+    ).rejects.toMatchObject({ code: 'formName.taken', field: 'name' });
+  });
+
   it('AC-0001-22 answers migration.mode-required before the typed name', async () => {
     ports.recordCount = 3;
     ports.recordsLosingAnswers = 2;
@@ -197,6 +211,47 @@ describe('UpdateFormHandler migration', () => {
     expect(ports.recordsRepointed).toBe(true);
   });
 
+  it('compares the typed name with the stored name when the same request renames', async () => {
+    ports.recordCount = 4;
+    ports.recordsLosingAnswers = 2;
+    const payload = {
+      revision: 3,
+      name: 'Ficha nova',
+      fields: inputs().filter((field) => field.label !== 'Hobby'),
+    };
+
+    await expect(
+      update({
+        ...payload,
+        migration: { mode: 'update_all', confirmName: 'Ficha nova' },
+      }),
+    ).rejects.toMatchObject({ code: 'migration.confirmation-required' });
+    expect(ports.form).toMatchObject({ name: 'Ficha', revision: 3 });
+
+    const result = await update({
+      ...payload,
+      migration: { mode: 'update_all', confirmName: 'Ficha' },
+    });
+
+    expect(result).toMatchObject({ name: 'Ficha nova', version: 2 });
+    expect(ports.recordsRepointed).toBe(true);
+  });
+
+  it('needs no typed name and moves nothing when update_all comes over no records', async () => {
+    ports.recordCount = 0;
+    ports.recordsLosingAnswers = 2;
+
+    const result = await update({
+      revision: 3,
+      fields: inputs().filter((field) => field.label !== 'Hobby'),
+      migration: { mode: 'update_all' },
+    });
+
+    expect(result).toMatchObject({ version: 2, revision: 4 });
+    expect(ports.recordsRepointed).toBe(false);
+    expect(ports.lostAnswersDeleted).toBe(false);
+  });
+
   it('AC-0001-23 keeps existing records with "keep": publishes without repointing', async () => {
     ports.recordCount = 3;
 
@@ -247,6 +302,23 @@ describe('UpdateFormHandler publication', () => {
       revision: 4,
     });
     expect(ports.recordsRepointed).toBe(false);
+  });
+
+  it('ignores the migration of a metadata-only save over records', async () => {
+    ports.recordCount = 5;
+    ports.recordsLosingAnswers = 2;
+
+    const result = await update({
+      revision: 3,
+      fields: inputs().map((field) =>
+        field.label === 'Hobby' ? { ...field, label: 'Passatempo' } : field,
+      ),
+      migration: { mode: 'update_all' },
+    });
+
+    expect(result).toMatchObject({ version: 1, revision: 4 });
+    expect(ports.recordsRepointed).toBe(false);
+    expect(ports.lostAnswersDeleted).toBe(false);
   });
 
   it('AC-0001-21 publishes the next version of a template without records', async () => {
