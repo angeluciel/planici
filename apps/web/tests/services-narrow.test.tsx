@@ -747,7 +747,11 @@ describe("Actions menu", () => {
 
 		fireEvent.click(await screen.findByRole("menuitem", { name: "Excluir" }));
 
-		await deleteDialog();
+		const { dialog, confirm } = await deleteDialog();
+		expect(
+			within(dialog).getByText(ts("delete.confirm", { name: "Facial" })),
+		).toBeTruthy();
+		expect((confirm() as HTMLButtonElement).disabled).toBe(true);
 	});
 
 	it("AC-0005-104 opens the same menu after a long press of the row", async () => {
