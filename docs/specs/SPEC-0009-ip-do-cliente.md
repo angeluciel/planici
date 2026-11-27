@@ -3,7 +3,7 @@ id: SPEC-0009
 title: Endereço IP do cliente nas requisições à API
 status: Approved # Draft | Review | Approved | Implemented | Superseded
 plan_status: Approved # Draft | Approved
-version: 1.4
+version: 1.5
 owner: Joao Izidoro
 satisfies: [RNF-10, RNF-11, RNF-12]
 depends_on: []
@@ -531,3 +531,4 @@ built into Node.
 | 1.2 | 2026-11-26 | Plan review fix, blocking item. Next.js accepts connections before `register()` runs, so a browser could forge the peer header for a request the capture missed. The header now carries a per-process secret kept on `globalThis`, and a header without it resolves to no address (P-1, P-3 step 1). New test `ignores a peer header the capture did not write` (AC-0009-17) and a supporting test in `bff-peer-address.test.ts`. The spike step also checks a build without the capture. Risks rewritten. Scope unchanged. The 8 should-fix items stay follow-ups. `plan_status` stays Draft. |
 | 1.3 | 2026-11-26 | Owner correction: production (Cloudflare → load balancer → web app) is the only chain; the self-hosted reverse proxy is not used anywhere. §2 drops the self-hosted chain and lists it out of scope; R1, R2 and §4.1 name only the load balancer; AC-0009-12 withdrawn (ID not reused); Q6 and Q10 keep only their production answers. §11: `compose.yaml` leaves the scope (17 paths), P-7 and M-3 withdrawn, P-6 no longer relies on nginx, the compose sequence step removed. Q3 decided with the plan: the Cloudflare list is a code constant (P-6). P-3 step 1 checks lengths before `timingSafeEqual` (plan re-check note). Plan review should-fix items 3 and 4 (self-hosted IPv6, compose subnet) no longer apply; the other 6 stay follow-ups. |
 | 1.4 | 2026-11-26 | Plan approved by Joao Izidoro, 2026-11-26: §11 as revised in 1.2 and 1.3, after the plan review and its re-check (both 2026-11-26), with P-1 to P-9 decided as written (P-7 withdrawn). `plan_status` Approved. |
+| 1.5 | 2026-11-27 | Implemented §11 sequence steps 2–5 (API and web), not yet committed. All 16 in-scope criteria (AC-0009-12 withdrawn) pass in the tests §11 maps them to: web `bff-client-address.test.ts`, `bff-peer-address.test.ts` and `bff-http.test.ts`; API `client-address.e2e-spec.ts`, `request-context.spec.ts` and `trusted-callers.spec.ts`. Review 2026-11-27: PASS, no blocking items; its 7 should-fix items stay follow-ups. Not run: the sequence step 1 spike on a standalone build (the owner chose to skip it, 2026-11-27), the P-8 task definition change, and the manual checks M-1 and M-2, which need a deploy. No deferred criteria. `status` stays Approved until the owner accepts the behavior on a running system. |
