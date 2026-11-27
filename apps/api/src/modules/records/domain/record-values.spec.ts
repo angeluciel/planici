@@ -297,6 +297,85 @@ describe('address', () => {
       parse(address, { ...ADDRESS, street: 'a'.repeat(121), state: 'XX' }),
     ).toMatchObject(rejected('value.max'));
   });
+
+  it('§3.1 gives a value that is not an address object value.invalid at the field', () => {
+    for (const value of [null, 'Avenida Paulista, 1000', 5, [ADDRESS]]) {
+      expect(parse(address, value)).toEqual({
+        ok: false,
+        code: 'value.invalid',
+        path: [],
+      });
+    }
+    expect(asForm('Avenida Paulista, 1000')).toEqual({
+      code: 'value.invalid',
+      field: `values.${address.id}`,
+    });
+  });
+
+  it('§3.1 stores only the address parts, trimmed, with a missing complement as null', () => {
+    expect(
+      parse(address, {
+        cep: ' 01310-100 ',
+        street: '  Avenida Paulista ',
+        number: ' 1000 ',
+        district: ' Bela Vista ',
+        city: ' São Paulo ',
+        state: ' sp ',
+        country: 'BR',
+      }),
+    ).toEqual(
+      accepted({
+        cep: '01310100',
+        street: 'Avenida Paulista',
+        number: '1000',
+        complement: null,
+        district: 'Bela Vista',
+        city: 'São Paulo',
+        state: 'SP',
+      }),
+    );
+    expect(parse(address, { ...ADDRESS, complement: ' Sala 2 ' })).toEqual(
+      accepted(ADDRESS),
+    );
+    expect(parse(address, { ...ADDRESS, complement: null })).toEqual(
+      accepted({ ...ADDRESS, complement: null }),
+    );
+  });
+
+  it('§3.1 checks the complement, district and city limits at their own paths', () => {
+    for (const part of ['complement', 'district', 'city'] as const) {
+      expect(parse(address, { ...ADDRESS, [part]: 'a'.repeat(60) }).ok).toBe(
+        true,
+      );
+      expect(parse(address, { ...ADDRESS, [part]: 'a'.repeat(61) })).toEqual({
+        ok: false,
+        code: 'value.max',
+        path: [part],
+      });
+    }
+    expect(parse(address, { ...ADDRESS, complement: 5 })).toEqual({
+      ok: false,
+      code: 'value.invalid',
+      path: ['complement'],
+    });
+  });
+
+  it('Decision 3 checks number, complement, district and city in that order', () => {
+    const long = 'a'.repeat(61);
+
+    expect(
+      parse(address, { ...ADDRESS, number: '12345678901', complement: 5 }),
+    ).toMatchObject({ path: ['number'] });
+    expect(
+      parse(address, { ...ADDRESS, complement: long, district: long }),
+    ).toMatchObject({ path: ['complement'] });
+    expect(
+      parse(address, { ...ADDRESS, district: long, city: long, state: 'XX' }),
+    ).toMatchObject({ path: ['district'] });
+    expect(
+      parse(address, { ...ADDRESS, city: long, state: 'XX' }),
+    ).toMatchObject({ path: ['city'] });
+  });
 });
 
 describe('select', () => {
