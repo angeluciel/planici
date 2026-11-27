@@ -32,7 +32,12 @@ export function ToastProvider({
 }: Readonly<{ children: React.ReactNode }>) {
 	const t = useTranslations("common");
 
-	useEffect(() => () => void toast.dismiss(), []);
+	useEffect(
+		() => () => {
+			toast.dismiss();
+		},
+		[],
+	);
 
 	useEffect(() => {
 		if (process.env.NODE_ENV === "production") return;
