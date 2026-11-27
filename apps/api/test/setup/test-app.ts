@@ -8,6 +8,7 @@ import {
   type MailMessage,
 } from '@modules/mail/mail.service.js';
 import { DomainExceptionFilter } from '@shared/http/domain-exception.filter.js';
+import { applyTrustedCallers } from '@shared/http/trusted-callers.js';
 import { inject } from 'vitest';
 import { PG_POOL } from '@src/database/database.constants.js';
 import {
@@ -80,6 +81,8 @@ export type TestAppOptions = {
   serviceHistory?: ServiceHistoryReader;
   // replaces the current consent text version (SPEC-0004 R12); the shared constant applies when omitted
   consentTextVersion?: string;
+  // the TRUSTED_CALLERS value applied as `trust proxy` (SPEC-0009 P-5); 'loopback' when omitted
+  trustedCallers?: string;
 };
 
 export async function createTestApp(
@@ -137,6 +140,7 @@ export async function createTestApp(
   const app = moduleRef.createNestApplication();
   app.setGlobalPrefix('v1');
   app.useGlobalFilters(new DomainExceptionFilter());
+  applyTrustedCallers(app, options.trustedCallers ?? 'loopback');
   await app.init();
 
   const pool = app.get<Pool>(PG_POOL);
