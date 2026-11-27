@@ -1,7 +1,7 @@
-import { guardQuery as guard, pgErrorOf } from '@shared/list/guard-query.js';
+import { guardQuery as guard } from '@shared/list/guard-query.js';
 import { AuthPersistenceError } from '../../domain/errors/auth.errors.js';
 
-export { pgErrorOf };
+export { pgErrorOf } from '@shared/list/guard-query.js';
 
 /**
  * Runs a query and rethrows any failure as `AuthPersistenceError`: Drizzle's
