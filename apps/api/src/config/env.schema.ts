@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { parseTrustedCallers } from '../shared/http/trusted-callers.js';
 
 const duration = z
   .string()
@@ -15,6 +16,18 @@ export const envSchema = z
     PORT: z.coerce.number().int().positive().default(3333),
     CORS_ORIGIN: z.string().min(1).default('http://localhost:3000'),
     WEB_APP_URL: z.url().default('http://localhost:3000'),
+    /** Callers allowed to state the client address (SPEC-0009 R5): loopback, IPs or CIDRs. */
+    TRUSTED_CALLERS: z
+      .string()
+      .default('loopback')
+      .refine((value) => {
+        try {
+          parseTrustedCallers(value);
+          return true;
+        } catch {
+          return false;
+        }
+      }, 'TRUSTED_CALLERS accepts loopback, IP addresses and CIDRs, comma-separated'),
 
     DATABASE_URL: z.string().min(1),
     DATABASE_POOL_MAX: z.coerce.number().int().positive().default(10),

@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 
 import { Logger, VersioningType } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import {
   DocumentBuilder,
@@ -13,6 +14,7 @@ import helmet from 'helmet';
 import { AppModule, ObserveInstrument } from './app.module.js';
 import { DomainExceptionFilter } from './shared/http/domain-exception.filter.js';
 import { TraceInterceptor } from './shared/http/trace-interceptor.js';
+import { applyTrustedCallers } from './shared/http/trusted-callers.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -23,9 +25,12 @@ async function bootstrap() {
   app.use(helmet());
   app.enableShutdownHooks();
 
-  // X-Forwarded-For carrega o endereço do cliente amplify
-  // e o throttling só é útil se o endereço for confiável
-  app.getHttpAdapter().getInstance().set('trust proxy', 1);
+  // SPEC-0009 R5: only the web app (TRUSTED_CALLERS) may state the client
+  // address; the throttler and the stored addresses read it from request.ip.
+  applyTrustedCallers(
+    app,
+    app.get(ConfigService).getOrThrow<string>('TRUSTED_CALLERS'),
+  );
 
   app.setGlobalPrefix('/api');
 
