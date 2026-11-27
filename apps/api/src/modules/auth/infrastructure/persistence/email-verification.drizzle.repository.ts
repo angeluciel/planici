@@ -7,6 +7,7 @@ import type {
   EmailVerification,
   EmailVerificationRepository,
 } from '../../ports/repositories/email-verification.repository.js';
+import { guardQuery } from './guard-query.js';
 
 @Injectable()
 export class DrizzleEmailVerificationRepository implements EmailVerificationRepository {
@@ -18,65 +19,75 @@ export class DrizzleEmailVerificationRepository implements EmailVerificationRepo
     expiresAt: Date,
     requestIp: string | null,
   ): Promise<void> {
-    await this.db.transaction(async (tx) => {
-      // only one code per addr
-      await tx
-        .update(emailVerifications)
-        .set({ consumedAt: new Date() })
+    return guardQuery(async () => {
+      await this.db.transaction(async (tx) => {
+        // only one code per addr
+        await tx
+          .update(emailVerifications)
+          .set({ consumedAt: new Date() })
+          .where(
+            and(
+              eq(emailVerifications.email, email),
+              isNull(emailVerifications.consumedAt),
+            ),
+          );
+
+        await tx
+          .insert(emailVerifications)
+          .values({ email, codeHash, expiresAt, requestIp });
+      });
+    });
+  }
+
+  async findActive(email: string): Promise<EmailVerification | null> {
+    return guardQuery(async () => {
+      const [row] = await this.db
+        .select()
+        .from(emailVerifications)
         .where(
           and(
             eq(emailVerifications.email, email),
             isNull(emailVerifications.consumedAt),
           ),
-        );
+        )
+        .orderBy(desc(emailVerifications.createdAt))
+        .limit(1);
 
-      await tx
-        .insert(emailVerifications)
-        .values({ email, codeHash, expiresAt, requestIp });
+      return row ?? null;
     });
   }
 
-  async findActive(email: string): Promise<EmailVerification | null> {
-    const [row] = await this.db
-      .select()
-      .from(emailVerifications)
-      .where(
-        and(
-          eq(emailVerifications.email, email),
-          isNull(emailVerifications.consumedAt),
-        ),
-      )
-      .orderBy(desc(emailVerifications.createdAt))
-      .limit(1);
-
-    return row ?? null;
-  }
-
   async findLatest(email: string): Promise<EmailVerification | null> {
-    const [row] = await this.db
-      .select()
-      .from(emailVerifications)
-      .where(eq(emailVerifications.email, email))
-      .orderBy(desc(emailVerifications.createdAt))
-      .limit(1);
+    return guardQuery(async () => {
+      const [row] = await this.db
+        .select()
+        .from(emailVerifications)
+        .where(eq(emailVerifications.email, email))
+        .orderBy(desc(emailVerifications.createdAt))
+        .limit(1);
 
-    return row ?? null;
+      return row ?? null;
+    });
   }
 
   async incrementAttempts(id: string): Promise<number> {
-    const [row] = await this.db
-      .update(emailVerifications)
-      .set({ attempts: sql`${emailVerifications.attempts}+1` })
-      .where(eq(emailVerifications.id, id))
-      .returning({ attempts: emailVerifications.attempts });
+    return guardQuery(async () => {
+      const [row] = await this.db
+        .update(emailVerifications)
+        .set({ attempts: sql`${emailVerifications.attempts}+1` })
+        .where(eq(emailVerifications.id, id))
+        .returning({ attempts: emailVerifications.attempts });
 
-    return row?.attempts ?? 0;
+      return row?.attempts ?? 0;
+    });
   }
 
   async consume(id: string): Promise<void> {
-    await this.db
-      .update(emailVerifications)
-      .set({ consumedAt: new Date() })
-      .where(eq(emailVerifications.id, id));
+    return guardQuery(async () => {
+      await this.db
+        .update(emailVerifications)
+        .set({ consumedAt: new Date() })
+        .where(eq(emailVerifications.id, id));
+    });
   }
 }

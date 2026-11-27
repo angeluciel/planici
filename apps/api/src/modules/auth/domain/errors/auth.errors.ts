@@ -13,6 +13,24 @@ export class SlugTakenError extends DomainError {
   readonly field = 'slug';
 }
 
+/**
+ * Any failure of an auth query other than a taken e-mail or slug on register,
+ * such as a Google account already linked to another user. Drizzle's own error
+ * message holds the query parameters (e-mails, names, code, token and password
+ * hashes, IPs), so the repositories replace it with this one: a fixed message,
+ * the Postgres error code and the constraint name, no `cause`. Not a
+ * DomainError: it is a 500.
+ */
+export class AuthPersistenceError extends Error {
+  constructor(
+    readonly pgCode: string,
+    readonly constraint: string,
+  ) {
+    super(`auth persistence error (pg ${pgCode})`);
+    this.name = 'AuthPersistenceError';
+  }
+}
+
 export class InvalidCredentialsError extends DomainError {
   readonly code = 'credentials.invalid';
   readonly status = HttpStatus.UNAUTHORIZED;

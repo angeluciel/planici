@@ -7,6 +7,7 @@ import type {
   PasswordResetRepository,
   PasswordResetToken,
 } from '../../ports/repositories/password-reset.repository.js';
+import { guardQuery } from './guard-query.js';
 
 @Injectable()
 export class DrizzlePasswordResetRepository implements PasswordResetRepository {
@@ -18,43 +19,49 @@ export class DrizzlePasswordResetRepository implements PasswordResetRepository {
     expiresAt: Date,
     requestIp: string | null,
   ): Promise<void> {
-    await this.db.transaction(async (tx) => {
-      // Requesting a new link invalidates the old one
-      await tx
-        .update(passwordResetTokens)
-        .set({ consumedAt: new Date() })
-        .where(
-          and(
-            eq(passwordResetTokens.userId, userId),
-            isNull(passwordResetTokens.consumedAt),
-          ),
-        );
+    return guardQuery(async () => {
+      await this.db.transaction(async (tx) => {
+        // Requesting a new link invalidates the old one
+        await tx
+          .update(passwordResetTokens)
+          .set({ consumedAt: new Date() })
+          .where(
+            and(
+              eq(passwordResetTokens.userId, userId),
+              isNull(passwordResetTokens.consumedAt),
+            ),
+          );
 
-      await tx
-        .insert(passwordResetTokens)
-        .values({ userId, tokenHash, expiresAt, requestIp });
+        await tx
+          .insert(passwordResetTokens)
+          .values({ userId, tokenHash, expiresAt, requestIp });
+      });
     });
   }
 
   async findByTokenHash(tokenHash: string): Promise<PasswordResetToken | null> {
-    const [row] = await this.db
-      .select({
-        id: passwordResetTokens.id,
-        userId: passwordResetTokens.userId,
-        expiresAt: passwordResetTokens.expiresAt,
-        consumedAt: passwordResetTokens.consumedAt,
-      })
-      .from(passwordResetTokens)
-      .where(eq(passwordResetTokens.tokenHash, tokenHash))
-      .limit(1);
+    return guardQuery(async () => {
+      const [row] = await this.db
+        .select({
+          id: passwordResetTokens.id,
+          userId: passwordResetTokens.userId,
+          expiresAt: passwordResetTokens.expiresAt,
+          consumedAt: passwordResetTokens.consumedAt,
+        })
+        .from(passwordResetTokens)
+        .where(eq(passwordResetTokens.tokenHash, tokenHash))
+        .limit(1);
 
-    return row ?? null;
+      return row ?? null;
+    });
   }
 
   async consume(id: string): Promise<void> {
-    await this.db
-      .update(passwordResetTokens)
-      .set({ consumedAt: new Date() })
-      .where(eq(passwordResetTokens.id, id));
+    return guardQuery(async () => {
+      await this.db
+        .update(passwordResetTokens)
+        .set({ consumedAt: new Date() })
+        .where(eq(passwordResetTokens.id, id));
+    });
   }
 }

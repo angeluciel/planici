@@ -9,6 +9,7 @@ import type {
   StoredRefreshToken,
 } from '../../ports/repositories/refresh-token.repository.js';
 import { refreshTokens } from '@src/database/schema/index.js';
+import { guardQuery } from './guard-query.js';
 
 @Injectable()
 export class DrizzleRefreshTokenRepository implements RefreshTokenRepository {
@@ -21,62 +22,75 @@ export class DrizzleRefreshTokenRepository implements RefreshTokenRepository {
     expiresAt: Date,
     context: RefreshTokenContext,
   ): Promise<void> {
-    await this.db.insert(refreshTokens).values({
-      userId,
-      tokenHash,
-      familyId,
-      expiresAt,
-      ip: context.ip,
-      userAgent: context.userAgent,
+    return guardQuery(async () => {
+      await this.db.insert(refreshTokens).values({
+        userId,
+        tokenHash,
+        familyId,
+        expiresAt,
+        ip: context.ip,
+        userAgent: context.userAgent,
+      });
     });
   }
 
   async findByTokenHash(tokenHash: string): Promise<StoredRefreshToken | null> {
-    const [row] = await this.db
-      .select({
-        id: refreshTokens.id,
-        userId: refreshTokens.userId,
-        familyId: refreshTokens.familyId,
-        expiresAt: refreshTokens.expiresAt,
-        revokedAt: refreshTokens.revokedAt,
-      })
-      .from(refreshTokens)
-      .where(eq(refreshTokens.tokenHash, tokenHash))
-      .limit(1);
+    return guardQuery(async () => {
+      const [row] = await this.db
+        .select({
+          id: refreshTokens.id,
+          userId: refreshTokens.userId,
+          familyId: refreshTokens.familyId,
+          expiresAt: refreshTokens.expiresAt,
+          revokedAt: refreshTokens.revokedAt,
+        })
+        .from(refreshTokens)
+        .where(eq(refreshTokens.tokenHash, tokenHash))
+        .limit(1);
 
-    return row ?? null;
+      return row ?? null;
+    });
   }
 
   async revoke(id: string, reason: RevokeReason): Promise<boolean> {
-    const rows = await this.db
-      .update(refreshTokens)
-      .set({ revokedAt: new Date(), revokedReason: reason })
-      .where(and(eq(refreshTokens.id, id), isNull(refreshTokens.revokedAt)))
-      .returning({
-        id: refreshTokens.id,
-      });
+    return guardQuery(async () => {
+      const rows = await this.db
+        .update(refreshTokens)
+        .set({ revokedAt: new Date(), revokedReason: reason })
+        .where(and(eq(refreshTokens.id, id), isNull(refreshTokens.revokedAt)))
+        .returning({
+          id: refreshTokens.id,
+        });
 
-    return rows.length === 1;
+      return rows.length === 1;
+    });
   }
 
   async revokeFamily(familyId: string, reason: RevokeReason): Promise<void> {
-    await this.db
-      .update(refreshTokens)
-      .set({ revokedAt: new Date(), revokedReason: reason })
-      .where(
-        and(
-          eq(refreshTokens.familyId, familyId),
-          isNull(refreshTokens.revokedAt),
-        ),
-      );
+    return guardQuery(async () => {
+      await this.db
+        .update(refreshTokens)
+        .set({ revokedAt: new Date(), revokedReason: reason })
+        .where(
+          and(
+            eq(refreshTokens.familyId, familyId),
+            isNull(refreshTokens.revokedAt),
+          ),
+        );
+    });
   }
 
   async revokeAllForUser(userId: string, reason: RevokeReason): Promise<void> {
-    await this.db
-      .update(refreshTokens)
-      .set({ revokedAt: new Date(), revokedReason: reason })
-      .where(
-        and(eq(refreshTokens.userId, userId), isNull(refreshTokens.revokedAt)),
-      );
+    return guardQuery(async () => {
+      await this.db
+        .update(refreshTokens)
+        .set({ revokedAt: new Date(), revokedReason: reason })
+        .where(
+          and(
+            eq(refreshTokens.userId, userId),
+            isNull(refreshTokens.revokedAt),
+          ),
+        );
+    });
   }
 }
