@@ -62,6 +62,8 @@ type SeededTenant = {
   /** The active template's fields as an unchanged preview or update sends them. */
   formFields: FieldInput[];
   archivedForm: string;
+  /** The archived template's fields, for a preview of a change to it. */
+  archivedFormFields: FieldInput[];
   client: ClientResponse;
   inactiveClient: string;
   service: ServiceResponse;
@@ -116,11 +118,15 @@ async function seedTenant(session: Session): Promise<SeededTenant> {
   });
 
   const formRead = await formsApi(ctx.app, session).read(form.id).expect(200);
+  const archivedFormRead = await formsApi(ctx.app, session)
+    .read(archivedForm.id)
+    .expect(200);
 
   return {
     form: form.id,
     formFields: inputsFrom(formRead.body.fields),
     archivedForm: archivedForm.id,
+    archivedFormFields: inputsFrom(archivedFormRead.body.fields),
     // read as the tenant's own member: the ids work with the right tenant
     client: await readClient(ctx, session, client.id),
     inactiveClient: inactiveClient.id,
@@ -171,6 +177,12 @@ type Call = {
   route: string;
   error: string;
   call: (api: Api) => Test;
+  /**
+   * A read of the call's target that answers 200 with tenant A active, so the
+   * 404 with tenant B active comes from the active tenant, not from a target
+   * the API cannot find at all. Defaults to the call itself (for reads).
+   */
+  probe?: (api: Api) => Test;
 };
 
 const READS: Call[] = [
@@ -181,17 +193,33 @@ const READS: Call[] = [
     call: (api) => api.forms.read(a.form),
   },
   {
-    ac: 'AC-0001-40',
-    route: 'GET /v1/forms/:id/versions/1',
+    ac: 'RN-02',
+    route: 'GET /v1/forms/:id/versions/1 (active template)',
     error: 'form.not-found',
     call: (api) => api.forms.version(a.form, 1),
   },
   {
-    ac: 'AC-0001-40',
-    route: 'POST /v1/forms/:id/preview',
+    ac: 'RN-02',
+    route: 'POST /v1/forms/:id/preview (active template)',
     error: 'form.not-found',
     call: (api) =>
       api.forms.preview(a.form, { revision: 1, fields: a.formFields }),
+  },
+  {
+    ac: 'AC-0001-40',
+    route: 'GET /v1/forms/:id/versions/1 (archived template)',
+    error: 'form.not-found',
+    call: (api) => api.forms.version(a.archivedForm, 1),
+  },
+  {
+    ac: 'AC-0001-40',
+    route: 'POST /v1/forms/:id/preview (archived template)',
+    error: 'form.not-found',
+    call: (api) =>
+      api.forms.preview(a.archivedForm, {
+        revision: 1,
+        fields: a.archivedFormFields,
+      }),
   },
   {
     ac: 'AC-0003-22',
@@ -213,24 +241,28 @@ const MUTATIONS: Call[] = [
     route: 'PATCH /v1/forms/:id',
     error: 'form.not-found',
     call: (api) => api.forms.update(a.form, { revision: 1, name: 'Hijacked' }),
+    probe: (api) => api.forms.read(a.form),
   },
   {
     ac: 'AC-0001-15',
     route: 'POST /v1/forms/:id/archive',
     error: 'form.not-found',
     call: (api) => api.forms.archive(a.form),
+    probe: (api) => api.forms.read(a.form),
   },
   {
     ac: 'AC-0001-40',
     route: 'POST /v1/forms/:id/unarchive',
     error: 'form.not-found',
     call: (api) => api.forms.unarchive(a.archivedForm),
+    probe: (api) => api.forms.read(a.archivedForm),
   },
   {
     ac: 'AC-0001-15',
     route: 'POST /v1/forms/:id/delete',
     error: 'form.not-found',
     call: (api) => api.forms.remove(a.form, { confirmName: 'Ficha' }),
+    probe: (api) => api.forms.read(a.form),
   },
   {
     ac: 'AC-0003-63',
@@ -241,18 +273,21 @@ const MUTATIONS: Call[] = [
         a.client.id,
         updateBody(a.client, { name: 'Hijacked' }),
       ),
+    probe: (api) => api.clients.read(a.client.id),
   },
   {
     ac: 'AC-0004-16',
     route: 'POST /v1/clients/:id/inactivate',
     error: 'client.not-found',
     call: (api) => api.clients.inactivate(a.client.id),
+    probe: (api) => api.clients.read(a.client.id),
   },
   {
     ac: 'AC-0004-16',
     route: 'POST /v1/clients/:id/reactivate',
     error: 'client.not-found',
     call: (api) => api.clients.reactivate(a.inactiveClient),
+    probe: (api) => api.clients.read(a.inactiveClient),
   },
   {
     ac: 'AC-0004-16',
@@ -260,6 +295,7 @@ const MUTATIONS: Call[] = [
     error: 'client.not-found',
     call: (api) =>
       api.clients.remove(a.client.id, { confirmName: 'Ana Souza' }),
+    probe: (api) => api.clients.read(a.client.id),
   },
   {
     ac: 'AC-0005-16',
@@ -270,18 +306,21 @@ const MUTATIONS: Call[] = [
         a.service.id,
         serviceUpdateBody(a.service, { name: 'Hijacked' }),
       ),
+    probe: (api) => api.services.read(a.service.id),
   },
   {
     ac: 'AC-0005-16',
     route: 'POST /v1/services/:id/inactivate',
     error: 'service.not-found',
     call: (api) => api.services.inactivate(a.service.id),
+    probe: (api) => api.services.read(a.service.id),
   },
   {
     ac: 'AC-0005-16',
     route: 'POST /v1/services/:id/reactivate',
     error: 'service.not-found',
     call: (api) => api.services.reactivate(a.inactiveService),
+    probe: (api) => api.services.read(a.inactiveService),
   },
   {
     ac: 'AC-0005-16',
@@ -289,32 +328,27 @@ const MUTATIONS: Call[] = [
     error: 'service.not-found',
     call: (api) =>
       api.services.remove(a.service.id, { confirmName: 'Pilates' }),
+    probe: (api) => api.services.read(a.service.id),
   },
 ];
 
 describe('one user who is a member of two tenants (RN-02)', () => {
-  it('reads every tenant A row with tenant A active, so the 404s below come from the active tenant', async () => {
-    const api = as(ana);
-
-    for (const { route, call } of READS) {
-      const response = await call(api);
-      expect({ route, status: response.status }).toEqual({
-        route,
-        status: 200,
-      });
-    }
-  });
-
-  for (const { ac, route, error, call } of READS) {
+  // each case first reaches its target with tenant A active (200), so its 404
+  // with tenant B active comes from the active tenant, not from a bad id
+  for (const { ac, route, error, call, probe = call } of READS) {
     it(`${ac} answers 404 ${error} to ${route} on tenant A's id with tenant B active`, async () => {
+      await probe(as(ana)).expect(200);
+
       const response = await call(as(anaInB)).expect(404);
 
       expect(response.body).toEqual({ error });
     });
   }
 
-  for (const { ac, route, error, call } of MUTATIONS) {
+  for (const { ac, route, error, call, probe } of MUTATIONS) {
     it(`${ac} answers 404 ${error} to ${route} on tenant A's id with tenant B active and leaves tenant A unchanged`, async () => {
+      if (!probe) throw new Error(`${route} needs a probe read of its target`);
+      await probe(as(ana)).expect(200);
       const before = await snapshot(a);
 
       const response = await call(as(anaInB)).expect(404);
